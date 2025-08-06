@@ -1,0 +1,589 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="shortcut icon" href="{% static 'icon.png' %}" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="{% static 'css/flowbite.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+</head>
+<style>
+    .gradient-text {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    .bg-gradient-header {
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+    }
+
+    .bg-gradient-card {
+      background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 100%);
+    }
+
+    .bg-gradient-button {
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      transition: all 0.3s ease;
+    }
+
+    .bg-gradient-button:hover {
+      background: linear-gradient(135deg, #db2777 0%, #7c3aed 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3);
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      border: 2px solid #e5e7eb;
+      background: linear-gradient(135deg, #fefefe 0%, #fdf2f8 100%);
+      transition: all 0.3s ease;
+      font-size: 0.875rem;
+    }
+
+    .input-field:focus {
+      outline: none;
+      border-color: #ec4899;
+      box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+      background: #ffffff;
+    }
+
+    .table-row:hover {
+      background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 100%);
+      transform: scale(1.01);
+      transition: all 0.2s ease;
+    }
+
+    [data-modal-backdrop] {
+      background: rgba(0, 0, 0, 0.5) !important;
+      backdrop-filter: blur(4px) !important;
+    }
+
+    .modal-transition {
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .action-button {
+      transition: all 0.2s ease;
+    }
+
+    .action-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-shadow {
+      box-shadow: 0 10px 30px rgba(236, 72, 153, 0.1);
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.375rem;
+      font-weight: 600;
+      color: #374151;
+      font-size: 0.875rem;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      .container {
+        width: 95% !important;
+        padding: 0 8px;
+      }
+
+      .mobile-card {
+        background: white;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        border-left: 4px solid #ec4899;
+      }
+      .mobile-modal-content {
+        width: 95%;
+        padding: 0.5rem;
+      }
+
+      .mobile-card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 8px;
+      }
+
+      .mobile-card-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 0;
+        border-bottom: 1px solid #f3f4f6;
+      }
+
+      .mobile-card-row:last-child {
+        border-bottom: none;
+      }
+
+      .mobile-card-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #6b7280;
+      }
+
+      .mobile-card-value {
+        font-size: 0.875rem;
+        color: #1f2937;
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+      }
+
+      .mobile-search {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .mobile-search .flex {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .mobile-search select,
+      .mobile-search input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #e5e7eb;
+        border-radius: 6px;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+
+      .mobile-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+      }
+
+      .mobile-header-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .mobile-header-buttons a,
+      .mobile-header-buttons button {
+        flex: 1;
+        min-width: 120px;
+        text-align: center;
+        padding: 10px 16px;
+        font-size: 0.875rem;
+      }
+
+      .mobile-modal {
+        margin: 0;
+        height: 100vh;
+        max-height: 100vh;
+        border-radius: 0;
+      }
+
+      .mobile-modal .relative {
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .mobile-modal-content {
+        height: 100%;
+        border-radius: 0;
+      }
+
+      .mobile-modal-header {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: white;
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      .mobile-modal-body {
+        padding: 16px;
+        padding-bottom: 100px; /* Space for fixed footer */
+      }
+
+      .mobile-modal-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 2px solid #e5e7eb;
+        padding: 16px;
+        display: flex;
+        gap: 12px;
+      }
+
+      .mobile-modal-footer button {
+        flex: 1;
+        padding: 12px;
+        font-size: 1rem;
+      }
+
+      .mobile-form-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+
+      /* Hide desktop table on mobile */
+      .desktop-table {
+        display: none;
+      }
+
+      /* Show mobile cards only on mobile */
+      .mobile-cards {
+        display: block;
+      }
+    }
+
+    /* Desktop styles */
+    @media (min-width: 769px) {
+      .desktop-table {
+        display: block;
+      }
+
+      .mobile-cards {
+        display: none;
+      }
+
+      .mobile-search {
+        flex-direction: row;
+        align-items: center;
+        padding: 16px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 0;
+        box-shadow: none;
+      }
+    }
+  </style>
+<body class="bg-gray-50">
+    <nav class="bg-gradient-header shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center space-x-2">
+              <a href="#" class="text-white font-extrabold text-lg sm:text-xl">Staff Dashboard</a>
+            </div>
+            <a
+                href="{% url 'app:logout' %}"
+                class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300 backdrop-blur-sm"
+                >
+                <span class="hidden sm:inline">Logout</span>
+              <span class="sm:hidden">
+              <img src="{% static 'power-off-svgrepo-com.svg' %}" alt="" style="width: 20px; height: 20px;">
+
+
+          </span>
+            </a>
+          </div>
+        </div>
+      </nav>
+    <div class="container w-[95%] sm:w-[90%] mx-auto px-2 sm:px-4 py-4 sm:py-6">
+
+        <!-- Header -->
+        <div class="mb-6 sm:mb-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mobile-header">
+                <div class="mb-4 sm:mb-0">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Student Management</h1>
+                    <p class="text-gray-600 mt-1 text-sm sm:text-base">Manage your student records</p>
+                </div>
+                <div class="mobile-header-buttons">
+                <a href="{% url 'staff:staff_dashboard' %}" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 sm:px-5 py-2.5 focus:outline-none">Back</a>
+                {%if permission.student_permission%}
+                <button id="openModalBtn" data-modal-target="studentModal" data-modal-toggle="studentModal"
+                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 sm:px-5 py-2.5 focus:outline-none">
+                <svg class="w-4 h-4 mr-2 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                </svg>
+                Add Student
+            </button>
+          {%endif%}
+          </div>
+            </div>
+        </div>
+
+        <!-- Search Form -->
+        <form method="post" action="{% url 'app:search_student' %}" class="mobile-search">
+            {% csrf_token %}
+            <input type="hidden" name="redirect" value="s">
+            <div class="flex flex-col sm:flex-row items-center gap-3 sm:gap-4 w-full">
+                <!-- Dropdown -->
+                <select name="search_by" class="border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
+                  <option value="name">Name</option>
+                  <option value="phone">Phone</option>
+                  <option value="email">Email</option>
+                  <option value="registration_no">Registration Number</option>
+                </select>
+
+                <!-- Text input -->
+                <input type="text" name="search" placeholder="Search..." class="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full" />
+
+                <!-- Submit button with icon -->
+                <button type="submit" class="text-white bg-blue-600 hover:bg-blue-700 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto">
+                  <!-- Search icon (inline SVG) -->
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z" />
+                  </svg>
+                </button>
+            </div>
+        </form>
+
+        <!-- Students Table - Desktop -->
+        <div class="bg-white shadow-md rounded-lg overflow-hidden desktop-table">
+            <div class="px-6 py-4 border-b border-gray-200">
+                <h2 class="text-xl font-semibold text-gray-800">Students List</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-left text-gray-500">
+                    <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3">Name</th>
+                            <th scope="col" class="px-6 py-3">Registration No</th>
+                            <th scope="col" class="px-6 py-3">Course</th>
+                            <th scope="col" class="px-6 py-3">Faculty</th>
+                            <th scope="col" class="px-6 py-3">Duration</th>
+                            <th scope="col" class="px-6 py-3">Fee</th>
+                            <th scope="col" class="px-6 py-3">Phone</th>
+                            {%if permission%}
+                            <th scope="col" class="px-6 py-3">Actions</th>
+                            {%endif%}
+                        </tr>
+                    </thead>
+                    <tbody id="students-table-body">
+                        {%if students%}
+                        {%for student in students%}
+                        <tr class="table-row">
+                            <td class="px-6 py-4 font-medium text-gray-900">{{student.name}}</td>
+                            <td class="px-6 py-4">{{student.registration_no | default_if_none:""}}</td>
+                            <td class="px-6 py-4">{{student.course_name | default_if_none:""}}</td>
+                            <td class="px-6 py-4">{{student.faculty_name | default_if_none:""}}</td>
+                            <td class="px-6 py-4">{{student.duration | default_if_none:""}}</td>
+                            <td class="px-6 py-4">₹{{student.total_fee | default_if_none:""}}</td>
+                            <td class="px-6 py-4">{{student.phone | default_if_none:""}}</td>
+                            <td class="px-6 py-4">
+                              {%if permission%}
+                                <a href="{% url 'staff:single_student' student.id %}" class="text-blue-600 hover:text-blue-900 mr-2">Select</a>
+                              {%endif%}
+                            </td>
+                        </tr>
+                        {%endfor%}
+                        {%else%}
+                        <tr>
+                            <td colspan="8" class="text-center py-4">No students found</td>
+                        </tr>
+                        {%endif%}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Students Cards - Mobile -->
+        <div class="mobile-cards">
+            <div class="mb-4">
+                <h2 class="text-xl font-semibold text-gray-800">Students List</h2>
+            </div>
+            {%if students%}
+            {%for student in students%}
+            <div class="mobile-card">
+                <h3>{{student.name}}</h3>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Registration No:</span>
+                    <span class="mobile-card-value">{{student.registration_no | default_if_none:"N/A"}}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Course:</span>
+                    <span class="mobile-card-value">{{student.course_name | default_if_none:"N/A"}}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Faculty:</span>
+                    <span class="mobile-card-value">{{student.faculty_name | default_if_none:"N/A"}}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Duration:</span>
+                    <span class="mobile-card-value">{{student.duration | default_if_none:"N/A"}}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Fee:</span>
+                    <span class="mobile-card-value">₹{{student.total_fee | default_if_none:"N/A"}}</span>
+                </div>
+                <div class="mobile-card-row">
+                    <span class="mobile-card-label">Phone:</span>
+                    <span class="mobile-card-value">{{student.phone | default_if_none:"N/A"}}</span>
+                </div>
+                {%if permission%}
+                <div class="mt-3 pt-3 border-t border-gray-200
+                    <a href="{% url 'staff:single_student' student.id %}" class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors">
+                        Select Student
+                    </a>
+                </div>
+                {%endif%}
+            </div>
+            {%endfor%}
+            {%else%}
+            <div class="mobile-card text-center">
+                <span class="text-gray-500">No students found</span>
+            </div>
+            {%endif%}
+        </div>
+    </div>
+
+
+    <!-- Add Student Modal -->
+    <div id="studentModal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative p-4 w-full max-w-4xl max-h-full">
+            <!-- Modal content -->
+            <div class="relative bg-white rounded-lg shadow">
+                <!-- Modal header -->
+                <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t bg-gradient-card">
+                    <h3 class="text-xl font-semibold text-gray-900">
+                        Add New Student
+                    </h3>
+                    <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center" data-modal-hide="studentModal">
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                        </svg>
+                        <span class="sr-only">Close modal</span>
+                    </button>
+                </div>
+                <!-- Modal body -->
+                <div class="p-4 md:p-5">
+                    <form action="{% url 'app:add_student' %}" method="post" id="studentForm">
+                        {% csrf_token %}
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            <input type="hidden" name="redirect" value="s">
+
+                            <!-- Student Name -->
+                            <div class="sm:col-span-2 lg:col-span-1">
+                                <label for="studentName" class="block mb-2 text-sm font-medium text-gray-900">Student Name <span class="text-red-500">*</span></label>
+                                <input type="text" name="name" id="studentName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter full name" required>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div>
+                                <label for="studentPhone" class="block mb-2 text-sm font-medium text-gray-900">Phone Number <span class="text-red-500">*</span></label>
+                                <input type="tel" name="phone" id="studentPhone" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter phone number" required>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label for="studentEmail" class="block mb-2 text-sm font-medium text-gray-900">Email Address <span class="text-red-500">*</span></label>
+                                <input type="email" name="email" id="studentEmail" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter email address" required>
+                            </div>
+
+                            <!-- Course Name -->
+                            <div class="sm:col-span-2 lg:col-span-1">
+                                <label for="studentCourseName" class="block mb-2 text-sm font-medium text-gray-900">Course Name <span class="text-red-500">*</span></label>
+                                <select id="studentCourseName" name="course_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                    <option value="">Select Course</option>
+                                    {% for course in courses %}
+                                    <option value="{{course.course_name}}">{{course.course_name}}</option>
+                                    {% endfor %}
+
+                                </select>
+                            </div>
+
+                            <!-- Course Duration -->
+                            <div>
+                                <label for="studentDuration" class="block mb-2 text-sm font-medium text-gray-900">Course Duration <span class="text-red-500">*</span></label>
+                                <input type="text" name="duration" id="studentDuration" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="e.g., 6 months" required>
+                            </div>
+
+                            <!-- Total Fee -->
+                            <div>
+                                <label for="studentTotalFee" class="block mb-2 text-sm font-medium text-gray-900">Total Fee <span class="text-red-500">*</span></label>
+                                <input type="number" name="total_fee" id="studentTotalFee" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter total fee" required>
+                            </div>
+
+                            <!-- Join Date -->
+                            <div>
+                                <label for="studentDate" class="block mb-2 text-sm font-medium text-gray-900">Join Date <span class="text-red-500">*</span></label>
+                                <input type="date" name="date" id="studentDate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div>
+                                <label for="studentDate" class="block mb-2 text-sm font-medium text-gray-900">Join Date <span class="text-red-500">*</span></label>
+                                <input type="date" name="dob" id="studentDate" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                            </div>
+
+                            <!-- Faculty Name -->
+                            <div>
+                                <label for="studentFacultyName" class="block mb-2 text-sm font-medium text-gray-900">Faculty Name <span class="text-red-500">*</span></label>
+                                <select id="studentFacultyName" name="faculty_name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                    <option value="">Select Faculty</option>
+                                    {% for i in faculty %}
+                                        <option value="{{ i.id }}">{{ i.username }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Pincode -->
+                            <div>
+                                <label for="studentPincode" class="block mb-2 text-sm font-medium text-gray-900">Pincode <span class="text-red-500">*</span></label>
+                                <input type="number" name="pincode" id="studentPincode" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter pincode" required>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="sm:col-span-2 lg:col-span-3">
+                                <label for="studentAddress" class="block mb-2 text-sm font-medium text-gray-900">Address <span class="text-red-500">*</span></label>
+                                <textarea id="studentAddress" name="address" rows="3" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500" placeholder="Enter complete address" required></textarea>
+                            </div>
+
+                            <!-- Qualification -->
+                            <div>
+                                <label for="studentQualification" class="block mb-2 text-sm font-medium text-gray-900">Qualification <span class="text-red-500">*</span></label>
+                                <input type="text" name="qualification" id="studentQualification" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Enter qualification" required>
+                            </div>
+
+                            <!-- Marital Status -->
+                            <div>
+                                <label for="studentMaritalStatus" class="block mb-2 text-sm font-medium text-gray-900">Marital Status <span class="text-red-500">*</span></label>
+                                <select id="studentMaritalStatus" name="marital_status" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" required>
+                                    <option value="">Select Marital Status</option>
+                                    <option value="Single">Single</option>
+                                    <option value="Married">Married</option>
+                                </select>
+                            </div>
+
+                            <!-- Online Course Checkbox -->
+                            <div class="flex items-center space-x-3 pt-2">
+                                <input type="checkbox" name="online" id="studentOnline" class="w-5 h-5 text-purple-600 border-2 border-gray-300 rounded focus:ring-purple-500 focus:ring-2">
+                                <label for="studentOnline" class="text-sm font-medium text-gray-700 select-none">
+                                    Online Course
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- Modal footer -->
+                <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b">
+                    <button type="submit" form="studentForm" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">Add Student</button>
+                    <button data-modal-hide="studentModal" type="button" class="ms-3 text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/flowbite.min.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,473 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+<link rel="shortcut icon" href="{% static 'icon.png' %}" type="image/x-icon">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Alric Infotech - IT Training & Development Services</title>
+  
+    <!-- Tailwind CSS -->
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}"></link>
+
+    <!-- Flowbite CSS -->
+    <link
+      rel="stylesheet"
+      href="{% static 'css/flowbite.min.css' %}"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <style>
+      .gradient-text {
+        background: linear-gradient(90deg, #ec4899, #8b5cf6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .bg-gradient-header {
+        background: linear-gradient(90deg, #ec4899, #8b5cf6);
+      }
+      .bg-gradient-footer {
+        background: linear-gradient(90deg, #8b5cf6, #ec4899);
+      }
+    </style>
+  </head>
+  <body class="bg-white font-sans text-gray-800">
+    <!-- Alpine.js (include in <head>
+<link rel="shortcut icon" href="{% static 'icon.png' %}" type="image/x-icon"> or before this block) -->
+<script src="{% static 'js/cdn.min.js' %}" defer></script>
+
+<!-- Header Component -->
+<div x-data="{ mobileOpen: false, userMenuOpen: false }" class="relative">
+  <!-- Header -->
+  <header class="sticky top-0 z-50 bg-gradient-header shadow-lg">
+    <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+      <!-- Logo -->
+      <a href="/" class="flex items-center">
+        <img
+          src="{% static 'logo2.png' %}"
+          alt="Alric Infotech Logo"
+          class="h-12"
+        />
+      </a>
+
+      <!-- Desktop Nav -->
+      <div class="hidden md:flex justify-between items-center w-full ml-10">
+        <!-- Main Navigation Links -->
+        <div class="flex space-x-8">
+          <a href="#home" class="text-white hover:text-pink-200 transition-colors">Home</a>
+          <a href="#services" class="text-white hover:text-pink-200 transition-colors">Services</a>
+          <a href="#about" class="text-white hover:text-pink-200 transition-colors">About</a>
+          <a href="#training" class="text-white hover:text-pink-200 transition-colors">Training</a>
+          <a href="#contact" class="text-white hover:text-pink-200 transition-colors">Contact</a>
+        </div>
+
+        <!-- User Icon with Dropdown -->
+        <div class="relative ml-8" x-data="{ isOpen: false }">
+          <button
+            @click="isOpen = !isOpen"
+            class="text-white hover:text-pink-200 focus:outline-none transition-colors"
+            aria-label="User menu"
+            aria-expanded="false"
+            aria-haspopup="true"
+          >
+            <!-- User Icon -->
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+              />
+            </svg>
+          </button>
+
+          <!-- Dropdown Menu -->
+          <div
+            x-show="isOpen"
+            @click.away="isOpen = false"
+            x-transition
+            x-cloak
+            class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1"
+            role="menu"
+            aria-label="User dropdown"
+          >
+            <a href="{% url 'app:login' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-700">Login</a>
+            <a href="{% url 'app:register' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-pink-50 hover:text-pink-700">Register</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button
+        @click="mobileOpen = !mobileOpen"
+        id="mobile-menu-button"
+        class="md:hidden text-white text-2xl"
+        aria-controls="mobile-menu"
+        aria-expanded="false"
+      >
+        <i class="fas fa-bars"></i>
+      </button>
+    </nav>
+  </header>
+
+  <!-- Mobile Menu -->
+  <div
+    id="mobile-menu"
+    x-show="mobileOpen"
+    x-transition
+    x-cloak
+    class="md:hidden bg-purple-800 p-4 space-y-2"
+  >
+    <a href="#home" class="block text-white py-2">Home</a>
+    <a href="#services" class="block text-white py-2">Services</a>
+    <a href="#about" class="block text-white py-2">About</a>
+    <a href="#training" class="block text-white py-2">Training</a>
+    <a href="#contact" class="block text-white py-2">Contact</a>
+    <div class="border-t border-purple-600 pt-2">
+      <a href="{% url 'app:login' %}" class="block text-white py-2">Login</a>
+      <a href="{% url 'app:register' %}" class="block text-white py-2">Register</a>
+    </div>
+  </div>
+</div>
+
+
+    <!-- Main Content -->
+    <main>
+      <!-- Hero Section -->
+      <section id="home" class="bg-gradient-to-r from-pink-50 to-purple-50 py-20">
+        <div class="container mx-auto px-6">
+          <div class="flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+              <h1 class="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+                Transform Your Career with <span class="gradient-text">IT Excellence</span>
+              </h1>
+              <p class="text-lg text-gray-600 mb-8">
+                Industry-leading training and development solutions for individuals and enterprises
+              </p>
+              <div class="flex gap-4">
+                <a href="#training" class="bg-pink-600 text-white px-8 py-3 rounded-lg hover:bg-pink-700 transition">View Courses</a>
+                <a href="#contact" class="border-2 border-purple-600 text-purple-700 px-8 py-3 rounded-lg hover:bg-purple-50 transition">Contact Us</a>
+              </div>
+            </div>
+            <div class="md:w-1/2">
+              <img src="{% static 'logo.png' %}" alt="IT Training" class="w-full" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Services Section -->
+      <section id="services" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+          <h2 class="text-4xl font-bold text-center mb-16 text-gray-900">
+            Our <span class="gradient-text">Services</span>
+          </h2>
+
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Service Card 1 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+              <div class="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-laptop-code text-3xl text-pink-600"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2">Web Development</h3>
+              <p class="text-gray-600">Custom web solutions built with modern technologies</p>
+            </div>
+
+            <!-- Service Card 2 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+              <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-mobile-alt text-3xl text-purple-600"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2">Mobile Development</h3>
+              <p class="text-gray-600">Cross-platform mobile applications for iOS & Android</p>
+            </div>
+
+            <!-- Service Card 3 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+              <div class="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-cloud text-3xl text-pink-600"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2">Cloud Solutions</h3>
+              <p class="text-gray-600">AWS, Azure & Google Cloud implementation services</p>
+            </div>
+
+            <!-- Service Card 4 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+              <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-chart-line text-3xl text-purple-600"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2">IT Consulting</h3>
+              <p class="text-gray-600">Strategic technology planning and implementation</p>
+            </div>
+
+            <!-- Service Card 5 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+              <div class="w-16 h-16 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-users-cog text-3xl text-pink-600"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2">Staffing Solutions</h3>
+              <p class="text-gray-600">IT recruitment and workforce management</p>
+            </div>
+
+            <!-- Service Card 6 -->
+            <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+              <div class="w-16 h-16 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <i class="fas fa-graduation-cap text-3xl text-purple-600"></i>
+              </div>
+              <h3 class="text-xl font-bold mb-2">Corporate Training</h3>
+              <p class="text-gray-600">Customized employee upskilling programs</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About Section -->
+      <section id="about" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+          <div class="flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2">
+              <img src="{% static 'logo.png' %}" alt="About Us" class="w-1/2 rounded-lg shadow-xl" />
+            </div>
+            <div class="md:w-1/2">
+              <h2 class="text-4xl font-bold mb-6 text-gray-900">
+                About <span class="gradient-text">Alric Infotech</span>
+              </h2>
+              <p class="text-lg text-gray-600 mb-6">
+                Established in 2022, Alric Infotech is a premier IT services and training company committed to delivering cutting-edge technology solutions. Our team of industry experts brings over 15 years of experience in software development and IT education.
+              </p>
+              <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                  <div class="text-pink-600 text-2xl mb-2">
+                    <i class="fas fa-user-graduate"></i>
+                  </div>
+                  <h4 class="font-bold mb-1">30+ Trained</h4>
+                  <p class="text-sm text-gray-600">Professionals upskilled</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                  <div class="text-purple-600 text-2xl mb-2">
+                    <i class="fas fa-briefcase"></i>
+                  </div>
+                  <h4 class="font-bold mb-1">50+ Projects</h4>
+                  <p class="text-sm text-gray-600">Successfully delivered</p>
+                </div>
+              </div>
+              <a href="#contact" class="bg-purple-600 text-white px-6 py-3 rounded-lg hover:bg-purple-700 transition">Learn More</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Training Section -->
+      <section id="training" class="py-16 bg-white">
+        <div class="container mx-auto px-6">
+          <h2 class="text-4xl font-bold text-center mb-16 text-gray-900">
+            Popular <span class="gradient-text">Courses</span>
+          </h2>
+      
+          <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <!-- Course Card 1 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition">
+              <img src="{% static 'FSD.png' %}" alt="Full Stack Development" class="w-full h-80 object-cover rounded-t-xl" />
+              <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">Full Stack Development</h3>
+                <div class="flex justify-between items-center mb-4">
+                  <span class="text-pink-600 font-bold">₹25,000</span>
+                  <span class="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm">6 Weeks</span>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">React</span>
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">Node.js</span>
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">MongoDB</span>
+                </div>
+                <a href="#" class="text-purple-600 hover:text-purple-700 font-medium">View Details <i class="fas fa-arrow-right ml-2"></i></a>
+              </div>
+            </div>
+      
+            <!-- Course Card 2 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition">
+              <img src="{% static 'DSAI.png' %}" alt="Data Science" class="w-full h-80 object-cover rounded-t-xl" />
+              <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">Data Science & AI</h3>
+                <div class="flex justify-between items-center mb-4">
+                  <span class="text-pink-600 font-bold">₹35,000</span>
+                  <span class="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm">8 Weeks</span>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">Python</span>
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">TensorFlow</span>
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">Pandas</span>
+                </div>
+                <a href="#" class="text-purple-600 hover:text-purple-700 font-medium">View Details <i class="fas fa-arrow-right ml-2"></i></a>
+              </div>
+            </div>
+      
+            <!-- Course Card 3 -->
+            <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition">
+              <img src="{% static 'DA.png' %}" alt="Data Analytics" class="w-full h-80 object-cover rounded-t-xl" />
+              <div class="p-6">
+                <h3 class="text-xl font-bold mb-2">Data Analytics</h3>
+                <div class="flex justify-between items-center mb-4">
+                  <span class="text-pink-600 font-bold">₹30,000</span>
+                  <span class="bg-pink-100 text-pink-800 px-3 py-1 rounded-full text-sm">6 Weeks</span>
+                </div>
+                <div class="flex flex-wrap gap-2 mb-4">
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">SQL</span>
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">Power BI</span>
+                  <span class="bg-gray-100 px-2 py-1 rounded text-sm">Excel</span>
+                </div>
+                <a href="#" class="text-purple-600 hover:text-purple-700 font-medium">View Details <i class="fas fa-arrow-right ml-2"></i></a>
+              </div>
+            </div>
+          </div>
+      
+          {% comment %} <!-- View More Courses Button -->
+          <div class="text-center mt-12">
+            <a href="#" class="bg-gradient-to-r from-pink-600 to-purple-600 text-white px-8 py-3 rounded-lg hover:bg-gradient-to-r hover:from-pink-700 hover:to-purple-700 transition">View More Courses</a>
+          </div> {% endcomment %}
+        </div>
+      </section>
+
+      <!-- Contact Section -->
+      <section id="contact" class="py-16 bg-gray-50">
+        <div class="container mx-auto px-6">
+          <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8">
+            <h2 class="text-4xl font-bold text-center mb-8 text-gray-900">
+              Get In <span class="gradient-text">Touch</span>
+            </h2>
+
+            <form class="space-y-6" action="{% url 'app:get_in_touch' %}" method="POST">
+              {% csrf_token %}
+              <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                  <label class="block text-gray-700 mb-2">Full Name</label>
+                  <input
+                    type="text"
+                    name="name"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+                <div>
+                  <label class="block text-gray-700 mb-2">Phone Number</label>
+                  <input
+                    type="number"
+                    name="phone"
+                    required
+                    placeholder="+91 1234567890"
+                    class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-gray-700 mb-2">Message</label>
+                <textarea
+                  rows="4"
+                  name="message"
+                  class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500"
+                ></textarea>
+              </div>
+
+              <button
+                class="w-full bg-purple-600 text-white py-3 rounded-lg hover:bg-purple-700 transition"
+              >
+                Send Message
+              </button>
+            </form>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gradient-footer text-white py-12">
+      <div class="container mx-auto px-6">
+        <div class="grid md:grid-cols-4 gap-8">
+          <div class="mb-8">
+            <img src="{% static 'logo2.png' %}" alt="Logo" class="h-12 mb-4" />
+            <p class="text-sm">
+              Empowering businesses through innovative technology solutions
+            </p>
+          </div>
+
+          <div>
+            <h4 class="text-lg font-bold mb-4">Quick Links</h4>
+            <ul class="space-y-2">
+              <li>
+                <a href="#home" class="hover:text-pink-200 transition">Home</a>
+              </li>
+              <li>
+                <a href="#services" class="hover:text-pink-200 transition">Services</a>
+              </li>
+              <li>
+                <a href="#about" class="hover:text-pink-200 transition">About</a>
+              </li>
+              <li>
+                <a href="#training" class="hover:text-pink-200 transition">Courses</a>
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-lg font-bold mb-4">Contact</h4>
+            <ul class="space-y-2">
+              <li>
+                <i class="fas fa-map-marker-alt mr-2"></i> 3rd Floor, Kairali Buildings, Mele Thampanoor, GPO, Thiruvananthapuram- 695001, Kerala, India
+              </li>
+              <li><i class="fas fa-phone mr-2"></i> +91 8089421289</li>
+              <li>
+                <i class="fas fa-envelope mr-2"></i> info@alricinfotech.com
+              </li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 class="text-lg font-bold mb-4">Follow Us</h4>
+            <div class="flex space-x-4">
+              <a href="#" class="hover:text-pink-200 transition">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="#" class="hover:text-pink-200 transition">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="#" class="hover:text-pink-200 transition">
+                <i class="fab fa-linkedin-in"></i>
+              </a>
+              <a href="#" class="hover:text-pink-200 transition">
+                <i class="fab fa-instagram"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-white/20 mt-12 pt-8 text-center">
+          <p>&copy; 2023 Alric Infotech. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <!-- WhatsApp Button -->
+    <a
+      href="https://wa.me/919876543210"
+      class="fixed bottom-8 right-8 bg-green-500 text-white w-14 h-14 rounded-full flex items-center justify-center shadow-xl hover:bg-green-600 transition"
+    >
+      <i class="fab fa-whatsapp text-2xl"></i>
+    </a>
+
+
+    <!-- Include Alpine.js for interactivity -->
+    <script
+      defer
+      src="{% static 'js/cdn.min.js' %}"
+    ></script>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/flowbite.min.js' %}"></script>
+    {% comment %} <script src="https://cdn.jsdelivr.net/npm/flowbite@3.1.2/dist/flowbite.min.js"></script> {% endcomment %}
+  </body>
+</html>
