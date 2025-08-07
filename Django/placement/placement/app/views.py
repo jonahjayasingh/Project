@@ -4,6 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from .models import UserPermission,Principal
+from student.models import StudentDetails
+from company.models import JobDetails
 # Create your views here.
 def index(request):
     return render(request,"unauthpages/index.html")
@@ -97,9 +99,9 @@ def profile(request):
         phone = request.POST.get("phone")
         address = request.POST.get("address")
         hide = request.POST.get("hide")
-        print("fk")
+        print(img)
         print(hide)
-        if hide == "hide":
+        if hide == "edit":
             user = request.user
             user.email = email
             user.save()
@@ -159,8 +161,13 @@ def approve(request):
 
 @login_required(login_url="app:login")
 def allStudents(request):
+    students = StudentDetails.objects.filter(
+    user__userpermission__is_student=True,
+    user__userpermission__is_approved=True
+)
+    
     content = {
-        "students":UserPermission.objects.filter(is_student=True),
+        "students":students,
         "user_data" : UserPermission.objects.get(user=request.user)
 
     }

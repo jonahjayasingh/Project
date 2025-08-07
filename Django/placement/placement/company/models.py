@@ -17,13 +17,13 @@ class CompanyDetails(models.Model):
 class JobDetails(models.Model):
     company = models.ForeignKey(CompanyDetails,on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
+    description = models.TextField()
     salary = models.FloatField()
     location = models.CharField(max_length=100)
     industry_type = models.CharField(max_length=100)
     cgpa_threshold = models.FloatField(null=True,blank=True)
     job_type = models.CharField(max_length=100)
     job_mode = models.CharField(max_length=100)
-    resume = models.FileField(upload_to="Resume")
-    date_posted = models.DateField()
+    date_posted = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
+    

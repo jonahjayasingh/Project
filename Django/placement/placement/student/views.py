@@ -3,13 +3,19 @@ from app.models import UserPermission
 from .models import StudentDetails
 from django.contrib.auth.models import User
 from django.contrib import messages
+from company.models import JobDetails
 
 # Create your views here.
 def dashboard(request):
+    student = StudentDetails.objects.get(user= request.user)
+    print(JobDetails.objects.filter(cgpa_threshold__lte =student.cgpa))
+
     content = {
-        "user_data" : UserPermission.objects.get(user=request.user)
+        "user_data" : UserPermission.objects.get(user=request.user),
+        "jobs" : JobDetails.objects.filter(cgpa_threshold__lte =student.cgpa)
+
     }
-    print(content)
+    # print(content)
     return render(request,"student/dashboard.html",content)
 
 def profile(request):
