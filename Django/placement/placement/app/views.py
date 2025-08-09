@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import login_required
 from .models import UserPermission,Principal
 from student.models import StudentDetails
 from company.models import JobDetails
+from teacher.models import TeacherDetails
+
 # Create your views here.
 def index(request):
     return render(request,"unauthpages/index.html")
@@ -172,3 +174,31 @@ def allStudents(request):
 
     }
     return render(request,"app/students.html",content)
+
+
+def teacher(request):
+    if request.method == "POST":
+        id = request.POST.get("teacher_id")
+        designation = request.POST.get("designation")
+        department = request.POST.get("department")
+        is_hod = request.POST.get("is_hod") == "on"
+        is_placement_faculty = request.POST.get("is_placement") == "on"
+
+        teacher = TeacherDetails.objects.get(id=id)
+        teacher.designation = designation
+        teacher.department = department
+        teacher.is_hod = is_hod
+        teacher.is_placement_faculty = is_placement_faculty
+        teacher.save()
+        print(designation,id,department,is_hod,is_placement_faculty)
+        messages.success(request,"Your profile has been updated")
+        return redirect("app:teacher")
+
+
+    content = {
+        "user_data" : UserPermission.objects.get(user=request.user),
+        "teachers":TeacherDetails.objects.filter(user__userpermission__is_teacher=True,user__userpermission__is_approved=True)
+    }
+    print(content["teachers"])
+
+    return render(request,"app/teacher.html",content)

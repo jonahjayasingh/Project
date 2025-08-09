@@ -12,4 +12,6 @@ urlpatterns = [
     path("profile",profile,name="profile"),
     path("approve",approve,name="approve"),
     path("allstudents",allStudents,name="allstudents"),
+    path("teacher",teacher,name="teacher"),
+
 ]
