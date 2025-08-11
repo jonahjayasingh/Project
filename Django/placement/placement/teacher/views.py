@@ -1,7 +1,38 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
-from app.models import UserPermission
+from app.models import UserPermission,Notification
 from .models import TeacherDetails
+from student.models import StudentDetails
+
+def add_notifications(request):
+    user = request.user
+
+    # Check for pending approvals
+    re_student = UserPermission.objects.filter(is_student=True, is_approved=False)
+
+    # Collect all current notification messages for this user
+    active_notifications = []
+
+    # Company notification
+    if re_student.exists():
+        msg = f"There are {re_student.count()} student accounts awaiting approval."
+        Notification.objects.update_or_create(
+            user=user,
+            message=msg,
+            defaults={"is_read": False}
+        )
+        active_notifications.append(msg)
+
+    # Remove outdated approval notifications (for company/teacher/student)
+    Notification.objects.filter(
+        user=user,
+        message__icontains="accounts awaiting approval."
+    ).exclude(message__in=active_notifications).delete()
+
+    # Fetch remaining notifications for display
+    notifications = Notification.objects.filter(user=user).order_by("-date")
+    return notifications
+
 # Create your views here.
 def dashboard(request):
     content = {
@@ -51,18 +82,28 @@ def profile(request):
     genders = ['Male', 'Female', 'Other']
     departments = ['Computer Science', 'Mechanical', 'Electrical', 'Civil', 'Electronics']
     designations = ['Assistant Professor', 'Associate Professor', 'Professor', 'Lecturer']
+    try:
+        teacher = TeacherDetails.objects.get(user=request.user)
+    except:
+        teacher = None
     content = {
         "user_data":UserPermission.objects.get(user=request.user),
         'blood_groups': blood_groups,
         'genders': genders,
         'departments': departments,
         'designations': designations,
-        'teacher':TeacherDetails.objects.get(user=request.user)
+        'teacher':teacher,
     }
     return render(request,"teacher/profile.html",content)
 
-def webinar(request):
+def approvestudents(request):
+    teacher = TeacherDetails.objects.get(user=request.user)
+    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=False,branch=teacher.department)
+
     content = {
         "user_data":UserPermission.objects.get(user=request.user),
+        "students":students,
+        "notifications":add_notifications(request),
     }
-    return render(request,"teacher/webinar.html",content)
+    return render(request,"teacher/approvestudents.html",content)
+

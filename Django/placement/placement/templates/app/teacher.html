@@ -23,7 +23,7 @@
                                      class="img-thumbnail rounded-circle" 
                                      style="width: 80px; height: 80px; object-fit: cover;">
                             {% else %}
-                                <img src="{% static 'images/default-profile.png' %}" alt="Profile" 
+                                <img src="https://ui-avatars.com/api/?name={% if teacher %}{{ teacher.name|urlencode }}{% else %}{{request.user}}{% endif %}&background=0D8ABC&color=fff&rounded=true&size=150" alt="Profile" 
                                      class="img-thumbnail rounded-circle" 
                                      style="width: 80px; height: 80px; object-fit: cover;">
                             {% endif %}
@@ -75,7 +75,7 @@
                                     <img src="{{ teacher.profile_picture.url }}" alt="Profile" 
                                          class="img-fluid rounded" style="max-height: 200px;">
                                 {% else %}
-                                    <img src="{% static 'images/default-profile.png' %}" alt="Profile" 
+                                    <img src="https://ui-avatars.com/api/?name={% if teacher %}{{ teacher.name|urlencode }}{% else %}{{request.user}}{% endif %}&background=0D8ABC&color=fff&rounded=true&size=150" alt="Profile" 
                                          class="img-fluid rounded" style="max-height: 200px;">
                                 {% endif %}
                             </div>
@@ -91,6 +91,7 @@
                                     <div class="col-md-6">
                                         <p><strong>Designation:</strong> {{ teacher.designation|default:"Not specified" }}</p>
                                         <p><strong>Department:</strong> {{ teacher.department|default:"Not specified" }}</p>
+                                        <p><strong>Specialization:</strong> {{ teacher.specialization|default:"Not specified" }}</p>
                                         <p><strong>Blood Group:</strong> {{ teacher.blood_group }}</p>
                                         <p><strong>Address:</strong> {{ teacher.address }}</p>
                                     </div>
@@ -136,27 +137,29 @@
                                 <label class="form-label">Teacher</label>
                                 <input type="text" class="form-control" value="{{ teacher.name }}" readonly>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Designation</label>
-                                <select class="form-select" name="designation" required>
-                                    <option value="">Select designation</option>
-                                    <option value="Professor" {% if teacher.designation == "Professor" %}selected{% endif %}>Professor</option>
-                                    <option value="Assistant Professor" {% if teacher.designation == "Assistant Professor" %}selected{% endif %}>Assistant Professor</option>
-                                    <option value="Lecturer" {% if teacher.designation == "Lecturer" %}selected{% endif %}>Lecturer</option>
+                            <div class="form-group">
+                                <label for="department{{ teacher.id }}">Department</label>
+                                <select class="form-control" id="department{{ teacher.id }}" name="department" required onchange="updateSpecializations(this, {{ teacher.id }})">
+                                <option value="">Select Department</option>
+                                {% for degree in degrees %}
+                                <option value="{{ degree.degree }}" {% if teacher.department == degree.degree %}selected{% endif %}>
+                                {{ degree.degree }}
+                                </option>
+                                {% endfor %}
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label for="department">Department</label>
-                                <select class="form-select" name="department" required>
-                                    <option value="">Select department</option>
-                                    <option value="CSE" {% if teacher.department == "CSE" %}selected{% endif %}>CSE</option>
-                                    <option value="ECE" {% if teacher.department == "ECE" %}selected{% endif %}>ECE</option>
-                                    <option value="EEE" {% if teacher.department == "EEE" %}selected{% endif %}>EEE</option>
-                                    <option value="Bcom" {% if teacher.department == "Bcom" %}selected{% endif %}>Bcom</option>
-                                    <option value="Bsc" {% if teacher.department == "Bsc" %}selected{% endif %}>Bsc</option>
-
+                            <div class="form-group">
+                                <label for="specialization{{ teacher.id }}">Specialization</label>
+                                <select class="form-control" id="specialization{{ teacher.id }}" name="specialization">
+                                <option value="">Select Specialization</option>
+                                {% for spec in specializations %}
+                                {% if teacher.department == spec.degree %}
+                                <option value="{{ spec.specialization }}" {% if teacher.specialization == spec.specialization %}selected{% endif %}>
+                                {{ spec.specialization }}
+                                </option>
+                                {% endif %}
+                                {% endfor %}
                                 </select>
-
                             </div>
                             <div class="mb-3">
                                 <div class="form-check form-switch">
@@ -182,4 +185,57 @@
         {% endfor %}
     </div>
 </div>
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Store all specializations data
+var allSpecializations = [
+{% for spec in specializations %}
+{
+degree: "{{ spec.degree }}",
+specialization: "{{ spec.specialization }}"
+},
+{% endfor %}
+];
+
+function updateSpecializations(selectElement, teacherId) {
+var department = selectElement.value;
+var specializationSelect = $('#specialization' + teacherId);
+
+// Clear existing options
+specializationSelect.empty();
+specializationSelect.append('<option value="">Select Specialization</option>');
+
+// Filter and show only specializations for the selected degree
+allSpecializations.forEach(function(spec) {
+if (spec.degree === department) {
+specializationSelect.append(
+$('<option></option>').val(spec.specialization).text(spec.specialization)
+);
+}
+});
+
+// If department matches teacher's current department, preserve selection
+var currentSpecialization = "{{ teacher.specialization }}";
+if (department === "{{ teacher.department }}" && currentSpecialization) {
+specializationSelect.val(currentSpecialization);
+}
+}
+
+// Initialize specializations when modal opens
+$(document).ready(function() {
+$('[data-toggle="modal"]').on('click', function() {
+var modalId = $(this).data('target');
+var teacherId = modalId.replace('#editTeacherModal', '');
+var departmentSelect = $(modalId).find('select[name="department"]');
+if (departmentSelect.val()) {
+updateSpecializations(departmentSelect[0], teacherId);
+}
+});
+});
+</script>
+{% endblock %}
+
 {% endblock %}

@@ -8,7 +8,7 @@ from company.models import JobDetails
 # Create your views here.
 def dashboard(request):
     student = StudentDetails.objects.get(user= request.user)
-    print(JobDetails.objects.filter(cgpa_threshold__lte =student.cgpa))
+    # print(JobDetails.objects.filter(cgpa_threshold__lte =student.cgpa))
 
     content = {
         "user_data" : UserPermission.objects.get(user=request.user),

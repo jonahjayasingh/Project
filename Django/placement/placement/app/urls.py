@@ -13,5 +13,8 @@ urlpatterns = [
     path("approve",approve,name="approve"),
     path("allstudents",allStudents,name="allstudents"),
     path("teacher",teacher,name="teacher"),
+    path("company",company,name="company"),
+    path("add_degree_specialization",add_degree_specialization,name="add_degree_specialization"),
+    path("delete_degree_specialization/<int:id>",delete_degree_specialization,name="delete_degree_specialization"),
 
 ]

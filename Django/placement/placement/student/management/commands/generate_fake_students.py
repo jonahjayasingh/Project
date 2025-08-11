@@ -42,7 +42,7 @@ class Command(BaseCommand):
                 UserPermission.objects.create(
                     user=user,
                     is_student=True,
-                    is_approved=True,
+                    is_approved=False,
                     is_teacher=False,
                     is_company=False,
                     is_principal=False
