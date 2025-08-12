@@ -123,3 +123,16 @@ def reject(request,id):
     user.delete()
     messages.success(request,"Student has been deleted")
     return redirect("teacher:approvestudents")
+
+def resume(request):
+
+    teacher = TeacherDetails.objects.get(user=request.user)
+    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True,course=teacher.department,branch=teacher.specialization)
+    
+
+    content = {
+        "user_data":UserPermission.objects.get(user=request.user),
+        "students":students,
+        "notifications":add_notifications(request),
+    }
+    return render(request,"teacher/approveresume.html",content)

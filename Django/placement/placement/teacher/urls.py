@@ -9,4 +9,5 @@ urlpatterns = [
     path("approvestudents/",approvestudents,name="approvestudents"),
     path("approve/<int:id>",approve,name="approve"),
     path("reject/<int:id>",reject,name="reject"),
+    path("resume",resume,name="resume"),
 ]

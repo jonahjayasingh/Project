@@ -277,6 +277,10 @@
         <i class="bi bi-speedometer2"></i>
         <span class="nav-text">Approve Students</span>
       </a>
+      <a href="{% url 'teacher:resume' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
+        <i class="bi bi-speedometer2"></i>
+        <span class="nav-text">Resume</span>
+      </a>
       {%  elif user_data.is_company %}
       <a href="{% url 'company:company' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
         <i class="bi bi-speedometer2"></i>
