@@ -159,9 +159,6 @@
     <form method="post">
       {% csrf_token %}
 
-      
-
-   
       <div class="mb-3">
         <label for="username" class="form-label">Username</label>
         <input 
@@ -195,16 +192,26 @@
             placeholder="Re-enter password">
         </div>
       </div>
-         <!-- Student Fields -->
+
+      <div class="mb-3">
+        <label for="user_type" class="form-label">Register As</label>
+        <select class="form-select" id="user_type" name="user_type" required>
+          <option value="" disabled selected>Select account type</option>
+          <option value="student">Student</option>
+          <option value="teacher">Teacher</option>
+          <option value="company">Company</option>
+        </select>
+      </div>
+      <!-- Student Fields -->
       <div id="studentFields" class="role-fields">
         <div class="row">
           <div class="col-md-6 mb-3">
             <label for="degree_program" class="form-label">Degree Program</label>
             <select class="form-select" id="degree_program" name="degree_program">
               <option value="" disabled selected>Select program</option>
-              <option value="BE">BE</option>
-              <option value="BTech">BTech</option>
-              <option value="BSc">BSc</option>
+            {% for degree, branches in degrees_list.items %}
+                            <option value="{{ degree }}">{{ degree }}</option>
+            {% endfor %}
             </select>
           </div>
           <div class="col-md-6 mb-3">
@@ -216,29 +223,11 @@
         </div>
       </div>
 
-      <!-- Teacher Fields -->
+      <!-- Teacher Fields (empty since we removed department) -->
       <div id="teacherFields" class="role-fields">
-        <div class="mb-3">
-          <label for="department" class="form-label">Department</label>
-          <select class="form-select" id="department" name="department">
-            <option value="" disabled selected>Select department</option>
-            <option value="cse">Computer Science</option>
-            <option value="ece">Electronics</option>
-            <option value="mech">Mechanical</option>
-            <option value="civil">Civil</option>
-          </select>
-        </div>
+        <!-- No fields needed for teacher now -->
       </div>
 
-      <div class="mb-3">
-        <label for="user_type" class="form-label">Register As</label>
-        <select class="form-select" id="user_type" name="user_type" required>
-          <option value="" disabled selected>Select account type</option>
-          <option value="student">Student</option>
-          <option value="teacher">Teacher</option>
-          <option value="company">Company</option>
-        </select>
-      </div>
       <div class="d-grid mb-3">
         <button type="submit" class="btn register-btn">Register</button>
       </div>
@@ -254,12 +243,8 @@
 
   <script>
     // Degree programs data structure
-    const degreePrograms = {
-      'BE': ['Computer Science', 'Electrical', 'Mechanical', 'Civil', 'Electronics'],
-      'BTech': ['Computer Science', 'Information Technology', 'Biotechnology', 'Chemical'],
-      'BSc': ['Physics', 'Chemistry', 'Mathematics', 'Computer Science']
-    };
-
+    const degreePrograms = JSON.parse('{{ degrees|escapejs }}');
+    console.log("Properly parsed degree programs:", degreePrograms);
     window.addEventListener('DOMContentLoaded', (event) => {
       // Toast notification
       const toastEl = document.getElementById('loginToast');
@@ -300,7 +285,7 @@
             branchSelect.disabled = false;
             degreePrograms[selectedProgram].forEach(branch => {
               const option = document.createElement('option');
-              option.value = branch.toLowerCase().replace(' ', '_');
+              // option.value = branch.toLowerCase().replace(' ', '_');
               option.textContent = branch;
               branchSelect.appendChild(option);
             });

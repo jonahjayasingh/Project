@@ -137,6 +137,15 @@
                                 <label class="form-label">Teacher</label>
                                 <input type="text" class="form-control" value="{{ teacher.name }}" readonly>
                             </div>
+                            <div class="mb-3">
+                                <label class="form-label">Designation</label>
+                                <select class="form-control" name="designation" required>
+                                    <option value="">Select Designation</option>
+                                    <option value="Assistant Professor" {% if teacher.designation == 'Assistant Professor' %}selected{% endif %}>Assistant Professor</option>
+                                    <option value="Associate Professor" {% if teacher.designation == 'Associate Professor' %}selected{% endif %}>Associate Professor</option>
+                                    <option value="Professor" {% if teacher.designation == 'Professor' %}selected{% endif %}>Professor</option>
+                                </select>
+                            </div>
                             <div class="form-group">
                                 <label for="department{{ teacher.id }}">Department</label>
                                 <select class="form-control" id="department{{ teacher.id }}" name="department" required onchange="updateSpecializations(this, {{ teacher.id }})">

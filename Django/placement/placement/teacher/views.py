@@ -6,11 +6,12 @@ from student.models import StudentDetails
 
 def add_notifications(request):
     user = request.user
+    teacher = TeacherDetails.objects.get(user=request.user)
 
     # Check for pending approvals
-    re_student = UserPermission.objects.filter(is_student=True, is_approved=False)
-
-    # Collect all current notification messages for this user
+    re_student = StudentDetails.objects.filter(user__user_permission__is_approved=False,user__user_permission__is_student=True,branch=teacher.specialization,course=teacher.department)
+    
+    
     active_notifications = []
 
     # Company notification
@@ -80,8 +81,7 @@ def profile(request):
     
     blood_groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     genders = ['Male', 'Female', 'Other']
-    departments = ['Computer Science', 'Mechanical', 'Electrical', 'Civil', 'Electronics']
-    designations = ['Assistant Professor', 'Associate Professor', 'Professor', 'Lecturer']
+    
     try:
         teacher = TeacherDetails.objects.get(user=request.user)
     except:
@@ -90,16 +90,17 @@ def profile(request):
         "user_data":UserPermission.objects.get(user=request.user),
         'blood_groups': blood_groups,
         'genders': genders,
-        'departments': departments,
-        'designations': designations,
+        
         'teacher':teacher,
     }
     return render(request,"teacher/profile.html",content)
 
 def approvestudents(request):
     teacher = TeacherDetails.objects.get(user=request.user)
-    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=False,branch=teacher.department)
-
+    print(teacher.department)
+    print(StudentDetails.objects.filter(name="S1"))
+    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=False,course=teacher.department,branch=teacher.specialization)
+    print(students)
     content = {
         "user_data":UserPermission.objects.get(user=request.user),
         "students":students,
@@ -107,3 +108,18 @@ def approvestudents(request):
     }
     return render(request,"teacher/approvestudents.html",content)
 
+
+def approve(request,id):
+    student = StudentDetails.objects.get(id=id)
+    user_permission = UserPermission.objects.get(user=student.user)
+    user_permission.is_approved = True
+    user_permission.save()
+    messages.success(request,"Student has been approved")
+    return redirect("teacher:approvestudents")
+
+def reject(request,id):
+    
+    user = UserPermission.objects.get(id=student.user.id)
+    user.delete()
+    messages.success(request,"Student has been deleted")
+    return redirect("teacher:approvestudents")

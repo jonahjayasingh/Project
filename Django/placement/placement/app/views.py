@@ -123,18 +123,30 @@ def userregister(request):
         elif user_type == "teacher":
             user = User.objects.create_user(username=username,password=password)
             user.save()
-            department = request.POST.get("department")
-            TeacherDetails.objects.create(user=user,name=username,department=department).save()
+            
+            TeacherDetails.objects.create(user=user,name=username).save()
             UserPermission(user=user,is_teacher=True).save()
             messages.success(request,"Your registered Successfully")
             return redirect("app:home")
         elif user_type == "company":
             user = User.objects.create_user(username=username,password=password)
             user.save()
+            CompanyDetails(user=user,name=user.username).save()
             UserPermission(user=user,is_company=True).save()
             return redirect("app:home")
-        
-    return render(request,"unauthpages/register.html")
+
+    
+    degree = {}
+    for i in DegreeSpecialization.objects.values("degree").distinct():
+        specialization = []
+        for j in DegreeSpecialization.objects.filter(degree=i["degree"]):
+            specialization.append(j.specialization)
+        degree[i["degree"]] = specialization
+    content = {
+        "degrees":json.dumps(degree),
+        "degrees_list":degree,
+    }
+    return render(request,"unauthpages/register.html",content)
 
 def userlogout(request):
     logout(request)
@@ -148,8 +160,8 @@ def dashboard(request):
         "user_data": UserPermission.objects.get(user=request.user),
         "notifications": add_notifications(request),
         "degree_specializations": DegreeSpecialization.objects.all(),
-        "teacher_count": UserPermission.objects.filter(is_teacher=True).count(),
-        "student_count": UserPermission.objects.filter(is_student=True).count(),
+        "teacher_count": UserPermission.objects.filter(is_teacher=True,is_approved=True).count(),
+        "student_count": UserPermission.objects.filter(is_student=True,is_approved=True).count(),
         "degree_count": DegreeSpecialization.objects.values("degree").distinct().count(),
         "specialization_count": DegreeSpecialization.objects.all().count(),
     }
@@ -221,6 +233,7 @@ def approve(request):
             user_permission.save()
             messages.success(request,"User has been approved")
             return redirect("app:approve")
+    
     content = {
         "teacher":UserPermission.objects.filter(is_teacher=True,is_approved=False),
         "company":UserPermission.objects.filter(is_company=True,is_approved=False),
@@ -229,18 +242,26 @@ def approve(request):
 
     }
     return render(request,"app/approve.html",content)
-
+import json
 
 @login_required(login_url="app:login")
 def allStudents(request):
     students = StudentDetails.objects.filter(
     user__user_permission__is_student=True,
     user__user_permission__is_approved=True
-)
+    )
+    degree = {}
+    for i in DegreeSpecialization.objects.values("degree").distinct():
+        specialization = []
+        for j in DegreeSpecialization.objects.filter(degree=i["degree"]):
+            specialization.append(j.specialization)
+        degree[i["degree"]] = specialization
+    print(len(students))
     content = {
         "students":students,
         "user_data" : UserPermission.objects.get(user=request.user),
-        "notifications": add_notifications(request)
+        "notifications": add_notifications(request),        
+        "degrees":json.dumps(degree)
     }
     return render(request,"app/students.html",content)
 
@@ -281,6 +302,8 @@ def teacher(request):
 
 
 def company(request):
+    print(CompanyDetails.objects.filter(user__user_permission__is_company=True,user__user_permission__is_approved=True))
+
     content = {
         "user_data" : UserPermission.objects.get(user=request.user),
         "companies":CompanyDetails.objects.filter(user__user_permission__is_company=True,user__user_permission__is_approved=True),

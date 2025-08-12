@@ -31,11 +31,8 @@
                 <div class="card-header bg-light">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">{{ student.name }}</h5>
-                        {% if student.year != None %}
-                        <span class="badge bg-primary">{{ student.year }} Year</span>
-                        {% else %}
-                        <span class="badge bg-primary">Not Specified</span>
-                        {% endif %}
+                        
+                        
                     </div>
                 </div>
                 <div class="card-body">
@@ -53,22 +50,14 @@
                         {% endif %}
                     </div>
 
-                    {% if student.reg_no %}
-                    <div class="mb-3">
-                        <h6 class="text-muted mb-2">Registration</h6>
-                        <div class="d-flex align-items-center">
-                            <i class="bi bi-card-text me-2"></i>
-                            <span>{{ student.reg_no }}</span>
-                        </div>
-                    </div>
-                    {% endif %}
+                    
                 </div>
                 <div class="card-footer bg-white border-top-0">
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <a href="#" class="btn btn-success btn-sm me-md-2">
+                        <a href="{% url 'teacher:approve' student.id %}" class="btn btn-success btn-sm me-md-2">
                             <i class="bi bi-check-circle me-1"></i> Approve
                         </a>
-                        <a href="#" class="btn btn-danger btn-sm">
+                        <a href="{% url 'teacher:reject' student.id %}" class="btn btn-danger btn-sm">
                             <i class="bi bi-x-circle me-1"></i> Reject
                         </a>
                     </div>

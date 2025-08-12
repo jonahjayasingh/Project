@@ -206,9 +206,7 @@
                 <button class="btn btn-light me-2" data-bs-toggle="modal" data-bs-target="#editProfileModal">
                     <i class="bi bi-pencil-fill me-1"></i> Edit Profile
                 </button>
-                <button class="btn btn-outline-light">
-                    <i class="bi bi-download me-1"></i> Export
-                </button>
+                
             </div>
         </div>
         
@@ -254,13 +252,21 @@
             </div>
             
             <div class="row">
-                <div class="col-12">
+                <div class="col-6">
                     <div class="detail-card p-3">
                         <h5 class="card-title">Address</h5>
                         <p class="mt-2">{{ student.address }}</p>
                     </div>
                 </div>
+                <div class="col-6">
+                    <div class="detail-card p-3">
+                        <h5 class="card-title">Resume</h5>
+                        <a href="{{ student.resume.url }}" target="_blank" class="text-decoration-none">View Resume</a>
+                        <a href="{{ student.resume.url }}" download class="text-decoration-none">Download Resume</a>
+                    </div>
+                </div>
             </div>
+            
         </div>
     </div>
     {% else %}
@@ -356,24 +362,17 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Course *</label>
-                            <select name="course" class="form-select" required>
+                            <select name="course" class="form-select" required id="degree_program" name="degree_program">
                                 <option value="">Select Course</option>
-                                <option value="B.Tech" {% if student.course == "B.Tech" %}selected{% endif %}>B.Tech</option>
-                                <option value="M.Tech" {% if student.course == "M.Tech" %}selected{% endif %}>M.Tech</option>
-                                <option value="B.Sc" {% if student.course == "B.Sc" %}selected{% endif %}>B.Sc</option>
-                                <option value="M.Sc" {% if student.course == "M.Sc" %}selected{% endif %}>M.Sc</option>
-                                <option value="MBA" {% if student.course == "MBA" %}selected{% endif %}>MBA</option>
+                                {% for degree in degrees_list %}
+                                <option value="{{ degree }}" {% if student.course == degree %}selected{% endif %}>{{ degree }}</option>
+                                {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Branch *</label>
-                            <select name="branch" class="form-select" required>
-                                <option value="">Select Branch</option>
-                                <option value="Computer Science" {% if student.branch == "Computer Science" %}selected{% endif %}>Computer Science</option>
-                                <option value="Mechanical" {% if student.branch == "Mechanical" %}selected{% endif %}>Mechanical</option>
-                                <option value="Electrical" {% if student.branch == "Electrical" %}selected{% endif %}>Electrical</option>
-                                <option value="Civil" {% if student.branch == "Civil" %}selected{% endif %}>Civil</option>
-                                <option value="Electronics" {% if student.branch == "Electronics" %}selected{% endif %}>Electronics</option>
+                            <label for="branch" class="form-label">Branch</label>
+                            <select class="form-select" id="branch" name="branch">
+                            <option value="">Select branch</option>
                             </select>
                         </div>
                         <div class="col-md-3 mb-3">
@@ -402,11 +401,21 @@
                             <label class="form-label">Reg No *</label>
                             <input type="text" name="reg_no" value="{{ student.reg_no|default:'' }}" class="form-control" required>
                         </div>
+
                         <div class="col-md-6 mb-3">
+                            <div class="form-group">
                             <label class="form-label">CGPA</label>
-                            <input type="number" step="0.01" min="0" max="10" name="cgpa" value="{{ student.cgpa|default:'' }}" class="form-control">
+                            <input type="number" step="0.1" min="0" max="10" name="cgpa" value="{{ student.cgpa|default:'' }}" class="form-control">
+                            </div>
+                            
+                        </div>
+                         <div class="col-md-6 mb-3"> 
+                            <label class="form-label">Resume</label> <a href="{{ student.resume.url }}" target="_blank" class="text-decoration-none">View Resume</a>
+                            <input type="file" name="resume"   class="form-control">
                         </div>
                     </div>
+
+                   
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
@@ -466,16 +475,49 @@ document.addEventListener("DOMContentLoaded", function() {
     }
     
     // Form validation
-    const forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
-            if (!form.checkValidity()) {
-                event.preventDefault();
-                event.stopPropagation();
+ 
+
+    // Degree programs data structure
+    const degreePrograms = JSON.parse('{{ degrees|escapejs }}');
+    console.log("Degree programs data:", degreePrograms);
+
+    // Degree program selection handler
+    const degreeProgramSelect = document.getElementById('degree_program');
+    const branchSelect = document.getElementById('branch');
+
+    if (degreeProgramSelect && branchSelect) {
+        degreeProgramSelect.addEventListener('change', function() {
+            const selectedProgram = this.value;
+            branchSelect.innerHTML = '<option value="">Select branch</option>';
+            
+            if (selectedProgram && degreePrograms[selectedProgram]) {
+                branchSelect.disabled = false;
+                degreePrograms[selectedProgram].forEach(branch => {
+                    const option = document.createElement('option');
+                    option.value = branch;
+                    option.textContent = branch;
+                    branchSelect.appendChild(option);
+                });
+                
+                // If editing existing student, try to select their current branch
+                {% if student %}
+                const currentBranch = "{{ student.branch }}";
+                if (currentBranch) {
+                    branchSelect.value = currentBranch;
+                }
+                {% endif %}
+            } else {
+                branchSelect.disabled = true;
             }
-            form.classList.add('was-validated');
-        }, false);
-    });
+        });
+
+        // Trigger change event if degree is already selected (edit mode)
+        {% if student %}
+        if (degreeProgramSelect.value) {
+            degreeProgramSelect.dispatchEvent(new Event('change'));
+        }
+        {% endif %}
+    }
 });
 </script>
 {% endblock %}

@@ -220,8 +220,14 @@
             <div class="col-12">
                 <div class="alert alert-info text-center py-4">
                     <i class="bi bi-info-circle fs-4 d-block mb-2"></i>
-                    <h4 class="mb-2">No job postings available</h4>
+                    {% if jobs == None %}
+                    <h4 class="mb-2">Update your profile</h4>
+                    <p class="mb-0">Update your profile to unlock job opportunities—get started now.</p>
+
+                    {% else %}
+                    <h4 class="mb-2">No job postings available for your CGPA</h4>
                     <p class="mb-0">Check back later for new opportunities</p>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

@@ -241,8 +241,7 @@
                         <ul class="list-unstyled mt-3">
                             <li class="mb-2"><strong>Designation:</strong> {{ teacher.designation }}</li>
                             <li class="mb-2"><strong>Department:</strong> {{ teacher.department }}</li>
-                            <li class="mb-2"><strong>Joining Date:</strong> {{ teacher.joining_date }}</li>
-                            <li class="mb-2"><strong>Qualification:</strong> {{ teacher.qualification }}</li>
+                            
                         </ul>
                     </div>
                 </div>
@@ -334,7 +333,9 @@
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Date of Birth *</label>
-                            <input type="date" name="date_of_birth" value="{{ teacher.date_of_birth|date:'Y-m-d' }}" class="form-control" required>
+                            <input type="date" name="date_of_birth" class="form-control" placeholder="YYYY-MM-DD" required pattern="\d{4}-\d{2}-\d{2}">
+                            <small class="form-text text-muted">Format: YYYY-MM-DD</small>
+
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Gender *</label>

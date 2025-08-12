@@ -2,7 +2,7 @@ import random
 from django.core.management.base import BaseCommand
 from faker import Faker
 from django.contrib.auth.models import User
-from app.models import  UserPermission
+from app.models import  UserPermission,DegreeSpecialization
 from student.models import StudentDetails
 
 
@@ -15,15 +15,14 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         fake = Faker()
         count = options['count']
-        
+        degree = {}
+        for i in DegreeSpecialization.objects.values("degree").distinct():
+            specialization = []
+            for j in DegreeSpecialization.objects.filter(degree=i["degree"]):
+                specialization.append(j.specialization)
+            degree[i["degree"]] = specialization
         # Degree programs
-        degree_programs = {
-            'BE': ['Computer Science', 'Electrical', 'Mechanical', 'Civil', 'Electronics'],
-            'BTech': ['Computer Science', 'Information Technology', 'Biotechnology', 'Chemical'],
-            'BSc': ['Physics', 'Chemistry', 'Mathematics', 'Computer Science'],
-            'BCom': ['General', 'Accounting', 'Finance'],
-            'BA': ['English', 'History', 'Economics']
-        }
+        degree_programs = degree
         
         blood_groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
         
@@ -42,11 +41,11 @@ class Command(BaseCommand):
                 UserPermission.objects.create(
                     user=user,
                     is_student=True,
-                    is_approved=False,
+                    is_approved=True,
                     is_teacher=False,
                     is_company=False,
                     is_principal=False
-                )
+                )   
                 
                 # Select random degree and specialization
                 degree = random.choice(list(degree_programs.keys()))

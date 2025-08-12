@@ -24,6 +24,7 @@ def profile(request):
         phone = request.POST.get("phone")
         location = request.POST.get("location")
         is_edit =  request.POST.get("hide")
+        
         print(img)
         print(is_edit)
         if is_edit is None:

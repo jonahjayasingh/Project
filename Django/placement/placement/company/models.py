@@ -4,11 +4,11 @@ from django.contrib.auth.models import User
 
 class CompanyDetails(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=100,unique=True)
-    location = models.CharField(max_length=100)
-    industry_type = models.CharField(max_length=100)
+    name = models.CharField(max_length=100,blank=True,null=True)
+    email = models.EmailField(unique=True,blank=True,null=True)
+    phone = models.CharField(max_length=100,unique=True,blank=True,null=True)
+    location = models.CharField(max_length=100,blank=True,null=True)
+    industry_type = models.CharField(max_length=100,blank=True,null=True)
     profile_picture = models.ImageField(upload_to="CompanyProfilePicture",null=True,blank= True)
 
    
