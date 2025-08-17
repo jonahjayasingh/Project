@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from student.models import StudentDetails
 # Create your models here.
 
 class CompanyDetails(models.Model):
@@ -27,3 +28,12 @@ class JobDetails(models.Model):
     date_posted = models.DateField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
     
+
+class JobApplication(models.Model):
+    job = models.ForeignKey(JobDetails, on_delete=models.CASCADE, related_name="applications")
+    user = models.ForeignKey(StudentDetails, on_delete=models.CASCADE, related_name="job_applications")
+    cover_letter = models.TextField(blank=True,null=True)
+    available_to_work_in = models.CharField(max_length=100)
+    cgpa_required = models.FloatField(null=True,blank=True)
+    date_applied = models.DateField(auto_now_add=True)
+    confirm_info = models.BooleanField(default=True)

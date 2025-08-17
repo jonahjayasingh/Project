@@ -1,8 +1,10 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
-from app.models import UserPermission,Notification
+from app.models import UserPermission,Notification,DegreeSpecialization
 from .models import TeacherDetails
 from student.models import StudentDetails
+import json
+from django.contrib.auth.models import User
 
 def add_notifications(request):
     user = request.user
@@ -118,16 +120,21 @@ def approve(request,id):
     return redirect("teacher:approvestudents")
 
 def reject(request,id):
-    
+    student = StudentDetails.objects.get(id=id)
     user = UserPermission.objects.get(id=student.user.id)
     user.delete()
     messages.success(request,"Student has been deleted")
     return redirect("teacher:approvestudents")
 
 def resume(request):
-
+    if request.method == "POST":
+        s_id = request.POST.get("s_id")
+        student = StudentDetails.object.filter(id = s_id)
+        student.is_resume_approved = True
+        student.save()
+        return redirect("teacher:resume")
     teacher = TeacherDetails.objects.get(user=request.user)
-    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True,course=teacher.department,branch=teacher.specialization)
+    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True,course=teacher.department,branch=teacher.specialization, resume__isnull = False,is_resume_approved=False)
     
 
     content = {
@@ -136,3 +143,53 @@ def resume(request):
         "notifications":add_notifications(request),
     }
     return render(request,"teacher/approveresume.html",content)
+    
+def reject_resume(request):
+    if request.method == "POST":
+        s_id = request.POST.get("s_id")
+        print("feedback", s_id)
+        # student = StudentDetails.object.filter(id = s_id)
+        # student.is_resume_approved = False
+        # student.save()
+    return redirect("teacher:resume")
+
+
+def all_student(request):
+    if request.method == "POST":
+        s_id = request.POST.get("student_id")
+        message = request.POST.get("message")
+        student = StudentDetails.objects.get(id=s_id)
+        Notification(user=student.user,message=message).save()
+        messages.success(request,f"Notification sent to {student.name} sucessfully")
+        return redirect("teacher:allstudent")
+    teacher = TeacherDetails.objects.get(user= request.user)
+    students = StudentDetails.objects.filter(course= teacher.department,branch=teacher.specialization)
+    content = {
+        "user_data":UserPermission.objects.get(user=request.user),
+        "students":students,
+        "notifications":add_notifications(request),
+        
+    }
+    return render(request,"teacher/allstudent.html",content)
+
+def group_notification(request):
+    if request.method == "POST":
+        filter_p = request.POST.get("filter_params")
+        message = request.POST.get("message")
+        if filter_p:
+            filter_p = json.loads(filter_p)
+        print(filter_p)
+        teacher = TeacherDetails.objects.get(user= request.user)
+        if filter_p["search"] != "" and filter_p["year"] != "":
+            students = StudentDetails.objects.filter(name__contains= filter_p["search"],year=filter_p["year"],course= teacher.department,branch=teacher.specialization)
+        elif filter_p["year"] != "":
+            print("year")
+            students = StudentDetails.objects.filter(year=filter_p["year"],course= teacher.department,branch=teacher.specialization)
+        else:
+            print("search")
+            students = StudentDetails.objects.filter(name__icontains= filter_p["search"],course= teacher.department,branch=teacher.specialization)
+        for student in students:  
+            Notification(user=student.user,message=message).save()
+        messages.success(request,f"Notification sent to {len(students)} students sucessfully")
+        return redirect("teacher:allstudent")
+    return redirect("teacher:allstudent")

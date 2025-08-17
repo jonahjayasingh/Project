@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Students{% endblock %}
+
+{% block extra_css %}
+<style>
+    .student-card {
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        transition: transform 0.3s ease;
+        margin-bottom: 20px;
+    }
+    .student-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    }
+    .profile-img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        border-radius: 10px 10px 0 0;
+    }
+    .card-body {
+        padding: 20px;
+    }
+    .detail-item {
+        margin-bottom: 8px;
+    }
+    .detail-label {
+        font-weight: 600;
+        color: #555;
+    }
+    .no-image {
+        background: #f5f5f5;
+        height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #777;
+        border-radius: 10px 10px 0 0;
+    }
+    .search-box {
+        position: relative;
+    }
+    .clear-search {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: #999;
+    }
+    .toast {
+    z-index: 1100;  /* Changed from 'index:10' to proper z-index with higher value */
+   
+    }
+</style>
+{% endblock %}
+
+{% block page %}All Students{% endblock %}
+{% block Main_title %}All Students{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Search and Filters -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="search-box">
+                <input type="text" id="searchInput" class="form-control"
+                       placeholder="Search by name, roll no, branch..."
+                       oninput="debounceFilter()">
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="filter-row row">
+                <div class="col-md-3">
+                    <select id="yearSelect" class="form-select" onchange="debounceFilter()">
+                        <option value="">All Years</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                        Clear All Filters
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Group Notification Button -->
+    <div class="row">
+        <div class="col-12">
+            <button id="groupNotificationBtn" class="btn btn-primary float-end" data-bs-toggle="modal" data-bs-target="#groupNotificationModal">
+                <i class="fas fa-bell me-2"></i>Notify Filtered Students
+            </button>
+        </div>
+    </div>
+
+    <!-- Students List -->
+    <div class="row" id="studentContainer">
+        <div class="col-12 no-results" id="noResults" style="display:none;">
+            <div class="alert alert-info text-center">
+                No students found matching your filters.
+            </div>
+        </div>
+
+        {% for student in students %}
+        <div class="col-md-4 mb-4 student-card-container">
+            <div class="student-card card h-100"
+                 data-degree="{{ student.course|default_if_none:'' }}"
+                 data-year="{{ student.year|default_if_none:'' }}"
+                 data-search="{{ student.name|lower }} {{ student.roll_no|lower }} {{ student.reg_no|lower }} {{ student.course|lower|default_if_none:'' }} {{ student.branch|lower|default_if_none:'' }} {{ student.email|lower|default_if_none:'' }}">
+                {% if student.profile_picture %}
+                    <img src="{{ student.profile_picture.url }}" alt="{{ student.name }}" class="profile-img">
+                {% else %}
+                    <div class="no-image"><span>No Image Available</span></div>
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <h4 class="card-title">{{ student.name }}</h4>
+                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" 
+                                data-bs-target="#notificationModal" data-student-id="{{ student.id }}"
+                                data-student-name="{{ student.name }}">
+                            <i class="bi bi-bell"></i>
+
+                        </button>
+                    </div>
+                    <p class="text-muted">{{ student.course }} - {{ student.branch }}</p>
+                    <div class="student-details">
+                        <div class="detail-item"><span class="detail-label">Roll No:</span> {{ student.roll_no }}</div>
+                        <div class="detail-item"><span class="detail-label">Reg No:</span> {{ student.reg_no }}</div>
+                        <div class="detail-item"><span class="detail-label">Year/Sem:</span> Year {{ student.year }} - Sem {{ student.sem }}</div>
+                        <div class="detail-item"><span class="detail-label">CGPA:</span> {% if student.cgpa %}{{ student.cgpa }}{% else %}Not available{% endif %}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Individual Notification Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="individualNotificationForm" method="post" action="">
+                {% csrf_token %}
+                <input type="hidden" name="student_id" id="notificationStudentId">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Notification to <span id="notificationStudentName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Notification Message</label>
+                        <textarea class="form-control" name="message" rows="5" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Notification</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Group Notification Modal -->
+<div class="modal fade" id="groupNotificationModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="groupNotificationForm" method="post" action="{% url 'teacher:group_notification' %}">
+                {% csrf_token %}
+                <input type="hidden" name="filter_params" id="filterParams">
+                <div class="modal-header">
+                    <h5 class="modal-title">Send Group Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-info">
+                        This will be sent to all students matching your current filters.
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notification Message</label>
+                        <textarea class="form-control" name="message" rows="5" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send to Filtered Students</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Initialize notification modal
+    document.addEventListener('DOMContentLoaded', function() {
+        const notificationModal = document.getElementById('notificationModal');
+        if (notificationModal) {
+            notificationModal.addEventListener('show.bs.modal', function(event) {
+                const button = event.relatedTarget;
+                const studentId = button.getAttribute('data-student-id');
+                const studentName = button.getAttribute('data-student-name');
+                
+                document.getElementById('notificationStudentId').value = studentId;
+                document.getElementById('notificationStudentName').textContent = studentName;
+            });
+        }
+
+        // Initialize group notification modal
+        const groupNotificationModal = document.getElementById('groupNotificationModal');
+        if (groupNotificationModal) {
+            groupNotificationModal.addEventListener('show.bs.modal', function() {
+                // Capture current filter parameters
+                const searchQuery = document.getElementById('searchInput').value;
+                const year = document.getElementById('yearSelect').value;
+                
+                document.getElementById('filterParams').value = JSON.stringify({
+                    search: searchQuery,
+                    year: year
+                });
+            });
+        }
+    });
+
+    // Filter functions (existing code)
+    function filterStudents() {
+        const searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+        const year = document.getElementById('yearSelect').value;
+
+        const studentCards = document.querySelectorAll('.student-card-container');
+        let hasVisibleStudents = false;
+        let visibleCount = 0;
+
+        studentCards.forEach(card => {
+            const studentCard = card.querySelector('.student-card');
+            // Changed to only search by student name (card title)
+            const studentName = studentCard.querySelector('.card-title').textContent.toLowerCase();
+            const yearData = studentCard.dataset.year || '';
+            
+            const matchesSearch = !searchQuery || studentName.includes(searchQuery);
+            const matchesYear = !year || yearData === year;
+
+            const shouldShow = matchesSearch && matchesYear;
+            
+            card.style.display = shouldShow ? 'block' : 'none';
+            if (shouldShow) {
+                hasVisibleStudents = true;
+                visibleCount++;
+            }
+        });
+
+        document.getElementById('noResults').style.display = hasVisibleStudents ? 'none' : 'block';
+        
+        // Show/hide group notification button
+        const groupBtn = document.getElementById('groupNotificationBtn');
+        if (visibleCount > 1 && (searchQuery || year)) {
+            groupBtn.style.display = 'block';
+        } else {
+            groupBtn.style.display = 'none';
+        }
+    }
+
+
+
+    // Debounce function to improve performance
+    let filterTimeout;
+    function debounceFilter() {
+        clearTimeout(filterTimeout);
+        filterTimeout = setTimeout(filterStudents, 300);
+    }
+
+    function clearFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('yearSelect').selectedIndex = 0;
+        filterStudents();
+    }
+
+    // Initialize event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('searchInput').addEventListener('input', debounceFilter);
+        document.getElementById('yearSelect').addEventListener('change', debounceFilter);
+        
+        filterStudents();
+    });
+</script>
+{% endblock %}

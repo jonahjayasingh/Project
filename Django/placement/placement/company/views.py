@@ -3,12 +3,15 @@ from app.models import UserPermission
 from .models import CompanyDetails,JobDetails
 from django.contrib import messages
 from student.models import StudentDetails
-
+from app.models import DegreeSpecialization
+import json
 
 # Create your views here.
 def dashboard(request):
+
     context = {
         "user_data" : UserPermission.objects.get(user=request.user),
+        
     }
     return render(request,"company/dashboard.html",context)
 
@@ -99,3 +102,38 @@ def deletejob(request,id):
     job.delete()
     messages.success(request,"Job deleted successfully")
     return redirect("company:jobs")
+
+
+def eligible_students(request,id):
+    job = JobDetails.objects.get(id=id)
+    degree = {}
+    for i in DegreeSpecialization.objects.values("degree").distinct():
+        specialization = []
+        for j in DegreeSpecialization.objects.filter(degree=i["degree"]):
+            specialization.append(j.specialization)
+        degree[i["degree"]] = specialization
+    context = {
+        "user_data" : UserPermission.objects.get(user=request.user),
+        "job" : job,
+        "students" : StudentDetails.objects.filter(cgpa__gte=job.cgpa_threshold),
+        "degrees":json.dumps(degree)
+    }
+    return render(request,"company/eligible_students.html",context)
+
+
+def applied_students(request,id):
+    job = JobDetails.objects.get(id=id)
+    degree = {}
+    for i in DegreeSpecialization.objects.values("degree").distinct():
+        specialization = []
+        for j in DegreeSpecialization.objects.filter(degree=i["degree"]):
+            specialization.append(j.specialization)
+        degree[i["degree"]] = specialization
+    context = {
+        "user_data" : UserPermission.objects.get(user=request.user),
+        "job" : job,
+        "students" : StudentDetails.objects.filter(cgpa__gte=job.cgpa_threshold),
+        "degrees":json.dumps(degree)
+    }
+    return render(request,"company/appliedstudents.html",context)
+

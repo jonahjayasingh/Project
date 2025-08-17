@@ -136,7 +136,7 @@
                             <!-- Application Form -->
                             <form id="applicationForm{{ job.id }}" method="post" enctype="multipart/form-data" action="" class="needs-validation" novalidate>
                                 {% csrf_token %}
-                                
+                                <input type="hidden" name="job_id" value="{{ job.id }}">
                                 <div class="mb-4">
                                     <h6 class="border-bottom pb-2">Application Details</h6>
                                     
@@ -144,16 +144,19 @@
                                         <!-- Resume Upload -->
                                         <div class="col-md-12">
                                             <label for="resume{{ job.id }}" class="form-label">
-                                                <i class="bi bi-file-earmark-pdf text-danger me-1"></i> Resume (PDF only)
+                                                <i class="bi bi-file-earmark-pdf text-danger me-1"></i> Resume 
                                             </label>
                                             <div class="input-group">
-                                                <input type="file" class="form-control" id="resume{{ job.id }}" name="resume" accept=".pdf" required>
+                                                <a href="{{student.resume.url}}" class="btn btn-outline-secondary" target="_blank" type="button" id="clearResume{{ job.id }}">
+                                                    <i class="bi bi-box-arrow-up-right"></i> View Resume
+                                                </a>    
+                                                {% comment %} <input type="file" class="form-control" id="resume{{ job.id }}" name="resume" accept=".pdf" required>
                                                 <button class="btn btn-outline-secondary" type="button" id="clearResume{{ job.id }}">
                                                     <i class="bi bi-x-circle"></i> Clear
-                                                </button>
+                                                </button> {% endcomment %}
                                             </div>
-                                            <div class="form-text">Max file size: 5MB. Your resume should be up-to-date.</div>
-                                            <div class="invalid-feedback">Please upload a valid PDF resume.</div>
+                                            {% comment %} <div class="form-text">Max file size: 5MB. Your resume should be up-to-date.</div> {% endcomment %}
+                                            {% comment %} <div class="invalid-feedback">Please upload a valid PDF resume.</div> {% endcomment %}
                                         </div>
                                         
                                         <!-- Cover Letter -->
@@ -185,11 +188,11 @@
                                             <div class="mb-3">
                                                 <label class="form-label">Do you meet the minimum CGPA requirement?</label>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="cgpa_met{{ job.id }}" id="cgpaYes{{ job.id }}" value="yes" required>
+                                                    <input class="form-check-input" type="radio" name="cgpa_met" id="cgpaYes{{ job.id }}" value="yes" required>
                                                     <label class="form-check-label" for="cgpaYes{{ job.id}}">Yes, I meet the requirement</label>
                                                 </div>
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="radio" name="cgpa_met{{ job.id }}" id="cgpaNo{{ job.id }}" value="no">
+                                                    <input class="form-check-input" type="radio" name="cgpa_met" id="cgpaNo{{ job.id }}" value="no">
                                                     <label class="form-check-label" for="cgpaNo{{ job.id }}">No, but I have other qualifications</label>
                                                 </div>
                                             </div>
@@ -198,7 +201,7 @@
                                 </div>
                                 
                                 <div class="form-check mb-4">
-                                    <input class="form-check-input" type="checkbox" id="confirmInfo{{ job.id }}" required>
+                                    <input class="form-check-input" type="checkbox" name="confirm_info" id="confirmInfo{{ job.id }}" required>
                                     <label class="form-check-label" for="confirmInfo{{ job.id }}">
                                         I confirm that all information provided is accurate
                                     </label>

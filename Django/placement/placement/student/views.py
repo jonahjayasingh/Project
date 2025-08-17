@@ -3,21 +3,45 @@ from app.models import UserPermission
 from .models import StudentDetails
 from django.contrib.auth.models import User
 from django.contrib import messages
-from company.models import JobDetails
-from app.models import DegreeSpecialization
+from company.models import JobDetails,JobApplication
+from app.models import DegreeSpecialization,Notification
 import json
 
 # Create your views here.
 def dashboard(request):
+    if request.method == 'POST':
+        job_id = request.POST.get("job_id")
+        cover_letter = request.POST.get("cover_letter")
+        availability = request.POST.get('availability')
+        cgpa_required = request.POST.get('cgpa_met') == 'yes'
+        confirm_info = request.POST.get('confirm_info') == 'on'
+        job = JobDetails.objects.get(id=job_id)
+        student = StudentDetails.objects.get(user= request.user)
+        if JobApplication.objects.filter(job=job,user=student).exists():
+            messages.error(request,"You have already applied for this job")
+            return redirect("student:student")
+        JobApplication(job=job,user=student,cover_letter=cover_letter,available_to_work_in=availability,cgpa_required=cgpa_required,confirm_info=confirm_info).save()
+        messages.success(request,"Your Application has been submitted")
+        return redirect("student:student")
+        
     student = StudentDetails.objects.get(user= request.user)
-    # print(JobDetails.objects.filter(cgpa_threshold__lte =student.cgpa))
     try:
-        jobs = JobDetails.objects.filter(cgpa_threshold__lte =student.cgpa)
+        jobs = JobDetails.objects.filter(
+            cgpa_threshold__lte=student.cgpa,
+            is_active=True
+        ).exclude(
+            applications__user=student
+        )
+
     except:
         jobs = None
+    print(Notification.objects.filter(user=request.user))
     content = {
         "user_data" : UserPermission.objects.get(user=request.user),
-        "jobs" : jobs
+        "jobs" : jobs,
+        "student" : student,
+        "notifications" : Notification.objects.filter(user=request.user),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
 
     }
     # print(content)
@@ -95,3 +119,29 @@ def profile(request):
         "degrees_list":degree
     }
     return render(request,"student/profile.html",content)
+
+from django.http import HttpResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from django_htmx.http import trigger_client_event
+
+
+def mark_notification_read(request, pk):
+    try:
+        notif = Notification.objects.get(pk=pk, user=request.user)
+        notif.is_read = True
+        notif.save()
+        print("chsng")
+
+        # Return a minimal replacement (same structure but marked as read)
+        response = HttpResponse(
+            f'<a class="dropdown-item d-flex py-3 border-bottom notification-item" '
+            f'style="white-space: normal;" data-id="{notif.id}">'
+            f'<div class="w-100">'
+            f'<p class="mb-0 text-muted small text-wrap">{notif.message}</p>'
+            f'</div></a>'
+        )
+        # Fire an event so the badge count can be updated client-side
+        return trigger_client_event(response, "notificationRead", {"id": pk})
+    except Notification.DoesNotExist:
+        return HttpResponse(status=404)

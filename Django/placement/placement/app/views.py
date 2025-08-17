@@ -283,7 +283,7 @@ def teacher(request):
         teacher.is_placement_faculty = placement_faculty
         teacher.save()
         print(designation,id,department,is_hod,placement_faculty)
-        messages.success(request,"Your profile has been updated")
+        messages.success(request,"Your profile has been updated") 
         return redirect("app:teacher")
 
     print(DegreeSpecialization.objects.values("degree").distinct()[0])
