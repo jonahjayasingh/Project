@@ -83,7 +83,6 @@
                         <option value="1">Year 1</option>
                         <option value="2">Year 2</option>
                         <option value="3">Year 3</option>
-                        <option value="4">Year 4</option>
                     </select>
                 </div>
                 <div class="col-md-3">
@@ -124,14 +123,23 @@
                     <div class="no-image"><span>No Image Available</span></div>
                 {% endif %}
                 <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start">
+                    <div class="d-flex">
                         <h4 class="card-title">{{ student.name }}</h4>
-                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" 
-                                data-bs-target="#notificationModal" data-student-id="{{ student.id }}"
-                                data-student-name="{{ student.name }}">
-                            <i class="bi bi-bell"></i>
+                        <div class="">
+                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" 
+                                    data-bs-target="#notificationModal" data-student-id="{{ student.id }}"
+                                    data-student-name="{{ student.name }}">
+                                <i class="bi bi-bell"></i>
 
                         </button>
+                        <form method="POST" action="" style="margin:0; padding:0; display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Are you sure you want to delete {{ student.name }}?');">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                        </div>
                     </div>
                     <p class="text-muted">{{ student.course }} - {{ student.branch }}</p>
                     <div class="student-details">

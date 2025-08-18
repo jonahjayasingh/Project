@@ -20,4 +20,4 @@ class StudentDetails(models.Model):
     reg_no = models.CharField(max_length=100,unique=True,null=True,blank=True)
     cgpa = models.FloatField(null=True,blank=True)
     resume = models.FileField(upload_to="StudentResume",null=True,blank=True)
-    is_resume_approved = models.BooleanField()
+    is_resume_approved = models.BooleanField(null=True,blank=True)

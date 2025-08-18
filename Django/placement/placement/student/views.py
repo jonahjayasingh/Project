@@ -40,7 +40,7 @@ def dashboard(request):
         "user_data" : UserPermission.objects.get(user=request.user),
         "jobs" : jobs,
         "student" : student,
-        "notifications" : Notification.objects.filter(user=request.user),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
         "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
 
     }
@@ -93,12 +93,15 @@ def profile(request):
             if resume:
                 if student.resume:
                     student.resume.delete()
+                print(resume)
                 student.resume = resume
             student.cgpa = cgpa
             if img:
                 if student.profile_picture:
                     student.profile_picture.delete()
                 student.profile_picture = img
+            if student.is_resume_approved == None:
+                student.is_resume_approved = False
             student.save()
     blood_groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
     semesters = [str(i) for i in range(1, 9)]
@@ -128,6 +131,7 @@ from django_htmx.http import trigger_client_event
 
 def mark_notification_read(request, pk):
     try:
+        print(pk)
         notif = Notification.objects.get(pk=pk, user=request.user)
         notif.is_read = True
         notif.save()

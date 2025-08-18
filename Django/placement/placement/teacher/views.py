@@ -132,6 +132,7 @@ def resume(request):
         student = StudentDetails.object.filter(id = s_id)
         student.is_resume_approved = True
         student.save()
+        Notification(user=student.user,message="Your resume has been approved").save()
         return redirect("teacher:resume")
     teacher = TeacherDetails.objects.get(user=request.user)
     students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True,course=teacher.department,branch=teacher.specialization, resume__isnull = False,is_resume_approved=False)
@@ -147,10 +148,14 @@ def resume(request):
 def reject_resume(request):
     if request.method == "POST":
         s_id = request.POST.get("s_id")
-        print("feedback", s_id)
-        # student = StudentDetails.object.filter(id = s_id)
-        # student.is_resume_approved = False
-        # student.save()
+        student = StudentDetails.objects.get(id = s_id)
+        message = request.POST.get("feedback_message")
+        student.is_resume_approved = None
+        student.resume.delete()
+        student.resume = None
+        student.save()
+        Notification(user=student.user,message=message).save()
+        messages.success(request,"Resume has been rejected")
     return redirect("teacher:resume")
 
 

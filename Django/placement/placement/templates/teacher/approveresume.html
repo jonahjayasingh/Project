@@ -62,14 +62,15 @@
                             <td>
                                 <div class="btn-group" role="group">
                                     {% if not student.resume_approved %}
-                                    <form method="post" action="" class="me-2">
+                                    <form method="post" action="{% url 'teacher:resume' %}" class="me-2">
+                                        <input type="hidden" name="s_id" value="{{ student.id }}">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-sm btn-success">
                                             <i class="fas fa-check"></i> Approve
                                         </button>
                                     </form>
                                     {% endif %}
-                                    <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ student.id }}">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#feedbackModal{{ student.id }}">
                                         <i class="fas fa-comment"></i> Feedback
                                     </button>
                                 </div>

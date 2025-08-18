@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Disease Information</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --primary-light: #eef0ff;
+            --secondary: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --white: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #f8f9fa 0%, #eef2ff 100%);
+            padding: 4rem 0;
+        }
+        
+        .category-card {
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary);
+            height: 100%;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .severity-indicator {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .benign {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: var(--bs-success);
+        }
+        
+        .malignant {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--bs-danger);
+        }
+        
+        .inflammatory {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--bs-warning);
+        }
+        
+        .infectious {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--bs-primary);
+        }
+        
+        .search-box {
+            max-width: 600px;
+        }
+        
+        .disclaimer-box {
+            max-width: 800px;
+        }
+        
+        .highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-heart-pulse-fill me-2"></i>
+                SkinDiseaseInfo
+            </a>
+            <div class="d-flex">
+                <a href="{{ url_for('login') }}" class="btn btn-link text-dark text-decoration-none me-2">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary px-3">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero text-center">
+        <div class="container">
+            <h1 class="fw-bold mb-3">Skin Disease Information</h1>
+            <p class="lead text-muted mb-4 mx-auto" style="max-width: 700px;">
+                Explore information about various dermatological conditions, their symptoms, and treatment options.
+            </p>
+            
+            <div class="search-box mx-auto position-relative">
+                <input type="text" id="searchInput" class="form-control form-control-lg ps-4 pe-5" placeholder="Search skin conditions...">
+                <i class="bi bi-search position-absolute end-0 top-50 translate-middle-y me-3 text-muted"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Skin Disease Categories</h2>
+                <p class="text-muted">Browse our collection of dermatological conditions:</p>
+            </div>
+            
+            <div class="row g-4" id="diseaseContainer">
+                <!-- Category Cards -->
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Acne and Rosacea</h5>
+                            <p class="card-text text-muted small">Common inflammatory skin conditions affecting facial appearance</p>
+                            <span class="badge inflammatory severity-indicator">Inflammatory</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Actinic Keratosis & BCC</h5>
+                            <p class="card-text text-muted small">Precancerous and malignant skin lesions from sun exposure</p>
+                            <span class="badge malignant severity-indicator">Potentially Malignant</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Atopic Dermatitis</h5>
+                            <p class="card-text text-muted small">Chronic eczema characterized by itchy, inflamed skin</p>
+                            <span class="badge inflammatory severity-indicator">Chronic Condition</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Bacterial Infections</h5>
+                            <p class="card-text text-muted small">Cellulitis, impetigo and other bacterial skin infections</p>
+                            <span class="badge infectious severity-indicator">Infectious</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Benign Skin Lesions</h5>
+                            <p class="card-text text-muted small">Non-cancerous skin growths and abnormalities</p>
+                            <span class="badge benign severity-indicator">Benign</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Bullous Diseases</h5>
+                            <p class="card-text text-muted small">Conditions characterized by fluid-filled blisters</p>
+                            <span class="badge inflammatory severity-indicator">Autoimmune</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Eczema</h5>
+                            <p class="card-text text-muted small">Various forms of dermatitis causing skin irritation</p>
+                            <span class="badge inflammatory severity-indicator">Chronic</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Drug Eruptions</h5>
+                            <p class="card-text text-muted small">Skin reactions caused by medications</p>
+                            <span class="badge inflammatory severity-indicator">Allergic</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Fungal Infections</h5>
+                            <p class="card-text text-muted small">Athlete's foot, ringworm and other fungal conditions</p>
+                            <span class="badge infectious severity-indicator">Infectious</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Nail Fungus & Diseases</h5>
+                            <p class="card-text text-muted small">Fungal nail infections and other nail disorders</p>
+                            <span class="badge infectious severity-indicator">Infectious/Chronic</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Hair Disorders</h5>
+                            <p class="card-text text-muted small">Alopecia and other conditions affecting hair growth</p>
+                            <span class="badge benign severity-indicator">Mostly Benign</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">STD-Related Conditions</h5>
+                            <p class="card-text text-muted small">Herpes, HPV and other sexually transmitted skin manifestations</p>
+                            <span class="badge infectious severity-indicator">Infectious</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Pigmentation Disorders</h5>
+                            <p class="card-text text-muted small">Conditions affecting skin color and melanin production</p>
+                            <span class="badge benign severity-indicator">Mostly Benign</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Connective Tissue Diseases</h5>
+                            <p class="card-text text-muted small">Lupus and other conditions affecting connective tissue</p>
+                            <span class="badge inflammatory severity-indicator">Autoimmune</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Malignant Lesions</h5>
+                            <p class="card-text text-muted small">Skin cancers including melanoma and other malignancies</p>
+                            <span class="badge malignant severity-indicator">Malignant</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Melanoma & Nevi</h5>
+                            <p class="card-text text-muted small">Malignant melanoma and benign moles</p>
+                            <span class="badge malignant severity-indicator">Potentially Malignant</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer-box mx-auto bg-white p-4 rounded-3 shadow-sm my-5 text-center">
+        <p class="text-muted fst-italic mb-0">
+            Note: This information is for educational purposes only and not a substitute for professional medical advice.
+        </p>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase().trim();
+        const cards = document.querySelectorAll('.disease-card');
+        
+        // Remove all highlights first
+        document.querySelectorAll('.highlight').forEach(el => {
+            el.classList.remove('highlight');
+        });
+        
+        if (searchTerm === '') {
+            // If search is empty, ensure all cards are visible
+            cards.forEach(card => {
+                card.style.display = 'block';
+                const title = card.querySelector('.card-title');
+                title.innerHTML = title.textContent; // Reset title HTML
+            });
+            return;
+        }
+        
+        cards.forEach(card => {
+            const title = card.querySelector('.card-title');
+            const titleText = title.textContent.toLowerCase();
+            
+            if (titleText.includes(searchTerm)) {
+                card.style.display = 'block';
+                // Highlight matching text in title only
+                highlightText(title, searchTerm);
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    function highlightText(element, searchTerm) {
+        const text = element.textContent;
+        const regex = new RegExp(searchTerm, 'gi');
+        const newText = text.replace(regex, match => `<span class="highlight">${match}</span>`);
+        element.innerHTML = newText;
+    }
+</script>
+</body>
+</html>

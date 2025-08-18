@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Account</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-hover: #4338ca;
+            --secondary-color: #f9fafb;
+            --text-color: #1f2937;
+            --light-gray: #f3f4f6;
+            --border-color: #e5e7eb;
+            --error-color: #ef4444;
+            --success-color: #10b981;
+        }
+        
+        body {
+            background-color: var(--secondary-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        .register-container {
+            max-width: 480px;
+            width: 100%;
+            margin: 0 auto;
+        }
+        
+        .register-card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            background-color: white;
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), #6366f1);
+            color: white;
+            text-align: center;
+            padding: 2rem;
+            border-bottom: none;
+        }
+        
+        .card-header h3 {
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 2.5rem;
+        }
+        
+        .form-label {
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-control {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+        
+        .form-control::placeholder {
+            color: #9ca3af;
+        }
+        
+        .password-toggle {
+            cursor: pointer;
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            z-index: 5;
+            transition: color 0.2s ease;
+        }
+        
+        .password-toggle:hover {
+            color: var(--primary-color);
+        }
+        
+        .password-input-group {
+            position: relative;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 1.75rem 0;
+            color: #9ca3af;
+            font-size: 0.875rem;
+        }
+        
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .divider::before {
+            margin-right: 1rem;
+        }
+        
+        .divider::after {
+            margin-left: 1rem;
+        }
+        
+        .login-link {
+            color: var(--primary-color);
+            font-weight: 500;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        
+        .login-link:hover {
+            color: var(--primary-hover);
+            text-decoration: underline;
+        }
+        
+        .input-hint {
+            font-size: 0.8rem;
+            color: #6b7280;
+            margin-top: 0.25rem;
+            display: block;
+        }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        
+        .toast-error {
+            background-color: #fee2e2;
+            border-left: 4px solid var(--error-color);
+        }
+        
+        @media (max-width: 576px) {
+            .card-body {
+                padding: 1.75rem;
+            }
+            
+            .card-header {
+                padding: 1.5rem;
+            }
+            
+            .toast-container {
+                bottom: 10px;
+                right: 10px;
+                left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Toast Container -->
+    <div class="toast-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="toast show align-items-center toast-error" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas fa-exclamation-circle me-2 text-danger"></i>
+                            {{ message }}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <div class="register-container">
+        <div class="register-card card">
+            <div class="card-header">
+                <h3>Create Your Account</h3>
+            </div>
+            <div class="card-body">
+                <form action="/register" method="POST">
+                    <!-- Username Field -->
+                    <div class="mb-4">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter your username" required>
+                    </div>
+                    
+                    <!-- Password Field -->
+                    <div class="mb-4">
+                        <label for="password" class="form-label">Password</label>
+                        <div class="password-input-group">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
+                            <i class="fas fa-eye password-toggle" onclick="togglePassword('password', this)"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Confirm Password Field -->
+                    <div class="mb-4">
+                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <div class="password-input-group">
+                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Repeat your password" required>
+                            <i class="fas fa-eye password-toggle" onclick="togglePassword('confirmPassword', this)"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Submit Button -->
+                    <div class="d-grid gap-2 mb-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-user-plus me-2"></i> Register Now
+                        </button>
+                    </div>
+                    
+                    <div class="divider">OR</div>
+                    
+                    <div class="text-center">
+                        <p class="mb-0">Already have an account? <a href="{{ url_for('login') }}" class="login-link">Sign in</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Password toggle function
+        function togglePassword(fieldId, icon) {
+            const passwordField = document.getElementById(fieldId);
+            if (passwordField.type === "password") {
+                passwordField.type = "text";
+                icon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                passwordField.type = "password";
+                icon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
+        }
+        
+        // Initialize and auto-hide toasts after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize all toasts
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'));
+            var toastList = toastElList.map(function(toastEl) {
+                // Create toast instance
+                var toast = new bootstrap.Toast(toastEl, {
+                    autohide: true,
+                    delay: 5000
+                });
+                
+                // Show toast
+                toast.show();
+                
+                return toast;
+            });
+            
+            // Close button functionality
+            var closeButtons = [].slice.call(document.querySelectorAll('.btn-close'));
+            closeButtons.forEach(function(button) {
+                button.addEventListener('click', function() {
+                    var toastElement = button.closest('.toast');
+                    var toastInstance = bootstrap.Toast.getInstance(toastElement);
+                    toastInstance.hide();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
