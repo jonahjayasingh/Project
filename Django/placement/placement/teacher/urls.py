@@ -13,4 +13,8 @@ urlpatterns = [
     path("recjec_resume",reject_resume,name="reject_resume"),
     path("allstudent",all_student,name="allstudent"),
     path("group_notification",group_notification,name="group_notification"),
+    path("training",training,name="training"),
+    path("delete/<int:id>",delete_training,name="delete_training"),
 ]
+
+

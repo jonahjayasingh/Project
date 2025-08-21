@@ -269,6 +269,10 @@
         <i class="bi bi-speedometer2"></i>
         <span class="nav-text">Dashboard</span>
       </a>
+      <a href="{% url 'student:training' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
+        <i class="bi bi-speedometer2"></i>
+        <span class="nav-text">Placement Training</span>
+      </a>
 
       {%  elif user_data.is_teacher %}
       <a href="{% url 'teacher:teacher' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
@@ -285,11 +289,11 @@
       </a>
       <a href="{% url 'teacher:allstudent' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
         <i class="bi bi-speedometer2"></i>
-        <span class="nav-text">  All Students <br> {{ user_data.user.teacher|default:"No phone available" }}
+        <span class="nav-text">  All Students 
 </span>
       </a>
-        {% if user_data.user.teacher.is_placement_faculty %}
-        <a href="{% url 'teacher:allstudent' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
+        {% if user_data.user.teacher.all.0.is_placement_faculty %}
+        <a href="{% url 'teacher:training' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
           <i class="bi bi-speedometer2"></i>
           <span class="nav-text">Placement Training</span>
         </a>

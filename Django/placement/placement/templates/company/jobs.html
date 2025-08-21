@@ -59,27 +59,42 @@
                         <p class="card-text text-muted job-description">{{ job.description|truncatechars:120 }}</p>
                     </div>
                     <div class="card-footer bg-transparent border-0">
-                        <div class="d-flex justify-content-between flex-wrap gap-2">
+                    <div class="d-flex justify-content-between flex-wrap gap-2">
+
+                        <!-- View Job Button -->
                         <button class="btn btn-sm btn-outline-primary flex-grow-1" 
                                 data-bs-toggle="modal" 
                                 data-bs-target="#viewJobModal{{ job.id }}">
-                            <i class="bi bi-eye me-1"></i> View
+                        <i class="bi bi-eye me-1"></i> View
                         </button>
-                        <button class="btn btn-sm btn-outline-success flex-grow-1"
-                                data-bs-toggle="modal" 
-                                data-bs-target="#viewEligibleStudentsModal{{ job.id }}">
-                            <i class="bi bi-people me-1"></i> Eligible
-                        </button>
+
+                        <!-- Applied Students Page -->
+                        <a href="{% url 'company:applied_students' job.id %}" 
+                        class="btn btn-sm btn-outline-success flex-grow-1">
+                        <i class="bi bi-people-fill me-1"></i> Applied
+                        </a>
+
+                        <!-- Eligible Students Page -->
+                        <a href="{% url 'company:eligible_students' job.id %}" 
+                        class="btn btn-sm btn-outline-info flex-grow-1">
+                        <i class="bi bi-person-check-fill me-1"></i> Eligible
+                        </a>
+
+                        <!-- Edit Job Modal -->
                         <button class="btn btn-sm btn-outline-warning flex-grow-1"
                                 data-bs-toggle="modal" 
                                 data-bs-target="#editJobModal{{ job.id }}">
-                            <i class="bi bi-pencil me-1"></i> Edit
+                        <i class="bi bi-pencil-square me-1"></i> Edit
                         </button>
-                        <a href= "{% url 'company:applied_students' job.id %}" class="btn btn-sm btn-outline-info flex-grow-1">Applyied </a>
-                        <a href="{% url 'company:deletejob' job.id %}" class="btn btn-sm btn-outline-danger flex-grow-1 delete-job">
-                            <i class="bi bi-trash me-1"></i> Delete
+
+                        <!-- Delete Job Link -->
+                        <a href="{% url 'company:deletejob' job.id %}" 
+                        class="btn btn-sm btn-outline-danger flex-grow-1 delete-job">
+                        <i class="bi bi-trash-fill me-1"></i> Delete
                         </a>
+
                     </div>
+
                     </div>
                 </div>
             </div>

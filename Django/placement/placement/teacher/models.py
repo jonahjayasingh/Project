@@ -17,3 +17,11 @@ class TeacherDetails(models.Model):
     department = models.CharField(max_length=100,null=True,blank=True)
     is_hod = models.BooleanField(default=False)
     is_placement_faculty = models.BooleanField(default=False)
+
+
+class Training(models.Model):
+    user = models.ForeignKey(TeacherDetails,on_delete=models.CASCADE,null=True,blank=True,related_name="training")
+    title = models.CharField(max_length=100,null=True,blank=True)
+    description = models.TextField(null=True,blank=True)
+    vedio = models.FileField(upload_to="training_vedio",null=True,blank=True)
+    quize = models.FileField(upload_to="training_quize",null=True,blank=True)

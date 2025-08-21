@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from app.models import UserPermission,Notification,DegreeSpecialization
-from .models import TeacherDetails
+from .models import TeacherDetails, Training
 from student.models import StudentDetails
 import json
 from django.contrib.auth.models import User
@@ -15,8 +15,11 @@ def add_notifications(request):
     
     
     active_notifications = []
-
-    # Company notification
+    print(re_student[0])
+    msg = f"There are {re_student.count()} student accounts awaiting approval."
+    if Notification.objects.filter(user=user,message__icontains=msg).exists():
+        notifications = Notification.objects.filter(user=user).order_by("-date")
+        return notifications
     if re_student.exists():
         msg = f"There are {re_student.count()} student accounts awaiting approval."
         Notification.objects.update_or_create(
@@ -39,7 +42,9 @@ def add_notifications(request):
 # Create your views here.
 def dashboard(request):
     content = {
-        "user_data":UserPermission.objects.get(user=request.user)
+        "user_data":UserPermission.objects.get(user=request.user),
+        "notifications":add_notifications(request),
+         "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     print(content["user_data"].is_teacher)
     
@@ -92,7 +97,7 @@ def profile(request):
         "user_data":UserPermission.objects.get(user=request.user),
         'blood_groups': blood_groups,
         'genders': genders,
-        
+        "notifications":add_notifications(request),
         'teacher':teacher,
     }
     return render(request,"teacher/profile.html",content)
@@ -107,6 +112,8 @@ def approvestudents(request):
         "user_data":UserPermission.objects.get(user=request.user),
         "students":students,
         "notifications":add_notifications(request),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"teacher/approvestudents.html",content)
 
@@ -121,7 +128,7 @@ def approve(request,id):
 
 def reject(request,id):
     student = StudentDetails.objects.get(id=id)
-    user = UserPermission.objects.get(id=student.user.id)
+    user = User.objects.get(id=student.user.id)
     user.delete()
     messages.success(request,"Student has been deleted")
     return redirect("teacher:approvestudents")
@@ -142,6 +149,8 @@ def resume(request):
         "user_data":UserPermission.objects.get(user=request.user),
         "students":students,
         "notifications":add_notifications(request),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"teacher/approveresume.html",content)
     
@@ -198,3 +207,32 @@ def group_notification(request):
         messages.success(request,f"Notification sent to {len(students)} students sucessfully")
         return redirect("teacher:allstudent")
     return redirect("teacher:allstudent")
+
+def training(request):
+    if request.method == "POST":
+        title = request.POST.get("title")
+        description = request.POST.get("description")
+        file = request.FILES.get("file")
+        training_type = request.POST.get("training_type")
+        print(training_type)
+        if training_type == "video":
+            Training(user=request.user.teacher.first(),title=title,description=description,vedio=file).save()
+        else:
+            Training(user=request.user.teacher.first(),title=title,description=description,quize=file).save()
+        
+        messages.success(request,"Training has been added")
+        return redirect("teacher:training")
+    content = {
+        "user_data":UserPermission.objects.get(user=request.user),
+        "trainings":Training.objects.all(),
+        "notifications":add_notifications(request),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
+    }
+    return render(request,"teacher/training.html",content)
+
+def delete_training(request,id):
+    training = Training.objects.get(id=id)
+    training.delete()
+    messages.success(request,"Training has been deleted")
+    return redirect("teacher:training")

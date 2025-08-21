@@ -1,17 +1,22 @@
 from django.shortcuts import render,redirect
 from app.models import UserPermission
-from .models import CompanyDetails,JobDetails
+from .models import CompanyDetails,JobDetails,JobApplication
 from django.contrib import messages
 from student.models import StudentDetails
 from app.models import DegreeSpecialization
 import json
-
+from app.models import Notification
 # Create your views here.
 def dashboard(request):
-
+    total_applicants = JobApplication.objects.count()
     context = {
         "user_data" : UserPermission.objects.get(user=request.user),
-        
+        "total_applicants" : total_applicants,
+        "total_jobs" : JobDetails.objects.count(),
+        "company": CompanyDetails.objects.get(user= request.user),
+        "recent_applicants" : JobApplication.objects.order_by("-id")[:5],
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"company/dashboard.html",context)
 
@@ -52,6 +57,8 @@ def profile(request):
     context = {
         "user_data" : UserPermission.objects.get(user=request.user),
         "company" : CompanyDetails.objects.filter(user=request.user).first(),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"company/Profile.html",context)
 
@@ -92,6 +99,8 @@ def jobs(request):
         "user_data" : UserPermission.objects.get(user=request.user),
         "jobs" : JobDetails.objects.filter(company__user=request.user),
         "students" : StudentDetails.objects.all(),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
 
     }
     return render(request,"company/jobs.html",context)
@@ -116,7 +125,9 @@ def eligible_students(request,id):
         "user_data" : UserPermission.objects.get(user=request.user),
         "job" : job,
         "students" : StudentDetails.objects.filter(cgpa__gte=job.cgpa_threshold),
-        "degrees":json.dumps(degree)
+        "degrees":json.dumps(degree),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"company/eligible_students.html",context)
 
@@ -129,11 +140,17 @@ def applied_students(request,id):
         for j in DegreeSpecialization.objects.filter(degree=i["degree"]):
             specialization.append(j.specialization)
         degree[i["degree"]] = specialization
+    print(JobApplication.objects.filter(job=job).values("user"))
     context = {
         "user_data" : UserPermission.objects.get(user=request.user),
         "job" : job,
-        "students" : StudentDetails.objects.filter(cgpa__gte=job.cgpa_threshold),
-        "degrees":json.dumps(degree)
+        "students" : StudentDetails.objects.filter(
+                    id__in=JobApplication.objects.filter(job=job).values("user")
+                ),
+        "degrees":json.dumps(degree),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"company/appliedstudents.html",context)
+
 

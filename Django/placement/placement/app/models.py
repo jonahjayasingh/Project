@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+from student.models import StudentDetails
+from teacher.models import TeacherDetails
 
 # Create your models here.
 
@@ -10,6 +14,8 @@ class UserPermission(models.Model):
     is_student = models.BooleanField(default=False)
     is_principal = models.BooleanField(default=False)
     is_approved = models.BooleanField(default=False)
+
+   
 
 class DegreeSpecialization(models.Model):
     user = models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)

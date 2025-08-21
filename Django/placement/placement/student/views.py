@@ -6,6 +6,10 @@ from django.contrib import messages
 from company.models import JobDetails,JobApplication
 from app.models import DegreeSpecialization,Notification
 import json
+from django.http import HttpResponse
+from django_htmx.http import trigger_client_event
+from teacher.models import Training
+
 
 # Create your views here.
 def dashboard(request):
@@ -119,14 +123,21 @@ def profile(request):
         'semesters': semesters,
         'years': years,
         'degrees': json.dumps(degree),
-        "degrees_list":degree
+        "degrees_list":degree,
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"student/profile.html",content)
 
-from django.http import HttpResponse
-from django.views.decorators.http import require_POST
-from django.contrib.auth.decorators import login_required
-from django_htmx.http import trigger_client_event
+
+def training(request):
+    content = {
+        "user_data" : UserPermission.objects.get(user=request.user),
+        "trainings" : Training.objects.all(),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
+    }
+    return render(request,"student/training.html",content)
 
 
 def mark_notification_read(request, pk):

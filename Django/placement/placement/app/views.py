@@ -162,8 +162,9 @@ def dashboard(request):
         "degree_specializations": DegreeSpecialization.objects.all(),
         "teacher_count": UserPermission.objects.filter(is_teacher=True,is_approved=True).count(),
         "student_count": UserPermission.objects.filter(is_student=True,is_approved=True).count(),
-        "degree_count": DegreeSpecialization.objects.values("degree").distinct().count(),
+        "degree_count": DegreeSpecialization.objects.values("degree").distinct().cont(),
         "specialization_count": DegreeSpecialization.objects.all().count(),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
 
     
@@ -211,7 +212,8 @@ def profile(request):
     content = {
         "principal":Principal.objects.filter(user=request.user).first(),
         "user_data" : UserPermission.objects.get(user=request.user),
-        "notifications": add_notifications(request)
+        "notifications": add_notifications(request),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"app/Profile.html",content)
 
@@ -238,7 +240,8 @@ def approve(request):
         "teacher":UserPermission.objects.filter(is_teacher=True,is_approved=False),
         "company":UserPermission.objects.filter(is_company=True,is_approved=False),
         "user_data" : UserPermission.objects.get(user=request.user),
-        "notifications": add_notifications(request)
+        "notifications": add_notifications(request),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
 
     }
     return render(request,"app/approve.html",content)
@@ -261,7 +264,8 @@ def allStudents(request):
         "students":students,
         "user_data" : UserPermission.objects.get(user=request.user),
         "notifications": add_notifications(request),        
-        "degrees":json.dumps(degree)
+        "degrees":json.dumps(degree),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"app/students.html",content)
 
@@ -293,7 +297,8 @@ def teacher(request):
         "teachers":TeacherDetails.objects.filter(user__user_permission__is_teacher=True,user__user_permission__is_approved=True),
         "notifications": add_notifications(request),
         "degrees":DegreeSpecialization.objects.values("degree").distinct(),
-        "specializations":DegreeSpecialization.objects.all()
+        "specializations":DegreeSpecialization.objects.all(),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
 
     print(content["teachers"])
@@ -307,7 +312,8 @@ def company(request):
     content = {
         "user_data" : UserPermission.objects.get(user=request.user),
         "companies":CompanyDetails.objects.filter(user__user_permission__is_company=True,user__user_permission__is_approved=True),
-        "notifications": add_notifications(request)
+        "notifications": add_notifications(request),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
     return render(request,"app/company.html",content)
 
