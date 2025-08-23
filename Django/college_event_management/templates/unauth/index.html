@@ -276,7 +276,7 @@
 
     <div class="gallery-container">
       {% for gallery in galleries %}
-      <a href="{% url 'gallery'  %}" class="gallery-card">
+      <a href="{% url 'coordinator:gallery'  %}" class="gallery-card">
         <div class="card-image-container">
           <img src="{{gallery.image.url}}" alt="{{gallery.caption}}" class="card-image">
         </div>

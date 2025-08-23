@@ -18,3 +18,19 @@ class Events(models.Model):
     event_location = models.CharField(max_length=255)
     event_description = models.TextField()
     event_image = models.ImageField(upload_to="events")
+
+
+class Mcq(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="mcqs")
+    mcq_title = models.CharField(max_length=255)
+    no_of_questions = models.IntegerField()
+
+
+class Question(models.Model):
+    mcq = models.ForeignKey(Mcq,on_delete=models.CASCADE, related_name="questions")
+    question = models.CharField(max_length=255)
+    option1 = models.CharField(max_length=255)
+    option2 = models.CharField(max_length=255)
+    option3 = models.CharField(max_length=255)
+    option4 = models.CharField(max_length=255)
+    answer = models.CharField(max_length=255)

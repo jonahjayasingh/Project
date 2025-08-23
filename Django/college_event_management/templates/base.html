@@ -232,7 +232,7 @@
   <!-- Navigation Bar -->
   <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
     <div class="container">
-      <a class="navbar-brand" href="#">
+      <a class="navbar-brand" href="{% url 'coordinator:index' %}">
         <i class="fas fa-university"></i> PCU Engineering
       </a>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -241,16 +241,16 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'event' %}"><i class="fas fa-calendar-alt me-1"></i> Events</a>
+            <a class="nav-link" href="{% url 'coordinator:event' %}"><i class="fas fa-calendar-alt me-1"></i> Events</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link active" href="{% url 'gallery' %}"><i class="fas fa-images me-1"></i> Gallery</a>
+            <a class="nav-link active" href="{% url 'coordinator:gallery' %}"><i class="fas fa-images me-1"></i> Gallery</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'userregister' %}"><i class="fas fa-user-plus me-1"></i> Register</a>
+            <a class="nav-link" href="{% url 'coordinator:userregister' %}"><i class="fas fa-user-plus me-1"></i> Register</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="{% url 'userlogin' %}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
+            <a class="nav-link" href="{% url 'coordinator:userlogin' %}"><i class="fas fa-sign-in-alt me-1"></i> Login</a>
           </li>
         </ul>
       </div>

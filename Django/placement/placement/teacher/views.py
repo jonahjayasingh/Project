@@ -12,16 +12,16 @@ def add_notifications(request):
 
     # Check for pending approvals
     re_student = StudentDetails.objects.filter(user__user_permission__is_approved=False,user__user_permission__is_student=True,branch=teacher.specialization,course=teacher.department)
-    
+    res_student = StudentDetails.objects.filter(resume__isnull=False).exclude(resume="")
+    print(res_student)
     
     active_notifications = []
-    print(re_student[0])
     msg = f"There are {re_student.count()} student accounts awaiting approval."
     if Notification.objects.filter(user=user,message__icontains=msg).exists():
         notifications = Notification.objects.filter(user=user).order_by("-date")
         return notifications
-    if re_student.exists():
-        msg = f"There are {re_student.count()} student accounts awaiting approval."
+    if res_student.exists():
+        msg = f"There are {res_student.count()} student accounts with resume."
         Notification.objects.update_or_create(
             user=user,
             message=msg,
@@ -142,13 +142,11 @@ def resume(request):
         Notification(user=student.user,message="Your resume has been approved").save()
         return redirect("teacher:resume")
     teacher = TeacherDetails.objects.get(user=request.user)
-    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True,course=teacher.department,branch=teacher.specialization, resume__isnull = False,is_resume_approved=False)
-    
+    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True,course=teacher.department,branch=teacher.specialization,is_resume_approved=False).exclude(resume="")    
 
     content = {
         "user_data":UserPermission.objects.get(user=request.user),
         "students":students,
-        "notifications":add_notifications(request),
         "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
         "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
@@ -177,7 +175,7 @@ def all_student(request):
         messages.success(request,f"Notification sent to {student.name} sucessfully")
         return redirect("teacher:allstudent")
     teacher = TeacherDetails.objects.get(user= request.user)
-    students = StudentDetails.objects.filter(course= teacher.department,branch=teacher.specialization)
+    students = StudentDetails.objects.filter(course= teacher.department,branch=teacher.specialization,user__user_permission__is_approved=True)
     content = {
         "user_data":UserPermission.objects.get(user=request.user),
         "students":students,

@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-
+app_name = "coordinator"
 urlpatterns = [
     path('',views.index,name="index"),
     path("login/",views.userlogin,name="userlogin"),
@@ -12,4 +12,6 @@ urlpatterns = [
     path("delete_gallery/",views.delete_gallery,name="delete_gallery"),
     path("gallery/",views.gallery,name="gallery"),
     path("event/",views.event,name="event"),
+    path("add_form/",views.add_form,name="add_form"),
+    path("edit_form/",views.edit_form,name="edit_form"),
 ]

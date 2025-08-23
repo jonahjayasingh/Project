@@ -24,6 +24,7 @@ def dashboard(request):
         if JobApplication.objects.filter(job=job,user=student).exists():
             messages.error(request,"You have already applied for this job")
             return redirect("student:student")
+        
         JobApplication(job=job,user=student,cover_letter=cover_letter,available_to_work_in=availability,cgpa_required=cgpa_required,confirm_info=confirm_info).save()
         messages.success(request,"Your Application has been submitted")
         return redirect("student:student")
@@ -36,19 +37,28 @@ def dashboard(request):
         ).exclude(
             applications__user=student
         )
-
+        locations =JobDetails.objects.filter(
+            cgpa_threshold__lte=student.cgpa,
+            is_active=True
+        ).exclude(
+            applications__user=student
+        ).values_list("location",flat=True).distinct()
     except:
+        
         jobs = None
-    print(Notification.objects.filter(user=request.user))
+        locations = None
+        
+    print(locations)
+    print(jobs)
     content = {
         "user_data" : UserPermission.objects.get(user=request.user),
         "jobs" : jobs,
         "student" : student,
         "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
-        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count(),
+        "location": locations
 
     }
-    # print(content)
     return render(request,"student/dashboard.html",content)
 
 def profile(request):
@@ -72,11 +82,15 @@ def profile(request):
         reg_no =  request.POST.get("reg_no")
         cgpa = request.POST.get("cgpa")
         is_edit = request.POST.get('hide')
-        resume = request.FILES.get("resume")
+        resume = None if request.FILES.get("resume") == "" else request.FILES.get("resume")
+        job_title = request.POST.get("job_title")
+        company_name = request.POST.get("company_name")
+        company_location = request.POST.get("company_location")
+        salary = 0 if request.POST.get("salary") == "" else request.POST.get("salary")
         user = User.objects.get(username=request.user)
-        print(gender)
+        print(resume)
         if is_edit is None:
-            StudentDetails(user=user,name=name,email=email,phone=ph_no,address=address,date_of_birth=dob,gender=gender,blood_group=blood_group,profile_picture=img,course=course,branch=branch,year=year,sem= semester,roll_no=roll_no,reg_no=reg_no,cgpa=cgpa,resume=resume).save()
+            StudentDetails(user=user,name=name,email=email,phone=ph_no,address=address,date_of_birth=dob,gender=gender,blood_group=blood_group,profile_picture=img,course=course,branch=branch,year=year,sem= semester,roll_no=roll_no,reg_no=reg_no,cgpa=cgpa,resume=resume,job_title=job_title,company_name=company_name,company_location=company_location,salary=salary).save()
             messages.success(request,"Your Profile has been added")
             return redirect("student:profile")
         else:
@@ -97,9 +111,12 @@ def profile(request):
             if resume:
                 if student.resume:
                     student.resume.delete()
-                print(resume)
                 student.resume = resume
             student.cgpa = cgpa
+            student.job_title = job_title
+            student.company_name = company_name
+            student.company_location = company_location
+            student.salary = salary
             if img:
                 if student.profile_picture:
                     student.profile_picture.delete()
@@ -108,8 +125,8 @@ def profile(request):
                 student.is_resume_approved = False
             student.save()
     blood_groups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']
-    semesters = [str(i) for i in range(1, 9)]
-    years = ['1', '2', '3', '4']
+    semesters = [str(i) for i in range(1, 7)]
+    years = ['1', '2', '3']
     degree = {}
     for i in DegreeSpecialization.objects.values("degree").distinct():
         specialization = []

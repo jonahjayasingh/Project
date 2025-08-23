@@ -1,8 +1,8 @@
 from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.db.models import Q
-
+from django.db.models import Q,Count
+import json
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from .models import UserPermission,Principal,Notification,DegreeSpecialization
@@ -24,32 +24,45 @@ def add_notifications(request):
     # Company notification
     if re_company.exists():
         msg = f"There are {re_company.count()} company accounts awaiting approval."
-        Notification.objects.update_or_create(
+        if Notification.objects.filter(message=msg).exists():
+            notifications = Notification.objects.filter(user=user).order_by("-date")
+            return notifications
+        else:
+            Notification.objects.create(
             user=user,
             message=msg,
             defaults={"is_read": False}
-        )
-        active_notifications.append(msg)
+            )
+            active_notifications.append(msg)
 
     # Teacher notification
     if re_teacher.exists():
         msg = f"There are {re_teacher.count()} teacher accounts awaiting approval."
-        Notification.objects.update_or_create(
+        if Notification.objects.filter(message=msg).exists():
+            notifications = Notification.objects.filter(user=user).order_by("-date")
+            return notifications
+        else:
+            Notification.objects.create(
             user=user,
             message=msg,
             defaults={"is_read": False}
-        )
-        active_notifications.append(msg)
+            )
+            active_notifications.append(msg)
 
     # Student notification
     if re_student.exists():
         msg = f"There are {re_student.count()} student accounts awaiting approval."
-        Notification.objects.update_or_create(
+        if Notification.objects.filter(message=msg).exists():
+            notifications = Notification.objects.filter(user=user).order_by("-date")
+            return notifications
+        else:
+            
+            Notification.objects.create(
             user=user,
             message=msg,
-            defaults={"is_read": False}
-        )
-        active_notifications.append(msg)
+            is_read=False
+            )
+            active_notifications.append(msg)
 
     # Remove outdated approval notifications (for company/teacher/student)
     Notification.objects.filter(
@@ -155,14 +168,13 @@ def userlogout(request):
 @login_required(login_url="app:login")
 def dashboard(request):
     
-    print(DegreeSpecialization.objects.all())
     content = {
         "user_data": UserPermission.objects.get(user=request.user),
         "notifications": add_notifications(request),
         "degree_specializations": DegreeSpecialization.objects.all(),
         "teacher_count": UserPermission.objects.filter(is_teacher=True,is_approved=True).count(),
         "student_count": UserPermission.objects.filter(is_student=True,is_approved=True).count(),
-        "degree_count": DegreeSpecialization.objects.values("degree").distinct().cont(),
+        "degree_count": DegreeSpecialization.objects.values("degree").distinct().count(),
         "specialization_count": DegreeSpecialization.objects.all().count(),
         "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
     }
@@ -245,7 +257,6 @@ def approve(request):
 
     }
     return render(request,"app/approve.html",content)
-import json
 
 @login_required(login_url="app:login")
 def allStudents(request):
@@ -290,7 +301,6 @@ def teacher(request):
         messages.success(request,"Your profile has been updated") 
         return redirect("app:teacher")
 
-    print(DegreeSpecialization.objects.values("degree").distinct()[0])
     
     content = {
         "user_data" : UserPermission.objects.get(user=request.user),
@@ -341,3 +351,34 @@ def delete_degree_specialization(request,id):
     degree_specialization.delete()
     messages.success(request,"Your degree specialization has been deleted")
     return redirect("app:dashboard")
+
+def report(request):
+    company = CompanyDetails.objects.all()
+    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True)
+    placed_students = StudentDetails.objects.filter(job_title__isnull=False,user__user_permission__is_approved=True)
+
+    company_placed_students = (
+        StudentDetails.objects
+        .exclude(company_name__isnull=True)
+        .exclude(company_name__exact="")
+        .values("company_name")
+        .annotate(placed_count=Count("id"))
+        .order_by("company_name")
+    )
+
+    print(len(company_placed_students))
+    content = {
+        "user_data" : UserPermission.objects.get(user=request.user),
+        "notifications": add_notifications(request),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count(),
+        "company":company,
+        "students":students,
+        "placed_students":placed_students,
+        "total_students":students.count(),
+        "total_company":company.count(),
+        "total_placed_students":placed_students.count(),
+        "total_not_placed_students":students.count() - placed_students.count()
+    }
+    return render(request,"app/report.html",content)
+
+

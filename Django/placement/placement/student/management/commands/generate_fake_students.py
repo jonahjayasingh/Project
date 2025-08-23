@@ -41,7 +41,7 @@ class Command(BaseCommand):
                 UserPermission.objects.create(
                     user=user,
                     is_student=True,
-                    is_approved=True,
+                    is_approved=False,
                     is_teacher=False,
                     is_company=False,
                     is_principal=False
@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 specialization = random.choice(degree_programs[degree])
                 
                 # Determine year and semester (1-8)
-                semester = random.randint(1, 8)
+                semester = random.randint(1, 6)
                 year = ((semester - 1) // 2) + 1  # Calculate year from semester
                 
                 # Create StudentDetails

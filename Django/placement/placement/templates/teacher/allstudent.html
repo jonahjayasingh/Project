@@ -151,10 +151,18 @@
 
                     <p class="text-muted">{{ student.course }} - {{ student.branch }}</p>
                     <div class="student-details">
+                        <div class="detail-item"><span class="detail-label">Email:</span> {{ student.email }}</div>
+                        <div class="detail-item"><span class="detail-label">Phone:</span> {{ student.phone }}</div>
                         <div class="detail-item"><span class="detail-label">Roll No:</span> {{ student.roll_no }}</div>
                         <div class="detail-item"><span class="detail-label">Reg No:</span> {{ student.reg_no }}</div>
                         <div class="detail-item"><span class="detail-label">Year/Sem:</span> Year {{ student.year }} - Sem {{ student.sem }}</div>
                         <div class="detail-item"><span class="detail-label">CGPA:</span> {% if student.cgpa %}{{ student.cgpa }}{% else %}Not available{% endif %}</div>
+                        {% if student.job_title %}
+                        <span class="badge bg-success">Placed</span>
+                        {% else %}  
+                        <span class="badge bg-info">Not Placed</span>
+                        {% endif %}
+
                     </div>
                 </div>
             </div>

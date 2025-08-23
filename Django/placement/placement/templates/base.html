@@ -7,8 +7,8 @@
   <title>{% block title %}{% endblock %}</title>
   
   <!-- Bootstrap 5 CSS -->
-   
-<link href="{% static 'bootstrap.min.css'%}" rel="stylesheet">  <!-- Bootstrap Icons -->
+  <link href="{% static 'bootstrap.min.css'%}" rel="stylesheet">  
+  <!-- Bootstrap Icons -->
   <link rel="stylesheet" href="{% static 'bootstrap-icons.css'%}">
   
   <style>
@@ -247,30 +247,30 @@
         <span class="nav-text">All Students</span>
       </a>
       <a href="{% url 'app:approve' %}" class="nav-link" data-bs-title="Approve Request">
-        <i class="bi bi-check-circle"></i>
+        <i class="bi bi-check-circle-fill"></i>
         <span class="nav-text">Approve Request</span>
       </a>
-      <a href="{% url 'app:teacher' %}" class="nav-link" data-bs-title="Settings">
-
-          <i class="bi bi-mortarboard"></i>
-        <span class="nav-text">Teacher</span>
+      <a href="{% url 'app:teacher' %}" class="nav-link" data-bs-title="Teachers">
+        <i class="bi bi-person-badge-fill"></i>
+        <span class="nav-text">Teachers</span>
       </a>
-      <a href="{% url 'app:company' %}" 
-   class="nav-link d-flex align-items-center py-2 px-3" 
-   data-bs-toggle="tooltip" 
-   data-bs-placement="right" 
-   data-bs-original-title="View company documentation"
-   title="Company Documentation">
-    <i class="bi bi-file-earmark-text me-2"></i>
-    <span class="nav-text">Company</span>
-</a>
+      <a href="{% url 'app:company' %}" class="nav-link" data-bs-title="Companies">
+        <i class="bi bi-building"></i>
+        <span class="nav-text">Companies</span>
+      </a>
+    
+      <a href="{% url 'app:report' %}" class="nav-link" data-bs-title="Report">
+        <i class="bi bi-file-earmark-text-fill"></i>
+        <span class="nav-text">Report</span>
+      </a>
+      
       {% elif user_data.is_student %}
       <a href="{% url 'student:student' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
         <i class="bi bi-speedometer2"></i>
         <span class="nav-text">Dashboard</span>
       </a>
-      <a href="{% url 'student:training' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
-        <i class="bi bi-speedometer2"></i>
+      <a href="{% url 'student:training' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Placement Training">
+        <i class="bi bi-journal-bookmark-fill"></i>
         <span class="nav-text">Placement Training</span>
       </a>
 
@@ -279,22 +279,21 @@
         <i class="bi bi-speedometer2"></i>
         <span class="nav-text">Dashboard</span>
       </a>
-      <a href="{% url 'teacher:approvestudents' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
-        <i class="bi bi-speedometer2"></i>
+      <a href="{% url 'teacher:approvestudents' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Approve Students">
+        <i class="bi bi-person-check-fill"></i>
         <span class="nav-text">Approve Students</span>
       </a>
-      <a href="{% url 'teacher:resume' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
-        <i class="bi bi-speedometer2"></i>
+      <a href="{% url 'teacher:resume' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Resume">
+        <i class="bi bi-file-earmark-person-fill"></i>
         <span class="nav-text">Resume</span>
       </a>
-      <a href="{% url 'teacher:allstudent' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
-        <i class="bi bi-speedometer2"></i>
-        <span class="nav-text">  All Students 
-</span>
+      <a href="{% url 'teacher:allstudent' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="All Students">
+        <i class="bi bi-people-fill"></i>
+        <span class="nav-text">All Students</span>
       </a>
         {% if user_data.user.teacher.all.0.is_placement_faculty %}
-        <a href="{% url 'teacher:training' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Dashboard">
-          <i class="bi bi-speedometer2"></i>
+        <a href="{% url 'teacher:training' %}" class="nav-link {% if request.path == '/dashboard/' %}active{% endif %}" data-bs-title="Placement Training">
+          <i class="bi bi-journal-bookmark-fill"></i>
           <span class="nav-text">Placement Training</span>
         </a>
         {% endif %}
@@ -303,17 +302,14 @@
         <i class="bi bi-speedometer2"></i>
         <span class="nav-text">Dashboard</span>
       </a>
-      <a href="{% url 'company:jobs' %}" class="nav-link {% if request.path == '/jobs/' %}active{% endif %}" data-bs-title="Dashboard">
-        <i class="bi bi-speedometer2"></i>
+      <a href="{% url 'company:jobs' %}" class="nav-link {% if request.path == '/jobs/' %}active{% endif %}" data-bs-title="Manage Jobs">
+        <i class="bi bi-briefcase-fill"></i>
         <span class="nav-text">Manage Jobs</span>
       </a>
-      
-      
       {% endif %}
     </div>
     
     <div class="sidebar-footer">
-
       <a href="
       {% if user_data.is_principal %}
       {% url 'app:profile' %}
@@ -490,17 +486,12 @@
     <div class="container-fluid page-content">
       {% block content %}
       <!-- Default content if not overridden -->
-      
-
-
-
       {% endblock %}
     </div>
   </div>
 
   <!-- Bootstrap JS Bundle with Popper -->
   <script src="{% static 'bootstrap.bundle.min.js'%}"></script>
-
 
   
   <script>

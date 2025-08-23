@@ -105,6 +105,16 @@
         font-weight: 500;
     }
     
+    /* Job details section */
+    .job-badge {
+        background-color: var(--primary-light);
+        color: var(--primary);
+        padding: 4px 12px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
     /* Edit Modal Styles */
     .modal-content {
         border-radius: var(--border-radius);
@@ -200,6 +210,11 @@
                 <div>
                     <h1 class="h3 mb-1">{{ student.name }}</h1>
                     <p class="mb-0 opacity-75">{{ student.course }} in {{ student.branch }}</p>
+                    {% if student.job_title %}
+                    <div class="mt-2">
+                        <span class="job-badge">{{ student.job_title }}</span>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
             <div class="profile-actions d-flex mt-3 mt-md-0">
@@ -244,12 +259,42 @@
                         <ul class="list-unstyled mt-3">
                             <li class="mb-2"><strong>Roll No:</strong> {{ student.roll_no }}</li>
                             <li class="mb-2"><strong>Reg No:</strong> {{ student.reg_no }}</li>
-                            <li class="mb-2"><strong>Enrollment Date:</strong> 15 Aug 2022</li>
                             
                         </ul>
                     </div>
                 </div>
             </div>
+            
+            <!-- Job Details Section - Only show if job details exist -->
+            {% if student.job_title %}
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="detail-card p-4">
+                        <h5 class="card-title mb-3">Employment Details</h5>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <strong>Job Title:</strong>
+                                <p class="mb-0">{{ student.job_title }}</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <strong>Company:</strong>
+                                <p class="mb-0">{{ student.company_name }}</p>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <strong>Location:</strong>
+                                <p class="mb-0">{{ student.company_location }}</p>
+                            </div>
+                            {% if student.salary %}
+                            <div class="col-md-4 mb-3">
+                                <strong>Salary:</strong>
+                                <p class="mb-0">{{ student.salary }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
             
             <div class="row">
                 <div class="col-6">
@@ -409,13 +454,29 @@
                         <div class="col-md-6 mb-3">
                             <div class="form-group">
                             <label class="form-label">CGPA</label>
-                            <input type="number" step="0.1" min="0" max="10" name="cgpa" value="{{ student.cgpa|default:'' }}" class="form-control">
+                            <input type="number" step="0.1" min="0" max="10" name="cgpa" value="{{ student.cgpa|default:'' }}" class="form-control" required>
                             </div>
                             
                         </div>
                          <div class="col-md-6 mb-3"> 
                             <label class="form-label">Resume</label> <a href="{% if student.resume %}{{ student.resume.url }} {%endif%}" target="_blank" class="text-decoration-none">View Resume</a>
                             <input type="file" name="resume"   class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" name="job_title" value="{{ student.job_title|default:'' }}" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company Name</label>
+                            <input type="text" name="company_name" value="{{ student.company_name|default:'' }}" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Company Location</label>
+                            <input type="text" name="company_location" value="{{ student.company_location|default:'' }}" class="form-control">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Salary</label>
+                            <input type="text" name="salary" value="{{ student.salary|default:'' }}" class="form-control">
                         </div>
                     </div>
 
