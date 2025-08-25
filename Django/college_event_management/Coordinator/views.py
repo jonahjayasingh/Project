@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.models import User
-from Coordinator.models import Events,Gallery,Mcq,Question 
+from Coordinator.models import Events,Gallery,Mcq,Question ,Profile
 from django.db.models import Max
 
 # Create your views here.
@@ -24,6 +24,10 @@ def userlogin(request):
             login(request,user)
             messages.success(request,"You are logged in")
             if request.user.is_superuser:
+                if Profile.objects.filter(user=request.user).exists():
+                    pass
+                else:
+                    Profile.objects.create(user=request.user)
                 return redirect("coordinator:dashboard")
             else:
                 messages.error(request,"your not allowed to access this page")
@@ -172,3 +176,32 @@ def edit_form(request):
         "no_of_questions": 10
     }
     return render(request,"Coordinator/edit_form.html")
+
+
+def profile(request):
+    if request.method == "POST":
+        phone = request.POST.get("phone")
+        address = request.POST.get("address")
+        profile_pic = request.FILES.get("avatar")
+        fname = request.POST.get("first_name")
+        lname = request.POST.get("last_name")   
+        email = request.POST.get("email") 
+        user = User.objects.get(username=request.user.username)
+        user.first_name = fname
+        user.last_name = lname
+        user.email = email
+        user.save()
+        profile = Profile.objects.get(user=request.user)
+        profile.phone = phone
+        profile.address = address        
+        if profile_pic:
+            if profile.profile_pic:
+                profile.profile_pic.delete()
+            profile.profile_pic = profile_pic
+        
+        profile.save()
+        messages.success(request,"Profile updated successfully")
+        return redirect("coordinator:profile")
+    return render(request,"Coordinator/profile.html",{
+        "profile":Profile.objects.get(user=request.user)
+    })
