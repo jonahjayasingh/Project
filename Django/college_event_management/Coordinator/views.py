@@ -21,20 +21,33 @@ def userlogin(request):
         password = request.POST.get("password")
         user = authenticate(request,username=username,password=password)
         if user is not None:
-            login(request,user)
-            messages.success(request,"You are logged in")
-            if request.user.is_superuser:
-                if Profile.objects.filter(user=request.user).exists():
+            
+            if user.is_superuser:
+                if Profile.objects.filter(user=user).exists():
                     pass
                 else:
-                    Profile.objects.create(user=request.user)
+                    Profile.objects.create(user=user)
+                login(request,user)
+                messages.success(request,"You are logged in")
                 return redirect("coordinator:dashboard")
-            else:
-                messages.error(request,"your not allowed to access this page")
+            elif user.is_staff:
+                if Profile.objects.filter(user=user).exists():
+                    pass
+                else:
+                    Profile.objects.create(user=user)
+                login(request,user)
+                messages.success(request,"You are logged in")
                 return redirect("student:student")
+            else:
+                messages.error(request,"wait for admin approval")
+                return redirect("coordinator:userlogin")
         else:
-            messages.error(request,"Invalid credentials")
-            return redirect("coordinator:userlogin")
+            if User.objects.filter(username=username).exists():
+                messages.error(request,"Password is incorrect")
+                return redirect("coordinator:userlogin")
+            else:
+                messages.error(request,"Username does not exist")
+                return redirect("coordinator:userlogin")
     return render(request,"unauth/login.html")
 
 def userregister(request):
@@ -205,3 +218,24 @@ def profile(request):
     return render(request,"Coordinator/profile.html",{
         "profile":Profile.objects.get(user=request.user)
     })
+
+
+def approve_students(request):
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        student = User.objects.get(id=student_id)
+        action = request.POST.get("action")
+        if action == "reject":
+            student.delete()
+            messages.success(request,"Student successfully removed" )
+            return redirect("coordinator:approve_students")
+        student.is_staff= True
+        student.save()
+        messages.success(request,"Student approved successfully")
+        return redirect("coordinator:approve_students")
+    content = {
+        "students":User.objects.filter(is_superuser=False),
+        "astudents": len(User.objects.filter(is_staff=True,is_superuser=False)),
+        "pstudents":len(User.objects.filter(is_staff=False,is_superuser=False)),
+    }
+    return render(request,"Coordinator/approve_student.html",content)   

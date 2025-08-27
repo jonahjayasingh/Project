@@ -5,5 +5,7 @@ app_name ="student"
 
 urlpatterns = [
     path('',views.index,name="student"),
+    path("mcq_exam",views.mcq_exam,name="mcq_exam"),
+
     
 ]

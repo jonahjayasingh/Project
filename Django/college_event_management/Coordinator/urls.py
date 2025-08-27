@@ -15,4 +15,5 @@ urlpatterns = [
     path("add_form/",views.add_form,name="add_form"),
     path("edit_form/",views.edit_form,name="edit_form"),
     path("profile/",views.profile,name="profile"),
+    path("approve_students/",views.approve_students,name="approve_students"),
 ]

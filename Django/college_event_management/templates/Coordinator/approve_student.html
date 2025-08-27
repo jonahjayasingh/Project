@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Approval Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            overflow-x: hidden;
+            height: 100vh;
+            padding-top: 76px;
+        }
+        
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 76px);
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 0.8rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .content-wrapper {
+            display: flex;
+            flex-grow: 1;
+            padding: 1.5rem;
+        }
+        
+        .main-content {
+            flex-grow: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-header h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-header h2 i {
+            margin-right: 12px;
+            color: var(--secondary-color);
+            background: rgba(52, 152, 219, 0.1);
+            padding: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .student-card {
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 1.5rem;
+            border: none;
+            overflow: hidden;
+        }
+        
+        .student-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .student-card-header {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+        }
+        
+        .student-card-body {
+            padding: 1.5rem;
+        }
+        
+        .student-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--secondary-color);
+            margin-right: 1rem;
+        }
+        
+        .student-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .student-details {
+            flex-grow: 1;
+        }
+        
+        .student-name {
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.2rem;
+        }
+        
+        .student-id {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .info-item {
+            display: flex;
+            margin-bottom: 0.8rem;
+        }
+        
+        .info-item i {
+            width: 24px;
+            color: var(--secondary-color);
+            margin-right: 10px;
+        }
+        
+        .badge-custom {
+            padding: 0.5em 0.8em;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 1.5rem;
+        }
+        
+        .btn-approve {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+        }
+        
+        .btn-reject {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            border: none;
+            color: white;
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+        }
+        
+        .stats-card {
+            border-radius: 10px;
+            color: white;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        .stats-card i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+        }
+        
+        .stats-card h3 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stats-card p {
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+        }
+        
+        .search-box input {
+            padding-left: 40px;
+            border-radius: 50px;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .btn-filter {
+            border: 2px solid var(--secondary-color);
+            color: var(--secondary-color);
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-filter.active, .btn-filter:hover {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+        }
+        
+        .alert-messages {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+        }
+        
+        /* Toast container at bottom center */
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1060;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            min-width: 300px;
+            max-width: 90vw;
+            pointer-events: none;
+        }
+        
+        .toast-container > .toast {
+            pointer-events: auto;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .section-header h2 {
+                font-size: 1.6rem;
+            }
+            
+            body {
+                padding-top: 70px;
+            }
+            
+            .student-info {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .student-avatar {
+                margin-right: 0;
+                margin-bottom: 1rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .filter-buttons {
+                flex-wrap: wrap;
+            }
+            
+            .alert-messages {
+                left: 20px;
+                right: 20px;
+                bottom: 80px;
+            }
+            
+            /* Adjust toast for mobile */
+            .toast-container {
+                bottom: 10px;
+                left: 10px;
+                right: 10px;
+                transform: none;
+                max-width: 100%;
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+      <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">
+      <i class="fas fa-university"></i> PACIFIC COAST UNIVERSITY
+    </a>
+
+    <div class="dropdown ms-auto">
+      <a class="btn text-white " href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-user-circle"></i> Account
+      </a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+        <li>
+          <a class="dropdown-item" href="{% url 'coordinator:profile' %}">
+            <i class="fas fa-user me-1"></i> Profile
+          </a>
+        </li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'coordinator:approve_students' %}">
+            <i class="fas fa-key me-1"></i> Approve Students
+          </a>
+        </li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li>
+          <a class="dropdown-item" href="{% url 'coordinator:logout' %}">
+            <i class="fas fa-sign-out-alt me-1"></i> Logout
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="main-container">
+    <div class="content-wrapper">
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="section-header">
+                <h2><i class="fas fa-user-check"></i>Student Approval</h2>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" class="form-control" placeholder="Search students..." id="searchInput" style="width: 250px;">
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="stats-card" style="background: linear-gradient(135deg, #3498db 0%, #2c3e50 100%);">
+                        <i class="fas fa-clock"></i>
+                        <h3 id="pendingCount">{{ astudents }}</h3>
+                        <p>Pending Approvals</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="stats-card" style="background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);">
+                        <i class="fas fa-check-circle"></i>
+                        <h3 id="approvedCount">{{ pstudents }}</h3>
+                        <p>Approved Students</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filter Buttons -->
+            <div class="filter-buttons">
+                <button class="btn btn-filter active" onclick="filterStudents('all')">All Students</button>
+                <button class="btn btn-filter" onclick="filterStudents('pending')">Pending</button>
+                <button class="btn btn-filter" onclick="filterStudents('approved')">Approved</button>
+            </div>
+            
+            <!-- Student Cards -->
+            <div class="row" id="studentList">
+                {% for student in students %}
+                <div class="col-md-6 col-lg-4 mb-4 student-card-container" data-status="{% if student.is_staff %}approved{% else %}pending{% endif %}">
+                    <div class="student-card">
+                        <div class="student-card-header d-flex justify-content-between align-items-center">
+                            <span class="badge {% if student.is_staff %}bg-success{% else %}bg-warning{% endif %}">
+                                {% if student.is_staff %}Approved{% else %}Pending Approval{% endif %}
+                            </span>
+                            <div class="text-end">
+                                <small>Joined: {{ student.date_joined|date:"Y-m-d" }}</small>
+                            </div>
+                        </div>
+                        <div class="student-card-body">
+                            <div class="student-info">
+                                <img src="https://ui-avatars.com/api/?name={{ student.username }}&background=3498db&color=fff" class="student-avatar" alt="Student Avatar">
+                                <div class="student-details">
+                                    <h4 class="student-name">{{ student.get_full_name|default:student.username }}</h4>
+                                    <div class="student-id">ID: {{ student.id }}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <i class="fas fa-envelope"></i>
+                                <div>{{ student.email }}</div>
+                            </div>
+
+                            {% if student.is_staff %}
+                            <div class="info-item">
+                                <i class="fas fa-calendar"></i>
+                                <div>Last login: {% if student.last_login %}{{ student.last_login|date:"Y-m-d" }}{% else %}Never{% endif %}</div>
+                            </div>
+                            {% else %}
+                            <div class="info-item">
+                                <i class="fas fa-user-clock"></i>
+                                <div>Status: Awaiting Approval</div>
+                            </div>
+                                                            <!-- Reject Form -->
+
+                            {% endif %}
+
+                            {% if not student.is_staff %}
+                            <div class="d-flex gap-2">
+                                <!-- Approve Form -->
+                                <form method="POST" class="w-50" action="{% url 'coordinator:approve_students' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="student_id" value="{{ student.id }}">
+                                    <button type="submit" class="btn btn-approve w-100">
+                                        <i class="fas fa-check"></i> Approve
+                                    </button>
+                                </form>
+                                
+                                <!-- Reject Form -->
+                                <form method="POST" class="w-50" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="student_id" value="{{ student.id }}">
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="btn btn-reject w-100">
+                                        <i class="fas fa-times"></i> Reject
+                                    </button>
+                                </form>
+                            </div>
+                            {% else %}
+                            <div class="action-buttons">
+                                <button class="btn btn-success flex-fill" disabled>
+                                    <i class="fas fa-check-circle"></i> Already Approved
+                                </button>
+                                <form method="POST" class="w-50" action="">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="student_id" value="{{ student.id }}">
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="btn btn-reject w-100">
+                                        <i class="fas fa-times"></i> Remove 
+                                    </button>
+                                </form>
+                            </div>
+                            
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
+                    <h4 class="text-muted">No students found</h4>
+                    <p class="text-muted">There are no students requiring approval at this time.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container">
+    <!-- Toasts will be added here dynamically -->
+</div>
+
+<!-- Messages Display -->
+<div class="alert-messages position-fixed bottom-0 end-0 p-3" style="z-index: 1050;">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<!-- Bootstrap JS with Popper -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Function to show a toast notification
+    function showToast(message, type = 'success') {
+        const toastContainer = document.querySelector('.toast-container');
+        const toastId = 'toast-' + Date.now();
+        
+        const toastEl = document.createElement('div');
+        toastEl.className = `toast align-items-center text-bg-${type} border-0`;
+        toastEl.setAttribute('role', 'alert');
+        toastEl.setAttribute('aria-live', 'assertive');
+        toastEl.setAttribute('aria-atomic', 'true');
+        toastEl.setAttribute('id', toastId);
+        toastEl.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i>
+                    ${message}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        `;
+        
+        toastContainer.appendChild(toastEl);
+        const toast = new bootstrap.Toast(toastEl, {
+            autohide: true,
+            delay: 3000
+        });
+        toast.show();
+        
+        // Remove the toast from DOM after it hides
+        toastEl.addEventListener('hidden.bs.toast', function() {
+            toastEl.remove();
+        });
+    }
+    
+    // Update counters function
+    function updateCounters() {
+        const pendingCards = document.querySelectorAll('.student-card-container[data-status="pending"]');
+        const approvedCards = document.querySelectorAll('.student-card-container[data-status="approved"]');
+        
+        document.getElementById('pendingCount').textContent = pendingCards.length;
+        document.getElementById('approvedCount').textContent = approvedCards.length;
+    }
+    
+    // Filter students
+    function filterStudents(status) {
+        const cards = document.querySelectorAll('.student-card-container');
+        const filterButtons = document.querySelectorAll('.btn-filter');
+        
+        // Update active button
+        filterButtons.forEach(btn => {
+            if (btn.textContent.toLowerCase().includes(status)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        
+        // Show/hide cards based on filter
+        cards.forEach(card => {
+            if (status === 'all') {
+                card.style.display = 'block';
+            } else if (card.getAttribute('data-status') === status) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+    
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const studentCards = document.querySelectorAll('.student-card-container');
+        
+        studentCards.forEach(card => {
+            const studentName = card.querySelector('.student-name').textContent.toLowerCase();
+            const studentEmail = card.querySelector('.fa-envelope').parentNode.textContent.toLowerCase();
+            
+            if (studentName.includes(searchText) || studentEmail.includes(searchText)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+    
+    // Auto-dismiss alerts after 5 seconds
+    window.setTimeout(function() {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            const bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        });
+    }, 5000);
+</script>
+</body>
+</html>
