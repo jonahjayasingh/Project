@@ -15,6 +15,11 @@ urlpatterns = [
     path("group_notification",group_notification,name="group_notification"),
     path("training",training,name="training"),
     path("delete/<int:id>",delete_training,name="delete_training"),
+    path("approve_teacher",approve_teacher,name="approve_teacher"),
+    path("assign_designation",assign_designation,name="assign_designation"),
+    path("report",report,name="report"),
+
+    
 ]
 
 

@@ -21,7 +21,13 @@ class StudentDetails(models.Model):
     cgpa = models.FloatField(null=True,blank=True)
     resume = models.FileField(upload_to="StudentResume", default=None,null=True,blank=True)
     is_resume_approved = models.BooleanField(null=True,blank=True)
+    
+
+
+class JobInfo(models.Model):
+    student = models.ForeignKey(StudentDetails,on_delete=models.CASCADE,related_name="job_info")
     job_title = models.CharField(max_length=100,null=True,blank=True)
     company_name = models.CharField(max_length=100,null=True,blank=True)
     company_location = models.CharField(max_length=100,null=True,blank=True)
     salary = models.FloatField(null=True,blank=True)
+    date = models.DateField(auto_now_add=False)

@@ -2,7 +2,10 @@ from django.shortcuts import render,redirect
 from django.contrib import messages
 from app.models import UserPermission,Notification,DegreeSpecialization
 from .models import TeacherDetails, Training
-from student.models import StudentDetails
+from student.models import StudentDetails,JobInfo
+from django.db.models import Count
+from django.db.models.functions import ExtractYear
+from company.models import CompanyDetails
 import json
 from django.contrib.auth.models import User
 
@@ -13,7 +16,6 @@ def add_notifications(request):
     # Check for pending approvals
     re_student = StudentDetails.objects.filter(user__user_permission__is_approved=False,user__user_permission__is_student=True,branch=teacher.specialization,course=teacher.department)
     res_student = StudentDetails.objects.filter(resume__isnull=False).exclude(resume="")
-    print(res_student)
     
     active_notifications = []
     msg = f"There are {re_student.count()} student accounts awaiting approval."
@@ -105,7 +107,7 @@ def profile(request):
 def approvestudents(request):
     teacher = TeacherDetails.objects.get(user=request.user)
     print(teacher.department)
-    print(StudentDetails.objects.filter(name="S1"))
+    print(StudentDetails.objects.filter(name="s1"))
     students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=False,course=teacher.department,branch=teacher.specialization)
     print(students)
     content = {
@@ -234,3 +236,137 @@ def delete_training(request,id):
     training.delete()
     messages.success(request,"Training has been deleted")
     return redirect("teacher:training")
+
+def approve_teacher(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        
+        teacher = UserPermission.objects.get(user__username=username)
+
+        teacher.is_approved = True
+        teacher.save()
+        messages.success(request,"Teacher has been approved")
+        return redirect("teacher:approve_teacher")
+    teachers = UserPermission.objects.filter(is_teacher= True,is_approved= False)
+    print(teachers)
+    print(len(teachers))
+    content = {
+        "user_data":UserPermission.objects.get(user=request.user),
+        "teachers":teachers,
+        "approved_teachers":TeacherDetails.objects.filter(user__user_permission__is_approved=True,user__user_permission__is_teacher=True,is_hod=False),
+        "notifications":add_notifications(request),
+        "notifications" : Notification.objects.filter(user=request.user).order_by("-id"),
+        "degrees":DegreeSpecialization.objects.values("degree").distinct(),
+        "specializations":DegreeSpecialization.objects.all(),
+        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count()
+    }
+    return render(request,"teacher/approve.html",content)
+
+
+def assign_designation(request):
+    if request.method == "POST":
+        id = request.POST.get("teacher_id")
+        designation = request.POST.get("designation")
+        placement_faculty = request.POST.get("is_placement") == "on"
+        print(placement_faculty)
+        teacher = TeacherDetails.objects.get(id=id)
+        teacher.designation = designation
+   
+        teacher.is_placement_faculty = placement_faculty
+        teacher.save()
+        messages.success(request,"Your profile has been updated") 
+        return redirect("teacher:approve_teacher")
+    return redirect("teacher:approve_teacher")
+
+
+def report(request):
+    year = None
+    if request.method == "POST":
+        year = request.POST.get("year")
+        print(year)
+        try:
+            year = int(year)
+        except (TypeError, ValueError):
+            year = None
+        if year is not None:
+            students = StudentDetails.objects.filter(
+                user__date_joined__year=year,
+                user__user_permission__is_student=True,
+                user__user_permission__is_approved=True
+            )
+            company = CompanyDetails.objects.all()
+            placed_students = StudentDetails.objects.filter(
+                job_info__isnull=False,
+                job_info__date__year=year
+            ).distinct()
+            company_placed_students = (
+                JobInfo.objects
+                .filter(student__user__date_joined__year=year)
+                .exclude(company_name__isnull=True)
+                .exclude(company_name__exact="")
+                .values("company_name")
+                .annotate(placed_count=Count("student", distinct=True))
+                .order_by("company_name")
+            )
+        else:
+            students = StudentDetails.objects.filter(
+                user__user_permission__is_student=True,
+                user__user_permission__is_approved=True
+            )
+            company = CompanyDetails.objects.all()
+            placed_students = StudentDetails.objects.filter(
+                job_info__isnull=False,
+            ).distinct()
+            company_placed_students = (
+                JobInfo.objects
+                .exclude(company_name__isnull=True)
+                .exclude(company_name__exact="")
+                .values("company_name")
+                .annotate(placed_count=Count("student", distinct=True))
+                .order_by("company_name")
+            )
+
+    else:  # GET request or others
+        company = CompanyDetails.objects.all()
+        students = StudentDetails.objects.filter(
+            user__user_permission__is_student=True,
+            user__user_permission__is_approved=True
+        )
+        placed_students = StudentDetails.objects.filter(
+            job_info__isnull=False
+        ).distinct()
+
+        company_placed_students = (
+            JobInfo.objects
+            .exclude(company_name__isnull=True)
+            .exclude(company_name__exact="")
+            .values("company_name")
+            .annotate(placed_count=Count("student", distinct=True))
+            .order_by("company_name")
+        )
+
+    available_years = (
+        JobInfo.objects
+        .annotate(year=ExtractYear("date"))
+        .values_list("year", flat=True)
+        .distinct()
+        .order_by("-year")
+    )
+    print(len(company_placed_students))
+    content = {
+        "user_data": UserPermission.objects.get(user=request.user),
+        "notifications": add_notifications(request),
+        "notifications_count": Notification.objects.filter(user=request.user, is_read=False).count(),
+        "company": company,
+        "students": students,
+        "placed_students": placed_students,
+        "total_students": students.count(),
+        "total_company": company.count() + len(company_placed_students),
+        "total_placed_students": placed_students.count(),
+        "total_not_placed_students": students.count() - placed_students.count(),
+        "company_placed_students": company_placed_students,
+        "available_years": available_years,
+        "selected_year": int(year) if year else "",
+    }
+
+    return render(request, "app/report.html", content)

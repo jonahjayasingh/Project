@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect
 from app.models import UserPermission
-from .models import StudentDetails
+from .models import StudentDetails,JobInfo
 from django.contrib.auth.models import User
 from django.contrib import messages
 from company.models import JobDetails,JobApplication
@@ -113,10 +113,15 @@ def profile(request):
                     student.resume.delete()
                 student.resume = resume
             student.cgpa = cgpa
-            student.job_title = job_title
-            student.company_name = company_name
-            student.company_location = company_location
-            student.salary = salary
+            if job_title and company_name and company_location and salary:
+                JobInfo(student=student,job_title=job_title,company_name=company_name,company_location=company_location,salary=salary).save()
+            elif JobInfo.objects.filter(student=student).exists():
+                job = JobInfo.objects.get(student=student)
+                job.job_title = job_title
+                job.company_name = company_name
+                job.company_location = company_location
+                job.salary = salary
+                job.save()
             if img:
                 if student.profile_picture:
                     student.profile_picture.delete()

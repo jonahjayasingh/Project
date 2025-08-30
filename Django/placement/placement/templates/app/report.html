@@ -15,6 +15,34 @@ Placement Statistics Dashboard
 
 {% block content %}
 <div class="container-fluid">
+    <!-- Year Filter Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Filter by Year</h6>
+                </div>
+                <div class="card-body">
+                    <form method="POST" class="form-inline">
+                        {% csrf_token %}
+                        <div class="form-group mr-3">
+                            <label for="year" class="mr-2">Select Year:</label>
+                            <select name="year" id="year" class="form-control">
+                                <option value="">All Years </option>
+                                {% for year in available_years %}
+                                    <option value="{{ year }}" {% if selected_year == year %}selected{% endif %}>
+                                        {{ year }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary mt-4">Apply Filter</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Summary Cards -->
     <div class="row">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -95,7 +123,7 @@ Placement Statistics Dashboard
                     <h6 class="m-0 font-weight-bold text-primary">Placement Status</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
+                    <div class="chart-pie pt-4 pb-2" style="height: 300px;">
                         <canvas id="placementPieChart"></canvas>
                     </div>
                     <div class="mt-4 text-center small">
@@ -117,7 +145,7 @@ Placement Statistics Dashboard
                     <h6 class="m-0 font-weight-bold text-primary">Company-wise Placements</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-bar">
+                    <div class="chart-bar" style="height: 300px;">
                         <canvas id="companyBarChart"></canvas>
                     </div>
                 </div>
@@ -143,7 +171,7 @@ Placement Statistics Dashboard
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for company in company_placed_students|slice:":5" %}
+                                {% for company in company_placed_students %}
                                 <tr>
                                     <td>{{ company.company_name }}</td>
                                     <td>{{ company.placed_count }}</td>
@@ -177,11 +205,24 @@ Placement Statistics Dashboard
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for student in placed_students|slice:":5" %}
+                                {% for student in placed_students|slice:":10" %}
                                 <tr>
-                                    <td>{{ student.user.first_name }} {{ student.user.last_name }}</td>
-                                    <td>{{ student.company_name }}</td>
-                                    <td>{{ student.job_title }}</td>
+                                    <td>{{ student.name }}</td>
+                                    <td>
+                                        {% for job in student.job_info.all %}
+                                            {{ job.company_name }}<br>
+                                        {% empty %}
+                                            Not Placed
+                                        {% endfor %}
+                                    </td>
+                                    </td>
+                                    <td>
+                                        {% for job in student.job_info.all %}
+                                            {{ job.job_title }}<br>
+                                        {% empty %}
+                                            Not Placed
+                                        {% endfor %}
+                                    </td>
                                 </tr>
                                 {% empty %}
                                 <tr>
@@ -201,7 +242,25 @@ Placement Statistics Dashboard
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-// Placement Status Pie Chart
+// === Auto-color generation ===
+function generateColorArray(length, opacity = 1) {
+    const baseColors = [
+        [78, 115, 223],
+        [28, 200, 138],
+        [54, 185, 204],
+        [246, 194, 62],
+        [231, 74, 59],
+        [231, 184, 132]
+    ];
+    const colors = [];
+    for (let i = 0; i < length; i++) {
+        const [r, g, b] = baseColors[i % baseColors.length];
+        colors.push(`rgba(${r}, ${g}, ${b}, ${opacity})`);
+    }
+    return colors;
+}
+
+// === Placement Status Pie Chart ===
 var ctx = document.getElementById("placementPieChart");
 var placementPieChart = new Chart(ctx, {
     type: 'doughnut',
@@ -233,26 +292,35 @@ var placementPieChart = new Chart(ctx, {
     },
 });
 
-// Company Bar Chart
+// === Company Placement Bar Chart ===
+const companyLabels = [
+    {% for company in company_placed_students %}
+        "{{ company.company_name }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+const companyData = [
+    {% for company in company_placed_students %}
+        {{ company.placed_count }}{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+
+const backgroundColors = generateColorArray(companyLabels.length, 0.8);
+const hoverColors = generateColorArray(companyLabels.length, 1);
+const borderColors = generateColorArray(companyLabels.length, 1);
+
 var ctx = document.getElementById("companyBarChart");
 var companyBarChart = new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: [
-            {% for company in company_placed_students|slice:":5" %}
-                "{{ company.company_name }}"{% if not forloop.last %},{% endif %}
-            {% endfor %}
-        ],
+        labels: companyLabels,
         datasets: [{
-            label: "Number of Placements",
-            backgroundColor: "#4e73df",
-            hoverBackgroundColor: "#2e59d9",
-            borderColor: "#4e73df",
-            data: [
-                {% for company in company_placed_students|slice:":5" %}
-                    {{ company.placed_count }}{% if not forloop.last %},{% endif %}
-                {% endfor %}
-            ],
+            label: "Placements",
+            backgroundColor: backgroundColors,
+            hoverBackgroundColor: hoverColors,
+            borderColor: borderColors,
+            borderWidth: 1,
+            data: companyData,
         }],
     },
     options: {
@@ -272,14 +340,14 @@ var companyBarChart = new Chart(ctx, {
                     drawBorder: false
                 },
                 ticks: {
-                    maxTicksLimit: 6
+                    maxTicksLimit: 20
                 },
                 maxBarThickness: 25,
             }],
             yAxes: [{
                 ticks: {
-                    min: 0,
-                    max: {% with max_count=company_placed_students.0.placed_count %}{% if max_count %}{{ max_count|add:"5" }}{% else %}10{% endif %}{% endwith %},
+                    beginAtZero: true,
+                    // No max value → Chart.js will auto-scale
                     maxTicksLimit: 5,
                     padding: 10,
                 },
@@ -293,7 +361,24 @@ var companyBarChart = new Chart(ctx, {
             }],
         },
         legend: {
-            display: false
+            display: true,
+            position: 'bottom',
+            onClick: (e) => e.stopPropagation(),
+            labels: {
+                generateLabels: function(chart) {
+                    const datasets = chart.data.datasets;
+                    return chart.data.labels.map((label, i) => {
+                        return {
+                            text: label,
+                            fillStyle: datasets[0].backgroundColor[i],
+                            strokeStyle: datasets[0].borderColor[i],
+                            lineWidth: 1,
+                            hidden: false,
+                            index: i
+                        };
+                    });
+                }
+            }
         },
         tooltips: {
             titleMarginBottom: 10,
@@ -305,8 +390,13 @@ var companyBarChart = new Chart(ctx, {
             borderWidth: 1,
             xPadding: 15,
             yPadding: 15,
-            displayColors: false,
+            displayColors: true,
             caretPadding: 10,
+            callbacks: {
+                label: function(tooltipItem, data) {
+                    return data.labels[tooltipItem.index] + ': ' + tooltipItem.yLabel;
+                }
+            }
         },
     }
 });

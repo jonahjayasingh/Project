@@ -2,11 +2,13 @@ from django.shortcuts import render,redirect
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.db.models import Q,Count
+from django.db.models.functions import ExtractYear
+
 import json
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.decorators import login_required
 from .models import UserPermission,Principal,Notification,DegreeSpecialization
-from student.models import StudentDetails
+from student.models import StudentDetails,JobInfo
 from company.models import JobDetails,CompanyDetails
 from teacher.models import TeacherDetails
 
@@ -31,7 +33,7 @@ def add_notifications(request):
             Notification.objects.create(
             user=user,
             message=msg,
-            defaults={"is_read": False}
+            is_read=False
             )
             active_notifications.append(msg)
 
@@ -45,7 +47,7 @@ def add_notifications(request):
             Notification.objects.create(
             user=user,
             message=msg,
-            defaults={"is_read": False}
+            is_read=False
             )
             active_notifications.append(msg)
 
@@ -124,20 +126,23 @@ def userregister(request):
             messages.error(request,"User Name is already taken")
             return redirect("app:register")
         if user_type == "student":
-            degree_program = request.POST.get("degree_program")
-            branch = request.POST.get("branch")
+            degree_program = request.POST.get("student_degree_program")
+            branch = request.POST.get("student_branch")
             user = User.objects.create_user(username=username,password=password)
             user.save()
+            print(degree_program,branch)
             StudentDetails.objects.create(user=user,name=username,course=degree_program,branch=branch).save()
             
             UserPermission(user=user,is_student=True).save()
             messages.success(request,"Your registered Successfully")
             return redirect("app:login")
         elif user_type == "teacher":
+            degree_program = request.POST.get("degree_program")
+            branch = request.POST.get("branch")
             user = User.objects.create_user(username=username,password=password)
             user.save()
             
-            TeacherDetails.objects.create(user=user,name=username).save()
+            TeacherDetails.objects.create(user=user,name=username,department=degree_program,specialization=branch).save()
             UserPermission(user=user,is_teacher=True).save()
             messages.success(request,"Your registered Successfully")
             return redirect("app:home")
@@ -352,33 +357,95 @@ def delete_degree_specialization(request,id):
     messages.success(request,"Your degree specialization has been deleted")
     return redirect("app:dashboard")
 
+
 def report(request):
-    company = CompanyDetails.objects.all()
-    students = StudentDetails.objects.filter(user__user_permission__is_student=True,user__user_permission__is_approved=True)
-    placed_students = StudentDetails.objects.filter(job_title__isnull=False,user__user_permission__is_approved=True)
+    year = None
+    if request.method == "POST":
+        year = request.POST.get("year")
+        print(year)
+        try:
+            year = int(year)
+        except (TypeError, ValueError):
+            year = None
+        if year is not None:
+            students = StudentDetails.objects.filter(
+                user__date_joined__year=year,
+                user__user_permission__is_student=True,
+                user__user_permission__is_approved=True
+            )
+            company = CompanyDetails.objects.all()
+            placed_students = StudentDetails.objects.filter(
+                job_info__isnull=False,
+                job_info__date__year=year
+            ).distinct()
+            company_placed_students = (
+                JobInfo.objects
+                .filter(student__user__date_joined__year=year)
+                .exclude(company_name__isnull=True)
+                .exclude(company_name__exact="")
+                .values("company_name")
+                .annotate(placed_count=Count("student", distinct=True))
+                .order_by("company_name")
+            )
+        else:
+            students = StudentDetails.objects.filter(
+                user__user_permission__is_student=True,
+                user__user_permission__is_approved=True
+            )
+            company = CompanyDetails.objects.all()
+            placed_students = StudentDetails.objects.filter(
+                job_info__isnull=False,
+            ).distinct()
+            company_placed_students = (
+                JobInfo.objects
+                .exclude(company_name__isnull=True)
+                .exclude(company_name__exact="")
+                .values("company_name")
+                .annotate(placed_count=Count("student", distinct=True))
+                .order_by("company_name")
+            )
 
-    company_placed_students = (
-        StudentDetails.objects
-        .exclude(company_name__isnull=True)
-        .exclude(company_name__exact="")
-        .values("company_name")
-        .annotate(placed_count=Count("id"))
-        .order_by("company_name")
+    else:  # GET request or others
+        company = CompanyDetails.objects.all()
+        students = StudentDetails.objects.filter(
+            user__user_permission__is_student=True,
+            user__user_permission__is_approved=True
+        )
+        placed_students = StudentDetails.objects.filter(
+            job_info__isnull=False
+        ).distinct()
+
+        company_placed_students = (
+            JobInfo.objects
+            .exclude(company_name__isnull=True)
+            .exclude(company_name__exact="")
+            .values("company_name")
+            .annotate(placed_count=Count("student", distinct=True))
+            .order_by("company_name")
+        )
+
+    available_years = (
+        JobInfo.objects
+        .annotate(year=ExtractYear("date"))
+        .values_list("year", flat=True)
+        .distinct()
+        .order_by("-year")
     )
-
     print(len(company_placed_students))
     content = {
-        "user_data" : UserPermission.objects.get(user=request.user),
+        "user_data": UserPermission.objects.get(user=request.user),
         "notifications": add_notifications(request),
-        "notifications_count" : Notification.objects.filter(user=request.user,is_read=False).count(),
-        "company":company,
-        "students":students,
-        "placed_students":placed_students,
-        "total_students":students.count(),
-        "total_company":company.count(),
-        "total_placed_students":placed_students.count(),
-        "total_not_placed_students":students.count() - placed_students.count()
+        "notifications_count": Notification.objects.filter(user=request.user, is_read=False).count(),
+        "company": company,
+        "students": students,
+        "placed_students": placed_students,
+        "total_students": students.count(),
+        "total_company": company.count() + len(company_placed_students),
+        "total_placed_students": placed_students.count(),
+        "total_not_placed_students": students.count() - placed_students.count(),
+        "company_placed_students": company_placed_students,
+        "available_years": available_years,
+        "selected_year": int(year) if year else "",
     }
-    return render(request,"app/report.html",content)
 
-
+    return render(request, "app/report.html", content)
