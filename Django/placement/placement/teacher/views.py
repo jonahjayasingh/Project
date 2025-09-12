@@ -138,7 +138,8 @@ def reject(request,id):
 def resume(request):
     if request.method == "POST":
         s_id = request.POST.get("s_id")
-        student = StudentDetails.object.filter(id = s_id)
+        print(s_id)
+        student = StudentDetails.objects.get(id = s_id)
         student.is_resume_approved = True
         student.save()
         Notification(user=student.user,message="Your resume has been approved").save()

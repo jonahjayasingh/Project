@@ -389,8 +389,8 @@
           <i class="fas fa-university"></i> PACIFIC COAST UNIVERSITY
         </a>
         <div class="d-flex">
-          <a href="#" class="btn btn-outline-light logout-btn">
-            <i class="fas fa-sign-out-alt me-1"></i> Logout
+          <a href="{% url 'coordinator:mcq' %}" class="btn btn-outline-light logout-btn">
+            <i class="fas fa-sign-out-alt me-1"></i> Back
           </a>
         </div>
       </div>
@@ -469,6 +469,14 @@
                         <input type="text" class="form-control" id="formName" placeholder="Enter a name for your form" required>
                     </div>
                     <div class="mb-3">
+                        <label for="mcqDuration" class="form-label">MCQ Duration (in minutes)</label>
+                        <input type="number" class="form-control" id="mcqDuration" min="1" value="1">
+                    </div>
+                    <div class="mb-3">
+                        <label for="mcqDate" class="form-label">MCQ Date</label>
+                        <input type="date" class="form-control" id="mcqDate" required>
+                    </div>
+                    <div class="mb-3">
                         <label for="questionCount" class="form-label">How many questions do you want to create?</label>
                         <input type="number" class="form-control" id="questionCount" min="1" max="20" value="3">
                         <div class="form-text">Enter a number between 1 and 20</div>
@@ -527,12 +535,16 @@
             
             let currentQuestionCount = 0;
             let formName = '';
+            let mcqDuration = 0;
+            let mcqDate = '';
             let submittedFormData = null;
             
             // Generate form based on number of questions
             generateBtn.addEventListener('click', function() {
                 formName = document.getElementById('formName').value;
                 const questionCount = parseInt(document.getElementById('questionCount').value);
+                mcqDuration = parseInt(document.getElementById('mcqDuration').value);
+                mcqDate = document.getElementById('mcqDate').value;
                 
                 if (!formName) {
                     showError('Please enter a name for your form');
@@ -561,7 +573,7 @@
                 hideError();
                 
                 // Send data to server using fetch
-                fetch('/add_form/', {
+                fetch('/create_mcq/', {
                     method: "POST",
                     body: JSON.stringify(submittedFormData),
                     headers: {
@@ -954,6 +966,8 @@
                 const formData = {
                     formName: formName,
                     questionCount: currentQuestionCount,
+                    mcqDuration: mcqDuration,
+                    mcqDate: mcqDate,
                     questions: []
                 };
                 

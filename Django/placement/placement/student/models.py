@@ -30,4 +30,4 @@ class JobInfo(models.Model):
     company_name = models.CharField(max_length=100,null=True,blank=True)
     company_location = models.CharField(max_length=100,null=True,blank=True)
     salary = models.FloatField(null=True,blank=True)
-    date = models.DateField(auto_now_add=False)
+    date = models.DateField(auto_now_add=True)

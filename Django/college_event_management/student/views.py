@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from Coordinator.models import Mcq
 import json
 # Create your views here.
 mcq_questions = [
@@ -112,9 +113,24 @@ mcq = {
     "mcq_questions": mcq_questions
 }
 def index(request):
+    mcq = Mcq.objects.get(id=10)
+    questions = {}
+    for question in mcq.questions.all():
+        questions[question.question] = question.get_options()
+    print(len(questions))
     return render(request,"student/dashboard.html")
 
 def mcq_exam(request):
+    mcq = Mcq.objects.get(id=10)
+    questions = {}
+    for question in mcq.questions.all():
+        questions[question.question] = question.get_options()
+    mcq = {
+        "mcq_title": mcq.mcq_title,
+        "mcq_duration": 1,
+
+        "mcq_questions": questions
+    }
     context = {
         "mcq": mcq,
         # "total_questions": len(questions)

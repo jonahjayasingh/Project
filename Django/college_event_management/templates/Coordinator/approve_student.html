@@ -335,19 +335,28 @@
 <body>
 
 <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">
       <i class="fas fa-university"></i> PACIFIC COAST UNIVERSITY
     </a>
 
     <div class="dropdown ms-auto">
-      <a class="btn text-white " href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      <a class="btn text-white" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-user-circle"></i> Account
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
         <li>
-          <a class="dropdown-item" href="{% url 'coordinator:profile' %}">
+            <a class="dropdown-item" href="{% url 'coordinator:dashboard' %}">
+                <i class="fas fa-user me-1"></i> Dashboard
+            </a>
+        </li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li>
+          <a class="dropdown-item {% if '/profile/' in request.path %}active{% endif %}" 
+             href="{% url 'coordinator:profile' %}">
             <i class="fas fa-user me-1"></i> Profile
           </a>
         </li>
@@ -355,8 +364,18 @@
           <hr class="dropdown-divider">
         </li>
         <li>
-          <a class="dropdown-item" href="{% url 'coordinator:approve_students' %}">
+          <a class="dropdown-item {% if '/approve_students/' in request.path %}active{% endif %}" 
+             href="{% url 'coordinator:approve_students' %}">
             <i class="fas fa-key me-1"></i> Approve Students
+          </a>
+        </li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li>
+          <a class="dropdown-item {% if '/mcq/' in request.path %}active{% endif %}" 
+             href="{% url 'coordinator:mcq' %}">
+            <i class="fas fa-tasks me-1"></i> Quiz Manager
           </a>
         </li>
         <li>
@@ -371,6 +390,7 @@
     </div>
   </div>
 </nav>
+
 
 <div class="main-container">
     <div class="content-wrapper">
@@ -400,6 +420,7 @@
                         <p>Approved Students</p>
                     </div>
                 </div>
+                
             </div>
             
             <!-- Filter Buttons -->

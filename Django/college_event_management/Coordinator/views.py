@@ -163,33 +163,6 @@ def event(request):
     }
     return render(request,"unauth/event.html",content)
 
-import json
-def add_form(request):
-    if request.method == "POST":
-        data = json.loads(request.body)
-        mcq  = Mcq.objects.create(user=User.objects.get(username="admin"),mcq_title=data['formName'],no_of_questions=data['questionCount'])
-        print(data)
-        for q in data['questions']:
-            print(q)
-            Question.objects.create(
-                mcq=mcq,
-                question=q['text'],
-                option1=q['options'][0]['text'],
-                option2=q['options'][1]['text'],
-                option3=q['options'][2]['text'],
-                option4=q['options'][3]['text'],
-                answer=q['correctAnswer']
-            )
-        return redirect("coordinator:dashboard")
-    return render(request,"Coordinator/form.html")
-
-
-def edit_form(request):
-    content = {
-        "no_of_questions": 10
-    }
-    return render(request,"Coordinator/edit_form.html")
-
 
 def profile(request):
     if request.method == "POST":
@@ -239,3 +212,86 @@ def approve_students(request):
         "pstudents":len(User.objects.filter(is_staff=False,is_superuser=False)),
     }
     return render(request,"Coordinator/approve_student.html",content)   
+
+
+def mcq(request):
+    content = {
+        "quizzes":Mcq.objects.all().order_by("-id")
+    }
+    return render(request,"Coordinator/mcq.html",content)
+import json
+def create_mcq(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        mcq  = Mcq.objects.create(user=User.objects.get(username="admin"),mcq_title=data['formName'],no_of_questions=data['questionCount'],mcq_duration=data['mcqDuration'],date=data['mcqDate'],is_active=True)
+        print(data)
+        for q in data['questions']:
+            
+            Question.objects.create(
+                mcq=mcq,
+                question=q['text'],
+                option1=q['options'][0]['text'],
+                option2=q['options'][1]['text'],
+                option3=q['options'][2]['text'],
+                option4=q['options'][3]['text'],
+                answer=q['correctAnswer']
+            )
+        return redirect("coordinator:mcq")
+    return render(request,"Coordinator/form.html")
+
+from django.shortcuts import get_object_or_404
+def edit_mcq(request, mcq_id):
+    mcq = get_object_or_404(Mcq, id=mcq_id)
+    questions = mcq.questions.all()
+
+    if request.method == "POST":
+
+        # Handle questions
+        question_ids = request.POST.getlist("question_ids")  # 
+                # Update MCQ title
+        mcq.mcq_title = request.POST.get("mcq_title")
+        # Update MCQ duration
+        mcq.mcq_duration = request.POST.get("mcq_duration")
+        # Update MCQ date
+        mcq.date = request.POST.get("mcq_date")
+        # Update MCQ questions
+        mcq.no_of_questions = len(question_ids) 
+        mcq.save()
+
+        for q_id in question_ids:
+            question = get_object_or_404(Question, id=q_id, mcq=mcq)
+
+            # Update question text
+            question_text = request.POST.get(f"question_text_{q_id}")
+            question.question = question_text
+
+            # Update options
+            question.option1 = request.POST.get("option1", "")
+            question.option2 = request.POST.get("option2", "")
+            question.option3 = request.POST.get("option3", "")
+            question.option4 = request.POST.get("option4", "")
+
+            # Update correct answer
+            correct_answer = request.POST.get(f"correct_answer_{q_id}")
+            question.answer = correct_answer
+
+            question.save()
+
+        messages.success(request, "MCQ updated successfully!")
+        return redirect("coordinator:mcq")
+
+    return render(request, "Coordinator/edit_form.html", {"mcq": mcq, "questions": questions})
+
+def delete_mcq(request, mcq_id):
+    mcq = get_object_or_404(Mcq, id=mcq_id)
+    mcq.delete()
+    messages.success(request, "MCQ deleted successfully!")
+    return redirect("coordinator:mcq")
+
+
+def toggle_mcq_status(request, mcq_id):
+    mcq = get_object_or_404(Mcq, id=mcq_id)
+    mcq.is_active = not mcq.is_active
+    mcq.save()
+    messages.success(request, "MCQ status updated successfully!")
+    return redirect("coordinator:mcq")

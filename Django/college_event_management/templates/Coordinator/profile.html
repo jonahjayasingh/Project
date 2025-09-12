@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pacific Coast University | Profile</title>
     <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css  ">
     <style>
         :root {
             --primary-color: #2c3e50;
@@ -56,14 +56,10 @@
             font-size: 1.5rem;
         }
         
-        .logout-btn {
-            transition: all 0.3s ease;
-            border: 2px solid white;
-        }
-        
-        .logout-btn:hover {
-            background-color: white;
-            color: var(--primary-color) !important;
+        /* Dropdown item active state */
+        .dropdown-item .active {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white !important;
         }
         
         /* Content area */
@@ -71,64 +67,6 @@
             display: flex;
             flex-grow: 1;
             padding: 1.5rem;
-        }
-        
-        /* Sidebar navigation */
-        .sidebar {
-            width: 250px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 1.5rem;
-            margin-right: 1.5rem;
-            height: fit-content;
-        }
-        
-        .sidebar-header {
-            text-align: center;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .sidebar-avatar {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 3px solid var(--secondary-color);
-            margin-bottom: 1rem;
-        }
-        
-        .sidebar-name {
-            font-weight: 700;
-            color: var(--primary-color);
-            margin-bottom: 0.2rem;
-        }
-        
-        .sidebar-role {
-            color: var(--secondary-color);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-        
-        .nav-link {
-            color: #555;
-            padding: 0.7rem 1rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
-        
-        .nav-link:hover, .nav-link.active {
-            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
-            color: white;
-        }
-        
-        .nav-link i {
-            width: 24px;
-            margin-right: 10px;
         }
         
         /* Main content */
@@ -231,6 +169,12 @@
             box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         
+        .btn-secondary {
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+        }
+        
         /* Avatar upload */
         .avatar-upload {
             position: relative;
@@ -281,16 +225,16 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
         
+        /* Active state for filter buttons (from Quiz Manager) */
+        .btn-filter.active, .btn-filter:hover {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white;
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 992px) {
             .content-wrapper {
                 flex-direction: column;
-            }
-            
-            .sidebar {
-                width: 100%;
-                margin-right: 0;
-                margin-bottom: 1.5rem;
             }
         }
         
@@ -334,19 +278,28 @@
 <body>
 
 <!-- Navbar -->
-      <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
   <div class="container-fluid">
     <a class="navbar-brand" href="#">
       <i class="fas fa-university"></i> PACIFIC COAST UNIVERSITY
     </a>
 
     <div class="dropdown ms-auto">
-      <a class="btn text-white " href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+      <a class="btn text-white" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
         <i class="fas fa-user-circle"></i> Account
       </a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
         <li>
-          <a class="dropdown-item" href="{% url 'coordinator:profile' %}">
+            <a class="dropdown-item" href="{% url 'coordinator:dashboard' %}">
+                <i class="fas fa-user me-1"></i> Dashboard
+            </a>
+        </li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>   
+        <li>
+          <a class="dropdown-item {% if '/profile/' in request.path %}active{% endif %}" 
+             href="{% url 'coordinator:profile' %}">
             <i class="fas fa-user me-1"></i> Profile
           </a>
         </li>
@@ -354,8 +307,18 @@
           <hr class="dropdown-divider">
         </li>
         <li>
-          <a class="dropdown-item" href="{% url 'coordinator:approve_students' %}">
+          <a class="dropdown-item {% if '/approve_students/' in request.path %}active{% endif %}" 
+             href="{% url 'coordinator:approve_students' %}">
             <i class="fas fa-key me-1"></i> Approve Students
+          </a>
+        </li>
+        <li>
+          <hr class="dropdown-divider">
+        </li>
+        <li>
+          <a class="dropdown-item {% if '/mcq/' in request.path %}active{% endif %}" 
+             href="{% url 'coordinator:mcq' %}">
+            <i class="fas fa-tasks me-1"></i> Quiz Manager
           </a>
         </li>
         <li>
@@ -373,29 +336,6 @@
 
 <div class="main-container">
     <div class="content-wrapper">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <img src="{% if profile.profile_pic %}{{ profile.profile_pic.url }}{% else %}{% static 'default-avatar.png' %}{% endif %}" 
-                     class="sidebar-avatar" alt="User Avatar" id="sidebarAvatar">
-                <h4 class="sidebar-name">{{ user.get_full_name|default:user.username }}</h4>
-            </div>
-            
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link active" href="{% url 'coordinator:profile' %}">
-                        <i class="fas fa-user"></i> Personal Information
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'coordinator:dashboard' %}">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
-                    </a>
-                </li>
-                
-            </ul>
-        </div>
-        
         <!-- Main Content -->
         <div class="main-content">
             <div class="section-header">
@@ -403,26 +343,24 @@
             </div>
             
             <div class="form-container">
-                <!-- Avatar Upload -->
-                
-                
                 <!-- Personal Information Form -->
                 <form method="POST" enctype="multipart/form-data">
-
                     {% csrf_token %}
-                    <div class="form-section">
-                    <h3 class="form-section-title"><i class="fas fa-camera"></i>Profile Photo</h3>
                     
-                    <div class="avatar-upload">
-                        <div class="avatar-preview" id="imagePreview" 
-                             style="background-image: url({% if profile.profile_pic %}{{ profile.profile_pic.url }}{% else %}{% static 'default-avatar.png' %}{% endif %});"> 
-                        </div>
-                        <div class="avatar-edit">
-                            <input type='file' id="avatarUpload" accept=".png, .jpg, .jpeg" name="avatar"/>
-                            <label for="avatarUpload"><i class="fas fa-pencil-alt"></i></label>
+                    <div class="form-section">
+                        <h3 class="form-section-title"><i class="fas fa-camera"></i>Profile Photo</h3>
+                        
+                        <div class="avatar-upload">
+                            <div class="avatar-preview" id="imagePreview" 
+                                 style="background-image: url({% if profile.profile_pic %}{{ profile.profile_pic.url }}{% else %}{% static 'default-avatar.png' %}{% endif %});"> 
+                            </div>
+                            <div class="avatar-edit">
+                                <input type='file' id="avatarUpload" accept=".png, .jpg, .jpeg" name="avatar"/>
+                                <label for="avatarUpload"><i class="fas fa-pencil-alt"></i></label>
+                            </div>
                         </div>
                     </div>
-                </div>
+                    
                     <div class="form-section">
                         <h3 class="form-section-title"><i class="fas fa-user-circle"></i>Personal Information</h3>
                         
@@ -446,9 +384,9 @@
                                        value="{{ user.email }}" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="phone" class="form-label">Phone Number {{ profile.phone }}</label>
+                                <label for="phone" class="form-label">Phone Number</label>
                                 <input type="tel" class="form-control" id="phone" name="phone" 
-                                       value="{{ profile.phone| default_if_none:'45' }}">
+                                       value="{{ profile.phone|default:'' }}">
                             </div>
                         </div>
                     </div>
@@ -458,7 +396,7 @@
                         <h3 class="form-section-title"><i class="fas fa-address-card"></i>Contact Information</h3>
                         
                         <div class="mb-3">
-                            <label for="address" class="form-label">Address </label>
+                            <label for="address" class="form-label">Address</label>
                             <input type="text" class="form-control" id="address" name="address" 
                                    value="{{ profile.address|default:'' }}">
                         </div>
@@ -511,7 +449,6 @@
                 
                 reader.onload = function(e) {
                     document.getElementById('imagePreview').style.backgroundImage = 'url(' + e.target.result + ')';
-                    document.getElementById('sidebarAvatar').src = e.target.result;
                 }
                 
                 reader.readAsDataURL(input.files[0]);

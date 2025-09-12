@@ -130,6 +130,7 @@ def userregister(request):
             branch = request.POST.get("student_branch")
             user = User.objects.create_user(username=username,password=password)
             user.save()
+            
             print(degree_program,branch)
             StudentDetails.objects.create(user=user,name=username,course=degree_program,branch=branch).save()
             
