@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skin Disease Information</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary: #4a6bff;
+            --primary-light: #eef0ff;
+            --secondary: #ff6b6b;
+            --dark: #2c3e50;
+            --light: #f8f9fa;
+            --gray: #6c757d;
+            --white: #ffffff;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .hero {
+            background: linear-gradient(135deg, #f8f9fa 0%, #eef2ff 100%);
+            padding: 4rem 0;
+        }
+        
+        .category-card {
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--primary);
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .severity-indicator {
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .benign {
+            background-color: rgba(25, 135, 84, 0.1);
+            color: var(--bs-success);
+        }
+        
+        .malignant {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--bs-danger);
+        }
+        
+        .inflammatory {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--bs-warning);
+        }
+        
+        .infectious {
+            background-color: rgba(13, 110, 253, 0.1);
+            color: var(--bs-primary);
+        }
+        
+        .search-box {
+            max-width: 600px;
+        }
+        
+        .disclaimer-box {
+            max-width: 800px;
+        }
+        
+        .highlight {
+            background-color: rgba(255, 255, 0, 0.3);
+            font-weight: bold;
+        }
+        
+        .modal-content {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .modal-header {
+            background-color: var(--primary-light);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        
+        .modal-title {
+            font-weight: 700;
+        }
+        
+        .symptom-list, .treatment-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .symptom-list li:before {
+            content: "•";
+            color: var(--secondary);
+            font-weight: bold;
+            display: inline-block;
+            width: 1em;
+            margin-left: -1em;
+        }
+        
+        .treatment-list li {
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        
+        .treatment-list li:before {
+            content: "✓";
+            color: var(--bs-success);
+            position: absolute;
+            left: 0;
+        }
+        
+        .info-section {
+            margin-bottom: 1.5rem;
+        }
+        
+        .info-section h6 {
+            color: var(--primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .prevalence-badge {
+            font-size: 0.8rem;
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .modal-severity {
+            font-size: 0.9rem;
+            padding: 0.35rem 0.75rem;
+        }
+        
+        .modal-image {
+            border-radius: 8px;
+            height: 200px;
+            object-fit: cover;
+            background-color: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        @media (max-width: 768px) {
+            .hero {
+                padding: 2.5rem 0;
+            }
+            
+            .modal-image {
+                height: 150px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <i class="bi bi-heart-pulse-fill me-2"></i>
+                SkinDiseaseInfo
+            </a>
+            <div class="d-flex">
+                <a href="{{ url_for('login') }}" class="btn btn-link text-dark text-decoration-none me-2">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary px-3">Register</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero text-center">
+        <div class="container">
+            <h1 class="fw-bold mb-3">Skin Disease Information</h1>
+            <p class="lead text-muted mb-4 mx-auto" style="max-width: 700px;">
+                Explore information about various dermatological conditions, their symptoms, and treatment options.
+            </p>
+            
+            <div class="search-box mx-auto position-relative">
+                <input type="text" id="searchInput" class="form-control form-control-lg ps-4 pe-5" placeholder="Search skin conditions...">
+                <i class="bi bi-search position-absolute end-0 top-50 translate-middle-y me-3 text-muted"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <main class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold">Skin Disease Categories</h2>
+                <p class="text-muted">Browse our collection of dermatological conditions:</p>
+            </div>
+            
+            <div class="row g-4" id="diseaseContainer">
+                <!-- Category Cards - All 20 classes from the provided list -->
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="acne-rosacea">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Acne and Rosacea</h5>
+                            <p class="card-text text-muted small">Common inflammatory skin conditions affecting facial appearance</p>
+                            <span class="badge inflammatory severity-indicator">Inflammatory</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="actinic-keratosis">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Actinic Keratosis & BCC</h5>
+                            <p class="card-text text-muted small">Precancerous and malignant skin lesions from sun exposure</p>
+                            <span class="badge malignant severity-indicator">Potentially Malignant</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="atopic-dermatitis">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Atopic Dermatitis</h5>
+                            <p class="card-text text-muted small">Chronic eczema characterized by itchy, inflamed skin</p>
+                            <span class="badge inflammatory severity-indicator">Chronic Condition</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="bacterial-cellulitis">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Bacterial Cellulitis</h5>
+                            <p class="card-text text-muted small">Serious bacterial skin infection causing redness and swelling</p>
+                            <span class="badge infectious severity-indicator">Infectious</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="bacterial-impetigo">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Bacterial Impetigo</h5>
+                            <p class="card-text text-muted small">Highly contagious skin infection common in children</p>
+                            <span class="badge infectious severity-indicator">Infectious</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="benign-lesions">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Benign Skin Lesions</h5>
+                            <p class="card-text text-muted small">Non-cancerous skin growths and abnormalities</p>
+                            <span class="badge benign severity-indicator">Benign</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="bullous-diseases">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Bullous Diseases</h5>
+                            <p class="card-text text-muted small">Conditions characterized by fluid-filled blisters</p>
+                            <span class="badge inflammatory severity-indicator">Autoimmune</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="bacterial-infections">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Bacterial Infections</h5>
+                            <p class="card-text text-muted small">Cellulitis, impetigo and other bacterial skin infections</p>
+                            <span class="badge infectious severity-indicator">Infectious</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="eczema">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Eczema</h5>
+                            <p class="card-text text-muted small">Various forms of dermatitis causing skin irritation</p>
+                            <span class="badge inflammatory severity-indicator">Chronic</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="drug-eruptions">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Drug Eruptions</h5>
+                            <p class="card-text text-muted small">Skin reactions caused by medications</p>
+                            <span class="badge inflammatory severity-indicator">Allergic</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="athlete-foot">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Athlete's Foot</h5>
+                            <p class="card-text text-muted small">Fungal infection affecting the feet</p>
+                            <span class="badge infectious severity-indicator">Fungal</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="nail-fungus">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Nail Fungus</h5>
+                            <p class="card-text text-muted small">Fungal infection affecting fingernails and toenails</p>
+                            <span class="badge infectious severity-indicator">Fungal</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="ringworm">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Ringworm</h5>
+                            <p class="card-text text-muted small">Fungal infection causing ring-shaped rash</p>
+                            <span class="badge infectious severity-indicator">Fungal</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="hair-loss">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Hair Loss Disorders</h5>
+                            <p class="card-text text-muted small">Alopecia and other conditions affecting hair growth</p>
+                            <span class="badge benign severity-indicator">Mostly Benign</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="stds">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">STD-Related Conditions</h5>
+                            <p class="card-text text-muted small">Herpes, HPV and other sexually transmitted skin manifestations</p>
+                            <span class="badge infectious severity-indicator">Infectious</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="pigmentation">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Pigmentation Disorders</h5>
+                            <p class="card-text text-muted small">Conditions affecting skin color and melanin production</p>
+                            <span class="badge benign severity-indicator">Mostly Benign</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="connective-tissue">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Connective Tissue Diseases</h5>
+                            <p class="card-text text-muted small">Lupus and other conditions affecting connective tissue</p>
+                            <span class="badge inflammatory severity-indicator">Autoimmune</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="malignant">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Malignant Lesions</h5>
+                            <p class="card-text text-muted small">Skin cancers including melanoma and other malignancies</p>
+                            <span class="badge malignant severity-indicator">Malignant</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="melanoma-nevi">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Melanoma & Nevi</h5>
+                            <p class="card-text text-muted small">Malignant melanoma and benign moles</p>
+                            <span class="badge malignant severity-indicator">Potentially Malignant</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6 col-lg-4 col-xl-3 disease-card" data-category="rashes">
+                    <div class="card category-card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">Rashes</h5>
+                            <p class="card-text text-muted small">Various types of skin rashes and eruptions</p>
+                            <span class="badge inflammatory severity-indicator">Inflammatory</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Disease Detail Modal -->
+    <div class="modal  fade" id="diseaseModal" tabindex="-1" aria-labelledby="diseaseModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="diseaseModalLabel">Disease Information</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-5">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="badge modal-severity inflammatory" id="modalSeverity">Inflammatory</span>
+                        <span class="badge prevalence-badge" id="modalPrevalence">Common</span>
+                    </div>
+                    
+                    
+                    <div class="info-section">
+                        <h6>Description</h6>
+                        <p id="modalDescription">Description will appear here.</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h6>Symptoms</h6>
+                                <ul class="symptom-list" id="modalSymptoms">
+                                    <li>Symptom 1</li>
+                                    <li>Symptom 2</li>
+                                    <li>Symptom 3</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="info-section">
+                                <h6>Common Treatments</h6>
+                                <ul class="treatment-list" id="modalTreatments">
+                                    <li>Treatment 1</li>
+                                    <li>Treatment 2</li>
+                                    <li>Treatment 3</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-section">
+                        <h6>Additional Information</h6>
+                        <p id="modalAdditionalInfo">Additional information will appear here.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer-box mx-auto bg-white p-4 rounded-3 shadow-sm my-5 text-center">
+        <p class="text-muted fst-italic mb-0">
+            Note: This information is for educational purposes only and not a substitute for professional medical advice.
+        </p>
+    </div>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Disease data for all 20 categories
+        const diseaseData = {
+            'acne-rosacea': {
+                title: 'Acne and Rosacea',
+                severity: 'inflammatory',
+                prevalence: 'Very Common',
+                description: 'Acne is a skin condition that occurs when hair follicles become plugged with oil and dead skin cells. It often causes whiteheads, blackheads or pimples, and usually appears on the face, forehead, chest, upper back and shoulders. Rosacea is a chronic skin condition that causes redness and visible blood vessels in your face. It may also produce small, red, pus-filled bumps.',
+                symptoms: ['Whiteheads (closed plugged pores)', 'Blackheads (open plugged pores)', 'Small red, tender bumps (papules)', 'Pimples (pustules)', 'Large, solid, painful lumps under the skin (nodules)', 'Painful, pus-filled lumps under the skin (cystic lesions)'],
+                treatments: ['Topical retinoids', 'Antibiotics', 'Salicylic acid', 'Benzoyl peroxide', 'Oral contraceptives (for hormonal acne)', 'Isotretinoin (for severe cases)'],
+                additionalInfo: 'Acne is most common among teenagers, though it affects people of all ages. Effective treatments are available, but acne can be persistent. The pimples and bumps heal slowly, and when one begins to go away, others seem to crop up.'
+            },
+            'actinic-keratosis': {
+                title: 'Actinic Keratosis & Basal Cell Carcinoma',
+                severity: 'malignant',
+                prevalence: 'Common',
+                description: 'Actinic keratosis (AK) is a rough, scaly patch on the skin that develops from years of sun exposure. It\'s often considered precancerous because it can develop into skin cancer. Basal cell carcinoma (BCC) is a type of skin cancer that begins in the basal cells — a type of cell within the skin that produces new skin cells as old ones die off.',
+                symptoms: ['Rough, dry or scaly patch of skin', 'Flat to slightly raised patch or bump on the top layer of skin', 'Hard, wart-like surface', 'Itching or burning in affected areas', 'Redness and inflammation'],
+                treatments: ['Cryotherapy (freezing)', 'Topical medications', 'Photodynamic therapy', 'Curettage and electrodesiccation', 'Surgical excision', 'Mohs surgery'],
+                additionalInfo: 'These conditions are primarily caused by long-term exposure to ultraviolet (UV) radiation from sunlight. People with fair skin, light-colored eyes, and those who sunburn easily are at higher risk. Regular skin checks are recommended for early detection.'
+            },
+            'atopic-dermatitis': {
+                title: 'Atopic Dermatitis (Eczema)',
+                severity: 'inflammatory',
+                prevalence: 'Common',
+                description: 'Atopic dermatitis (eczema) is a condition that makes your skin red and itchy. It\'s common in children but can occur at any age. Atopic dermatitis is long lasting (chronic) and tends to flare periodically. It may be accompanied by asthma or hay fever.',
+                symptoms: ['Dry skin', 'Itching, which may be severe, especially at night', 'Red to brownish-gray patches', 'Small, raised bumps', 'Thickened, cracked, scaly skin', 'Raw, sensitive, swollen skin from scratching'],
+                treatments: ['Moisturizers', 'Topical corticosteroids', 'Antihistamines for itching', 'Topical calcineurin inhibitors', 'Phototherapy', 'Systemic medications for severe cases'],
+                additionalInfo: 'While there is no cure for atopic dermatitis, treatments and self-care measures can relieve itching and prevent new outbreaks. Avoiding harsh soaps, identifying triggers, and applying medicated creams or ointments can help manage symptoms.'
+            },
+            'bacterial-cellulitis': {
+                title: 'Bacterial Cellulitis',
+                severity: 'infectious',
+                prevalence: 'Common',
+                description: 'Cellulitis is a common bacterial skin infection that causes redness, swelling, and pain in the infected area. It occurs when bacteria enter through a crack or break in your skin. If left untreated, the infection can spread to your lymph nodes and bloodstream and rapidly become life-threatening.',
+                symptoms: ['Red area of skin that tends to expand', 'Swelling', 'Tenderness', 'Pain', 'Warmth', 'Fever', 'Red spots', 'Blisters', 'Skin dimpling'],
+                treatments: ['Oral antibiotics', 'IV antibiotics for severe cases', 'Elevation of affected area', 'Pain relievers', 'Cool, damp cloths to reduce discomfort'],
+                additionalInfo: 'Most cellulitis infections are caused by streptococcus and staphylococcus bacteria. The lower legs are the most common site of infection, though cellulitis can occur anywhere on the body. People with weakened immune systems, chronic skin conditions, or edema are at higher risk.'
+            },
+            'bacterial-impetigo': {
+                title: 'Bacterial Impetigo',
+                severity: 'infectious',
+                prevalence: 'Common (especially in children)',
+                description: 'Impetigo is a highly contagious bacterial skin infection that mainly affects infants and children. It usually appears as red sores on the face, especially around the nose and mouth, and on the hands and feet. The sores burst and develop honey-colored crusts.',
+                symptoms: ['Red sores that quickly rupture', 'Oozing and crusting for several days', 'Itchy rash', 'Painless blisters (in bullous impetigo)', 'Enlarged lymph nodes near infected area'],
+                treatments: ['Topical antibiotics (mupirocin)', 'Oral antibiotics', 'Keeping sores covered', 'Gentle removal of crusts', 'Good hygiene practices'],
+                additionalInfo: 'Impetigo is caused by staphylococcus or streptococcus bacteria. The infection can spread through close contact or by sharing towels, clothing, or other personal items. It\'s important to keep children with impetigo home from school or daycare until they are no longer contagious.'
+            },
+            'benign-lesions': {
+                title: 'Benign Skin Lesions',
+                severity: 'benign',
+                prevalence: 'Very Common',
+                description: 'Benign skin lesions are non-cancerous skin growths that can appear anywhere on the body. They include various types such as seborrheic keratoses, skin tags, lipomas, dermatofibromas, and epidermal inclusion cysts. While these growths are not dangerous, they can sometimes be mistaken for more serious conditions.',
+                symptoms: ['Varied appearance depending on type', 'Usually painless', 'Slow growth', 'Stable appearance over time', 'No bleeding or ulceration'],
+                treatments: ['Observation (if asymptomatic)', 'Cryotherapy', 'Shave excision', 'Electrosurgery', 'Laser therapy', 'Surgical excision for larger lesions'],
+                additionalInfo: 'While most benign skin lesions don\'t require treatment, any new or changing skin growth should be evaluated by a dermatologist to rule out skin cancer. Some benign lesions may be removed for cosmetic reasons or if they become irritated or symptomatic.'
+            },
+            'bullous-diseases': {
+                title: 'Bullous Diseases',
+                severity: 'inflammatory',
+                prevalence: 'Rare',
+                description: 'Bullous diseases are a group of skin conditions characterized by the formation of blisters (bullae). These include autoimmune disorders such as pemphigus vulgaris, bullous pemphigoid, dermatitis herpetiformis, and epidermolysis bullosa. These conditions result from problems with the immune system attacking proteins necessary for skin layer adhesion.',
+                symptoms: ['Fluid-filled blisters of various sizes', 'Itching or burning sensation', 'Skin redness and inflammation', 'Mucous membrane involvement', 'Skin fragility'],
+                treatments: ['Corticosteroids', 'Immunosuppressants', 'Antibiotics for secondary infection', 'Wound care', 'Pain management', 'Plasma exchange therapy'],
+                additionalInfo: 'Bullous diseases are often chronic conditions that require long-term management. Diagnosis typically requires a skin biopsy for direct immunofluorescence testing. Treatment focuses on controlling symptoms and preventing complications.'
+            },
+            'bacterial-infections': {
+                title: 'Bacterial Skin Infections',
+                severity: 'infectious',
+                prevalence: 'Common',
+                description: 'Bacterial skin infections occur when bacteria enter through a break in the skin, such as a cut or a scratch. Common bacterial skin infections include cellulitis, impetigo, folliculitis, boils, and erysipelas. The severity can range from mild to life-threatening.',
+                symptoms: ['Redness and swelling', 'Pain or tenderness', 'Warm skin around the affected area', 'Pus-filled blisters or abscesses', 'Fever in more severe cases', 'Enlarged lymph nodes'],
+                treatments: ['Topical antibiotics (e.g., mupirocin)', 'Oral antibiotics', 'Warm compresses', 'Incision and drainage of abscesses', 'Antiseptic washes', 'Pain relievers'],
+                additionalInfo: 'Common causative bacteria include Staphylococcus aureus and Streptococcus pyogenes. Practice good hygiene, keep wounds clean and covered, and avoid sharing personal items to prevent the spread of bacterial skin infections. Some strains like MRSA require specific antibiotic treatment.'
+            },
+            'eczema': {
+                title: 'Eczema (Dermatitis)',
+                severity: 'inflammatory',
+                prevalence: 'Very Common',
+                description: 'Eczema is a term for a group of medical conditions that cause the skin to become inflamed or irritated. The most common type is atopic dermatitis, which often begins in childhood and may continue into adulthood. Other types include contact dermatitis, dyshidrotic eczema, nummular eczema, and seborrheic dermatitis.',
+                symptoms: ['Dry, sensitive skin', 'Intense itching', 'Red, inflamed skin', 'Recurring rash', 'Scaly areas', 'Rough, leathery patches', 'Oozing or crusting', 'Swelling'],
+                treatments: ['Moisturizers', 'Topical corticosteroids', 'Antihistamines', 'Topical calcineurin inhibitors', 'Phototherapy', 'Biologics (for severe cases)', 'Wet dressings'],
+                additionalInfo: 'Eczema is often linked with the "atopic triad" of asthma, allergies, and eczema. While there is no cure, most people can effectively manage their symptoms with treatment and by avoiding triggers. Eczema flares can be caused by irritants, allergens, stress, temperature changes, and infections.'
+            },
+            'drug-eruptions': {
+                title: 'Drug Eruptions',
+                severity: 'inflammatory',
+                prevalence: 'Common',
+                description: 'Drug eruptions are adverse skin reactions to medications. They can range from mild rashes to severe, life-threatening conditions like Stevens-Johnson syndrome or toxic epidermal necrolysis. Almost any medication can cause a skin reaction, but some drugs are more commonly associated with these reactions.',
+                symptoms: ['Various types of rashes', 'Hives (urticaria)', 'Itching', 'Skin redness', 'Blisters', 'Peeling skin', 'Fever', 'Mouth sores', 'Swelling'],
+                treatments: ['Discontinuation of causative drug', 'Antihistamines', 'Corticosteroids', 'Supportive care', 'IV fluids in severe cases', 'Pain management', 'Wound care for severe reactions'],
+                additionalInfo: 'Common drugs that cause reactions include antibiotics (especially penicillins and sulfa drugs), NSAIDs, anticonvulsants, and chemotherapy drugs. It\'s important to identify the causative medication to prevent future reactions. Some reactions may not appear until weeks after starting a medication.'
+            },
+            'athlete-foot': {
+                title: 'Athlete\'s Foot (Tinea Pedis)',
+                severity: 'infectious',
+                prevalence: 'Common',
+                description: 'Athlete\'s foot is a fungal infection that usually begins between the toes. It commonly occurs in people whose feet have become very sweaty while confined within tight-fitting shoes. The infection is contagious and can be spread via contaminated floors, towels, or clothing.',
+                symptoms: ['Scaly rash that usually causes itching, stinging, and burning', 'Blisters', 'Ulcers', 'Dry skin on soles or sides of feet', 'Discolored, thick, and crumbly toenails'],
+                treatments: ['Topical antifungal medications', 'Oral antifungal drugs for severe cases', 'Keeping feet clean and dry', 'Changing socks regularly', 'Wearing sandals in public showers'],
+                additionalInfo: 'The fungi that cause athlete\'s foot thrive in warm, moist environments. Prevention strategies include keeping feet dry, wearing moisture-wicking socks, alternating shoes, and protecting feet in public areas. Recurrence is common, so ongoing preventive measures are important.'
+            },
+            'nail-fungus': {
+                title: 'Nail Fungus (Onychomycosis)',
+                severity: 'infectious',
+                prevalence: 'Common',
+                description: 'Nail fungus is a common condition that begins as a white or yellow spot under the tip of your fingernail or toenail. As the fungal infection goes deeper, it may cause your nail to discolor, thicken, and develop crumbling edges. It can affect several nails but usually not all.',
+                symptoms: ['Thickened nail', 'Whitish to yellow-brown discoloration', 'Brittle, crumbly, or ragged nail', 'Distorted nail shape', 'Slight odor', 'Separation of nail from nail bed'],
+                treatments: ['Oral antifungal drugs', 'Medicated nail polish', 'Medicated nail cream', 'Laser therapy', 'Surgical nail removal in severe cases'],
+                additionalInfo: 'Nail fungus is more common in toenails than fingernails. Risk factors include aging, diabetes, weakened immune system, and history of athlete\'s foot. Treatment can be challenging and may take months as the nail grows slowly. Recurrence is common even after successful treatment.'
+            },
+            'ringworm': {
+                title: 'Ringworm (Tinea Corporis)',
+                severity: 'infectious',
+                prevalence: 'Common',
+                description: 'Ringworm is a common fungal infection of the skin that is not caused by a worm, despite its name. It gets its name from its characteristic ring-shaped rash with a winding, worm-like edge. The infection can affect skin on various parts of the body including the scalp, feet, and groin area.',
+                symptoms: ['Circular, flat rash with raised edges', 'Itching', 'Redness', 'Scaling', 'Sometimes blisters or pustules', 'Hair loss in affected areas (if on scalp)'],
+                treatments: ['Topical antifungal creams', 'Oral antifungal medications for severe cases', 'Keeping skin clean and dry', 'Avoiding sharing personal items', 'Washing clothes and bedding regularly'],
+                additionalInfo: 'Ringworm is highly contagious and can spread through direct skin-to-skin contact with an infected person or animal, or by contact with contaminated objects. The fungi that cause ringworm thrive in warm, moist areas. Pets, especially cats, can be carriers without showing symptoms.'
+            },
+            'hair-loss': {
+                title: 'Hair Loss (Alopecia)',
+                severity: 'benign',
+                prevalence: 'Common',
+                description: 'Hair loss (alopecia) can affect just your scalp or your entire body. It can be the result of heredity, hormonal changes, medical conditions, or a normal part of aging. Common types include androgenetic alopecia (male/female pattern baldness), alopecia areata (patchy hair loss), and telogen effluvium (temporary shedding).',
+                symptoms: ['Gradual thinning on top of head', 'Circular or patchy bald spots', 'Sudden loosening of hair', 'Full-body hair loss', 'Patches of scaling that spread over the scalp'],
+                treatments: ['Medications (minoxidil, finasteride)', 'Hair transplant surgery', 'Laser therapy', 'Treating underlying condition', 'Wigs or hairpieces', 'Corticosteroid injections for alopecia areata'],
+                additionalInfo: 'Everyone loses hair naturally (50-100 hairs per day). Significant hair loss may be a sign of an underlying medical condition. Diagnosis often involves blood tests, pull test, scalp biopsy, or light microscopy. Treatment success varies depending on the cause and type of hair loss.'
+            },
+            'stds': {
+                title: 'STD-Related Skin Conditions',
+                severity: 'infectious',
+                prevalence: 'Common',
+                description: 'Several sexually transmitted diseases (STDs) can cause skin manifestations. These include herpes simplex virus (HSV), human papillomavirus (HPV) causing genital warts, syphilis, molluscum contagiosum, and HIV-related skin conditions. These infections are transmitted through sexual contact and may have both skin and systemic symptoms.',
+                symptoms: ['Sores or bumps on genitals or mouth', 'Painful or burning urination', 'Unusual discharge', 'Rash on trunk, hands, or feet', 'Itching', 'Swollen lymph nodes', 'Fever'],
+                treatments: ['Antiviral medications (for viral STDs)', 'Antibiotics (for bacterial STDs)', 'Topical treatments', 'Cryotherapy or surgical removal of warts', 'Education on prevention and safe sex practices'],
+                additionalInfo: 'Many STDs can be asymptomatic, especially in the early stages. Regular testing is important for sexually active individuals. Prevention includes using condoms, limiting sexual partners, and vaccination (available for HPV and hepatitis B). Some STDs, if left untreated, can lead to serious complications.'
+            },
+            'pigmentation': {
+                title: 'Pigmentation Disorders',
+                severity: 'benign',
+                prevalence: 'Common',
+                description: 'Pigmentation disorders affect the color of your skin. They occur when the body produces either too much or too little melanin, the pigment that gives skin its color. Common disorders include vitiligo (loss of pigment), melasma (dark patches), albinism (little or no pigment), and post-inflammatory hyperpigmentation.',
+                symptoms: ['Patches of skin that are lighter or darker than normal', 'Symmetrical dark patches on face (melasma)', 'Complete loss of skin color in patches (vitiligo)', 'Extreme sensitivity to sun (albinism)', 'Dark spots after skin inflammation or injury'],
+                treatments: ['Topical lightening agents', 'Corticosteroid creams', 'Laser therapy', 'Light therapy', 'Cosmetic cover-ups', 'Sun protection', 'Addressing underlying causes'],
+                additionalInfo: 'Pigmentation disorders can be congenital or acquired. Some are associated with autoimmune conditions (like vitiligo), hormonal changes (like melasma in pregnancy), or medications. While most are harmless, they can cause significant psychological distress. Sun protection is crucial for managing many pigmentation disorders.'
+            },
+            'connective-tissue': {
+                title: 'Connective Tissue Diseases',
+                severity: 'inflammatory',
+                prevalence: 'Rare to Uncommon',
+                description: 'Connective tissue diseases are disorders that involve the proteins that support skin, bones, blood vessels, and other organs. Examples include lupus erythematosus, scleroderma, dermatomyositis, and mixed connective tissue disease. These are often autoimmune conditions where the immune system attacks the body\'s own tissues.',
+                symptoms: ['Skin rash (butterfly rash in lupus)', 'Skin tightening (scleroderma)', 'Muscle weakness (dermatomyositis)', 'Joint pain and swelling', 'Raynaud\'s phenomenon', 'Fatigue', 'Fever'],
+                treatments: ['Corticosteroids', 'Immunosuppressants', 'Antimalarial drugs', 'Physical therapy', 'Sun protection', 'Symptom management', 'Regular monitoring for organ involvement'],
+                additionalInfo: 'Connective tissue diseases can affect multiple organ systems and often require care from rheumatologists and dermatologists. Diagnosis may involve blood tests for specific antibodies, skin biopsies, and imaging studies. These are chronic conditions that often require long-term management and monitoring.'
+            },
+            'malignant': {
+                title: 'Malignant Skin Lesions',
+                severity: 'malignant',
+                prevalence: 'Common',
+                description: 'Malignant skin lesions are cancerous growths that develop when skin cells undergo malignant transformation. The main types are basal cell carcinoma, squamous cell carcinoma, and melanoma. These cancers form when unrepaired DNA damage to skin cells triggers mutations that lead the skin cells to multiply rapidly and form malignant tumors.',
+                symptoms: ['New or changing skin growth', 'Sore that doesn\'t heal', 'Pearly or waxy bump', 'Firm, red nodule', 'Flat lesion with scaly crust', 'Large brownish spot with darker speckles', 'Mole that changes in color, size, or feel'],
+                treatments: ['Surgical excision', 'Mohs surgery', 'Cryotherapy', 'Radiation therapy', 'Chemotherapy', 'Immunotherapy', 'Targeted therapy', 'Photodynamic therapy'],
+                additionalInfo: 'Sun exposure is the leading cause of skin cancer. Early detection is crucial for successful treatment. The ABCDE rule helps identify suspicious moles: Asymmetry, Border irregularity, Color variation, Diameter larger than 6mm, and Evolving. Regular skin self-exams and professional skin checks are recommended.'
+            },
+            'melanoma-nevi': {
+                title: 'Melanoma & Nevi (Moles)',
+                severity: 'malignant',
+                prevalence: 'Common',
+                description: 'Melanoma is the most serious type of skin cancer that develops in the cells (melanocytes) that produce melanin. It can develop in existing moles or appear as new dark spots on the skin. Nevi (moles) are common benign growths on the skin that form when pigment cells grow in clusters.',
+                symptoms: ['New mole or change in existing mole', 'Asymmetrical shape', 'Irregular borders', 'Varied colors', 'Diameter larger than 6mm', 'Evolving size, shape, or color', 'Itching or bleeding from mole'],
+                treatments: ['Surgical excision', 'Sentinel lymph node biopsy', 'Immunotherapy', 'Targeted therapy', 'Chemotherapy', 'Radiation therapy', 'Regular monitoring of remaining moles'],
+                additionalInfo: 'Melanoma is less common than other skin cancers but much more dangerous if not caught early. Risk factors include excessive sun exposure, fair skin, family history, and having many moles. The ABCDE rule is helpful for detecting suspicious moles. Anyone with changing moles should seek dermatological evaluation.'
+            },
+            'rashes': {
+                title: 'Skin Rashes',
+                severity: 'inflammatory',
+                prevalence: 'Very Common',
+                description: 'Skin rashes involve changes in the skin\'s color, appearance, or texture. They may be localized to one area or affect widespread areas of the body. Rashes can be caused by a wide variety of conditions including allergies, infections, autoimmune disorders, and environmental factors.',
+                symptoms: ['Redness', 'Itching', 'Bumps or blisters', 'Dry, cracked skin', 'Scaling or flaking', 'Pain or discomfort', 'Swelling'],
+                treatments: ['Identifying and avoiding triggers', 'Topical corticosteroids', 'Antihistamines', 'Moisturizers', 'Cool compresses', 'Oatmeal baths', 'Treating underlying conditions'],
+                additionalInfo: 'Common types of rashes include contact dermatitis, heat rash, hives, and viral rashes. Most rashes are not dangerous but can be uncomfortable. However, some rashes may indicate a serious condition, especially if accompanied by fever, difficulty breathing, or rapid spreading. Persistent rashes should be evaluated by a healthcare provider.'
+            }
+        };
+
+        // Set up event listeners when the DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add click event to all disease cards
+            document.querySelectorAll('.disease-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const category = this.getAttribute('data-category');
+                    showDiseaseDetails(category);
+                });
+            });
+
+            // Set up search functionality
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                const searchTerm = e.target.value.toLowerCase().trim();
+                const cards = document.querySelectorAll('.disease-card');
+                
+                // Remove all highlights first
+                document.querySelectorAll('.highlight').forEach(el => {
+                    el.classList.remove('highlight');
+                });
+                
+                if (searchTerm === '') {
+                    // If search is empty, ensure all cards are visible
+                    cards.forEach(card => {
+                        card.style.display = 'block';
+                        const title = card.querySelector('.card-title');
+                        title.innerHTML = title.textContent; // Reset title HTML
+                    });
+                    return;
+                }
+                
+                cards.forEach(card => {
+                    const title = card.querySelector('.card-title');
+                    const description = card.querySelector('.card-text');
+                    const titleText = title.textContent.toLowerCase();
+                    const descriptionText = description.textContent.toLowerCase();
+                    
+                    if (titleText.includes(searchTerm) || descriptionText.includes(searchTerm)) {
+                        card.style.display = 'block';
+                        // Highlight matching text in title and description
+                        highlightText(title, searchTerm);
+                        highlightText(description, searchTerm);
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        function showDiseaseDetails(category) {
+            const data = diseaseData[category] || {
+                title: 'Information Not Available',
+                severity: 'inflammatory',
+                prevalence: 'Unknown',
+                description: 'Detailed information about this condition is not currently available. Please check back later.',
+                symptoms: ['Information not available'],
+                treatments: ['Information not available'],
+                additionalInfo: 'We are working to expand our database of skin conditions. Thank you for your understanding.'
+            };
+
+            // Update modal content
+            document.getElementById('diseaseModalLabel').textContent = data.title;
+            document.getElementById('modalSeverity').textContent = data.severity.charAt(0).toUpperCase() + data.severity.slice(1);
+            document.getElementById('modalSeverity').className = `badge modal-severity ${data.severity}`;
+            document.getElementById('modalPrevalence').textContent = data.prevalence;
+            document.getElementById('modalDescription').textContent = data.description;
+            
+            // Update symptoms list
+            const symptomsList = document.getElementById('modalSymptoms');
+            symptomsList.innerHTML = '';
+            data.symptoms.forEach(symptom => {
+                const li = document.createElement('li');
+                li.textContent = symptom;
+                symptomsList.appendChild(li);
+            });
+            
+            // Update treatments list
+            const treatmentsList = document.getElementById('modalTreatments');
+            treatmentsList.innerHTML = '';
+            data.treatments.forEach(treatment => {
+                const li = document.createElement('li');
+                li.textContent = treatment;
+                treatmentsList.appendChild(li);
+            });
+            
+            document.getElementById('modalAdditionalInfo').textContent = data.additionalInfo;
+            
+            // Show the modal
+            const modal = new bootstrap.Modal(document.getElementById('diseaseModal'));
+            modal.show();
+        }
+        
+        function highlightText(element, searchTerm) {
+            const text = element.textContent;
+            const regex = new RegExp(searchTerm, 'gi');
+            const newText = text.replace(regex, match => `<span class="highlight">${match}</span>`);
+            element.innerHTML = newText;
+        }
+    </script>
+</body>
+</html>

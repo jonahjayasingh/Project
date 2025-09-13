@@ -1,0 +1,412 @@
+{% extends 'base.html' %}
+{% block style %}
+    <style>
+     
+
+
+      
+        .navbar-brand { 
+            font-weight: 700; 
+            font-size: 1.5rem; 
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+      
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: var(--white);
+            padding: 5rem 0 4rem;
+            margin-bottom: 3rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero-banner::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover;
+            opacity: 0.15;
+            z-index: 0;
+        }
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        .hero-title { 
+            font-weight: 800; 
+            font-size: 2.8rem; 
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .hero-subtitle { 
+            font-weight: 300; 
+            font-size: 1.25rem;
+            max-width: 700px;
+            margin: 0 auto 1.5rem;
+        }
+        .search-box {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        .search-box .form-control {
+            border-radius: 50px;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            box-shadow: var(--shadow-sm);
+        }
+        .search-box .btn {
+            position: absolute;
+            right: 5px;
+            top: 5px;
+            bottom: 5px;
+            border-radius: 50px;
+            padding: 0 1.25rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+        }
+
+        /* Section Titles */
+        .section-header { 
+            text-align: center; 
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        .section-title {
+            font-weight: 700;
+            color: var(--primary);
+            display: inline-block;
+            padding-bottom: 0.5rem;
+            position: relative;
+            font-size: 2rem;
+        }
+        .section-title:after {
+            content: "";
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--secondary);
+            border-radius: 2px;
+        }
+        .section-subtitle { 
+            color: var(--gray);
+            max-width: 700px;
+            margin: 1rem auto 0;
+        }
+
+        /* Filter Buttons */
+        .filter-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+        .filter-btn {
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+            font-weight: 500;
+            border-radius: 50px;
+            padding: 0.5rem 1.25rem;
+            transition: var(--transition);
+            background: transparent;
+        }
+        .filter-btn:hover {
+            background: rgba(52, 152, 219, 0.1);
+            transform: translateY(-2px);
+        }
+        .filter-btn.active {
+            background-color: var(--secondary);
+            color: white;
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        /* Gallery */
+        .gallery-container {
+            margin: 2rem 0;
+            height:100%;
+        }
+        .gallery-item {
+            margin-bottom: 1.5rem;
+            transition: var(--transition);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            background: white;
+        }
+        .gallery-item:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+        .gallery-img-container {
+            position: relative;
+            overflow: hidden;
+            height: 200px;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+            opacity: 0;
+        }
+        .gallery-item img.loaded {
+            opacity: 1;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .gallery-item:hover img { 
+            transform: scale(1.1); 
+        }
+        .overlay {
+            position: absolute;
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.3) 50%, transparent 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 1rem;
+            color: white;
+            opacity: 1;
+        }
+        .event-type {
+            background: var(--accent);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 0.5rem;
+            align-self: flex-start;
+        }
+        .gallery-content {
+            padding: 1.25rem;
+        }
+        .gallery-content h5 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        .gallery-content .date {
+            color: var(--gray);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+       
+
+
+        /* Back to top button */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            z-index: 1000;
+        }
+        .back-to-top.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .back-to-top:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        /* Animations */
+        .animate-delay-1 { animation-delay: 0.1s; }
+        .animate-delay-2 { animation-delay: 0.2s; }
+        .animate-delay-3 { animation-delay: 0.3s; }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 2.2rem; }
+            .hero-subtitle { font-size: 1.1rem; }
+            .section-title { font-size: 1.75rem; }
+            .gallery-img-container { height: 180px; }
+        }
+    </style>
+    {% endblock %}
+</head>
+{% block main %}
+
+    <!-- Hero Banner -->
+    <header class="hero-banner">
+        <div class="hero-content container">
+            <h1 class="hero-title animate__animated animate__fadeInDown">Our Event Gallery</h1>
+            <p class="hero-subtitle animate__animated animate__fadeIn animate__delay-1s">Relive the unforgettable moments from our campus events and activities</p>
+            
+            <div class="search-box animate__animated animate__fadeIn animate__delay-2s">
+                <div class="position-relative">
+                    <input type="text" class="form-control" placeholder="Search events...">
+                    <button class="btn"><i class="fas fa-search"></i></button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Section Header -->
+        <div class="section-header animate__animated animate__fadeIn">
+            <h2 class="section-title">Captured Moments</h2>
+            <p class="section-subtitle">Browse through our collection of memorable events and activities</p>
+        </div>
+
+        <!-- Filter Buttons -->
+        <div class="filter-container">
+            <button class="filter-btn active animate__animated animate__fadeIn animate-delay-1" data-filter="all">All Events</button>
+            {% for gallery_type in types %}
+                <button class="filter-btn animate__animated animate__fadeIn" 
+                        data-filter="{{ gallery_type }}"
+                        style="animation-delay: {{ forloop.counter|add:1 }}00ms">
+                    <i class="fas fa-{% if gallery_type == 'Academic' %}book{% elif gallery_type == 'Sports' %}running{% elif gallery_type == 'Cultural' %}music{% else %}camera{% endif %} me-1"></i>
+                    {{ gallery_type }}
+                </button>
+            {% endfor %}
+        </div>
+
+        <!-- Gallery Grid -->
+        <div class="row g-4 gallery-container" id="galleryGrid">
+            {% for gallery in galleries %}
+            <div class=" gallery-item animate__animated animate__fadeInUp" data-category="{{gallery.gallery_type}}">
+                <div class="gallery-img-container">
+                    <img data-src="{{gallery.image.url}}" alt="{{gallery.caption}}" class="img-fluid lazy">
+                    <div class="overlay">
+                        <span class="event-type">{{gallery.gallery_type}}</span>
+                    </div>
+                </div>
+                <div class="gallery-content">
+                    <h5>{{gallery.caption|truncatechars:40}}</h5>
+                    <div class="date">
+                        <i class="far fa-calendar-alt"></i> {{gallery.date|date:"M j, Y"}}
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <div class="empty-state">
+                    <i class="fas fa-images fa-3x mb-3" style="color: var(--light-gray);"></i>
+                    <h4>No gallery items found</h4>
+                    <p class="text-muted">Check back later for upcoming events</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+   
+    <!-- Back to top button -->
+    <a href="#" class="back-to-top">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+
+    <!-- Bootstrap JS + Custom Scripts -->
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Lazy Load Images
+            const lazyImages = document.querySelectorAll("img.lazy");
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        img.src = img.dataset.src;
+                        img.onload = () => img.classList.add("loaded");
+                        observer.unobserve(img);
+                    }
+                });
+            });
+            lazyImages.forEach(img => {
+                imageObserver.observe(img);
+            });
+
+            // Filter functionality
+            const filterBtns = document.querySelectorAll(".filter-btn");
+            const items = document.querySelectorAll(".gallery-item");
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    filterBtns.forEach(b => b.classList.remove("active"));
+                    btn.classList.add("active");
+
+                    const filter = btn.getAttribute("data-filter");
+                    items.forEach(item => {
+                        if (filter === "all" || item.getAttribute("data-category") === filter) {
+                            item.style.display = "block";
+                            item.classList.add("animate__fadeIn");
+                        } else {
+                            item.style.display = "none";
+                        }
+                    });
+                });
+            });
+
+            // Back to top button
+            const backToTopBtn = document.querySelector(".back-to-top");
+            window.addEventListener("scroll", () => {
+                if (window.pageYOffset > 300) {
+                    backToTopBtn.classList.add("active");
+                } else {
+                    backToTopBtn.classList.remove("active");
+                }
+            });
+            backToTopBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: "smooth"
+                });
+            });
+
+            // Search functionality
+            const searchInput = document.querySelector(".search-box input");
+            if (searchInput) {
+                searchInput.addEventListener("keyup", function(e) {
+                    if (e.key === "Enter") {
+                        const searchTerm = this.value.toLowerCase();
+                        let hasResults = false;
+                        
+                        items.forEach(item => {
+                            const caption = item.querySelector("h5").textContent.toLowerCase();
+                            if (caption.includes(searchTerm)) {
+                                item.style.display = "block";
+                                hasResults = true;
+                            } else {
+                                item.style.display = "none";
+                            }
+                        });
+                        
+                        if (!hasResults) {
+                            alert("No matching gallery items found");
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ job.job_title }} - {{ job.company }} - Company View</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .job-header {
+            background: linear-gradient(120deg, #1e40af 0%, #3b82f6 100%);
+            color: white;
+            border-radius: 0 0 20px 20px;
+        }
+        .job-card {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: transform 0.3s ease;
+        }
+        .job-card:hover {
+            transform: translateY(-5px);
+        }
+        .badge {
+            font-size: 0.85rem;
+            padding: 0.5em 0.8em;
+        }
+        .job-detail-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .job-detail-item i {
+            width: 24px;
+            margin-right: 12px;
+            color: #6c757d;
+        }
+        .description-box {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            line-height: 1.7;
+        }
+        .action-buttons .btn {
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 500;
+        }
+        .back-button {
+            transition: all 0.3s ease;
+        }
+        .back-button:hover {
+            transform: translateX(-5px);
+        }
+        .tag {
+            display: inline-block;
+            background-color: #e9ecef;
+            padding: 0.35rem 0.65rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            margin: 0.2rem;
+            color: #495057;
+        }
+        .applicants-table {
+            font-size: 0.9rem;
+        }
+        .applicants-table th {
+            background-color: #f1f5f9;
+        }
+        .stats-card {
+            border-radius: 12px;
+            border-left: 4px solid #3b82f6;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header Section -->
+<div class="job-header py-4 mb-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'dashboard' %}" class="btn btn-light back-button">
+                <i class="fas fa-arrow-left me-2"></i> Back to Dashboard
+            </a>
+            <div>
+                {% if job.last_date >= today  and job.is_active %}
+                    <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i> Active</span>
+                {% else %}
+                    {% if job.is_active %}
+                    <span class="badge bg-danger"><i class="fas fa-times-circle me-1"></i> Expired </span>
+                    {% else %}
+                    <span class="badge bg-warning"><i class="fa-solid fa-exclamation text-black"></i> Pasued </span>
+                    {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <div class="text-center mt-4">
+            <h1 class="h2 mb-2">{{ job.job_title }}</h1>
+            <p class="lead mb-0">Job Posting Management</p>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container mb-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Job Details Card -->
+            <div class="card job-card mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div>
+                            <h2 class="h4 mb-2">Job Details</h2>
+                            <h5 class="text-muted mb-3">{{ job.company }} • {{ job.location }}</h5>
+                            
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="tag"><i class="fas fa-clock me-1"></i> {{ job.job_type }}</span>
+                                <span class="tag"><i class="fas fa-briefcase me-1"></i> {{ job.experience }}</span>
+                                <span class="tag"><i class="fas fa-dollar-sign me-1"></i> {{ job.salary }}</span>
+                            </div>
+                        </div>
+                        
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="job-detail-item">
+                                <i class="fas fa-calendar-day"></i>
+                                <div>
+                                    <div class="text-muted small">Posted Date</div>
+                                    <div>{{ job.posted_at|date:"F j, Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="job-detail-item">
+                                <i class="fas fa-hourglass-end"></i>
+                                <div>
+                                    <div class="text-muted small">Application Deadline</div>
+                                    <div>{{ job.last_date|date:"F j, Y" }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="job-detail-item">
+                                <i class="fas fa-user-tie"></i>
+                                <div>
+                                    <div class="text-muted small">Experience Level</div>
+                                    <div>{{ job.experience }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="job-detail-item">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <div>
+                                    <div class="text-muted small">Salary</div>
+                                    <div>{{ job.salary }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <h4 class="mb-3"><i class="fas fa-file-alt me-2"></i> Job Description</h4>
+                    <div class="description-box mb-4">
+                        {{ job.description|linebreaks }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Stats Card -->
+            <div class="card job-card mb-4">
+                <div class="card-body p-4">
+                    <h3 class="h5 mb-4">Job Statistics</h3>
+                    
+                    <div class="card stats-card mb-3">
+                        <div class="card-body py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    <h6 class="text-muted small mb-1">Total Applications</h6>
+                                    <h4 class="mb-0">{{ applied_job.count }}</h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-users text-primary fa-2x"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Management Actions Card -->
+            <div class="card job-card mb-4">
+                <div class="card-body p-4">
+                    <h3 class="h5 mb-4">Job Management</h3>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#editJobModal">
+                            <i class="fas fa-edit me-2"></i> Edit Job Posting
+                        </a>
+                        
+                        {% if job.is_active %}
+                            <a href="{% url 'active_status' job.id %}" class="btn btn-warning">
+                                <i class="fas fa-pause me-2"></i> Pause Job
+                            </a>
+                        {% else %}
+                            <a href="{% url 'active_status' job.id %}" class="btn btn-success">
+                                <i class="fas fa-play me-2"></i> Reactivate Job
+                            </a>
+                        {% endif %}
+                        
+                        <button class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteJobModal">
+                            <i class="fas fa-trash-alt me-2"></i> Delete Job
+                        </button>
+                    </div>
+                    
+                
+                    
+                   
+                </div>
+            </div>
+            
+            
+        </div>
+    </div>
+</div>
+
+<!-- Edit Job Modal -->
+<div class="modal fade" id="editJobModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Job Posting</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'editjob' job.id %}" method="post" >
+                    {% csrf_token %}
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Job Title</label>
+                            <input type="text" name="job_title" class="form-control" value="{{ job.job_title }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Company</label>
+                            <input type="text" name="company" class="form-control" value="{{ job.company }}">
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Location</label>
+                            <input type="text" name="location" class="form-control" value="{{ job.location }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Job Type</label>
+                            <select name="job_type" class="form-select">
+                                <option {% if job.job_type == "Full-Time" %}selected{% endif %}>Full-Time</option>
+                                <option {% if job.job_type == "Part-Time" %}selected{% endif %}>Part-Time</option>
+                                <option {% if job.job_type == "Internship" %}selected{% endif %}>Internship</option>
+                                <option {% if job.job_type == "Contract" %}selected{% endif %}>Contract</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Experience Level</label>
+                            <input type="text" name="experience" class="form-control" value="{{ job.experience }}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Salary</label>
+                            <input type="text" name="salary" class="form-control" value="{{ job.salary }}">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" name="description" rows="5">{{ job.description }}</textarea>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Application Deadline</label>
+                        <input type="date" name="last_date" class="form-control" value="{{ job.last_date|date:'Y-m-d' }}">
+                    </div>
+                
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <input type="submit" class="btn btn-primary" value="Save Changes" >
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteJobModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this job posting? This action cannot be undone.</p>
+                <p class="fw-bold">"{{ job.job_title }}" at {{ job.company }}</p>
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirmDelete">
+                    <label class="form-check-label" for="confirmDelete">
+                        I understand that this will permanently remove the job posting
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <a href="{% url  'deletejob' job.id %}" class="btn btn-danger">Delete Job</a>  
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

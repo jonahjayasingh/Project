@@ -1,0 +1,375 @@
+
+    {% extends 'base.html' %}
+    {% block style %}
+
+            :root {
+                --primary: #2c3e50;
+                --secondary: #3498db;
+                --accent: #e74c3c;
+                --light: #f8f9fa;
+                --dark: #212529;
+                --white: #ffffff;
+                --gray: #6c757d;
+                --light-gray: #e9ecef;
+                --shadow-sm: 0 2px 8px rgba(0,0,0,0.1);
+                --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+                --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            }
+            
+            body {
+                font-family: 'Poppins', sans-serif;
+                background-color: var(--light);
+                color: var(--dark);
+                line-height: 1.6;
+            }
+
+            /* Navbar */
+            .navbar-custom {
+                background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+                box-shadow: var(--shadow-md);
+                padding: 0.8rem 0;
+                position: sticky;
+                top: 0;
+                z-index: 1020;
+            }
+            .navbar-brand { 
+                font-weight: 700; 
+                font-size: 1.5rem; 
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .navbar-brand i {
+                font-size: 1.8rem;
+            }
+            .nav-link { 
+                font-weight: 500; 
+                padding: 0.5rem 1rem !important;
+                border-radius: 50px; 
+                transition: var(--transition); 
+                margin: 0 0.2rem;
+            }
+            .nav-link:hover, .nav-link.active { 
+                background-color: rgba(255,255,255,0.15); 
+                transform: translateY(-2px);
+            }
+
+            /* Hero Banner */
+            .hero-banner {
+                background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+                color: var(--white);
+                padding: 5rem 0 3rem;
+                margin-bottom: 3rem;
+                text-align: center;
+                position: relative;
+                overflow: hidden;
+            }
+            .hero-banner::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: url('https://images.unsplash.com/photo-1524179091875-bf99a9a6af57?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80') center/cover;
+                opacity: 0.15;
+                z-index: 0;
+            }
+            .hero-content {
+                position: relative;
+                z-index: 1;
+            }
+            .hero-title { 
+                font-weight: 800; 
+                font-size: 2.8rem; 
+                margin-bottom: 0.5rem;
+                text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            }
+            .hero-subtitle { 
+                font-weight: 300; 
+                font-size: 1.25rem;
+                max-width: 700px;
+                margin: 0 auto 1.5rem;
+            }
+
+            /* Event Cards */
+            .event-card {
+                border-radius: 0.75rem;
+                overflow: hidden;
+                box-shadow: var(--shadow-sm);
+                transition: var(--transition);
+                margin-bottom: 2rem;
+                background: white;
+            }
+            .event-card:hover {
+                transform: translateY(-5px);
+                box-shadow: var(--shadow-md);
+            }
+            .event-img-container {
+                height: 220px;
+                overflow: hidden;
+                position: relative;
+            }
+            .event-img-container img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+            .event-card:hover .event-img-container img {
+                transform: scale(1.05);
+            }
+            .event-date-badge {
+                position: absolute;
+                top: 1rem;
+                right: 1rem;
+                background: var(--accent);
+                color: white;
+                padding: 0.5rem 1rem;
+                border-radius: 0.5rem;
+                font-weight: 600;
+                text-align: center;
+                box-shadow: var(--shadow-sm);
+            }
+            .event-date-badge .day {
+                font-size: 1.25rem;
+                line-height: 1;
+            }
+            .event-date-badge .month {
+                font-size: 0.75rem;
+                text-transform: uppercase;
+            }
+            .event-content {
+                padding: 1.5rem;
+            }
+            .event-title {
+                font-weight: 700;
+                color: var(--primary);
+                margin-bottom: 0.75rem;
+            }
+            .event-meta {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1rem;
+                flex-wrap: wrap;
+            }
+            .event-meta-item {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                color: var(--gray);
+                font-size: 0.9rem;
+            }
+            .event-meta-item i {
+                color: var(--secondary);
+            }
+            .event-description {
+                color: var(--dark);
+                margin-bottom: 1rem;
+                display: -webkit-box;
+                -webkit-line-clamp: 3;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .event-actions {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            .event-author {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                font-size: 0.9rem;
+            }
+            .event-author img {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+
+            /* Pagination */
+            .pagination {
+                justify-content: center;
+                margin-top: 2rem;
+            }
+            .page-item.active .page-link {
+                background: var(--secondary);
+                border-color: var(--secondary);
+            }
+            .page-link {
+                color: var(--primary);
+                border-radius: 0.5rem !important;
+                margin: 0 0.25rem;
+            }
+
+            /* Footer */
+            .footer {
+                background-color: var(--dark);
+                color: var(--white);
+                padding: 3rem 0 1.5rem;
+                margin-top: 4rem;
+            }
+            .footer-links {
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            .footer-link {
+                color: var(--light-gray);
+                text-decoration: none;
+                transition: var(--transition);
+            }
+            .footer-link:hover {
+                color: var(--secondary);
+                transform: translateY(-2px);
+            }
+            .social-links {
+                display: flex;
+                justify-content: center;
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+            .social-links a {
+                display: inline-flex; 
+                align-items: center; 
+                justify-content: center;
+                width: 40px; 
+                height: 40px; 
+                background: rgba(255,255,255,0.1); 
+                border-radius: 50%;
+                transition: var(--transition);
+                color: white;
+                font-size: 1.1rem;
+            }
+            .social-links a:hover { 
+                background: var(--secondary); 
+                transform: translateY(-3px) scale(1.1);
+                box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+            }
+            .copyright {
+                color: var(--gray);
+                font-size: 0.9rem;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .hero-title { font-size: 2.2rem; }
+                .hero-subtitle { font-size: 1.1rem; }
+                .event-img-container { height: 180px; }
+            }
+        </style>
+    {% endblock %}
+    {% block main %}
+
+        <!-- Hero Banner -->
+        <header class="hero-banner">
+            <div class="hero-content container">
+                <h1 class="hero-title">Upcoming Events</h1>
+                <p class="hero-subtitle">Discover and participate in our exciting campus activities and academic events</p>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="row">
+                <!-- Events List -->
+                <div class="col-12">
+                    <div class="row">
+                        {% for event in events %}
+                        <div class="col-md-6">
+                            <div class="event-card">
+                                <div class="event-img-container">
+                                    <img src="{{ event.event_image.url }}" alt="{{ event.event_name }}">
+                                    <div class="event-date-badge">
+                                        <div class="day">{{ event.event_date|date:"d" }}</div>
+                                        <div class="month">{{ event.event_date|date:"M" }}</div>
+                                    </div>
+                                </div>
+                                <div class="event-content">
+                                    <h3 class="event-title">{{ event.event_name }}</h3>
+                                    
+                                    <div class="event-meta">
+                                        <div class="event-meta-item">
+                                            <i class="fas fa-map-marker-alt"></i>
+                                            <span>{{ event.event_location }}</span>
+                                        </div>
+                                        <div class="event-meta-item">
+                                            <i class="fas fa-clock"></i>
+                                            <span>{{ event.event_date|time }}</span>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="event-description">{{ event.event_description }}</p>
+                                    
+                                    <div class="event-actions">
+                                        <div class="event-author">
+                                            <img src="{{ event.user.profile.image.url|default:'/static/images/default-profile.jpg' }}" alt="{{ event.user.get_full_name }}">
+                                            <span>{{ event.user.get_full_name|default:event.user.username }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="col-12">
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-3x mb-3" style="color: var(--light-gray);"></i>
+                                <h4>No events found</h4>
+                                <p class="text-muted">Check back later for upcoming events</p>
+                                <a href="{% url 'coordinator:userregister' %}" class="btn btn-primary">Create an Event</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Pagination -->
+                    {% if events.has_other_pages %}
+                    <nav aria-label="Event pagination">
+                        <ul class="pagination">
+                            {% if events.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ events.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for i in events.paginator.page_range %}
+                            <li class="page-item {% if events.number == i %}active{% endif %}">
+                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                            </li>
+                            {% endfor %}
+                            
+                            {% if events.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ events.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </main>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Event card click handler
+                const eventCards = document.querySelectorAll(".event-card");
+                eventCards.forEach(card => {
+                    card.addEventListener("click", function(e) {
+                        if (e.target.tagName === 'A' || e.target.closest('a')) {
+                            return;
+                        }
+                        alert("Would navigate to event detail page");
+                    });
+                });
+            });
+        </script>
+    {% endblock %}

@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Test Environment</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 800px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: #4a00e0;
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .timer-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 10px;
+            margin: 15px auto;
+            width: 130px;
+        }
+        
+        #timer {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .test-info {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .security-indicator svg {
+            margin-right: 8px;
+        }
+        
+        .question {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #4a00e0;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .option input {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        #prev-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        #prev-btn:hover {
+            background: #5a6268;
+        }
+        
+        #next-btn {
+            background: #4a00e0;
+            color: white;
+        }
+        
+        #next-btn:hover {
+            background: #3a00b0;
+        }
+        
+        #submit-btn {
+            background: #28a745;
+            color: white;
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+        
+        #submit-btn:hover {
+            background: #218838;
+        }
+        
+        .time-warning {
+            color: #dc3545;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .test-complete {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .test-complete h2 {
+            color: #4a00e0;
+            margin-bottom: 20px;
+        }
+        
+        .exit-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ffc107;
+            color: #856404;
+            padding: 15px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .session-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-content h2 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+        }
+        
+        #stay-btn {
+            background: #28a745;
+        }
+        
+        #leave-btn {
+            background: #dc3545;
+        }
+        
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.97);
+            color: white;
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .fullscreen-overlay h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+        
+        .fullscreen-overlay p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        #return-btn {
+            background: #4a00e0;
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #return-btn:hover {
+            background: #3a00b0;
+        }
+        
+        .attempt-counter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .fullscreen-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #ffc107;
+            color: #856404;
+            padding: 10px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .fullscreen-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 4000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .fullscreen-prompt h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .fullscreen-prompt p {
+            margin-bottom: 30px;
+            font-size: 18px;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        #start-test-btn {
+            background: #4a00e0;
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #start-test-btn:hover {
+            background: #3a00b0;
+        }
+        
+        .submission-status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .submission-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .submission-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .question {
+                padding: 15px;
+            }
+            
+            button {
+                padding: 10px 15px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .test-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="exit-warning" id="exit-warning">
+        ⚠️ Warning: Your test is in progress. If you leave this page, your progress may be lost.
+    </div>
+    
+    <div class="fullscreen-message" id="fullscreen-message">
+        ⚠️ This test must be taken in full screen mode. Please allow full screen when prompted.
+    </div>
+    
+    <div class="fullscreen-prompt" id="fullscreen-prompt">
+        <h2>Full Screen Required</h2>
+        <p>This test must be taken in full screen mode for security reasons. Click the button below to start the test in full screen.</p>
+        <button id="start-test-btn">Start Test in Full Screen</button>
+    </div>
+    
+    <div class="session-modal" id="session-modal">
+        <div class="modal-content">
+            <h2>Test In Progress</h2>
+            <p>Your test timer is still running. Are you sure you want to leave?</p>
+            <p>If you leave, your test will be automatically submitted.</p>
+            <div class="modal-buttons">
+                <button id="stay-btn">Stay on Page</button>
+                <button id="leave-btn">Leave Anyway</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="fullscreen-overlay" id="fullscreen-overlay">
+        <h2>⚠️ Test Integrity Warning</h2>
+        <p>You have attempted to switch away from the test window. This is not allowed during the examination.</p>
+        <p>Repeated attempts to leave the test may result in automatic submission of your answers.</p>
+        <button id="return-btn">Return to Test</button>
+        <div class="attempt-counter" id="attempt-counter">1</div>
+    </div>
+    
+    <div class="container" id="test-container" style="display: none;">
+        <div class="header">
+            <h1>Final Examination</h1>
+            <div class="timer-container">
+                <div id="timer">10:00</div>
+            </div>
+            <p>Complete the test before time runs out!</p>
+        </div>
+        
+        <div id="submission-status" class="submission-status"></div>
+        
+        <div class="test-info">
+            <p>Question <span id="current-question">1</span> of <span id="total-questions">5</span></p>
+            <div class="security-indicator">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Secure Session Active</span>
+            </div>
+        </div>
+        
+        <div id="time-warning" class="time-warning" style="display: none;">
+            ⏰ Time is running out! Less than 1 minute remaining.
+        </div>
+        
+        <form id="test-form">
+            <div class="question" id="question-1" style="display: block;">
+                <div class="question-number">Question 1:</div>
+                <div class="question-text">What is the capital of France?</div>
+                
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q1" value="A"> 
+                        London
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="B"> 
+                        Berlin
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="C"> 
+                        Paris
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q1" value="D"> 
+                        Madrid
+                    </label>
+                </div>
+            </div>
+            
+            <div class="question" id="question-2" style="display: none;">
+                <div class="question-number">Question 2:</div>
+                <div class="question-text">Which planet is known as the Red Planet?</div>
+                
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q2" value="A"> 
+                        Venus
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="B"> 
+                        Mars
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="C"> 
+                        Jupiter
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q2" value="D"> 
+                        Saturn
+                    </label>
+                </div>
+            </div>
+            
+            <div class="question" id="question-3" style="display: none;">
+                <div class="question-number">Question 3:</div>
+                <div class="question-text">What is the largest mammal in the world?</div>
+                
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q3" value="A"> 
+                        African Elephant
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="B"> 
+                        Blue Whale
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="C"> 
+                        Giraffe
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q3" value="D"> 
+                        Polar Bear
+                    </label>
+                </div>
+            </div>
+            
+            <div class="question" id="question-4" style="display: none;">
+                <div class="question-number">Question 4:</div>
+                <div class="question-text">Which element has the chemical symbol 'O'?</div>
+                
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q4" value="A"> 
+                        Gold
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="B"> 
+                        Oxygen
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="C"> 
+                        Osmium
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q4" value="D"> 
+                        Silver
+                    </label>
+                </div>
+            </div>
+            
+            <div class="question" id="question-5" style="display: none;">
+                <div class="question-number">Question 5:</div>
+                <div class="question-text">Who wrote the play 'Romeo and Juliet'?</div>
+                
+                <div class="options">
+                    <label class="option">
+                        <input type="radio" name="q5" value="A"> 
+                        Charles Dickens
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="B"> 
+                        William Shakespeare
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="C"> 
+                        Jane Austen
+                    </label>
+                    <label class="option">
+                        <input type="radio" name="q5" value="D"> 
+                        Mark Twain
+                    </label>
+                </div>
+            </div>
+            
+            <div class="navigation">
+                <button type="button" id="prev-btn">Previous</button>
+                <button type="button" id="next-btn">Next</button>
+            </div>
+            
+            <button type="button" id="submit-btn">Submit Test</button>
+        </form>
+        
+        <div id="test-complete" class="test-complete" style="display: none;">
+            <h2>Test Completed!</h2>
+            <p>Your test has been submitted successfully.</p>
+            <p id="submission-message">Thank you for completing the test.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Test configuration
+            const totalQuestions = 5;
+            let currentQuestion = 1;
+            let timeLeft = {{mcq.mcq_duration}} * 60; // 10 minutes in seconds
+            let timerInterval;
+            let testActive = false;
+            let leaveAttempts = 0;
+            let isFullScreen = false;
+            let dataSubmitted = false;
+            
+            // DOM elements
+            const timerDisplay = document.getElementById('timer');
+            const currentQuestionElement = document.getElementById('current-question');
+            const prevButton = document.getElementById('prev-btn');
+            const nextButton = document.getElementById('next-btn');
+            const submitButton = document.getElementById('submit-btn');
+            const testForm = document.getElementById('test-form');
+            const testComplete = document.getElementById('test-complete');
+            const timeWarning = document.getElementById('time-warning');
+            const exitWarning = document.getElementById('exit-warning');
+            const sessionModal = document.getElementById('session-modal');
+            const stayButton = document.getElementById('stay-btn');
+            const leaveButton = document.getElementById('leave-btn');
+            const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+            const returnButton = document.getElementById('return-btn');
+            const attemptCounter = document.getElementById('attempt-counter');
+            const fullscreenMessage = document.getElementById('fullscreen-message');
+            const fullscreenPrompt = document.getElementById('fullscreen-prompt');
+            const startTestButton = document.getElementById('start-test-btn');
+            const testContainer = document.getElementById('test-container');
+            const submissionStatus = document.getElementById('submission-status');
+            const submissionMessage = document.getElementById('submission-message');
+            
+            // Show the fullscreen prompt initially
+            fullscreenPrompt.style.display = 'flex';
+            
+            // Event listeners
+            startTestButton.addEventListener('click', startTest);
+            prevButton.addEventListener('click', showPreviousQuestion);
+            nextButton.addEventListener('click', showNextQuestion);
+            submitButton.addEventListener('click', handleSubmit);
+            stayButton.addEventListener('click', closeModal);
+            leaveButton.addEventListener('click', leavePage);
+            returnButton.addEventListener('click', returnToTest);
+            
+            // Start test function
+            function startTest() {
+                // Hide the prompt and show the test container
+                fullscreenPrompt.style.display = 'none';
+                testContainer.style.display = 'block';
+                
+                // Request fullscreen
+                requestFullscreen();
+                
+                // Start the test
+                testActive = true;
+                updateNavigationButtons();
+                startTimer();
+                setupSessionProtection();
+            }
+            
+            // Timer function
+            function startTimer() {
+                updateTimerDisplay();
+                
+                timerInterval = setInterval(function() {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    
+                    // Show warning when time is running out
+                    if (timeLeft === 60) {
+                        timeWarning.style.display = 'block';
+                    }
+                    
+                    // Auto-submit when time is up
+                    if (timeLeft <= 0) {
+                        clearInterval(timerInterval);
+                        autoSubmitTest();
+                    }
+                }, 1000);
+            }
+            
+            function updateTimerDisplay() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                // Change color when time is running out
+                if (timeLeft <= 60) {
+                    timerDisplay.style.color = '#dc3545';
+                }
+            }
+            
+            function autoSubmitTest() {
+                if (!testActive) return;
+                
+                testActive = false;
+                
+                // Remove all input elements to prevent further interaction
+                const allInputs = document.querySelectorAll('input');
+                allInputs.forEach(input => {
+                    input.disabled = true;
+                });
+                
+                // Submit the test data
+                submitTestData("Time's up! Your test has been automatically submitted.");
+            }
+            
+            function showNextQuestion() {
+                if (currentQuestion < totalQuestions) {
+                    currentQuestion++;
+                    updateQuestionVisibility();
+                    updateNavigationButtons();
+                }
+            }
+            
+            function showPreviousQuestion() {
+                if (currentQuestion > 1) {
+                    currentQuestion--;
+                    updateQuestionVisibility();
+                    updateNavigationButtons();
+                }
+            }
+            
+            function updateQuestionVisibility() {
+                // Hide all questions
+                for (let i = 1; i <= totalQuestions; i++) {
+                    document.getElementById(`question-${i}`).style.display = 'none';
+                }
+                
+                // Show current question
+                document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+                currentQuestionElement.textContent = currentQuestion;
+            }
+            
+            function updateNavigationButtons() {
+                // Disable prev button on first question
+                prevButton.disabled = currentQuestion === 1;
+                
+                // Disable next button on last question
+                nextButton.disabled = currentQuestion === totalQuestions;
+            }
+            
+            function handleSubmit() {
+                testActive = false;
+                
+                // Stop the timer
+                clearInterval(timerInterval);
+                
+                // Submit the test data
+                submitTestData("Test submitted successfully!");
+            }
+            
+            function submitTestData(message) {
+                if (dataSubmitted) return; // Prevent multiple submissions
+                dataSubmitted = true;
+                
+                // Collect all answers
+                const formData = new FormData();
+                
+                for (let i = 1; i <= totalQuestions; i++) {
+                    const answer = document.querySelector(`input[name="q${i}"]:checked`);
+                    if (answer) {
+                        formData.append(`q${i}`, answer.value);
+                    } else {
+                        formData.append(`q${i}`, 'unanswered');
+                    }
+                }
+                
+                // Add metadata
+                formData.append('totalQuestions', totalQuestions);
+                formData.append('timeRemaining', timeLeft);
+                
+                // Show submission status
+                submissionStatus.textContent = "Submitting your answers...";
+                submissionStatus.className = "submission-status";
+                submissionStatus.style.display = "block";
+                
+                // In a real application, you would send this data to your Django server
+                // For this demo, we'll simulate a server request
+                simulateDjangoSubmission(formData, message);
+            }
+            
+            function simulateDjangoSubmission(formData, message) {
+                // Show loading state on submit button
+                submitButton.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+                submitButton.disabled = true;
+                
+                // Simulate server request with timeout
+                setTimeout(() => {
+                    // This would be replaced with actual fetch/AJAX call to Django
+                    // Example:
+                    
+                    fetch('/students/mcq_exam', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken'),
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        // Handle response
+                        handleSubmissionResponse(data, message);
+                    })
+                    .catch(error => {
+                        // Handle error
+                        submissionStatus.textContent = "Error submitting answers. Please try again.";
+                        submissionStatus.className = "submission-status submission-error";
+                        submitButton.innerHTML = 'Submit Test';
+                        submitButton.disabled = false;
+                        dataSubmitted = false;
+                    });
+                    
+                    // For demo purposes, we'll simulate a successful submission
+                    const mockResponse = {
+                        success: true,
+                        message: "Exam submitted successfully"
+                    };
+                    
+                    handleSubmissionResponse(mockResponse, message);
+                }, 2000);
+            }
+            
+            function handleSubmissionResponse(response, message) {
+                if (response.success) {
+                    submissionStatus.textContent = "Answers submitted successfully!";
+                    submissionStatus.className = "submission-status submission-success";
+                    
+                    // Hide the form and show completion message
+                    testForm.style.display = 'none';
+                    testComplete.style.display = 'block';
+                    submissionMessage.textContent = `${message}`;
+                    
+                    // Remove the beforeunload listener since test is complete
+                    removeSessionProtection();
+                    
+                    // Exit fullscreen
+                    exitFullscreen();
+                } else {
+                    submissionStatus.textContent = "Error submitting answers. Please try again.";
+                    submissionStatus.className = "submission-status submission-error";
+                    submitButton.innerHTML = 'Submit Test';
+                    submitButton.disabled = false;
+                    dataSubmitted = false;
+                }
+            }
+            
+            // Helper function to get CSRF token for Django
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+            
+            function setupSessionProtection() {
+                // Add event listeners for various page exit attempts
+                window.addEventListener('beforeunload', handleBeforeUnload);
+                window.addEventListener('pagehide', handlePageHide);
+                document.addEventListener('visibilitychange', handleVisibilityChange);
+                
+                // Show warning when mouse leaves the window
+                document.addEventListener('mouseleave', handleMouseLeave);
+                
+                // Show warning when trying to navigate away
+                window.addEventListener('popstate', handlePopState);
+                
+                // Prevent keyboard shortcuts for refresh, back, etc.
+                document.addEventListener('keydown', handleKeyDown);
+                
+                // Prevent right-click context menu
+                document.addEventListener('contextmenu', handleContextMenu);
+                
+                // Prevent drag and drop
+                document.addEventListener('dragstart', handleDragStart);
+                
+                // Prevent text selection
+                document.addEventListener('selectstart', handleSelectStart);
+            }
+            
+            function removeSessionProtection() {
+                // Remove all event listeners for session protection
+                window.removeEventListener('beforeunload', handleBeforeUnload);
+                window.removeEventListener('pagehide', handlePageHide);
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                document.removeEventListener('mouseleave', handleMouseLeave);
+                window.removeEventListener('popstate', handlePopState);
+                document.removeEventListener('keydown', handleKeyDown);
+                document.removeEventListener('contextmenu', handleContextMenu);
+                document.removeEventListener('dragstart', handleDragStart);
+                document.removeEventListener('selectstart', handleSelectStart);
+            }
+            
+            function handleBeforeUnload(e) {
+                if (testActive && !dataSubmitted) {
+                    // Submit the test automatically when user tries to leave
+                    submitTestData("Test submitted after leaving the page.");
+                    
+                    // Modern browsers require preventDefault and setting returnValue
+                    e.preventDefault();
+                    e.returnValue = 'Your test is being submitted.';
+                    return e.returnValue;
+                }
+            }
+            
+            function handlePageHide(e) {
+                if (testActive && !dataSubmitted) {
+                    e.preventDefault();
+                    submitTestData("Test submitted after leaving the page.");
+                }
+            }
+            
+            function handleVisibilityChange() {
+                if (testActive && document.hidden && !dataSubmitted) {
+                    // Page is hidden (user switched tabs or minimized browser)
+                    showFullscreenWarning();
+                    
+                    // Try to bring focus back to the test page
+                    window.focus();
+                }
+            }
+            
+            function handleMouseLeave(e) {
+                if (testActive && e.clientY < 0 && !dataSubmitted) {
+                    exitWarning.style.display = 'block';
+                    setTimeout(() => {
+                        exitWarning.style.display = 'none';
+                    }, 3000);
+                }
+            }
+            
+            function handlePopState(e) {
+                if (testActive && !dataSubmitted) {
+                    e.preventDefault();
+                    showFullscreenWarning();
+                    history.pushState(null, null, window.location.href);
+                }
+            }
+            
+            function handleKeyDown(e) {
+                // Prevent Alt+Tab, F5, Ctrl+R, Ctrl+W, Ctrl+F4, Alt+F4, etc.
+                if (testActive && !dataSubmitted && (
+                    e.key === 'F5' || 
+                    e.key === 'F4' || 
+                    (e.altKey && e.key === 'Tab') ||
+                    (e.ctrlKey && (e.key === 'r' || e.key === 'R')) ||
+                    (e.ctrlKey && (e.key === 'w' || e.key === 'W')) ||
+                    (e.altKey && (e.key === 'F4')) ||
+                    (e.metaKey && (e.key === 'r' || e.key === 'R'))
+                )) {
+                    e.preventDefault();
+                    showFullscreenWarning();
+                }
+            }
+            
+            function handleContextMenu(e) {
+                if (testActive && !dataSubmitted) {
+                    e.preventDefault();
+                    showFullscreenWarning();
+                }
+            }
+            
+            function handleDragStart(e) {
+                if (testActive && !dataSubmitted) {
+                    e.preventDefault();
+                }
+            }
+            
+            function handleSelectStart(e) {
+                if (testActive && !dataSubmitted) {
+                    e.preventDefault();
+                }
+            }
+            
+            function showFullscreenWarning() {
+                if (dataSubmitted) return;
+                
+                leaveAttempts++;
+                attemptCounter.textContent = leaveAttempts;
+                fullscreenOverlay.style.display = 'flex';
+                
+                // Auto-submit after 3 attempts to leave
+                if (leaveAttempts >= 3) {
+                    setTimeout(() => {
+                        submitTestData("Test submitted automatically after multiple attempts to leave.");
+                        fullscreenOverlay.style.display = 'none';
+                    }, 2000);
+                }
+            }
+            
+            function returnToTest() {
+                fullscreenOverlay.style.display = 'none';
+                requestFullscreen();
+            }
+            
+            function closeModal() {
+                sessionModal.style.display = 'none';
+            }
+            
+            function leavePage() {
+                testActive = false;
+                submitTestData("Test submitted after leaving the page.");
+                removeSessionProtection();
+            }
+            
+            // Fullscreen functions
+            function requestFullscreen() {
+                const docElement = document.documentElement;
+                
+                if (docElement.requestFullscreen) {
+                    docElement.requestFullscreen().catch(err => {
+                        console.log('Fullscreen request failed:', err);
+                        fullscreenMessage.style.display = 'block';
+                    });
+                } else if (docElement.mozRequestFullScreen) {
+                    docElement.mozRequestFullScreen();
+                } else if (docElement.webkitRequestFullscreen) {
+                    docElement.webkitRequestfullscreen();
+                } else if (docElement.msRequestFullscreen) {
+                    docElement.msRequestFullscreen();
+                }
+                
+                isFullScreen = true;
+            }
+            
+            function exitFullscreen() {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                
+                isFullScreen = false;
+            }
+            
+            // Monitor fullscreen changes
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+            
+            function handleFullscreenChange() {
+                if (!document.fullscreenElement && 
+                    !document.webkitFullscreenElement && 
+                    !document.mozFullScreenElement &&
+                    !document.msFullscreenElement && testActive && !dataSubmitted) {
+                    isFullScreen = false;
+                    showFullscreenWarning();
+                    requestFullscreen();
+                } else {
+                    isFullScreen = true;
+                    fullscreenMessage.style.display = 'none';
+                }
+            }
+            
+            // Prevent back button navigation
+            history.pushState(null, null, window.location.href);
+            window.addEventListener('popstate', function(event) {
+                history.pushState(null, null, window.location.href);
+                if (testActive && !dataSubmitted) {
+                    showFullscreenWarning();
+                }
+            });
+        });
+    </script>
+</body>
+</html>

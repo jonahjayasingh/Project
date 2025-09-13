@@ -1,0 +1,798 @@
+    {% load static %}
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Pacific Coast University | Student Dashboard</title>
+        <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            :root {
+                --primary-color: #2c3e50;
+                --secondary-color: #3498db;
+                --accent-color: #e74c3c;
+                --light-bg: #f8f9fa;
+                --dark-bg: #212529;
+            }
+            
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background-color: var(--light-bg);
+                color: #333;
+                overflow-x: hidden;
+                height: 100vh;
+                padding-top: 76px; /* Account for fixed navbar */
+            }
+            
+            /* Main container with horizontal layout */
+            .main-container {
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+            }
+            
+            /* Navbar Styling */
+            .navbar-custom {
+                background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                padding: 0.8rem 1rem;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 1030;
+            }
+            
+            .navbar-brand {
+                font-weight: 700;
+                letter-spacing: 0.5px;
+                display: flex;
+                align-items: center;
+            }
+            
+            .navbar-brand i {
+                margin-right: 10px;
+                font-size: 1.5rem;
+            }
+            
+            .logout-btn {
+                transition: all 0.3s ease;
+                border: 2px solid white;
+            }
+            
+            .logout-btn:hover {
+                background-color: white;
+                color: var(--primary-color) !important;
+            }
+            
+            /* Content area */
+            .content-wrapper {
+                flex-grow: 1;
+                padding: 0 1.5rem 2rem;
+            }
+            
+            /* Fixed section headers */
+            .section-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin: 2rem 0 1.5rem 0;
+                padding: 1rem 1.5rem;
+                background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                border-left: 5px solid var(--secondary-color);
+                position: sticky;
+                top: 90px; /* Adjusted for fixed navbar */
+                z-index: 1020;
+            }
+            
+            .section-header h2 {
+                color: var(--primary-color);
+                font-weight: 700;
+                position: relative;
+                display: inline-block;
+                margin: 0;
+                padding: 0.5rem 0;
+                font-size: 1.8rem;
+            }
+            
+            .section-header h2 i {
+                margin-right: 12px;
+                color: var(--secondary-color);
+                background: rgba(52, 152, 219, 0.1);
+                padding: 10px;
+                border-radius: 50%;
+                width: 45px;
+                height: 45px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            /* Horizontal scrolling containers */
+            .horizontal-scroll-container {
+                overflow-x: auto;
+                overflow-y: hidden;
+                padding-bottom: 1.5rem;
+                margin-bottom: 2rem;
+            }
+            
+            .cards-container {
+                display: flex;
+                gap: 1.5rem;
+                padding-bottom: 1rem;
+                min-height: 380px;
+            }
+            
+            /* Card Styling */
+            .card {
+                border: none;
+                border-radius: 12px;
+                overflow: hidden;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+                width: 320px;
+                flex-shrink: 0;
+                display: flex;
+                flex-direction: column;
+                height: 450px;
+            }
+            
+            .card:hover {
+                transform: translateY(-8px);
+                box-shadow: 0 12px 20px rgba(0,0,0,0.15);
+            }
+            
+            .card-img-container {
+                height: 200px;
+                overflow: hidden;
+                position: relative;
+                flex-shrink: 0;
+            }
+            
+            .card-img-top {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.5s ease;
+            }
+            
+            .card:hover .card-img-top {
+                transform: scale(1.05);
+            }
+            
+            .card-body {
+                padding: 1.5rem;
+                flex-grow: 1;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            
+            .card-title {
+                color: var(--primary-color);
+                font-weight: 700;
+                margin-bottom: 0.75rem;
+                font-size: 1.2rem;
+                border-bottom: 2px solid rgba(52, 152, 219, 0.2);
+                padding-bottom: 0.5rem;
+            }
+            
+            .card-text {
+                color: #555;
+                font-size: 0.95rem;
+                margin-bottom: 0.5rem;
+                flex-grow: 1;
+                line-height: 1.5;
+                overflow: hidden;
+                display: -webkit-box;
+                -webkit-line-clamp: 4;
+                -webkit-box-orient: vertical;
+            }
+            
+            .card-text i {
+                width: 20px;
+                margin-right: 8px;
+                color: var(--secondary-color);
+            }
+            
+            .card-footer {
+                background: transparent;
+                border-top: 1px solid rgba(0,0,0,0.08);
+                padding: 1rem 1.5rem;
+                flex-shrink: 0;
+            }
+            
+            /* Badge Styling */
+            .badge {
+                font-weight: 500;
+                padding: 6px 12px;
+                font-size: 0.8rem;
+                margin-right: 5px;
+                border-radius: 20px;
+            }
+            
+            .badge.bg-primary {
+                background: linear-gradient(135deg, var(--secondary-color) 0%, #2980b9 100%) !important;
+            }
+            
+            .badge.bg-success {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+            }
+            
+            /* Button Styling */
+            .btn-sm {
+                padding: 0.4rem 0.9rem;
+                font-size: 0.85rem;
+                border-radius: 6px;
+                font-weight: 600;
+            }
+            
+            .btn-primary {
+                background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+                border: none;
+            }
+            
+            .btn-success {
+                background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+                border: none;
+            }
+            
+            .btn-outline-secondary {
+                border: 2px solid #6c757d;
+                color: #6c757d;
+            }
+            
+            .btn-outline-secondary:hover {
+                background-color: #6c757d;
+                color: white;
+            }
+            
+            /* Modal Styling */
+            .modal-header {
+                background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+                color: white;
+                border-bottom: none;
+                padding: 1.2rem 1.5rem;
+            }
+            
+            .modal-title {
+                font-weight: 600;
+            }
+            
+            .modal-content {
+                border: none;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            }
+            
+            .view-modal .modal-lg {
+                max-width: 800px;
+            }
+            
+            .view-modal .modal-img {
+                border-radius: 10px;
+                width: 100%;
+                max-height: 400px;
+                object-fit: cover;
+            }
+            
+            .view-modal .modal-body {
+                padding: 2rem;
+            }
+            
+            .view-modal .event-details {
+                margin-top: 1.5rem;
+            }
+            
+            .view-modal .event-details i {
+                width: 24px;
+                color: var(--secondary-color);
+            }
+            
+            /* Toast Notifications */
+            .toast {
+                border: none;
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+            
+            /* Empty State */
+            .empty-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 2rem;
+                color: #6c757d;
+                min-width: 300px;
+                height: 420px;
+                text-align: center;
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+            }
+            
+            .empty-state i {
+                font-size: 3.5rem;
+                margin-bottom: 1.2rem;
+                color: #dee2e6;
+                background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+                padding: 20px;
+                border-radius: 50%;
+                width: 80px;
+                height: 80px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .empty-state h4 {
+                color: var(--primary-color);
+                margin-bottom: 0.8rem;
+                font-weight: 600;
+            }
+            
+            .empty-state p {
+                margin-bottom: 1.5rem;
+                color: #6c757d;
+            }
+            
+            /* Footer Styling */
+            .footer {
+                background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+                color: white;
+                padding: 1.5rem 0;
+                margin-top: auto;
+            }
+            
+            .footer a {
+                color: rgba(255, 255, 255, 0.8);
+                text-decoration: none;
+                transition: color 0.3s ease;
+            }
+            
+            .footer a:hover {
+                color: white;
+                text-decoration: underline;
+            }
+            
+            /* Custom scrollbar for horizontal containers */
+            .horizontal-scroll-container::-webkit-scrollbar {
+                height: 8px;
+            }
+            
+            .horizontal-scroll-container::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 10px;
+            }
+            
+            .horizontal-scroll-container::-webkit-scrollbar-thumb {
+                background: var(--secondary-color);
+                border-radius: 10px;
+            }
+            
+            .horizontal-scroll-container::-webkit-scrollbar-thumb:hover {
+                background: #2980b9;
+            }
+            
+            /* My Events Section */
+            .registered-event {
+                background-color: white;
+                border-radius: 10px;
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+                border-left: 4px solid var(--secondary-color);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            
+            .registered-event-info h5 {
+                color: var(--primary-color);
+                margin-bottom: 0.5rem;
+            }
+            
+            .registered-event-info p {
+                margin-bottom: 0;
+                color: #6c757d;
+            }
+            
+            .registered-event-info p i {
+                width: 20px;
+                color: var(--secondary-color);
+            }
+            
+            /* Responsive Adjustments */
+            @media (max-width: 992px) {
+                .section-header {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 1rem;
+                }
+                
+                .section-header h2 {
+                    font-size: 1.6rem;
+                }
+                
+                .registered-event {
+                    flex-direction: column;
+                    align-items: flex-start;
+                    gap: 1rem;
+                }
+            }
+            
+            @media (max-width: 768px) {
+                .card {
+                    width: 280px;
+                }
+                
+                .section-header {
+                    padding: 1rem;
+                    top: 80px;
+                }
+                
+                .section-header h2 {
+                    font-size: 1.4rem;
+                }
+                
+                .section-header h2 i {
+                    width: 40px;
+                    height: 40px;
+                    font-size: 1rem;
+                }
+                
+                body {
+                    padding-top: 70px;
+                }
+                
+                .view-modal .modal-body {
+                    padding: 1.5rem;
+                }
+            }
+            
+            @media (max-width: 576px) {
+                .content-wrapper {
+                    padding: 0 1rem;
+                }
+                
+                .section-header h2 {
+                    font-size: 1.3rem;
+                }
+                
+                .section-header {
+                    top: 75px;
+                }
+                
+                .view-modal .modal-body {
+                    padding: 1rem;
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+    <div class="main-container">
+        <!-- Navbar -->
+        <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">
+                    <i class="fas fa-university"></i> PACIFIC COAST UNIVERSITY
+                </a>
+
+                <div class="dropdown ms-auto">
+                    <a class="btn text-white" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle"></i> Student Account
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-user me-1"></i> Profile
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-calendar-check me-1"></i> My Events
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="#">
+                                <i class="fas fa-sign-out-alt me-1"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <div class="content-wrapper">
+            <!-- My Events Section -->
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-check"></i>My Registered Events</h2>
+            </div>
+            
+            <div class="mb-5">
+                {% for event in registered_events %}
+                <div class="registered-event">
+                    <div class="registered-event-info">
+                        <h5>{{ event.event_name }}</h5>
+                        <p>
+                            <i class="far fa-calendar-alt"></i>
+                            {{ event.event_date|date:"F j, Y, g:i a" }}
+                        </p>
+                        <p>
+                            <i class="fas fa-map-marker-alt"></i>
+                            {{ event.event_location }}
+                        </p>
+                    </div>
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#viewEventModal{{ event.id }}">
+                            <i class="fas fa-eye me-1"></i> View Details
+                        </button>
+                        <button class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#cancelEventModal{{ event.id }}">
+                            <i class="fas fa-times me-1"></i> Cancel Registration
+                        </button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="far fa-calendar-times"></i>
+                    <h4>No Registered Events</h4>
+                    <p>You haven't registered for any events yet</p>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Events Section -->
+            <div class="section-header">
+                <h2><i class="fas fa-calendar-alt"></i>Available Events</h2>
+            </div>
+            
+            <div class="horizontal-scroll-container">
+                <div class="cards-container">
+                    {% for event in events %}
+                    <div class="card">
+                        <div class="card-img-container">
+                            <img src="{{ event.event_image.url }}" class="card-img-top" alt="Event Image">
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.event_name }}</h5>
+                            <p class="card-text">
+                                <i class="far fa-calendar-alt"></i>
+                                {{ event.event_date|date:"F j, Y, g:i a" }} <br>
+                                <i class="fas fa-map-marker-alt"></i>
+                                {{ event.event_location }}
+                            </p>
+                            {% if event.registered %}
+                            <span class="badge bg-success mb-2"><i class="fas fa-check-circle me-1"></i>Registered</span>
+                            {% else %}
+                            <span class="badge bg-primary mb-2">{{ event.spots_remaining }} spots remaining</span>
+                            {% endif %}
+                        </div>
+                        <div class="card-footer">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm btn-info" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#viewEventModal{{ event.id }}">
+                                    <i class="fas fa-eye me-1"></i> View
+                                </button>
+                                {% if event.registered %}
+                                <button class="btn btn-sm btn-success" disabled>
+                                    <i class="fas fa-check me-1"></i> Registered
+                                </button>
+                                {% else %}
+                                <button class="btn btn-sm btn-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#registerEventModal{{ event.id }}">
+                                    <i class="fas fa-plus me-1"></i> Register
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- View Event Modal -->
+                    <div class="modal fade view-modal" id="viewEventModal{{ event.id }}" tabindex="-1">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title"><i class="fas fa-calendar-alt me-2"></i>Event Details</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="text-center mb-4">
+                                        <img src="{{ event.event_image.url }}" class="modal-img" alt="Event Image">
+                                    </div>
+                                    <h3 class="mb-3">{{ event.event_name }}</h3>
+                                    <div class="event-details">
+                                        <p class="d-flex align-items-center">
+                                            <i class="far fa-calendar-alt me-2"></i>
+                                            <strong>Date & Time:</strong> 
+                                            <span class="ms-2">{{ event.event_date|date:"F j, Y, g:i a" }}</span>
+                                        </p>
+                                        <p class="d-flex align-items-center">
+                                            <i class="fas fa-map-marker-alt me-2"></i>
+                                            <strong>Location:</strong> 
+                                            <span class="ms-2">{{ event.event_location }}</span>
+                                        </p>
+                                        <div class="mt-4">
+                                            <h5>Description</h5>
+                                            <p class="lead">{{ event.event_description }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    {% if not event.registered %}
+                                    <button type="button" class="btn btn-primary" 
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#registerEventModal{{ event.id }}"
+                                            data-bs-dismiss="modal">
+                                        <i class="fas fa-plus me-1"></i> Register for Event
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Register Event Modal -->
+                    <div class="modal fade" id="registerEventModal{{ event.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="student/mcq_exam" method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="event_id" value="{{ event.id }}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fas fa-user-plus me-2"></i>Register for Event</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to register for <strong>{{ event.event_name }}</strong>?</p>
+                                        <p class="mb-0">
+                                            <i class="far fa-calendar-alt me-1"></i>
+                                            {{ event.event_date|date:"F j, Y, g:i a" }}
+                                        </p>
+                                        <p>
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            {{ event.event_location }}
+                                        </p>
+                                        <div class="mb-3">
+                                            <label class="form-label">Additional Notes (optional):</label>
+                                            <textarea class="form-control" rows="3" name="registration_notes" placeholder="Any special requirements or comments..."></textarea>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Confirm Registration</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Cancel Registration Modal (for My Events section) -->
+                    <div class="modal fade" id="cancelEventModal{{ event.id }}" tabindex="-1">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form method="POST">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="cancel_event_id" value="{{ event.id }}">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title"><i class="fas fa-times-circle me-2"></i>Cancel Registration</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Are you sure you want to cancel your registration for <strong>{{ event.event_name }}</strong>?</p>
+                                        <p class="mb-0">
+                                            <i class="far fa-calendar-alt me-1"></i>
+                                            {{ event.event_date|date:"F j, Y, g:i a" }}
+                                        </p>
+                                        <p>
+                                            <i class="fas fa-map-marker-alt me-1"></i>
+                                            {{ event.event_location }}
+                                        </p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Keep Registration</button>
+                                        <button type="submit" class="btn btn-danger">Cancel Registration</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% empty %}
+                    <div class="empty-state">
+                        <i class="far fa-calendar-alt"></i>
+                        <h4>No Events Available</h4>
+                        <p>There are currently no events scheduled</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Pacific Coast University</h5>
+                        <p>123 University Drive, Coast City, CA 90210</p>
+                        <p>Phone: (123) 456-7890 | Email: info@pacificcoast.edu</p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <a href="#" class="me-3">Privacy Policy</a>
+                        <a href="#" class="me-3">Terms of Service</a>
+                        <a href="#">Contact Us</a>
+                    </div>
+                </div>
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <p class="mb-0">&copy; 2023 Pacific Coast University. All rights reserved.</p>
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    {% if messages %}
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            {% for message in messages %}
+            <div class="toast align-items-center text-bg-{{ message.tags }} border-0" 
+                    role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                            data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <script src="{% static 'bootstrap.bundle.min.js' %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            // Initialize toasts
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            toastElList.map(function (toastEl) {
+                var toast = new bootstrap.Toast(toastEl)
+                toast.show()
+            });
+            
+            // Add animation to cards on scroll
+            const cards = document.querySelectorAll('.card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = 1;
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            cards.forEach(card => {
+                card.style.opacity = 0;
+                card.style.transform = 'translateY(20px)';
+                card.style.transition = 'all 0.5s ease';
+                observer.observe(card);
+            });
+        });
+    </script>
+
+    </body>
+    </html>
