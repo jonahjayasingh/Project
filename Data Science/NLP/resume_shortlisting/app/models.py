@@ -37,5 +37,5 @@ class JobApplication(models.Model):
     job_seeker = models.ForeignKey(User, on_delete=models.CASCADE)
     applied_at = models.DateTimeField(auto_now_add=True)
     resume = models.FileField(upload_to='resumes/', blank=True, null=True)
-    ats_score = models.FloatField(default=0)
+    ats_score = models.FloatField(default=0.0)
 

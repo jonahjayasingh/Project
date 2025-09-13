@@ -102,8 +102,8 @@ def companydashboard(request):
 
 def jobdetails(request, id):
     job = JobPost.objects.get(id=id)
-    print(job.is_active)
-    return render(request, 'job_details.html', {'job': job, "today":date.today()})
+    applied_job = JobApplication.objects.filter(job=job, job_seeker=request.user)
+    return render(request, 'job_details.html', {'job': job, "today":date.today(), "applied_job":applied_job})
 
 def deletejob(request, id):
     job = JobPost.objects.get(id=id)
@@ -158,8 +158,6 @@ def company_profile(request):
     return render(request, 'company_profile.html', {'user': request.user})
 
 
-
-
 def jobseeker_dashboard(request):
     # Get filter parameters from request
     query = request.GET.get('q', '')
@@ -170,7 +168,6 @@ def jobseeker_dashboard(request):
     jobs = JobPost.objects.filter(is_active=True).exclude(
         jobapplication__job_seeker=request.user
     )
-    jobs = JobPost.objects.filter(is_active=True)
 
     
     # Apply filters if provided
@@ -192,6 +189,8 @@ def jobseeker_dashboard(request):
     paginator = Paginator(jobs, 6)  # Show 6 jobs per page
     page_number = request.GET.get('page')
     job_posts = paginator.get_page(page_number)
+
+
     
     context = {
         'job_posts': job_posts,
@@ -207,8 +206,12 @@ def apply_job(request):
             job_seeker=request.user,
             resume=request.FILES.get("resume"),
         )
-        print(joba.resume)
-        ats_score(joba.resume.path,JobPost.objects.get(id= request.POST.get('job_id')).description)
+        
+        ats = ats_score(joba.resume.path,JobPost.objects.get(id= request.POST.get('job_id')).description)
+        print(ats)
+        job = JobApplication.objects.get(id=joba.id)
+        job.ats_score = ats
+        job.save()
     return redirect("jobseeker_dashboard")
 
 

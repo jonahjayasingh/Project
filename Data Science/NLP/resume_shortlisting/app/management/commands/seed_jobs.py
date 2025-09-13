@@ -31,3 +31,5 @@ class Command(BaseCommand):
             )
 
         self.stdout.write(self.style.SUCCESS("✅ Successfully seeded 10 dummy jobs"))
+
+

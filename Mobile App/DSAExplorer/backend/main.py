@@ -13,7 +13,7 @@ from auth import (
 )
 from sqlalchemy.orm import Session
 from schemas import UserCreate, BookmarkCreate
-from models import User, Bookmarks
+from models import RefreshToken, User, Bookmarks
 from crud import get_db, create_user, create_bookmark, get_user_bookmarks
 from crud import delete_user_bookmark, get_bookmark_by_id
 
@@ -58,7 +58,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "username": db_user.username
     }
 
 @app.post("/refresh")
