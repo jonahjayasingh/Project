@@ -20,7 +20,7 @@ class Bookmarks(Base):
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("User.id", ondelete="CASCADE"))
-    algorithm = Column(String, nullable=False)
+    algorithm_id = Column(String, nullable=False)
 
     # relationship
     user = relationship("User", back_populates="bookmarks")

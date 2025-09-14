@@ -11,3 +11,4 @@ class UserCreate(BaseModel):
 class BookmarkCreate(BaseModel):
     user_id: Optional[int] = None
     algorithm: str
+    

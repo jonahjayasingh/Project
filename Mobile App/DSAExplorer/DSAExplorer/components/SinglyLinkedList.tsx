@@ -9,8 +9,6 @@ import {
   ScrollView,
   StatusBar,
   Alert,
-  Animated,
-  Easing,
   Platform,
 } from 'react-native';
 
@@ -249,14 +247,19 @@ export function SinglyLinkedList() {
               {index === 0 && <Text style={styles.nodeLabel}>HEAD</Text>}
             </View>
             
-            {index < nodes.length - 1 && (
-              <View style={styles.arrowContainer}>
-                <View style={styles.arrowLine} />
-                <Text style={styles.arrow}>→</Text>
-              </View>
-            )}
+            <View style={styles.arrowContainer}>
+              <View style={styles.arrowLine} />
+              <Text style={styles.arrow}>→</Text>
+            </View>
           </View>
         ))}
+        
+        {/* NULL node at the end */}
+        <View style={styles.nodeGroup}>
+          <View style={[styles.nodeBox, styles.nullNode]}>
+            <Text style={styles.nodeValue}>NULL</Text>
+          </View>
+        </View>
       </ScrollView>
     );
   };
@@ -346,7 +349,8 @@ export function SinglyLinkedList() {
             • Each node contains data and a pointer to the next node{'\n'}
             • Insertion/Deletion: O(1) at beginning, O(n) at end{'\n'}
             • Access: O(n) time complexity{'\n'}
-            • Dynamic size, efficient for frequent insertions/deletions
+            • Dynamic size, efficient for frequent insertions/deletions{'\n'}
+            • The list terminates with a NULL pointer
           </Text>
         </View>
       </ScrollView>
@@ -358,6 +362,7 @@ const PRIMARY_COLOR = '#2563eb';
 const INSERT_COLOR = '#10b981';
 const DELETE_COLOR = '#ef4444';
 const SEARCH_COLOR = '#f59e0b';
+const NULL_COLOR = '#6b7280';
 const LIGHT_BG = '#f9fafb';
 
 const styles = StyleSheet.create({
@@ -409,14 +414,13 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
     gap: 12,
-    ...(Platform.OS === 'web'&& {
-      display:'flex',
-      flexWrap:"wrap"
-
+    ...(Platform.OS === 'web' && {
+      display: 'flex',
+      flexWrap: "wrap"
     })
   },
   operationButton: {
-    width: Platform.OS == 'web' ? '20%' :'48%',
+    width: Platform.OS == 'web' ? '20%' : '48%',
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
@@ -480,6 +484,9 @@ const styles = StyleSheet.create({
   },
   headNode: {
     backgroundColor: '#7c3aed',
+  },
+  nullNode: {
+    backgroundColor: NULL_COLOR,
   },
   selectedNode: {
     backgroundColor: SEARCH_COLOR,

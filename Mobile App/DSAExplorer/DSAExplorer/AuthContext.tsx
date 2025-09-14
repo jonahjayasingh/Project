@@ -24,9 +24,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const storedUser = await AsyncStorage.getItem('user');
-        if (storedUser) {
-          setUser(JSON.parse(storedUser));
+        const accessToken = await AsyncStorage.getItem('accessToken');
+        const username = await AsyncStorage.getItem('username');
+        
+        if (accessToken && username) {
+          setUser({ username, accessToken });
         }
       } catch (e) {
         console.error('Failed to load user:', e);
@@ -38,7 +40,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = async (userData: User) => {
     setUser(userData);
-    await AsyncStorage.setItem('user', JSON.stringify(userData));
+    await AsyncStorage.setItem('accessToken', userData.accessToken);
+    await AsyncStorage.setItem('username', userData.username);
   };
 
   const logout = async () => {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   View,
@@ -9,13 +9,24 @@ import {
   Alert,
   ScrollView,
   StatusBar,
-  Platform
+  Platform,
+  ActivityIndicator
 } from 'react-native';
+import { useAuth } from 'AuthContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { FontAwesome } from '@expo/vector-icons';
+
+const API_BASE_URL = Platform.OS === 'web' ? 'http://127.0.0.1:8000' : 'http://10.0.2.2:8000';
+const ALGORITHM_ID = '10'; // String Manipulations ID
 
 export function StringManipulations() {
   const [inputText, setInputText] = useState('');
+  const [concatenateText, setConcatenateText] = useState('');
   const [result, setResult] = useState<string | null>(null);
   const [operation, setOperation] = useState<string | null>(null);
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [loadingBookmark, setLoadingBookmark] = useState(false);
+  const { user } = useAuth();
 
   const stringOperations = {
     reverse: (str: string): string => {
@@ -48,8 +59,49 @@ export function StringManipulations() {
       return str.replace(/\w\S*/g, (txt) => {
         return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
       });
+    },
+    concatenate: (str1: string, str2: string): string => {
+      return str1 + str2;
     }
   };
+
+  // Check if this algorithm is bookmarked
+  const checkBookmarkStatus = async () => {
+    if (!user) {
+      setIsBookmarked(false);
+      return;
+    }
+
+    try {
+      // First try to get all bookmarks and check if our algorithm is in the list
+      const response = await fetch(`${API_BASE_URL}/getbookmarks`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${user.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const bookmarks = await response.json();
+        const isBookmarked = bookmarks.some((bookmark: any) => 
+          bookmark.algorithm === ALGORITHM_ID || bookmark.algorithm_id === ALGORITHM_ID
+        );
+        setIsBookmarked(isBookmarked);
+      } else {
+        console.error('Failed to fetch bookmarks:', response.status);
+        setIsBookmarked(false);
+      }
+    } catch (error) {
+      console.error('Error checking bookmark status:', error);
+      setIsBookmarked(false);
+    }
+  };
+
+  // Check bookmark status on component mount and when user changes
+  useEffect(() => {
+    checkBookmarkStatus();
+  }, [user]);
 
   const handleOperation = (op: string) => {
     if (inputText.trim() === '') {
@@ -58,11 +110,91 @@ export function StringManipulations() {
     }
     
     setOperation(op);
-    setResult(stringOperations[op as keyof typeof stringOperations](inputText));
+    
+    if (op === 'concatenate') {
+      if (concatenateText.trim() === '') {
+        Alert.alert('Second Text Required', 'Please enter text to concatenate');
+        return;
+      }
+      setResult(stringOperations.concatenate(inputText, concatenateText));
+    } else {
+      setResult(stringOperations[op as keyof typeof stringOperations](inputText));
+    }
+  };
+
+  const toggleBookmark = async () => {
+    if (!user) {
+      Alert.alert('Authentication Required', 'Please login to bookmark algorithms');
+      return;
+    }
+
+    setLoadingBookmark(true);
+    try {
+      if (isBookmarked) {
+        // Remove bookmark - first we need to find the bookmark ID
+        const bookmarksResponse = await fetch(`${API_BASE_URL}/getbookmarks`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${user.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (bookmarksResponse.ok) {
+          const bookmarks = await bookmarksResponse.json();
+          const bookmark = bookmarks.find((b: any) => 
+            b.algorithm === ALGORITHM_ID || b.algorithm_id === ALGORITHM_ID
+          );
+          
+          if (bookmark) {
+            const deleteResponse = await fetch(`${API_BASE_URL}/deletebookmark/${bookmark.id}`, {
+              method: 'DELETE',
+              headers: {
+                'Authorization': `Bearer ${user.accessToken}`,
+              },
+            });
+
+            if (deleteResponse.ok) {
+              setIsBookmarked(false);
+              Alert.alert('Success', 'Bookmark removed successfully!');
+            } else {
+              Alert.alert('Error', 'Failed to remove bookmark');
+            }
+          }
+        } else {
+          Alert.alert('Error', 'Failed to fetch bookmarks');
+        }
+      } else {
+        // Add bookmark
+        const response = await fetch(`${API_BASE_URL}/addbookmark`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${user.accessToken}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            algorithm_id: ALGORITHM_ID
+          }),
+        });
+
+        if (response.ok) {
+          setIsBookmarked(true);
+          Alert.alert('Success', 'Algorithm bookmarked successfully!');
+        } else {
+          Alert.alert('Error', 'Failed to add bookmark');
+        }
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      Alert.alert('Error', 'Failed to update bookmark');
+    } finally {
+      setLoadingBookmark(false);
+    }
   };
 
   const clearAll = () => {
     setInputText('');
+    setConcatenateText('');
     setResult(null);
     setOperation(null);
   };
@@ -83,7 +215,27 @@ export function StringManipulations() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>🔤 String Manipulation</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>🔤 String Manipulation</Text>
+          {user && (
+            <TouchableOpacity 
+              onPress={toggleBookmark}
+              style={styles.bookmarkButton}
+              disabled={loadingBookmark}
+            >
+              {loadingBookmark ? (
+                <ActivityIndicator size="small" color="#2563eb" />
+              ) : (
+                <FontAwesome 
+                  name={isBookmarked ? "bookmark" : "bookmark-o"} 
+                  size={24} 
+                  color="#2563eb" 
+                />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+        
         <Text style={styles.subtitle}>Transform and analyze your text</Text>
 
         <View style={styles.inputContainer}>
@@ -101,11 +253,26 @@ export function StringManipulations() {
           </Text>
         </View>
 
+        {operation === 'concatenate' && (
+          <View style={styles.inputContainer}>
+            <Text style={styles.label}>Text to concatenate:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter text to add to the end..."
+              value={concatenateText}
+              onChangeText={setConcatenateText}
+              multiline
+              numberOfLines={3}
+            />
+          </View>
+        )}
+
         <View style={styles.operationsGrid}>
           <OperationButton title="Reverse" op="reverse" icon="🔄" />
           <OperationButton title="Uppercase" op="uppercase" icon="🔠" />
           <OperationButton title="Lowercase" op="lowercase" icon="🔡" />
           <OperationButton title="Title Case" op="titlecase" icon="🏷️" />
+          <OperationButton title="Concatenate" op="concatenate" icon="➕" />
           <OperationButton title="Palindrome" op="palindrome" icon="📖" />
           <OperationButton title="Count Vowels" op="vowels" icon="🔊" />
           <OperationButton title="Count Words" op="words" icon="📝" />
@@ -122,11 +289,12 @@ export function StringManipulations() {
             </View>
           </View>
         )}
+        
         <View style={styles.clearButtonContainer}>
           <TouchableOpacity 
             style={[styles.button, styles.clearButton]} 
             onPress={clearAll}
-            disabled={!inputText && !result}
+            disabled={!inputText && !result && !concatenateText}
           >
             <Text style={styles.buttonText}>🗑️ Clear All</Text>
           </TouchableOpacity>
@@ -136,6 +304,7 @@ export function StringManipulations() {
           <Text style={styles.infoTitle}>💡 Tips:</Text>
           <Text style={styles.infoText}>
             • Use Reverse to flip your text{'\n'}
+            • Concatenate joins two texts together{'\n'}
             • Palindrome check ignores spaces and punctuation{'\n'}
             • Title Case capitalizes each word{'\n'}
             • Word count ignores extra spaces
@@ -162,18 +331,26 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 40,
   },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
   title: {
     fontSize: 32,
     fontWeight: '800',
     color: PRIMARY_COLOR,
-    marginBottom: 8,
-    textAlign: 'center',
+    flex: 1,
+  },
+  bookmarkButton: {
+    padding: 8,
+    marginLeft: 16,
   },
   subtitle: {
     fontSize: 16,
     color: '#6b7280',
     marginBottom: 32,
-    textAlign: 'center',
     fontStyle: 'italic',
   },
   inputContainer: {
@@ -212,10 +389,9 @@ const styles = StyleSheet.create({
     justifyContent: 'space-evenly',
     marginBottom: 24,
     gap: Platform.OS === "web" ? 4 : 6,
-
   },
   operationButton: {
-    width: Platform.OS === "web" ? '20%' : '100%',
+    width: Platform.OS === "web" ? '22%' : '48%',
     backgroundColor: 'white',
     borderRadius: 16,
     padding: 16,
@@ -226,7 +402,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.05,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 2 },
-
+    marginBottom: 8,
   },
   activeOperation: {
     borderColor: PRIMARY_COLOR,
@@ -284,9 +460,9 @@ const styles = StyleSheet.create({
   clearButton: {
     backgroundColor: '#6b7280',
     ...(Platform.OS === 'web' && {
-      display:'flex',
-      alignItems:'center',
-      justifyContent:'space-around',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-around',
       width: '20%',
     })
   },

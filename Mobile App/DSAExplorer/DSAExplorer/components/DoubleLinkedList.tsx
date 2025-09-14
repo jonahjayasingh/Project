@@ -221,19 +221,21 @@ export function DoubleLinkedList() {
         contentContainerStyle={styles.listContainer}
         showsHorizontalScrollIndicator={false}
       >
+        {/* NULL node at the beginning */}
+        {traversalDirection === 'forward' && (
+          <View style={styles.nodeGroup}>
+            <View style={[styles.nodeBox, styles.nullNode]}>
+              <Text style={styles.nodeValue}>NULL</Text>
+            </View>
+            <View style={styles.arrowContainer}>
+              <View style={styles.arrowLine} />
+              <Text style={styles.arrow}>⇄</Text>
+            </View>
+          </View>
+        )}
+
         {nodes.map((node, index) => (
           <View key={node.id} style={styles.nodeGroup}>
-            <View style={styles.arrowContainer}>
-              {index > 0 && (
-                <>
-                  <View style={styles.arrowLine} />
-                  <Text style={styles.arrow}>
-                    {traversalDirection === 'forward' ? '⇄' : '⇄'}
-                  </Text>
-                </>
-              )}
-            </View>
-
             <View
               style={[
                 styles.nodeBox,
@@ -254,8 +256,53 @@ export function DoubleLinkedList() {
                 </Text>
               )}
             </View>
+            
+            {index < nodes.length - 1 && (
+              <View style={styles.arrowContainer}>
+                <View style={styles.arrowLine} />
+                <Text style={styles.arrow}>⇄</Text>
+              </View>
+            )}
           </View>
         ))}
+
+        {/* NULL node at the end */}
+        {traversalDirection === 'forward' && (
+          <View style={styles.nodeGroup}>
+            <View style={styles.arrowContainer}>
+              <View style={styles.arrowLine} />
+              <Text style={styles.arrow}>⇄</Text>
+            </View>
+            <View style={[styles.nodeBox, styles.nullNode]}>
+              <Text style={styles.nodeValue}>NULL</Text>
+            </View>
+          </View>
+        )}
+
+        {/* For backward traversal, show NULL nodes in reverse order */}
+        {traversalDirection === 'backward' && (
+          <>
+            <View style={styles.nodeGroup}>
+              <View style={[styles.nodeBox, styles.nullNode]}>
+                <Text style={styles.nodeValue}>NULL</Text>
+              </View>
+              <View style={styles.arrowContainer}>
+                <View style={styles.arrowLine} />
+                <Text style={styles.arrow}>⇄</Text>
+              </View>
+            </View>
+            
+            <View style={styles.nodeGroup}>
+              <View style={styles.arrowContainer}>
+                <View style={styles.arrowLine} />
+                <Text style={styles.arrow}>⇄</Text>
+              </View>
+              <View style={[styles.nodeBox, styles.nullNode]}>
+                <Text style={styles.nodeValue}>NULL</Text>
+              </View>
+            </View>
+          </>
+        )}
       </ScrollView>
     );
   };
@@ -344,7 +391,8 @@ export function DoubleLinkedList() {
             • Each node has pointers to both next and previous nodes{'\n'}
             • Can be traversed in both directions{'\n'}
             • Insertion/Deletion: O(1) at both ends, O(n) in middle{'\n'}
-            • More memory usage but flexible traversal
+            • More memory usage but flexible traversal{'\n'}
+            • The list terminates with NULL pointers at both ends
           </Text>
         </View>
       </ScrollView>
@@ -357,6 +405,7 @@ const INSERT_COLOR = '#10b981';
 const DELETE_COLOR = '#ef4444';
 const SEARCH_COLOR = '#f59e0b';
 const TRAVERSAL_COLOR = '#8b5cf6';
+const NULL_COLOR = '#6b7280';
 const LIGHT_BG = '#f9fafb';
 
 const styles = StyleSheet.create({
@@ -408,12 +457,12 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     justifyContent: 'space-evenly',
     gap: 12,
-    ...(Platform.OS === 'web' &&{
-      display:'flex'
+    ...(Platform.OS === 'web' && {
+      display: 'flex'
     })
   },
   operationButton: {
-    width: Platform.OS == 'web'? '20%' : '48%',
+    width: Platform.OS == 'web' ? '20%' : '48%',
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
@@ -490,6 +539,9 @@ const styles = StyleSheet.create({
   },
   tailNode: {
     backgroundColor: '#dc2626',
+  },
+  nullNode: {
+    backgroundColor: NULL_COLOR,
   },
   selectedNode: {
     backgroundColor: SEARCH_COLOR,

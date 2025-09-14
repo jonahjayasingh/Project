@@ -29,7 +29,7 @@ def get_user_by_username(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()
 
 def create_bookmark(db: Session, bookmark: schemas.BookmarkCreate):
-    db_bookmark = models.Bookmarks(user_id=bookmark.user_id, algorithm=bookmark.algorithm)
+    db_bookmark = models.Bookmarks(user_id=bookmark.user_id, algorithm_id=bookmark.algorithm_id)
     db.add(db_bookmark)
     db.commit()
     db.refresh(db_bookmark)

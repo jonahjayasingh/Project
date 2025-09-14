@@ -9,7 +9,7 @@ import os
 from dotenv import load_dotenv
 import crud
 from crud import get_db
-from models import User
+from models import User,RefreshToken
 
 # Load environment variables
 load_dotenv()
@@ -17,7 +17,7 @@ load_dotenv()
 # Config
 SECRET_KEY = os.getenv("SECRET_KEY", "change-this-secret")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 15))  # ✅ ensure int
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 20000))  # ✅ ensure int
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", 7))  # ✅ ensure int
 
 # Password hashing
@@ -70,10 +70,3 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if not user:
         raise HTTPException(status_code=401, detail="User not found")
     return user
-
-# Issue new access token from refresh token
-def refresh_access_token(refresh_token: str):
-    username = decode_token(refresh_token, scope="refresh_token")
-    if not username:
-        raise HTTPException(status_code=401, detail="Invalid refresh token")
-    return create_access_token(data={"sub": username})

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,6 +13,8 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BOX_SIZE = 60;
 const BOX_MARGIN = 8;
@@ -21,7 +23,7 @@ const NUM_COLUMNS = Math.floor(width / (BOX_SIZE + BOX_MARGIN));
 
 type ModalType = 'addRow' | 'updateCell' | 'addColumn' | null;
 
-export function TwoDArrayOperations() {
+export function TwoDArrayOperations({ navigation }: any) {
   const [matrix, setMatrix] = useState<number[][]>([
     [1, 2, 3],
     [4, 5, 6],
@@ -33,6 +35,136 @@ export function TwoDArrayOperations() {
   const [rowIndex, setRowIndex] = useState('');
   const [colIndex, setColIndex] = useState('');
   const [explanation, setExplanation] = useState('3x3 matrix loaded. You can modify it using the operations below.');
+  const [username, setUsername] = useState('');
+  const [bookmarks, setBookmarks] = useState<any[]>([]);
+  const [showBookmarks, setShowBookmarks] = useState(false);
+
+  useEffect(() => {
+    checkUserAuthentication();
+    loadBookmarks();
+  }, []);
+
+  const checkUserAuthentication = async () => {
+    try {
+      const user = await AsyncStorage.getItem('currentUser');
+      if (!user) {
+        // If no user found, navigate back to home
+        Alert.alert('Authentication Required', 'Please login to access this feature');
+        navigation.goBack();
+        return;
+      }
+      
+      const userData = JSON.parse(user);
+      setUsername(userData.username);
+      setExplanation(`Welcome ${userData.username}! 3x3 matrix loaded.`);
+    } catch (error) {
+      console.error('Auth check error:', error);
+      Alert.alert('Error', 'Failed to verify authentication');
+      navigation.goBack();
+    }
+  };
+
+  const loadBookmarks = async () => {
+    try {
+      const localBookmarks = await AsyncStorage.getItem('matrixBookmarks');
+      if (localBookmarks) {
+        setBookmarks(JSON.parse(localBookmarks));
+      }
+    } catch (error) {
+      console.error('Error loading bookmarks:', error);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await AsyncStorage.removeItem('currentUser');
+      navigation.goBack();
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  const saveBookmark = async () => {
+    if (matrix.length === 0) {
+      Alert.alert('Cannot bookmark', 'Matrix is empty');
+      return;
+    }
+
+    try {
+      const newBookmark = {
+        id: Date.now(),
+        matrix: JSON.parse(JSON.stringify(matrix)),
+        date: new Date().toLocaleString(),
+        username,
+      };
+
+      const updatedBookmarks = [...bookmarks, newBookmark];
+      setBookmarks(updatedBookmarks);
+      
+      await AsyncStorage.setItem('matrixBookmarks', JSON.stringify(updatedBookmarks));
+      
+      setExplanation(`Bookmark saved!`);
+      Alert.alert('Bookmark Saved', 'Matrix state has been bookmarked.');
+    } catch (error) {
+      console.error('Save bookmark error:', error);
+      Alert.alert('Error', 'Failed to save bookmark');
+    }
+  };
+
+  const loadBookmark = (bookmark: any) => {
+    setMatrix(bookmark.matrix);
+    setExplanation(`Loaded bookmark from ${bookmark.date}`);
+    setShowBookmarks(false);
+  };
+
+  const deleteBookmark = async (bookmarkId: number) => {
+    try {
+      const updatedBookmarks = bookmarks.filter(b => b.id !== bookmarkId);
+      setBookmarks(updatedBookmarks);
+      
+      await AsyncStorage.setItem('matrixBookmarks', JSON.stringify(updatedBookmarks));
+      
+      setExplanation(`Bookmark deleted`);
+    } catch (error) {
+      console.error('Delete bookmark error:', error);
+      Alert.alert('Error', 'Failed to delete bookmark');
+    }
+  };
+
+  const renderBookmarksPanel = () => {
+    if (!showBookmarks) return null;
+
+    return (
+      <View style={styles.bookmarksPanel}>
+        <Text style={styles.bookmarksTitle}>Matrix Bookmarks</Text>
+        <ScrollView style={styles.bookmarksList}>
+          {bookmarks.length === 0 ? (
+            <Text style={styles.noBookmarks}>No bookmarks yet</Text>
+          ) : (
+            bookmarks.map((bookmark, index) => (
+              <View key={bookmark.id} style={styles.bookmarkItem}>
+                <TouchableOpacity 
+                  style={styles.bookmarkContent} 
+                  onPress={() => loadBookmark(bookmark)}
+                >
+                  <Text style={styles.bookmarkIndex}>{index + 1}.</Text>
+                  <Text style={styles.bookmarkMatrix}>
+                    {bookmark.matrix.length}x{bookmark.matrix[0]?.length || 0} - {bookmark.date}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity 
+                  style={styles.deleteBookmark} 
+                  onPress={() => deleteBookmark(bookmark.id)}
+                >
+                  <FontAwesome name="trash" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+        </ScrollView>
+      </View>
+    );
+  };
 
   const openModal = (type: ModalType) => {
     setModalType(type);
@@ -63,7 +195,6 @@ export function TwoDArrayOperations() {
         
         if (newRow.length === 0) return Alert.alert('Invalid input', 'No valid numbers entered.');
         
-        // If matrix has existing columns, ensure new row has same length
         if (matrix.length > 0 && matrix[0].length !== newRow.length) {
           return Alert.alert('Dimension mismatch', `New row must have ${matrix[0].length} columns`);
         }
@@ -105,8 +236,8 @@ export function TwoDArrayOperations() {
   };
 
   const generateRandomMatrix = () => {
-    const rows = Math.floor(Math.random() * 4) + 2; // 2-5 rows
-    const cols = Math.floor(Math.random() * 4) + 2; // 2-5 columns
+    const rows = Math.floor(Math.random() * 4) + 2;
+    const cols = Math.floor(Math.random() * 4) + 2;
     
     const randomMatrix = Array.from({ length: rows }, () =>
       Array.from({ length: cols }, () => Math.floor(Math.random() * 20) + 1)
@@ -146,7 +277,26 @@ export function TwoDArrayOperations() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
-          <Text style={styles.header}>🧮 2D Array Operations</Text>
+          <View style={styles.headerRow}>
+            <Text style={styles.header}>🧮 2D Array Operations</Text>
+            <TouchableOpacity 
+              style={styles.bookmarkToggle} 
+              onPress={() => setShowBookmarks(!showBookmarks)}
+            >
+              <FontAwesome name={showBookmarks ? "bookmark" : "bookmark-o"} size={24} color="#2563eb" />
+            </TouchableOpacity>
+          </View>
+
+          {/* User Info Section */}
+          <View style={styles.authSection}>
+            <Text style={styles.welcomeText}>Welcome, {username}!</Text>
+            <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+              <Text style={styles.authButtonText}>Logout</Text>
+            </TouchableOpacity>
+          </View>
+
+          {renderBookmarksPanel()}
+
           <Text style={styles.explanation}>{explanation}</Text>
 
           {/* Matrix Info */}
@@ -159,28 +309,52 @@ export function TwoDArrayOperations() {
               • Column Indexes: 0 to {(matrix[0]?.length || 1) - 1}
             </Text>
           </View>
+
           <View style={styles.buttonRow}>
-          {/* Operation Buttons */}
-          <TouchableOpacity style={styles.button} onPress={() => openModal('addRow')}>
-            <Text style={styles.buttonText}>Add Row</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={() => openModal('addRow')}
+            >
+              <Text style={styles.buttonText}>Add Row</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={() => openModal('addColumn')}>
-            <Text style={styles.buttonText}>Add Column</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={() => openModal('addColumn')}
+            >
+              <Text style={styles.buttonText}>Add Column</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={styles.button} onPress={() => openModal('updateCell')}>
-            <Text style={styles.buttonText}>Update Cell</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={styles.button} 
+              onPress={() => openModal('updateCell')}
+            >
+              <Text style={styles.buttonText}>Update Cell</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.button, styles.randomButton]} onPress={generateRandomMatrix}>
-            <Text style={styles.buttonText}>Generate Random Matrix</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.button, styles.randomButton]} 
+              onPress={generateRandomMatrix}
+            >
+              <Text style={styles.buttonText}>Random Matrix</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={resetMatrix}>
-            <Text style={styles.buttonText}>Clear Matrix</Text>
-          </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.button, styles.bookmarkButton]} 
+              onPress={saveBookmark}
+            >
+              <FontAwesome name="bookmark" size={16} color="white" />
+              <Text style={styles.buttonText}> Bookmark</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.button, styles.resetButton]} 
+              onPress={resetMatrix}
+            >
+              <Text style={styles.buttonText}>Clear Matrix</Text>
+            </TouchableOpacity>
           </View>
+
           {/* Matrix Display */}
           <View style={styles.matrixContainer}>
             <Text style={styles.matrixTitle}>Matrix Visualization:</Text>
@@ -272,6 +446,7 @@ export function TwoDArrayOperations() {
 }
 
 const PRIMARY_COLOR = '#2563eb';
+const BOOKMARK_COLOR = '#f59e0b';
 const LIGHT_BG = '#f9fafb';
 
 const styles = StyleSheet.create({
@@ -285,12 +460,47 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 100,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   header: {
     fontSize: 28,
     fontWeight: '700',
     color: PRIMARY_COLOR,
+  },
+  authSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
-    textAlign: 'center',
+    padding: 12,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  welcomeText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: PRIMARY_COLOR,
+  },
+  logoutButton: {
+    backgroundColor: '#ef4444',
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  authButtonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  bookmarkToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
   },
   explanation: {
     fontSize: 16,
@@ -318,16 +528,31 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: '#374151',
   },
+  buttonRow: {
+    ...(Platform.OS === "web" ? {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      flexWrap: 'wrap',
+      gap: 8,
+    } : {
+      flexDirection: 'column',
+    }),
+    marginBottom: 16,
+  },
   button: {
     backgroundColor: PRIMARY_COLOR,
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 16,
-    marginBottom: 12,
     alignItems: 'center',
-    ...(Platform.OS === "web" && {
-      width: '20%',
-    })
+    ...(Platform.OS === "web" ? {
+      minWidth: 100,
+      flex: 1,
+    } : {
+      marginBottom: 12,
+    }),
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   resetButton: {
     backgroundColor: '#ef4444',
@@ -335,14 +560,8 @@ const styles = StyleSheet.create({
   randomButton: {
     backgroundColor: '#8b5cf6',
   },
-  buttonRow: {
-    ...(Platform.OS === "web" && {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      width: '100%',
-      gap: 4,
-    }),
-    paddingVertical:10
+  bookmarkButton: {
+    backgroundColor: BOOKMARK_COLOR,
   },
   buttonText: {
     color: 'white',
@@ -425,8 +644,57 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     color: '#374151',
   },
-
-  // Modal Styles
+  bookmarksPanel: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    maxHeight: 200,
+  },
+  bookmarksTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: BOOKMARK_COLOR,
+    textAlign: 'center',
+  },
+  bookmarksList: {
+    maxHeight: 140,
+  },
+  bookmarkItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  bookmarkContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bookmarkIndex: {
+    fontWeight: 'bold',
+    color: BOOKMARK_COLOR,
+    marginRight: 8,
+    width: 30,
+  },
+  bookmarkMatrix: {
+    flex: 1,
+    color: '#374151',
+    fontSize: 12,
+  },
+  deleteBookmark: {
+    padding: 4,
+  },
+  noBookmarks: {
+    textAlign: 'center',
+    color: '#6b7280',
+    fontStyle: 'italic',
+  },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -439,6 +707,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
+    maxWidth: 400,
   },
   modalTitle: {
     fontSize: 20,
@@ -468,18 +737,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
+    gap: 12,
   },
   modalButton: {
     flex: 1,
     backgroundColor: PRIMARY_COLOR,
     borderRadius: 12,
     paddingVertical: 14,
-    marginRight: 8,
     alignItems: 'center',
   },
   cancelButton: {
     backgroundColor: '#6b7280',
-    marginRight: 0,
-    marginLeft: 8,
   },
 });

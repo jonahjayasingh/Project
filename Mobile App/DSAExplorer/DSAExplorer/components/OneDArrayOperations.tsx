@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,13 +13,15 @@ import {
   ScrollView,
   Platform,
 } from 'react-native';
+import { FontAwesome } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const BOX_SIZE = 60;
 const BOX_MARGIN = 8;
 const { width } = Dimensions.get('window');
 const NUM_COLUMNS = Math.floor(width / (BOX_SIZE + BOX_MARGIN));
 
-type ModalType = 'add' | 'update' | 'search' | null;
+type ModalType = 'add' | 'update' | 'search' | 'concat' | null;
 
 export function OneDArrayOperations() {
   const [array, setArray] = useState<number[]>([]);
@@ -29,6 +31,70 @@ export function OneDArrayOperations() {
   const [indexValue, setIndexValue] = useState('');
   const [highlightIndex, setHighlightIndex] = useState<number | null>(null);
   const [explanation, setExplanation] = useState('Array is empty. Start by adding elements.');
+  const [bookmarks, setBookmarks] = useState<any[]>([]);
+  const [showBookmarks, setShowBookmarks] = useState(false);
+
+  useEffect(() => {
+    loadBookmarks();
+  }, []);
+
+  const loadBookmarks = async () => {
+    try {
+      const localBookmarks = await AsyncStorage.getItem('localBookmarks');
+      if (localBookmarks) {
+        setBookmarks(JSON.parse(localBookmarks));
+      }
+    } catch (error) {
+      console.error('Error loading bookmarks:', error);
+    }
+  };
+
+  const saveBookmark = async () => {
+    if (array.length === 0) {
+      Alert.alert('Cannot bookmark', 'Array is empty');
+      return;
+    }
+
+    try {
+      const newBookmark = {
+        id: Date.now(),
+        array: [...array],
+        date: new Date().toLocaleString(),
+      };
+
+      const updatedBookmarks = [...bookmarks, newBookmark];
+      setBookmarks(updatedBookmarks);
+      
+      await AsyncStorage.setItem('localBookmarks', JSON.stringify(updatedBookmarks));
+      
+      setExplanation(`Bookmark saved!`);
+      Alert.alert('Bookmark Saved', 'Array state has been bookmarked.');
+    } catch (error) {
+      console.error('Save bookmark error:', error);
+      Alert.alert('Error', 'Failed to save bookmark');
+    }
+  };
+
+  const loadBookmark = (bookmark: any) => {
+    setArray(bookmark.array);
+    setHighlightIndex(null);
+    setExplanation(`Loaded bookmark from ${bookmark.date}`);
+    setShowBookmarks(false);
+  };
+
+  const deleteBookmark = async (bookmarkId: number) => {
+    try {
+      const updatedBookmarks = bookmarks.filter(b => b.id !== bookmarkId);
+      setBookmarks(updatedBookmarks);
+      
+      await AsyncStorage.setItem('localBookmarks', JSON.stringify(updatedBookmarks));
+      
+      setExplanation(`Bookmark deleted`);
+    } catch (error) {
+      console.error('Delete bookmark error:', error);
+      Alert.alert('Error', 'Failed to delete bookmark');
+    }
+  };
 
   const openModal = (type: ModalType) => {
     setModalType(type);
@@ -47,7 +113,6 @@ export function OneDArrayOperations() {
 
     switch (modalType) {
       case 'add':
-        // Expecting comma-separated values to add at the end
         if (!inputValue.trim()) {
           return Alert.alert('Invalid input', 'Enter comma-separated values like "1,2,3"');
         }
@@ -87,6 +152,19 @@ export function OneDArrayOperations() {
           Alert.alert('Not Found', 'Value not found in array');
         }
         break;
+
+      case 'concat':
+        if (!inputValue.trim()) {
+          return Alert.alert('Invalid input', 'Enter comma-separated values like "1,2,3"');
+        }
+        const concatElements = inputValue
+          .split(',')
+          .map((v) => parseInt(v.trim()))
+          .filter((n) => !isNaN(n));
+        if (concatElements.length === 0) return Alert.alert('Invalid input', 'No valid numbers entered.');
+        setArray([...array, ...concatElements]);
+        setExplanation(`Concatenated elements: [${concatElements.join(', ')}]`);
+        break;
     }
 
     closeModal();
@@ -107,21 +185,45 @@ export function OneDArrayOperations() {
     setExplanation(`Generated random array with ${randomArray.length} elements`);
   };
 
-  const renderArray = () => {
+  const renderArray = () => (
+    <View style={styles.row}>
+      {array.map((cell, idx) => {
+        const isHighlighted = highlightIndex === idx;
+        return (
+          <View key={idx} style={[styles.box, isHighlighted && styles.highlightBox]}>
+            <Text style={[styles.boxText, isHighlighted && { color: 'white' }]}>{cell}</Text>
+            <Text style={styles.indexText}>{idx}</Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+
+  const renderBookmarksPanel = () => {
+    if (!showBookmarks) return null;
+
     return (
-      <View style={styles.row}>
-        {array.map((cell, idx) => {
-          const isHighlighted = highlightIndex === idx;
-          return (
-            <View
-              key={idx}
-              style={[styles.box, isHighlighted && styles.highlightBox]}
-            >
-              <Text style={[styles.boxText, isHighlighted && { color: 'white' }]}>{cell}</Text>
-              <Text style={styles.indexText}>{idx}</Text>
-            </View>
-          );
-        })}
+      <View style={styles.bookmarksPanel}>
+        <Text style={styles.bookmarksTitle}>Local Bookmarks</Text>
+        <ScrollView style={styles.bookmarksList}>
+          {bookmarks.length === 0 ? (
+            <Text style={styles.noBookmarks}>No bookmarks yet</Text>
+          ) : (
+            bookmarks.map((bookmark, index) => (
+              <View key={bookmark.id} style={styles.bookmarkItem}>
+                <TouchableOpacity style={styles.bookmarkContent} onPress={() => loadBookmark(bookmark)}>
+                  <Text style={styles.bookmarkIndex}>{index + 1}.</Text>
+                  <Text style={styles.bookmarkArray}>
+                    Array: [{bookmark.array.join(', ')}] - {bookmark.date}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.deleteBookmark} onPress={() => deleteBookmark(bookmark.id)}>
+                  <FontAwesome name="trash" size={16} color="#ef4444" />
+                </TouchableOpacity>
+              </View>
+            ))
+          )}
+        </ScrollView>
       </View>
     );
   };
@@ -130,33 +232,52 @@ export function OneDArrayOperations() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
-          <Text style={styles.header}>🧮 1D Array Operations</Text>
-          <Text style={styles.explanation}>{explanation}</Text>
-
-          {/* Operation Buttons */}
-          <View style={styles.buttonRow}>
-          <TouchableOpacity style={styles.button} onPress={() => openModal('add')}>
-            <Text style={styles.buttonText}>Add Elements</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button} onPress={() => openModal('update')}>
-            <Text style={styles.buttonText}>Update Element</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.button} onPress={() => openModal('search')}>
-            <Text style={styles.buttonText}>Search Element</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.button, styles.randomButton]} onPress={generateRandomArray}>
-            <Text style={styles.buttonText}>Generate Random Array</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={resetArray}>
-            <Text style={styles.buttonText}>Reset Array</Text>
-          </TouchableOpacity>
+          <View style={styles.headerRow}>
+            <Text style={styles.header}>🧮 1D Array Operations</Text>
+            <TouchableOpacity style={styles.bookmarkToggle} onPress={() => setShowBookmarks(!showBookmarks)}>
+              <FontAwesome name={showBookmarks ? "bookmark" : "bookmark-o"} size={24} color="#2563eb" />
+            </TouchableOpacity>
           </View>
 
-          {/* Array Display */}
+          {renderBookmarksPanel()}
+
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.button} onPress={() => openModal('add')}>
+              <FontAwesome name="plus" size={16} color="white" />
+              <Text style={styles.buttonText}> Add</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={() => openModal('update')}>
+              <FontAwesome name="pencil" size={16} color="white" />
+              <Text style={styles.buttonText}> Update</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={() => openModal('search')}>
+              <FontAwesome name="search" size={16} color="white" />
+              <Text style={styles.buttonText}> Search</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.button} onPress={() => openModal('concat')}>
+              <FontAwesome name="link" size={16} color="white" />
+              <Text style={styles.buttonText}> Concat</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.button, styles.randomButton]} onPress={generateRandomArray}>
+              <FontAwesome name="random" size={16} color="white" />
+              <Text style={styles.buttonText}> Random</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.button, styles.bookmarkButton]} onPress={saveBookmark}>
+              <FontAwesome name="bookmark" size={16} color="white" />
+              <Text style={styles.buttonText}> Bookmark</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={[styles.button, styles.resetButton]} onPress={resetArray}>
+              <FontAwesome name="refresh" size={16} color="white" />
+              <Text style={styles.buttonText}> Reset</Text>
+            </TouchableOpacity>
+          </View>
+
           {array.length > 0 && (
             <View style={styles.arrayContainer}>
               <Text style={styles.arrayTitle}>Array Visualization:</Text>
@@ -171,7 +292,7 @@ export function OneDArrayOperations() {
               • Array Length: {array.length}{'\n'}
               • Array Type: 1-dimensional{'\n'}
               • Index Range: 0 to {array.length - 1}{'\n'}
-              • Operations: Add, Update, Search
+              • Operations: Add, Update, Search, Concat
             </Text>
           </View>
 
@@ -194,7 +315,7 @@ export function OneDArrayOperations() {
               <View style={styles.modalContainer}>
                 <Text style={styles.modalTitle}>{modalType?.toUpperCase()}</Text>
 
-                {modalType === 'add' ? (
+                {modalType === 'add' || modalType === 'concat' ? (
                   <TextInput
                     placeholder='Comma-separated elements (e.g. 1,2,3)'
                     value={inputValue}
@@ -241,8 +362,12 @@ export function OneDArrayOperations() {
   );
 }
 
+// Styles remain unchanged from your original code
+
+
 const PRIMARY_COLOR = '#2563eb';
 const HIGHLIGHT_COLOR = '#10b981';
+const BOOKMARK_COLOR = '#f59e0b';
 const LIGHT_BG = '#f9fafb';
 
 const styles = StyleSheet.create({
@@ -256,12 +381,55 @@ const styles = StyleSheet.create({
     padding: 24,
     paddingBottom: 100,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
   header: {
     fontSize: 28,
     fontWeight: '700',
     color: PRIMARY_COLOR,
+  },
+  authSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     marginBottom: 16,
-    textAlign: 'center',
+    padding: 12,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  welcomeText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: PRIMARY_COLOR,
+  },
+  authButton: {
+    backgroundColor: PRIMARY_COLOR,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+  },
+  registerButton: {
+    backgroundColor: BOOKMARK_COLOR,
+  },
+  authButtonText: {
+    color: 'white',
+    fontWeight: '600',
+  },
+  bookmarkToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+  },
+  bookmarkCount: {
+    marginLeft: 4,
+    fontWeight: 'bold',
+    color: PRIMARY_COLOR,
   },
   explanation: {
     fontSize: 16,
@@ -271,24 +439,23 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   buttonRow: {
-    ...(Platform.OS === "web" && {
-      flexDirection: 'row',
+    flexDirection: Platform.OS === "web" ? 'row' : 'column',
+    flexWrap: Platform.OS === "web" ? 'wrap' : 'nowrap',
     justifyContent: 'space-between',
-    width: '100%',
-    gap: 4,
-    }),
-    paddingVertical:10
+    gap: 8,
+    marginBottom: 16,
   },
   button: {
     backgroundColor: PRIMARY_COLOR,
     borderRadius: 12,
-    paddingVertical: 14,
+    paddingVertical: 12,
     paddingHorizontal: 16,
-    marginBottom: 12,
     alignItems: 'center',
-    ...(Platform.OS === "web" && {
-      width: '20%',
-    })
+    minWidth: Platform.OS === "web" ? 100 : '100%',
+    flex: Platform.OS === "web" ? 1 : 0,
+    marginBottom: Platform.OS === "web" ? 0 : 8,
+    flexDirection: 'row',
+    justifyContent: 'center',
   },
   resetButton: {
     backgroundColor: '#ef4444',
@@ -296,10 +463,13 @@ const styles = StyleSheet.create({
   randomButton: {
     backgroundColor: '#8b5cf6',
   },
+  bookmarkButton: {
+    backgroundColor: BOOKMARK_COLOR,
+  },
   buttonText: {
     color: 'white',
     fontWeight: '700',
-    fontSize: 16,
+    fontSize: 14,
   },
   arrayContainer: {
     marginTop: 24,
@@ -400,6 +570,57 @@ const styles = StyleSheet.create({
     color: '#374151',
     fontWeight: '500',
   },
+  bookmarksPanel: {
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    maxHeight: 200,
+  },
+  bookmarksTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 12,
+    color: BOOKMARK_COLOR,
+    textAlign: 'center',
+  },
+  bookmarksList: {
+    maxHeight: 140,
+  },
+  bookmarkItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f3f4f6',
+  },
+  bookmarkContent: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  bookmarkIndex: {
+    fontWeight: 'bold',
+    color: BOOKMARK_COLOR,
+    marginRight: 8,
+    width: 30,
+  },
+  bookmarkArray: {
+    flex: 1,
+    color: '#374151',
+    fontSize: 12,
+  },
+  deleteBookmark: {
+    padding: 4,
+  },
+  noBookmarks: {
+    textAlign: 'center',
+    color: '#6b7280',
+    fontStyle: 'italic',
+  },
 
   // Modal Styles
   modalOverlay: {
@@ -410,10 +631,11 @@ const styles = StyleSheet.create({
   },
   modalContainer: {
     backgroundColor: 'white',
-    width: Platform.OS == "web" ? '50%' :'85%',
+    width: Platform.OS === "web" ? '40%' : '85%',
     borderRadius: 16,
     padding: 20,
     alignItems: 'center',
+    maxWidth: 400,
   },
   modalTitle: {
     fontSize: 20,
@@ -436,20 +658,17 @@ const styles = StyleSheet.create({
   modalButtonRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-  
-    width: '50%'
+    width: '100%',
+    gap: 12,
   },
   modalButton: {
     flex: 1,
     backgroundColor: PRIMARY_COLOR,
     borderRadius: 12,
-    paddingVertical: 14,
-    marginRight: 8,
+    paddingVertical: 12,
     alignItems: 'center',
   },
   cancelButton: {
     backgroundColor: '#6b7280',
-    marginRight: 0,
-    marginLeft: 8,
   },
 });

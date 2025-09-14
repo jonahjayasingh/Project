@@ -249,8 +249,16 @@ export const CircularSingleLinkedList = () => {
     if (size === 0) {
       return (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyText}>⭕ List is empty</Text>
-          <Text style={styles.emptySubtext}>Add nodes to create a circular list</Text>
+          <View style={styles.nullNodeContainer}>
+            <View style={styles.nullNodeBox}>
+              <Text style={styles.nullNodeText}>NULL</Text>
+            </View>
+            <View style={styles.circularArrowContainer}>
+              <Text style={styles.circularArrow}>↺</Text>
+              <Text style={styles.circularText}>points to itself</Text>
+            </View>
+          </View>
+          <Text style={styles.emptyText}>List is empty. Add nodes to create a circular list.</Text>
         </View>
       );
     }
@@ -405,6 +413,7 @@ const PREPEND_COLOR = '#f59e0b';
 const REMOVE_COLOR = '#ef4444';
 const FIND_COLOR = '#8b5cf6';
 const LIGHT_BG = '#f9fafb';
+const NULL_COLOR = '#9ca3af';
 
 const styles = StyleSheet.create({
   safeArea: {
@@ -604,15 +613,34 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: '#e5e7eb',
   },
+  nullNodeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  nullNodeBox: {
+    backgroundColor: NULL_COLOR,
+    width: 70,
+    height: 70,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginHorizontal: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  nullNodeText: {
+    color: 'white',
+    fontWeight: '800',
+    fontSize: 14,
+  },
   emptyText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '600',
     color: '#6b7280',
-    marginBottom: 8,
-  },
-  emptySubtext: {
-    fontSize: 14,
-    color: '#9ca3af',
+    textAlign: 'center',
   },
   infoCard: {
     backgroundColor: '#f0f9ff',

@@ -148,17 +148,7 @@ export function BubbleSort() {
     }
   };
 
-  const saveBookmark = () => {
-    if (!arrayInput) {
-      Alert.alert('Cannot bookmark', 'Please enter array first.');
-      return;
-    }
-    Alert.alert(
-      'Bookmark Saved',
-      `Array: [${arrayInput}]\nSpeed: ${speed} ms`,
-      [{ text: 'OK' }]
-    );
-  };
+
 
   const getSpeedLabel = (speed: number) => {
     if (speed === 2000) return '🐢 Very Slow';
@@ -263,13 +253,7 @@ export function BubbleSort() {
           >
             <Text style={styles.btnText}>🎲 Random</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-          style={[styles.bookmarkButton, isSorting && styles.btnDisabled]}
-          onPress={saveBookmark}
-          disabled={isSorting}
-        >
-          <Text style={[styles.bookmarkText, isSorting && styles.btnDisabled]}>🔖 Bookmark</Text>
-        </TouchableOpacity>
+         
         </View>
 
         
@@ -447,21 +431,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 14,
   },
-  bookmarkButton: {
-    backgroundColor: '#f59e0b',
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 12,
-    alignItems: 'center',
-    minWidth: 110,
-    marginHorizontal:4,
-    marginVertical:4
-  },
-  bookmarkText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 14,
-  },
+ 
   statusCard: {
     backgroundColor: '#dbeafe',
     padding: 16,

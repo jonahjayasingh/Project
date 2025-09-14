@@ -31,18 +31,14 @@ import { BFSVisualizer } from 'components/BFS';
 import { DFSVisualizer } from 'components/DFS';
 
 import { AuthProvider, useAuth } from './AuthContext';
-
-// ✅ keep NativeWind styles
 import './global.css';
 
 const Stack = createNativeStackNavigator();
 
-// 👤 Screens available without login
+// Screens available without login
 function AuthStack() {
   return (
-    <Stack.Navigator
-      screenOptions={{ headerShown: Platform.OS === 'ios' }}
-    >
+    <Stack.Navigator screenOptions={{ headerShown: Platform.OS === 'ios' }}>
       <Stack.Screen name="Home" component={Home} />
       <Stack.Screen name="Login" component={Login} />
       <Stack.Screen name="Register" component={Register} />
@@ -50,7 +46,7 @@ function AuthStack() {
   );
 }
 
-// 🔒 Screens available only after login
+// Screens available only after login
 function AppStack() {
   return (
     <Stack.Navigator
@@ -85,7 +81,7 @@ function AppStack() {
   );
 }
 
-// 🔑 Switch depending on auth state
+// Switch stack based on auth state
 function RootNavigator() {
   const { user, loading } = useAuth();
 
@@ -98,7 +94,40 @@ export default function App() {
   return (
     <SafeAreaProvider style={{ flex: 1 }}>
       <AuthProvider>
-        <NavigationContainer>
+        <NavigationContainer
+          linking={{
+            prefixes: ['http://localhost:3000', 'https://your-app-domain.com'],
+            config: {
+              screens: {
+                Home: 'home',
+                Login: 'login',
+                Register: 'register',
+                Main: 'main',
+                LinearSearch: 'linear-search',
+                BinarySearch: 'binary-search',
+                BubbleSort: 'bubble-sort',
+                SelectionSort: 'selection-sort',
+                InsertionSort: 'insertion-sort',
+                MergeSort: 'merge-sort',
+                QuickSort: 'quick-sort',
+                OneDArrayOperations: '1d-array',
+                TwoDArrayOperations: '2d-array',
+                StringManipulations: 'string',
+                SinglyLinkedList: 'singly-linked-list',
+                DoubleLinkedList: 'double-linked-list',
+                CircularSingleLinkedList: 'circular-single-linked-list',
+                CircularDoublyLinkedList: 'circular-doubly-linked-list',
+                Stack: 'stack',
+                Queue: 'queue',
+                InorderTraversal: 'inorder',
+                PreorderTraversal: 'preorder',
+                PostorderTraversal: 'postorder',
+                BFSTraversal: 'bfs',
+                DFS: 'dfs',
+              },
+            },
+          }}
+        >
           <RootNavigator />
         </NavigationContainer>
         <StatusBar />
@@ -106,5 +135,3 @@ export default function App() {
     </SafeAreaProvider>
   );
 }
-
-

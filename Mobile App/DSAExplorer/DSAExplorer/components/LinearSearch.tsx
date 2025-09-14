@@ -9,10 +9,10 @@ import {
   SafeAreaView,
   FlatList,
   Dimensions,
-  StatusBar,
   ScrollView,
   Platform,
 } from 'react-native';
+
 let BOX_SIZE: number;
 let BOX_MARGIN: number;
 let NUM_COLUMNS: number;
@@ -20,20 +20,19 @@ let NUM_COLUMNS: number;
 if (Platform.OS !== "web") {
   BOX_MARGIN = 5;
   const { width } = Dimensions.get('window');
-  NUM_COLUMNS = 5;  
-
-  // Adjust box size so 5 boxes + margins fit exactly in screen width
+  NUM_COLUMNS = 5;
   BOX_SIZE = Math.floor((width - (NUM_COLUMNS + 10) * BOX_MARGIN) / NUM_COLUMNS);
-} else{
+} else {
   BOX_SIZE = 80;
   BOX_MARGIN = 4;
   const { width } = Dimensions.get('window');
   NUM_COLUMNS = Math.floor(width / (BOX_SIZE + BOX_MARGIN));
-
 }
 
-
-
+const PRIMARY_COLOR = '#2563eb';
+const SUCCESS_COLOR = '#10b981';
+const CURRENT_COLOR = '#f59e0b';
+const LIGHT_BG = '#f9fafb';
 
 export function LinearSearch() {
   const [arrayInput, setArrayInput] = useState('3,5,2,8,4,7,1,9,6');
@@ -70,9 +69,7 @@ export function LinearSearch() {
 
     let index = 0;
 
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
+    if (timerRef.current) clearInterval(timerRef.current);
 
     timerRef.current = setInterval(() => {
       setCurrentIndex(index);
@@ -82,17 +79,13 @@ export function LinearSearch() {
         setFoundIndex(index);
         setStatus(`🎉 Target ${target} found at index ${index}!`);
         setIsSearching(false);
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-        }
+        if (timerRef.current) clearInterval(timerRef.current);
       } else {
         index++;
         if (index >= parsedArray.length) {
           setStatus(`❌ Target ${target} not found in the array`);
           setIsSearching(false);
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-          }
+          if (timerRef.current) clearInterval(timerRef.current);
           setCurrentIndex(null);
         }
       }
@@ -100,9 +93,7 @@ export function LinearSearch() {
   };
 
   const resetSearch = () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
+    if (timerRef.current) clearInterval(timerRef.current);
     setIsSearching(false);
     setCurrentIndex(null);
     setFoundIndex(null);
@@ -110,11 +101,8 @@ export function LinearSearch() {
   };
 
   const generateRandomArray = () => {
-    const randomArray = Array.from({ length: 10 }, () => 
-      Math.floor(Math.random() * 20) + 1
-    );
+    const randomArray = Array.from({ length: 10 }, () => Math.floor(Math.random() * 20) + 1);
     const randomTarget = randomArray[Math.floor(Math.random() * randomArray.length)];
-    
     setArrayInput(randomArray.join(','));
     setTargetInput(randomTarget.toString());
     resetSearch();
@@ -123,22 +111,9 @@ export function LinearSearch() {
   const changeSpeed = (newSpeed: number) => {
     setSpeed(newSpeed);
     if (isSearching && timerRef.current) {
-      // Restart search with new speed
       resetSearch();
       setTimeout(startSearch, 100);
     }
-  };
-
-  const saveBookmark = () => {
-    if (!arrayInput || !targetInput) {
-      Alert.alert('Cannot bookmark', 'Please enter array and target first.');
-      return;
-    }
-    Alert.alert(
-      'Bookmark Saved',
-      `Array: [${arrayInput}]\nTarget: ${targetInput}\nSpeed: ${speed} ms`,
-      [{ text: 'OK' }]
-    );
   };
 
   const renderItem = ({ item, index }: { item: number; index: number }) => {
@@ -153,18 +128,11 @@ export function LinearSearch() {
           isCurrent && !isFound && styles.currentBox,
         ]}
       >
-        <Text
-          style={[
-            styles.boxText,
-            (isFound || isCurrent) && styles.boxTextActive,
-          ]}
-        >
+        <Text style={[styles.boxText, (isFound || isCurrent) && styles.boxTextActive]}>
           {item}
         </Text>
         <Text style={styles.indexText}>{index}</Text>
-        {isCurrent && !isFound && (
-          <Text style={styles.labelText}>checking</Text>
-        )}
+        {isCurrent && !isFound && <Text style={styles.labelText}>checking</Text>}
         {isFound && <Text style={styles.labelText}>found</Text>}
       </View>
     );
@@ -181,7 +149,9 @@ export function LinearSearch() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
-        <Text style={styles.header}>🔎 Linear Search Visualizer</Text>
+        <View style={styles.header}>
+          <Text style={styles.title}>🔎 Linear Search Visualizer</Text>
+        </View>
 
         <Text style={styles.label}>Enter array (comma-separated numbers):</Text>
         <TextInput
@@ -212,15 +182,12 @@ export function LinearSearch() {
                 style={[
                   styles.speedBtn,
                   speed === spd && styles.speedBtnActive,
-                  isSearching && styles.speedBtnDisabled
+                  isSearching && styles.speedBtnDisabled,
                 ]}
                 onPress={() => changeSpeed(spd)}
                 disabled={isSearching}
               >
-                <Text style={[
-                  styles.speedBtnText,
-                  speed === spd && styles.speedBtnTextActive
-                ]}>
+                <Text style={[styles.speedBtnText, speed === spd && styles.speedBtnTextActive]}>
                   {getSpeedLabel(spd)}
                 </Text>
               </TouchableOpacity>
@@ -229,38 +196,26 @@ export function LinearSearch() {
         </View>
 
         <View style={styles.actionSection}>
-          <TouchableOpacity 
-            style={[styles.actionBtn, styles.startBtn, isSearching && styles.btnDisabled]} 
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.startBtn, isSearching && styles.btnDisabled]}
             onPress={startSearch}
             disabled={isSearching}
           >
             <Text style={styles.btnText}>▶️ Start Search</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.actionBtn, styles.resetBtn]} 
-            onPress={resetSearch}
-          >
+
+          <TouchableOpacity style={[styles.actionBtn, styles.resetBtn]} onPress={resetSearch}>
             <Text style={styles.btnText}>🔄 Reset</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.actionBtn, styles.randomBtn, isSearching && styles.btnDisabled]} 
+
+          <TouchableOpacity
+            style={[styles.actionBtn, styles.randomBtn, isSearching && styles.btnDisabled]}
             onPress={generateRandomArray}
             disabled={isSearching}
           >
             <Text style={styles.btnText}>🎲 Random</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-          style={[styles.bookmarkButton, styles.actionBtn,  isSearching && styles.btnDisabled]}
-          onPress={saveBookmark}
-          disabled={isSearching}
-        >
-          <Text style={styles.bookmarkText}>🔖 Bookmark</Text>
-        </TouchableOpacity>
         </View>
-
-        
 
         <View style={styles.statusCard}>
           <Text style={styles.statusText}>{status}</Text>
@@ -311,33 +266,19 @@ export function LinearSearch() {
   );
 }
 
-const PRIMARY_COLOR = '#2563eb';
-const SUCCESS_COLOR = '#10b981';
-const CURRENT_COLOR = '#f59e0b';
-const LIGHT_BG = '#f9fafb';
-
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: LIGHT_BG,
-    
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    // padding: 16,
-    
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-  },
+  safeArea: { flex: 1, backgroundColor: LIGHT_BG },
+  scrollView: { flex: 1 },
+  scrollContent: { paddingHorizontal: 16, paddingBottom: 40 },
   header: {
+    alignItems: 'center',
+    marginVertical: 24,
+  },
+  title: {
     fontSize: 28,
     fontWeight: '800',
     color: PRIMARY_COLOR,
     textAlign: 'center',
-    // marginBottom: 24,
-    marginVertical:24
   },
   label: {
     fontSize: 16,
@@ -373,6 +314,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'center',
+    gap: 8,
   },
   speedBtn: {
     paddingVertical: 10,
@@ -401,10 +343,10 @@ const styles = StyleSheet.create({
   },
   actionSection: {
     flexDirection: 'row',
-    gap: 5,
+    gap: 8,
     justifyContent: 'center',
     marginBottom: 16,
-    flexWrap: 'wrap',       
+    flexWrap: 'wrap',
   },
   actionBtn: {
     paddingVertical: 15,
@@ -412,42 +354,15 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     minWidth: 110,
-    marginHorizontal: 4,    // spacing between buttons
-    marginVertical: 4,   
   },
-  startBtn: {
-    backgroundColor: PRIMARY_COLOR,
-  },
-  resetBtn: {
-    backgroundColor: '#6b7280',
-  },
-  randomBtn: {
-    backgroundColor: '#8b5cf6',
-  },
-  btnDisabled: {
-    opacity: 0.5,
-  },
-  btnText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 14,
-  },
-  bookmarkButton: {
-    backgroundColor: '#f59e0b',
-    // padding: 15,
-    borderRadius: 12,
-    alignItems: 'center',
-    // marginBottom: 16,
-  },
-  bookmarkText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 14,
-  },
+  startBtn: { backgroundColor: PRIMARY_COLOR },
+  resetBtn: { backgroundColor: '#6b7280' },
+  randomBtn: { backgroundColor: '#8b5cf6' },
+  btnDisabled: { opacity: 0.5 },
+  btnText: { color: 'white', fontWeight: '700', fontSize: 14 },
   statusCard: {
-    
     backgroundColor: '#dbeafe',
-    
+    padding: 16,
     borderRadius: 12,
     marginBottom: 20,
     borderLeftWidth: 4,
@@ -461,7 +376,7 @@ const styles = StyleSheet.create({
   },
   arrayContainer: {
     backgroundColor: 'white',
-    padding: 0,
+    padding: 16,
     borderRadius: 12,
     marginBottom: 20,
     borderWidth: 2,
@@ -477,20 +392,12 @@ const styles = StyleSheet.create({
   },
   flatListContent: {
     justifyContent: 'center',
-    display: 'flex',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    margin: 15,
-    paddingVertical: 15,
-    paddingHorizontal: 10,
-    
   },
   box: {
     width: BOX_SIZE,
     height: BOX_SIZE,
     backgroundColor: 'white',
-    margin: BOX_MARGIN / 2,
+    margin: BOX_MARGIN,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -501,12 +408,10 @@ const styles = StyleSheet.create({
   foundBox: {
     backgroundColor: SUCCESS_COLOR,
     borderColor: SUCCESS_COLOR,
-    transform: [{ scale: 1 }],
   },
   currentBox: {
     backgroundColor: CURRENT_COLOR,
     borderColor: CURRENT_COLOR,
-    transform: [{ scale: 1 }],
   },
   boxText: {
     fontSize: 20,

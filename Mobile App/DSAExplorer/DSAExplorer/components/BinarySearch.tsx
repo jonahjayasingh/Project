@@ -135,18 +135,6 @@ export function BinarySearch() {
     }
   };
 
-  const saveBookmark = () => {
-    if (!arrayInput || !targetInput) {
-      Alert.alert('Cannot bookmark', 'Please enter array and target first.');
-      return;
-    }
-    Alert.alert(
-      'Bookmark Saved',
-      `Array: [${arrayInput}]\nTarget: ${targetInput}\nSpeed: ${speed} ms`,
-      [{ text: 'OK' }]
-    );
-  };
-
   const getSpeedLabel = (speed: number) => {
     if (speed === 2000) return '🐢 Very Slow';
     if (speed === 1000) return '🚶 Slow';
@@ -266,16 +254,7 @@ export function BinarySearch() {
           >
             <Text style={styles.btnText}>🎲 Random</Text>
           </TouchableOpacity>
-          <TouchableOpacity
-          style={[styles.bookmarkButton, isSearching && styles.btnDisabled]}
-          onPress={saveBookmark}
-          disabled={isSearching}
-        >
-          <Text style={[styles.bookmarkText, styles.actionBtn, isSearching && styles.btnDisabled]}>🔖 Bookmark</Text>
-        </TouchableOpacity>
         </View>
-
-        
 
         <View style={styles.statusCard}>
           <Text style={styles.statusText}>{status}</Text>
@@ -429,7 +408,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     minWidth: 110,
-    marginHorizontal: 4,    // spacing between buttons
+    marginHorizontal: 4,
     marginVertical: 4,  
   },
   startBtn: {
@@ -445,18 +424,6 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   btnText: {
-    color: 'white',
-    fontWeight: '700',
-    fontSize: 14,
-  },
-  bookmarkButton: {
-    backgroundColor: '#f59e0b',
-    // padding: 0,
-    borderRadius: 12,
-    alignItems: 'center',
-    // marginBottom: 16,
-  },
-  bookmarkText: {
     color: 'white',
     fontWeight: '700',
     fontSize: 14,
