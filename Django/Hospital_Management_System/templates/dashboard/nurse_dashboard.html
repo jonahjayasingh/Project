@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Nurse Dashboard - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-heart-pulse"></i> Nurse Dashboard</h2>
+    <span class="text-muted">{{ user.get_full_name }}</span>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h5>{{ nurse.department.name }} Department</h5>
+                <p class="mb-0"><i class="bi bi-clock"></i> Shift: {{ nurse.get_shift_display }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-people"></i> Assigned Patients</h5>
+            </div>
+            <div class="card-body">
+                {% if assigned_patients %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Assigned Date</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for assignment in assigned_patients %}
+                            <tr>
+                                <td>{{ assignment.patient.patient_id }}</td>
+                                <td>{{ assignment.patient.user.get_full_name }}</td>
+                                <td>{{ assignment.assigned_date }}</td>
+                                <td>{{ assignment.notes|default:"No notes" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No patients assigned.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero fade-in">
+    <h1>✨ Welcome to Our Marketplace</h1>
+    <p>Discover amazing products from trusted sellers around the world</p>
+    <div class="flex-center gap-2" style="position: relative; z-index: 1;">
+        <a href="{{ url_for('product.list_products') }}" class="btn btn-lg"
+            style="background: white; color: #6366f1; font-weight: 700;">🛍️ Shop Now</a>
+        {% if not session.get('user_id') %}
+        <a href="{{ url_for('seller.become_seller') }}" class="btn btn-lg"
+            style="background: rgba(255,255,255,0.2); color: white; backdrop-filter: blur(10px); border: 2px solid rgba(255,255,255,0.3);">🚀
+            Become a Seller</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Featured Products -->
+<h2 class="mb-3">Featured Products</h2>
+<div class="product-grid">
+    {% for product in products %}
+    <div class="card product-card fade-in">
+        <a href="{{ url_for('product.product_detail', product_id=product.id) }}"
+            style="text-decoration: none; color: inherit;">
+            {% if product.get_primary_image() %}
+            <img src="{{ url_for('static', filename='uploads/' + product.get_primary_image()) }}"
+                alt="{{ product.name }}" class="product-image">
+            {% else %}
+            <div class="product-image flex-center"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 3rem;">
+                📦
+            </div>
+            {% endif %}
+
+            {% if product.quantity > 0 %}
+            <span class="product-badge">In Stock</span>
+            {% else %}
+            <span class="product-badge" style="background: var(--error-color);">Out of Stock</span>
+            {% endif %}
+
+            <div class="product-info">
+                <h3 class="product-title">{{ product.name }}</h3>
+                <div class="product-price">₹{{ "%.2f"|format(product.price) }}</div>
+                <p class="product-description">{{ product.description or 'No description available' }}</p>
+                <a href="{{ url_for('product.product_detail', product_id=product.id) }}" class="btn btn-primary"
+                    style="width: 100%;">View Details</a>
+            </div>
+        </a>
+    </div>
+    {% else %}
+    <div class="empty-state" style="grid-column: 1 / -1;">
+        <div class="empty-state-icon">🛍️</div>
+        <h3>No Products Yet</h3>
+        <p>Be the first seller to add products!</p>
+        {% if session.get('user_id') %}
+        <a href="{{ url_for('seller.become_seller') }}" class="btn btn-primary mt-3">Become a Seller</a>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Categories -->
+{% if categories %}
+<div style="margin-top: 3rem;">
+    <h2 class="mb-3">Shop by Category</h2>
+    <div class="product-grid">
+        {% for category in categories %}
+        <a href="{{ url_for('product.products_by_category', slug=category.slug) }}" class="card"
+            style="text-decoration: none; color: inherit; padding: 2rem; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏷️</div>
+            <h4>{{ category.name }}</h4>
+            <p style="color: var(--text-medium); font-size: 0.875rem;">{{ category.description }}</p>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Call to Action -->
+{% if not session.get('user_id') %}
+<div class="card"
+    style="margin-top: 3rem; padding: 3rem; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+    <h2 style="color: white;">Join Our Community</h2>
+    <p style="font-size: 1.125rem; margin-bottom: 2rem; opacity: 0.95;">Start shopping or selling today</p>
+    <div class="flex-center gap-2">
+        <a href="{{ url_for('auth.register') }}" class="btn" style="background: white; color: #667eea;">Sign Up</a>
+        <a href="{{ url_for('auth.login') }}" class="btn"
+            style="background: rgba(255,255,255,0.2); color: white;">Login</a>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .product-card a:hover {
+        text-decoration: none;
+    }
+</style>
+{% endblock %}

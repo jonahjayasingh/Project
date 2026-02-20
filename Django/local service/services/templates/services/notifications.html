@@ -1,0 +1,57 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Notifications - ServiceFinder{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="d-flex align-items-center justify-content-between mb-5">
+                <h2 class="fw-800 display-6">Recent Updates</h2>
+                <span class="badge bg-primary rounded-pill px-3">{{ notifications.count }} Total</span>
+            </div>
+
+            {% if notifications %}
+            <div class="d-flex flex-column gap-3">
+                {% for notif in notifications %}
+                <div class="glass-card p-4 rounded-4 border-0 shadow-sm position-relative {% if not notif.is_read %}border-start border-primary border-4{% endif %}"
+                    style="transition: all 0.3s ease;">
+                    <div class="d-flex gap-4">
+                        <div class="bg-primary-soft text-primary rounded-circle p-3 d-flex align-items-center justify-content-center"
+                            style="width: 60px; height: 60px;">
+                            {% if notif.notification_type == 'BOOKING' %}
+                            <i class="bi bi-calendar-check fs-4"></i>
+                            {% elif notif.notification_type == 'REMINDER' %}
+                            <i class="bi bi-alarm fs-4"></i>
+                            {% else %}
+                            <i class="bi bi-info-circle fs-4"></i>
+                            {% endif %}
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start mb-1">
+                                <h5 class="fw-bold mb-0 {% if not notif.is_read %}text-primary{% endif %}">{{notif.title }}</h5>
+                                <small class="text-muted">{{ notif.created_at|timesince }} ago</small>
+                            </div>
+                            <p class="text-muted mb-3">{{ notif.message }}</p>
+
+                            {% if not notif.is_read %}
+                            <a href="{% url 'mark_notification_read' notif.pk %}"
+                                class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold">
+                                Mark as Read
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-bell-slash display-1 text-muted opacity-25 mb-4"></i>
+                <h4 class="text-muted">No notifications yet</h4>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

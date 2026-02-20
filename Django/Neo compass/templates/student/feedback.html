@@ -1,0 +1,30 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-7">
+    <div class="glass-panel">
+      <h2 class="fw-bold mb-4">
+        Share <span class="text-gradient">Feedback</span>
+      </h2>
+      <form method="post">
+        {% csrf_token %} {{ form.as_p }}
+        <button type="submit" class="btn btn-primary w-100">
+          Submit Feedback
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+<style>
+  input,
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    color: white;
+    border: 1px solid #444;
+    border-radius: 5px;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 text-center">
+        <div class="card p-5 shadow-lg border-0 rounded-4">
+            <div class="mb-4">
+                <span class="display-1 text-warning">⏳</span>
+            </div>
+            <h2 class="fw-bold mb-3">Account Pending Approval</h2>
+            <p class="text-muted mb-4 lead">
+                Your account as an <strong>{{ user.role|upper }}</strong> is currently being reviewed by our
+                administration team.
+            </p>
+            <div class="alert alert-info py-3 mb-4 rounded-3 border-0">
+                You will be notified once your access is granted.
+            </div>
+            <div class="d-grid">
+                <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-lg rounded-pill px-5">Logout and
+                    Wait</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

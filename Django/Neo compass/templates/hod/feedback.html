@@ -1,0 +1,76 @@
+{% extends 'base.html' %} {% block content %}
+<div class="mb-5">
+  <h1 class="fw-bold mb-1">
+    Feedback <span class="text-gradient">Insights</span>
+  </h1>
+  <p class="text-muted">
+    Review institutional quality through direct student feedback and ratings.
+  </p>
+</div>
+
+<div class="card border-0 shadow-sm overflow-hidden">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th class="ps-4">Student</th>
+          <th>Mentor</th>
+          <th>Performance Rating</th>
+          <th>Commentary</th>
+          <th class="text-end pe-4">Submission Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for f in feedbacks %}
+        <tr>
+          <td class="ps-4">
+            <div class="fw-bold text-dark">{{ f.student.username }}</div>
+            <div class="small text-muted">ID: #{{ f.id|add:"1000" }}</div>
+          </td>
+          <td>
+            <span
+              class="badge bg-light text-primary border border-primary border-opacity-25 px-2"
+            >
+              Mentor: {{ f.mentor.username }}
+            </span>
+          </td>
+          <td>
+            <div class="text-warning fs-6">
+              {% for i in "12345"|make_list %} {% if forloop.counter <= f.rating%}
+              <i class="fas fa-star"></i>
+              {% else %}
+              <i class="far fa-star text-muted opacity-25"></i>
+              {% endif %} {% endfor %}
+              <span class="ms-2 text-dark small fw-bold">{{ f.rating }}.0</span>
+            </div>
+          </td>
+          <td style="max-width: 300px">
+            <span class="small text-muted fst-italic"
+              >"{{ f.comment|truncatechars:80 }}"</span
+            >
+          </td>
+          <td class="text-end pe-4">
+            <span class="small text-dark fw-medium"
+              >{{ f.created_at|date:"M d, Y" }}</span
+            >
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="py-5 text-center text-muted">
+            <i class="fas fa-comment-slash fa-3x mb-3 opacity-25"></i>
+            <p>No feedback reports have been submitted yet.</p>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mt-4 text-center">
+  <a href="{% url 'hod_dashboard' %}" class="btn btn-light btn-sm text-muted">
+    <i class="fas fa-chevron-left me-1"></i> Return to Control Center
+  </a>
+</div>
+{% endblock %}

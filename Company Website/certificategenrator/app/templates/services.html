@@ -1,0 +1,1126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - Alric Infotech Pvt Ltd</title>
+        <link rel="shortcut icon" href="{% static 'logo.png' %}" type="image/x-icon">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+:root {
+    --primary: #9d4edd; /* Purple */
+    --secondary: #ff006e; /* Pink */
+    --dark: #240046; /* Dark Purple */
+    --light: #fdf2f8; /* Light Pink */
+    --gray: #64748b;
+    --success: #10b981;
+    --whatsapp: #25D366;
+}
+body {
+    color: var(--dark);
+    line-height: 1.6;
+    background: linear-gradient(135deg, #fdf2f8 0%, #f3e5f5 100%);
+    padding-top: 80px;
+}
+.container {
+     width: 100%;
+    max-width: 100%;
+    padding: 20px !important;
+}
+.btn {
+    display: inline-block;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 12px 28px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(157, 78, 221, 0.2);
+    border: none;
+    cursor: pointer;
+}
+.btn:hover {
+    background: linear-gradient(45deg, #7b2cbf, #d90466);
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(157, 78, 221, 0.3);
+}
+.btn-secondary {
+    background: var(--secondary);
+    box-shadow: 0 4px 6px rgba(255, 0, 110, 0.2);
+}
+.btn-secondary:hover {
+    background: #d90466;
+    box-shadow: 0 6px 12px rgba(255, 0, 110, 0.3);
+}
+.btn-whatsapp {
+    background: var(--whatsapp);
+    box-shadow: 0 4px 6px rgba(37, 211, 102, 0.2);
+}
+.btn-whatsapp:hover {
+    background: #128C7E;
+    box-shadow: 0 6px 12px rgba(37, 211, 102, 0.3);
+}
+.section {
+    padding: 100px 0;
+}
+.section-title {
+    text-align: center;
+    margin-bottom: 60px;
+    font-size: 2.5rem;
+    position: relative;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.section-title:after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 5px;
+    background: linear-gradient(to right, var(--primary), var(--secondary));
+    margin: 15px auto;
+    border-radius: 10px;
+}
+
+/* NEW NAVBAR STYLES */
+header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+    transition: all 0.3s ease;
+}
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    font-size: small;
+}
+.logo {
+    display: flex;
+    align-items: center;
+}
+.logo img {
+    transition: transform 0.3s ease;
+    max-width: 100px;
+    height: auto;
+}
+.logo:hover img {
+    transform: scale(1.05);
+}
+nav ul {
+    display: flex;
+    list-style: none;
+    align-items: center;
+}
+nav ul li {
+    margin-left: 20px;
+    position: relative;
+}
+nav ul li a {
+    text-decoration: none;
+    color: var(--dark);
+    font-weight: 500;
+    transition: all 0.3s ease;
+    padding: 8px 0;
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    white-space: nowrap;
+}
+nav ul li a i {
+    font-size: 0.8rem;
+    transition: transform 0.3s ease;
+}
+nav ul li a:hover i {
+    transform: translateY(-2px);
+}
+nav ul li a:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    transition: width 0.3s ease;
+    border-radius: 10px;
+}
+nav ul li a:hover {
+    color: var(--primary);
+}
+nav ul li a:hover:after {
+    width: 100%;
+}
+.nav-cta {
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    color: white !important;
+    padding: 8px 20px !important;
+    border-radius: 25px;
+    margin-left: 15px !important;
+}
+.nav-cta:after {
+    display: none;
+}
+.nav-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3);
+}
+.dropdown:hover .dropdown-menu{
+    display: block;
+}
+.dropdown-menu{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    padding: 10px 0;
+    min-width: 200px;
+    z-index: 1000;
+    display: none;
+}
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--dark);
+    cursor: pointer;
+    margin-left: auto; /* This pushes it to the right */
+}
+
+/* Hero Section */
+.hero {
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.9), rgba(255, 0, 110, 0.9)), url('{% static "sbg.jpeg" %}') no-repeat center center/cover;
+    height: 90vh;
+    color: white;
+    display: flex;
+    align-items: center;
+    text-align: center;
+    border-radius: 0 0 50px 50px;
+    margin-bottom: 50px;
+}
+.hero-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+.hero-content h1 {
+    font-size: 3.8rem;
+    margin-bottom: 20px;
+    line-height: 1.2;
+}
+.hero-content p {
+    font-size: 1.3rem;
+    margin-bottom: 40px;
+    opacity: 0.9;
+}
+/* Services Section */
+.services {
+    background: linear-gradient(to bottom, #ffffff, #fdf2f8);
+    border-radius: 50px;
+}
+.services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 30px;
+}
+.service-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(157, 78, 221, 0.08);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.service-card:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 15px 40px rgba(157, 78, 221, 0.15);
+}
+.service-icon {
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), rgba(255, 0, 110, 0.1));
+}
+.service-icon i {
+    font-size: 4rem;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.service-content {
+    padding: 30px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.service-content h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: var(--dark);
+}
+.service-content p {
+    color: var(--gray);
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+.service-features {
+    margin-top: auto;
+}
+.service-feature {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    color: var(--gray);
+    font-size: 0.9rem;
+}
+.service-feature i {
+    color: var(--primary);
+    margin-right: 10px;
+    font-size: 0.8rem;
+}
+/* Process Section */
+.process {
+    background: var(--light);
+}
+.process-steps {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 30px;
+    margin-top: 60px;
+}
+.process-step {
+    flex: 1;
+    min-width: 220px;
+    text-align: center;
+    position: relative;
+}
+.step-number {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0 auto 20px;
+}
+.step-title {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: var(--dark);
+}
+.step-description {
+    color: var(--gray);
+}
+/* Projects Section - Full Width Design */
+.projects {
+    background: linear-gradient(to bottom, #ffffff, #fdf2f8);
+    border-radius: 50px;
+    padding-bottom: 120px;
+}
+.projects-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 60px;
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+.domain-section {
+    margin-bottom: 80px;
+    position: relative;
+}
+.domain-header {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 30px;
+    border-radius: 20px;
+    margin-bottom: 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+.domain-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+    transform: rotate(45deg);
+}
+.domain-header h3 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1;
+}
+.domain-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
+}
+.domain-icon {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 1;
+}
+.domain-icon i {
+    font-size: 2.5rem;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+.projects-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+.project-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(157, 78, 221, 0.1);
+    transition: all 0.4s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.project-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(157, 78, 221, 0.2);
+}
+.project-content {
+    padding: 25px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+.project-content h4 {
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    color: var(--dark);
+}
+.project-content p {
+    color: var(--gray);
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+.project-footer {
+    margin-top: auto;
+    text-align: center;
+}
+.whatsapp-btn {
+    background: var(--whatsapp);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    box-shadow: 0 5px 15px rgba(37, 211, 102, 0.2);
+}
+.whatsapp-btn:hover {
+    background: #128C7E;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(37, 211, 102, 0.3);
+}
+.whatsapp-btn i {
+    font-size: 1.2rem;
+}
+.domain-whatsapp-container {
+    text-align: center;
+    margin-top: 40px;
+}
+.domain-whatsapp {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 15px 35px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 25px rgba(157, 78, 221, 0.3);
+}
+.domain-whatsapp:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(157, 78, 221, 0.4);
+}
+.domain-whatsapp i {
+    font-size: 1.5rem;
+}
+/* CTA Section */
+.cta {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    text-align: center;
+    border-radius: 50px;
+    padding: 80px 0;
+}
+.cta h2 {
+    font-size: 2.8rem;
+    margin-bottom: 20px;
+}
+.cta p {
+    font-size: 1.3rem;
+    max-width: 700px;
+    margin: 0 auto 40px;
+    opacity: 0.9;
+}
+/* WhatsApp Floating Button */
+.whatsapp-float {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 1000;
+}
+.whatsapp-button {
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: var(--whatsapp);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+.whatsapp-button:hover {
+    transform: scale(1.1);
+    background: #128C7E;
+}
+/* Chat Widget */
+.chat-widget {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+.chat-button {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 5px 20px rgba(157, 78, 221, 0.4);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+.chat-button:hover {
+    transform: scale(1.1);
+    background: linear-gradient(45deg, #7b2cbf, #d90466);
+}
+.chat-options {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    background: white;
+    border-radius: 20px;
+    padding: 15px;
+    box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    gap: 15px;
+    width: 200px;
+}
+.chat-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-radius: 10px;
+    text-decoration: none;
+    color: var(--dark);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+.cert-logo{
+    width: 100%;
+    padding: auto;
+    margin-top: 20px;
+}
+.chat-option:hover {
+    background: #f1f5f9;
+    transform: translateX(-5px);
+}
+.chat-option i {
+    margin-right: 10px;
+    font-size: 1.2rem;
+    width: 25px;
+    text-align: center;
+}
+.whatsapp-option i {
+    color: var(--whatsapp);
+}
+.phone-option i {
+    color: var(--primary);
+}
+.email-option i {
+    color: var(--secondary);
+}
+.chat-widget:hover .chat-options {
+    display: flex;
+}
+/* Footer */
+footer {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    padding: 80px 0 30px;
+    border-radius: 50px 50px 0 0;
+    margin-top: 80px;
+}
+.footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 40px;
+    margin-bottom: 40px;
+}
+.footer-column h3 {
+    font-size: 1.4rem;
+    margin-bottom: 25px;
+    color: white;
+}
+.footer-links {
+    list-style: none;
+}
+.footer-links li {
+    margin-bottom: 12px;
+}
+.footer-links a {
+    color: rgba(255, 255, 255, 0.8);
+    text-decoration: none;
+    transition: color 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+.footer-links a:hover {
+    color: white;
+    transform: translateX(5px);
+}
+.footer-links a i {
+    margin-right: 10px;
+    font-size: 0.9rem;
+}
+.social-links {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+.social-links a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 45px;
+    height: 45px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+.social-links a:hover {
+    background: white;
+    color: var(--primary);
+    transform: translateY(-5px);
+}
+.map-container {
+    margin-top: 20px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+.map-container iframe {
+    width: 100%;
+    height: 250px;
+    border: none;
+}
+.copyright {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+}
+
+/* NEW RESPONSIVE NAVBAR STYLES */
+@media (max-width: 991px) {
+    .hero-content h1 {
+        font-size: 3rem;
+    }
+
+    .section-title {
+        font-size: 2.2rem;
+    }
+
+    .footer-content {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    .projects-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+
+    .domain-header h3 {
+        font-size: 2rem;
+    }
+
+    nav ul {
+        position: fixed;
+        top: 80px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 80px);
+        background: white;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding-top: 50px;
+        transition: left 0.3s ease;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    nav ul.active {
+        left: 0;
+    }
+
+    nav ul li {
+        margin: 15px 0;
+    }
+
+    .mobile-menu-btn {
+        display: block;
+        margin-left: auto; /* Ensure it stays on right in mobile */
+    }
+
+    .nav-cta {
+        margin-left: 0 !important;
+        margin-top: 20px;
+    }
+        .dropdown-menu{
+        position: static;
+        background: none;
+        backdrop-filter: none;
+        box-shadow: none;
+        width: 100%;
+        border-radius: 0;
+        padding: 0;
+        min-width: 0;
+        z-index: auto;
+        display: none;
+    }
+}
+@media (max-width: 768px) {
+    body {
+        padding-top: 70px;
+    }
+
+    .header-container {
+        padding: 12px 0;
+        justify-content:flex-start;
+    }
+
+    .hero {
+        height: auto;
+        padding: 100px 0;
+    }
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .section {
+        padding: 80px 0;
+    }
+
+    .chat-widget {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .whatsapp-float {
+        bottom: 20px;
+        left: 20px;
+    }
+
+    .process-steps {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .process-step {
+        max-width: 400px;
+        margin-bottom: 30px;
+    }
+
+    .map-container iframe {
+        height: 200px;
+    }
+
+    .projects-container {
+        grid-template-columns: 1fr;
+    }
+
+    .domain-header h3 {
+        font-size: 1.8rem;
+    }
+
+    .domain-header p {
+        font-size: 1rem;
+    }
+
+    .domain-icon {
+        width: 60px;
+        height: 60px;
+    }
+
+    .domain-icon i {
+        font-size: 2rem;
+    }
+
+    nav ul {
+        top: 70px;
+        height: calc(100vh - 70px);
+    }
+}
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="{% url 'app:home' %}" class="logo">
+                <img src="{% static 'logo.png' %}" alt="Alric" width="100px">
+            </a>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'app:home' %}"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="{% url 'app:home' %}#about"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="{% url 'app:services' %}" class="nav-active"><i class="fas fa-cogs"></i> Services</a></li>
+                    <li class="dropdown">
+                        <a href="{% url 'app:home' %}#courses"><i class="fas fa-laptop-code"></i> Internship Training & Placements</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'app:home' %}#courses"><i class="fas fa-graduation-cap"></i> Internship Training</a></li>
+                            <li><a href="{% url 'app:home' %}#testimonials"><i class="fas fa-user-tie"></i>  Placements</a></li>
+                            <li><a href="{% url 'app:verify_certificate' %}"><i class="fas fa-certificate"></i> Verify Certificate</a></li>
+                        </ul>
+                    
+                    </li>
+                    <li><a href="{% url 'app:services' %}#projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
+                    <li><a href="{% url 'app:home' %}#gallery"><i class="fas fa-images"></i> Gallery</a></li>
+                    <li><a href="{% url 'app:careers' %}"><i class="fas fa-user-graduate"></i> Careers</a></li>
+                    
+                    <li><a href="{% url 'app:home' %}#contact" class="nav-cta"><i class="fas fa-phone-alt"></i> Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Our Services</h1>
+            <p>Comprehensive IT solutions to drive your business forward with cutting-edge technology</p>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="section services">
+        <div class="container">
+            <h2 class="section-title">What We Do</h2>
+
+            <div class="services-grid">
+                {% for service in services %}
+                <div class="service-card">
+                    <div class="service-icon">
+                        <img src="{{service.image.url}}" alt="{{service.name}}" width="100px">
+                    </div>
+                    <div class="service-content">
+                        <h3>{{service.name}}</h3>
+                        <p>
+                            {{service.description}}
+                        </p>
+
+                        <div class="service-features">
+                            {% for feature in service.key_points %}
+                            <div class="service-feature">
+                                <i class="fas fa-check-circle"></i>
+                                <span>{{feature}}</span>
+                            </div>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+
+                {% endfor %}
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="section process">
+        <div class="container">
+            <h2 class="section-title">How We Work</h2>
+
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Discovery</h3>
+                    <p class="step-description">We understand your business needs and objectives to define project scope and requirements.</p>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Planning</h3>
+                    <p class="step-description">Our team creates a detailed project plan with timelines, resources, and deliverables.</p>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Development</h3>
+                    <p class="step-description">We build your solution using industry best practices and cutting-edge technologies.</p>
+                </div>
+
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Delivery</h3>
+                    <p class="step-description">We deliver the final product with training, documentation, and ongoing support.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section - Full Width Design -->
+    <section id="projects" class="section projects">
+        <div class="container">
+            <h2 class="section-title">Our Projects</h2>
+            <p class="projects-intro">Explore our diverse portfolio of projects across different domains. Each project showcases our expertise and commitment to delivering innovative solutions.</p>
+
+            {% for domain in domains %}
+            <!-- Web Development Domain -->
+            <div class="domain-section">
+
+                <div class="domain-header">
+                    <div class="domain-icon">
+                        <img src="{{domain.image.url}}" alt="{{domain.name}}" width="50px">
+                    </div>
+                    <h3>{{domain.name}}</h3>
+                    <p>{{domain.description}}</p>
+                </div>
+
+                <div class="projects-container">
+                    {% for project in domain.project.all %}
+                    <div class="project-card">
+                        <div class="project-content">
+                            <h4>{{project.name}}</h4>
+                            <p>{{project.description}}</p>
+                            <div class="project-footer">
+                                <button class="whatsapp-btn" onclick="openWhatsApp('{{project.name}}')">
+                                    <i class="fab fa-whatsapp"></i> Enquire Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                </div>
+
+                <div class="domain-whatsapp-container">
+                    <a href="https://wa.me/{{contact.phone1}}?text=Hi,%20I'm%20interested%20in%20your%20Web%20Development%20solutions" class="domain-whatsapp" target="_blank">
+                        <i class="fab fa-whatsapp"></i> WhatsApp Entire Web Development Domain
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section cta">
+        <div class="container">
+            <h2>Ready to Transform Your Business?</h2>
+            <p>Get in touch with us today to discuss how our IT solutions can help drive your business forward.</p>
+            <a href="https://wa.me/{{contact.phone1}}?text=Hi,%20I'm%20interested%20in%20your%20IT%20solutions" class="btn btn-whatsapp" target="_blank"><i class="fab fa-whatsapp"></i> Contact Us on WhatsApp</a>
+        </div>
+    </section>
+<div class="whatsapp-float">
+        <a href="https://wa.me/91{{ contact.phone1 }}?text=Hi,%20I'm%20interested%20in%20learning%20more%20about%20your%20courses" class="whatsapp-button" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-button">
+            <i class="fas fa-comment-dots"></i>
+        </div>
+        <div class="chat-options">
+            <a href="https://wa.me/91{{ contact.phone1 }}?text=Hi,%20I%20have%20a%20question%20about%20your%20projects%20and%20about%20your%20servcies" class="chat-option whatsapp-option" target="_blank">
+                <i class="fab fa-whatsapp"></i>
+                WhatsApp Chat
+            </a>
+            <a href="tel:+91{{contact.phone1}}" class="chat-option phone-option">
+                <i class="fas fa-phone"></i>
+                Call Now
+            </a>
+            <a href="mailto:info@alric.com" class="chat-option email-option">
+                <i class="far fa-envelope"></i>
+                Email Us
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Alric Infotech Pvt Ltd</h3>
+                    <p>Advancing tech skills through high-quality, accessible education.</p>
+                    <div class="social-links">
+                        <a href="{{contact.facebook}}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="{{contact.twitter}}" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="{{contact.linkedin}}" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="{{contact.instagram}}" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="{{contact.youtube}}&sub_confirmation=1" target="_blank"><i class="fab fa-youtube"></i></a>
+
+                    </div>
+                    <div class="cert-logo">
+                            <img src="{% static 'iso.png' %}" alt="" width="100px">
+                            <img src="{% static 'qva.png' %}" alt="" width="100px">
+                            <img src="{% static 'gaafs-removebg.png' %}" alt="" width="100px">
+
+                        </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'app:home' %}"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="{% url 'app:home' %}#about"><i class="fas fa-chevron-right"></i> About</a></li>
+                        <li><a href="{% url 'app:services' %}#services"><i class="fas fa-chevron-right"></i> Services</a></li>
+                       <li class="dropdown">
+                        <a href="{% url 'app:home' %}#courses"><i class="fas fa-laptop-code"></i> Internship Training & Placements</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'app:home' %}#courses"><i class="fas fa-graduation-cap"></i> Internship Training</a></li>
+                            <li><a href="{% url 'app:home' %}#testimonials"><i class="fas fa-user-tie"></i>  Placements</a></li>
+                            
+                        </ul>
+                    
+                    </li>
+                        <li><a href="{% url 'app:home' %}#gallery"><i class="fas fa-chevron-right"></i> Gallery</a></li>
+                        <li><a href="{% url 'app:services' %}#projects"><i class="fas fa-chevron-right"></i> Projects</a></li>
+                        <li><a href="{% url 'app:careers' %}"><i class="fas fa-chevron-right"></i> Careers</a></li>
+                        <li><a href="{% url 'app:verify_certificate' %}"><i class="fas fa-chevron-right"></i> Verify Certificate</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i>{{contact.address}}</a></li>
+                        <li><a href="tel:+91{{contact.phone1}}"><i class="fas fa-phone"></i> +91 {{contact.phone1}}</a></li>
+                        <li><a href="tel:+91{{contact.phone2}}"><i class="fas fa-phone"></i> +91  {{contact.phone2}}</a></li>
+                        <li><a href="mailto:{{contact.email}}"><i class="far fa-envelope"></i> {{contact.email}}</a></li>
+                    </ul>
+                    <div class="map-container">
+                        {{contact.map_embed_url | safe}}
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Alric Infotech Pvt Ltd. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function openWhatsApp(projectName) {
+            const message = `Hi, I'm interested in learning more about your ${projectName} project. Could you please provide more details?`;
+            const whatsappUrl = `https://wa.me/{{contact.phone1}}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navMenu = document.querySelector('nav ul');
+
+            mobileMenuBtn.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+                mobileMenuBtn.innerHTML = navMenu.classList.contains('active') ?
+                    '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+            });
+
+            // Close menu when clicking on a link
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('active');
+                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

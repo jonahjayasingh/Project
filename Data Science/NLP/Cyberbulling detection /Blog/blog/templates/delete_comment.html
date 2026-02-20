@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Comment | CyberBlog{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 3rem auto;">
+    <div
+        style="background: white; padding: 3rem; border-radius: 24px; border: 1px solid var(--border); box-shadow: var(--shadow-xl);">
+        <div style="text-align: center; margin-bottom: 2.5rem;">
+            <div
+                style="width: 64px; height: 64px; background: #fef2f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                </svg>
+            </div>
+            <h1 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.75rem; color: var(--text-main);">Delete
+                Comment?</h1>
+            <p style="color: var(--text-secondary); font-size: 1rem;">This action cannot be undone.</p>
+        </div>
+
+        <div
+            style="background: var(--surface); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; border: 1px solid var(--border);">
+            <p style="color: var(--text-secondary); line-height: 1.6;">{{ comment.content|truncatewords:50 }}</p>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display: flex; gap: 1rem;">
+                <a href="{% url 'post_detail' comment.post.slug %}" class="btn btn-outline"
+                    style="flex: 1; text-align: center; padding: 0.875rem;">Cancel</a>
+                <button type="submit" class="btn" style="flex: 1; background: var(--danger); padding: 0.875rem;">Delete
+                    Comment</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

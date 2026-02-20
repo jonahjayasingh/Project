@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Test Environment</title>
+    <style>
+        /* CSS: Added #submit-confirm-modal to the .session-modal style */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            width: 90%;
+            max-width: 800px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .header {
+            background: #4a00e0;
+            color: white;
+            padding: 25px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .timer-container {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            padding: 10px;
+            margin: 15px auto;
+            width: 130px;
+        }
+        
+        #timer {
+            font-size: 28px;
+            font-weight: bold;
+        }
+        
+        .test-info {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .security-indicator {
+            display: flex;
+            align-items: center;
+            color: #28a745;
+            font-weight = bold;
+        }
+        
+        .security-indicator svg {
+            margin-right: 8px;
+        }
+        
+        .question {
+            padding: 25px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .question-number {
+            font-weight: bold;
+            color: #4a00e0;
+            margin-bottom: 10px;
+        }
+        
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .option:hover {
+            background: #e9ecef;
+            transform: translateX(5px);
+        }
+        
+        .option input {
+            margin-right: 15px;
+            cursor: pointer;
+        }
+        
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+        
+        button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        #prev-btn {
+            background: #6c757d;
+            color: white;
+        }
+        
+        #prev-btn:hover {
+            background: #5a6268;
+        }
+        
+        #next-btn {
+            background: #4a00e0;
+            color: white;
+        }
+        
+        #next-btn:hover {
+            background: #3a00b0;
+        }
+        
+        #submit-btn {
+            background: #28a745;
+            color: white;
+            display: block;
+            margin: 20px auto;
+            padding: 15px 40px;
+            font-size: 18px;
+        }
+        
+        #submit-btn:hover {
+            background: #218838;
+        }
+        
+        .time-warning {
+            color: #dc3545;
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .test-complete {
+            text-align: center;
+            padding: 40px;
+        }
+        
+        .test-complete h2 {
+            color: #4a00e0;
+            margin-bottom: 20px;
+        }
+        
+        .exit-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #ffc107;
+            color: #856404;
+            padding: 15px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .session-modal, #submit-confirm-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal-content h2 {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .modal-buttons button {
+            padding: 10px 20px;
+        }
+        
+        #stay-btn, #confirm-submit-btn {
+            background: #28a745;
+        }
+        
+        #leave-btn, #cancel-submit-btn {
+            background: #6c757d;
+        }
+        
+        .fullscreen-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.97);
+            color: white;
+            z-index: 3000;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .fullscreen-overlay h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #ff6b6b;
+        }
+        
+        .fullscreen-overlay p {
+            font-size: 18px;
+            margin-bottom: 30px;
+            max-width: 600px;
+            line-height: 1.6;
+        }
+        
+        #return-btn {
+            background: #4a00e0;
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #return-btn:hover {
+            background: #3a00b0;
+        }
+        
+        .attempt-counter {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        .fullscreen-message {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #ffc107;
+            color: #856404;
+            padding: 10px;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+        }
+        
+        .fullscreen-prompt {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 4000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .fullscreen-prompt h2 {
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+        
+        .fullscreen-prompt p {
+            margin-bottom: 30px;
+            font-size: 18px;
+            max-width: 600px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        
+        #start-test-btn {
+            background: #4a00e0;
+            color: white;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        #start-test-btn:hover {
+            background: #3a00b0;
+        }
+        
+        .submission-status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            text-align: center;
+            display: none;
+        }
+        
+        .submission-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .submission-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        .validation-error {
+            color: #dc3545;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .question {
+                padding: 15px;
+            }
+            
+            button {
+                padding: 10px 15px;
+            }
+            
+            .modal-buttons {
+                flex-direction: column;
+            }
+            
+            .test-info {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="exit-warning" id="exit-warning">
+        ⚠️ Warning: Your test is in progress. If you leave this page, your progress may be lost.
+    </div>
+    
+    <div class="fullscreen-message" id="fullscreen-message">
+        ⚠️ This test must be taken in full screen mode. Please allow full screen when prompted.
+    </div>
+    
+    <div class="fullscreen-prompt" id="fullscreen-prompt">
+        <h2>Full Screen Required </h2>
+        <p>This test must be taken in full screen mode for security reasons. Click the button below to start the test in full screen.</p>
+        <button id="start-test-btn">Start Test in Full Screen</button>
+    </div>
+    
+    <div class="session-modal" id="session-modal">
+        <div class="modal-content">
+            <h2>Test In Progress</h2>
+            <p>Your test timer is still running. Are you sure you want to leave?</p>
+            <p>If you leave, your test will be automatically submitted.</p>
+            <div class="modal-buttons">
+                <button id="stay-btn">Stay on Page</button>
+                <button id="leave-btn">Leave Anyway</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="submit-confirm-modal">
+        <div class="modal-content">
+            <h2 style="color: #4a00e0;">Confirm Submission</h2>
+            <p>Are you sure you want to submit your test?</p>
+            <p id="validation-message" style="display: none; color: #dc3545; font-weight: bold;"></p>
+            <div class="modal-buttons">
+                <button id="cancel-submit-btn">Cancel</button>
+                <button id="confirm-submit-btn">Yes, Submit</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="fullscreen-overlay" id="fullscreen-overlay">
+        <h2>⚠️ Test Integrity Warning</h2>
+        <p>You have attempted to switch away from the test window. This is not allowed during the examination.</p>
+        <p>Repeated attempts to leave the test may result in automatic submission of your answers.</p>
+        <button id="return-btn">Return to Test</button>
+        <div class="attempt-counter" id="attempt-counter">1</div>
+    </div>
+    
+    <div class="container" id="test-container" style="display: none;">
+        <div class="header">
+            <h1>Final Examination</h1>
+            <div class="timer-container">
+                <div id="timer">10:00</div>
+            </div>
+            <p>Complete the test before time runs out!</p>
+        </div>
+        
+        <div id="submission-status" class="submission-status"></div>
+        <div id="validation-error" class="validation-error"></div>
+        
+        <div class="test-info">
+            <p>Question <span id="current-question">1</span> of <span id="total-questions">{{total_questions}}</span></p>
+            <div class="security-indicator">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Secure Session Active</span>
+            </div>
+        </div>
+        
+        <div id="time-warning" class="time-warning" style="display: none;">
+            ⏰ Time is running out! Less than 1 minute remaining.
+        </div>
+        
+        <form id="test-form" method="post">
+            {% csrf_token %}
+            <input type="hidden" name="event_name" value="{{ mcq.event_name }}">
+
+            {% for question_data in mcq.mcq_questions %}
+            <div class="question" id="question-{{ forloop.counter }}" style="display: {% if forloop.first %}block{% else %}none{% endif %};">
+                <div class="question-number">Question {{ forloop.counter }}:</div>
+                <div class="question-text">{{ question_data.text }}</div>
+                
+                <div class="options">
+                    {% for option in question_data.options %}
+                    <label class="option">
+                        <input type="radio" name="q{{ forloop.parentloop.counter }}" value="{{ option }}" required> 
+                        {{ option }}
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+            
+            <div class="navigation">
+                <button type="button" id="prev-btn" >Previous</button>
+                <button type="button" id="next-btn">Next</button>
+            </div>
+            
+            <button type="submit" id="submit-btn">Submit Test</button>
+        </form>
+        
+        <div id="test-complete" class="test-complete" style="display: none;">
+            <h2>Test Completed!</h2>
+            <p>Your test has been submitted successfully.</p>
+            <p id="submission-message">Thank you for completing the test.</p>
+        </div>
+    </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Test configuration
+        const totalQuestions = {{ total_questions }};
+        let currentQuestion = 1;
+        let timeLeft = {{mcq.mcq_duration}} * 60;
+        let timerInterval;
+        let testActive = false;
+        let leaveAttempts = 0;
+        let isFullScreen = false;
+        let dataSubmitted = false;
+        
+        // DOM elements
+        const timerDisplay = document.getElementById('timer');
+        const currentQuestionElement = document.getElementById('current-question');
+        const prevButton = document.getElementById('prev-btn');
+        const nextButton = document.getElementById('next-btn');
+        const submitButton = document.getElementById('submit-btn');
+        const testForm = document.getElementById('test-form');
+        const testComplete = document.getElementById('test-complete');
+        const timeWarning = document.getElementById('time-warning');
+        const exitWarning = document.getElementById('exit-warning');
+        const sessionModal = document.getElementById('session-modal');
+        const stayButton = document.getElementById('stay-btn');
+        const leaveButton = document.getElementById('leave-btn');
+        const fullscreenOverlay = document.getElementById('fullscreen-overlay');
+        const returnButton = document.getElementById('return-btn');
+        const attemptCounter = document.getElementById('attempt-counter');
+        const fullscreenMessage = document.getElementById('fullscreen-message');
+        const fullscreenPrompt = document.getElementById('fullscreen-prompt');
+        const startTestButton = document.getElementById('start-test-btn');
+        const testContainer = document.getElementById('test-container');
+        const submissionStatus = document.getElementById('submission-status');
+        const submissionMessage = document.getElementById('submission-message');
+        const validationError = document.getElementById('validation-error');
+        const validationMessage = document.getElementById('validation-message');
+
+        // NEW: Elements for the submit confirmation modal
+        const submitConfirmModal = document.getElementById('submit-confirm-modal');
+        const confirmSubmitBtn = document.getElementById('confirm-submit-btn');
+        const cancelSubmitBtn = document.getElementById('cancel-submit-btn');
+        
+        // Show the fullscreen prompt initially
+        fullscreenPrompt.style.display = 'flex';
+        
+        // Event listeners
+        startTestButton.addEventListener('click', startTest);
+        prevButton.addEventListener('click', showPreviousQuestion);
+        nextButton.addEventListener('click', showNextQuestion);
+        submitButton.addEventListener('click', handleSubmit);
+        testForm.addEventListener('submit', handleFormSubmit);
+        stayButton.addEventListener('click', closeModal);
+        leaveButton.addEventListener('click', leavePage);
+        returnButton.addEventListener('click', returnToTest);
+
+        // NEW: Event listeners for the confirmation modal
+        cancelSubmitBtn.addEventListener('click', function() {
+            submitConfirmModal.style.display = 'none';
+            validationMessage.style.display = 'none';
+        });
+
+        confirmSubmitBtn.addEventListener('click', function() {
+            // Check if all questions are answered before proceeding with manual submission
+            if (checkAllQuestionsAnswered()) {
+                submitConfirmModal.style.display = 'none';
+                testActive = false;
+                clearInterval(timerInterval);
+                // Don't remove required attributes for manual submission
+                submitTestDataTraditional("Test submitted successfully!");
+            } else {
+                // Show error message in modal
+                validationMessage.textContent = "Please answer all questions before submitting.";
+                validationMessage.style.display = 'block';
+            }
+        });
+        
+        // Function to check if all questions are answered
+        function checkAllQuestionsAnswered() {
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionName = 'q' + i;
+                const answered = document.querySelector(`input[name="${questionName}"]:checked`);
+                if (!answered) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        
+        // Function to remove required attributes from all inputs
+        function removeRequiredAttributes() {
+            const allInputs = document.querySelectorAll('input[required]');
+            allInputs.forEach(input => {
+                input.removeAttribute('required');
+            });
+        }
+        
+        // Start test function
+        function startTest() {
+            fullscreenPrompt.style.display = 'none';
+            testContainer.style.display = 'block';
+            requestFullscreen();
+            testActive = true;
+            updateNavigationButtons();
+            startTimer();
+            setupSessionProtection();
+        }
+        
+        // Timer function
+        function startTimer() {
+            updateTimerDisplay();
+            
+            timerInterval = setInterval(function() {
+                timeLeft--;
+                updateTimerDisplay();
+                
+                if (timeLeft === 60) {
+                    timeWarning.style.display = 'block';
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    // Only remove required attributes when time runs out
+                    removeRequiredAttributes();
+                    autoSubmitTest();
+                }
+            }, 1000);
+        }
+        
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeLeft <= 60) {
+                timerDisplay.style.color = '#dc3545';
+            }
+        }
+        
+        function autoSubmitTest() {
+            if (!testActive) return;
+            testActive = false;
+            
+            // Show submission status
+            submissionStatus.textContent = "Time's up! Submitting your test automatically...";
+            submissionStatus.className = "submission-status";
+            submissionStatus.style.display = "block";
+            
+            // Disable all inputs and buttons
+            document.querySelectorAll('input, button').forEach(el => {
+                el.disabled = true;
+            });
+            
+            // Create a hidden form that will actually be submitted
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = '';
+            hiddenForm.style.display = 'none';
+            
+            // Get the CSRF token from the original form
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            hiddenForm.appendChild(csrfInput);
+            
+            // Add mcq_id
+            const mcqIdInput = document.createElement('input');
+            mcqIdInput.type = 'hidden';
+            mcqIdInput.name = 'event_name';
+            mcqIdInput.value = '{{ mcq.event_name }}';
+            hiddenForm.appendChild(mcqIdInput);
+            
+            // Add submission type
+            const submissionInput = document.createElement('input');
+            submissionInput.type = 'hidden';
+            submissionInput.name = 'submission_type';
+            submissionInput.value = 'auto_timeout';
+            hiddenForm.appendChild(submissionInput);
+            
+            // Add all radio button answers
+            const radioInputs = document.querySelectorAll('input[type="radio"]:checked');
+            radioInputs.forEach(radio => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = radio.name;
+                input.value = radio.value;
+                hiddenForm.appendChild(input);
+            });
+            
+            // Add all unanswered questions as empty values
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionName = 'q' + i;
+                const existingAnswer = document.querySelector(`input[name="${questionName}"]:checked`);
+                if (!existingAnswer) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = questionName;
+                    input.value = '';
+                    hiddenForm.appendChild(input);
+                }
+            }
+            
+            // Add the form to the document and submit it
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+        }
+        
+        function showNextQuestion() {
+            if (currentQuestion < totalQuestions) {
+                document.getElementById(`question-${currentQuestion}`).style.display = 'none';
+                currentQuestion++;
+                document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+                updateNavigationButtons();
+            }
+        }
+        
+        function showPreviousQuestion() {
+            if (currentQuestion > 1) {
+                document.getElementById(`question-${currentQuestion}`).style.display = 'none';
+                currentQuestion--;
+                document.getElementById(`question-${currentQuestion}`).style.display = 'block';
+                updateNavigationButtons();
+            }
+        }
+        
+        function updateNavigationButtons() {
+            currentQuestionElement.textContent = currentQuestion;
+            prevButton.disabled = currentQuestion === 1;
+            nextButton.disabled = currentQuestion === totalQuestions;
+        }
+        
+        // MODIFIED: This function now checks if all questions are answered before showing confirmation modal
+        function handleSubmit(e) {
+            e.preventDefault(); 
+            
+            // Check if all questions are answered
+            if (!checkAllQuestionsAnswered()) {
+                validationError.textContent = "Please answer all questions before submitting the test.";
+                validationError.style.display = 'block';
+                
+                // Hide the error message after 5 seconds
+                setTimeout(() => {
+                    validationError.style.display = 'none';
+                }, 5000);
+                return;
+            }
+            
+            // If all questions are answered, show confirmation modal
+            validationMessage.style.display = 'none';
+            submitConfirmModal.style.display = 'flex';
+        }
+        
+        function handleFormSubmit(e) {
+            if (!dataSubmitted) {
+                e.preventDefault();
+            }
+        }
+        
+        function submitTestDataTraditional(message) {
+            if (dataSubmitted) return;
+            dataSubmitted = true;
+
+            submissionStatus.textContent = "Submitting your answers...";
+            submissionStatus.className = "submission-status";
+            submissionStatus.style.display = "block";
+
+            submitButton.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+            submitButton.disabled = true;
+
+            const answerLabels = document.querySelectorAll('.option');
+            answerLabels.forEach(label => {
+                label.style.pointerEvents = 'none';
+                label.style.cursor = 'default';
+                label.style.opacity = '0.6';
+            });
+
+            // Create a hidden form that will actually be submitted
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = '';
+            hiddenForm.style.display = 'none';
+            
+            // Get the CSRF token from the original form
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            hiddenForm.appendChild(csrfInput);
+            
+            // Add mcq_id
+            const mcqIdInput = document.createElement('input');
+            mcqIdInput.type = 'hidden';
+            mcqIdInput.name = 'event_name';
+            mcqIdInput.value = '{{ mcq.event_name }}';
+            hiddenForm.appendChild(mcqIdInput);
+            
+            // Add submission type
+            const submissionInput = document.createElement('input');
+            submissionInput.type = 'hidden';
+            submissionInput.name = 'submission_type';
+            submissionInput.value = 'manual';
+            hiddenForm.appendChild(submissionInput);
+            
+            // Add all radio button answers
+            const radioInputs = document.querySelectorAll('input[type="radio"]:checked');
+            radioInputs.forEach(radio => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = radio.name;
+                input.value = radio.value;
+                hiddenForm.appendChild(input);
+            });
+            
+            // Add all unanswered questions as empty values
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionName = 'q' + i;
+                const existingAnswer = document.querySelector(`input[name="${questionName}"]:checked`);
+                if (!existingAnswer) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = questionName;
+                    input.value = '';
+                    hiddenForm.appendChild(input);
+                }
+            }
+            
+            // Add the form to the document and submit it
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+        }
+        
+        function setupSessionProtection() {
+            window.addEventListener('beforeunload', handleBeforeUnload);
+            window.addEventListener('pagehide', handlePageHide);
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            document.addEventListener('mouseleave', handleMouseLeave);
+            window.addEventListener('popstate', handlePopState);
+            document.addEventListener('keydown', handleKeyDown);
+            document.addEventListener('contextmenu', handleContextMenu);
+            document.addEventListener('dragstart', handleDragStart);
+            document.addEventListener('selectstart', handleSelectStart);
+        }
+        
+        function removeSessionProtection() {
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            window.removeEventListener('pagehide', handlePageHide);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            document.removeEventListener('mouseleave', handleMouseLeave);
+            window.removeEventListener('popstate', handlePopState);
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('contextmenu', handleContextMenu);
+            document.removeEventListener('dragstart', handleDragStart);
+            document.removeEventListener('selectstart', handleSelectStart);
+        }
+        
+        function handleBeforeUnload(e) {
+            if (testActive && !dataSubmitted) {
+                e.preventDefault();
+                e.returnValue = 'Your test is in progress. If you leave, your progress may be lost.';
+                return e.returnValue;
+            }
+        }
+        
+        function handlePageHide(e) {
+            if (testActive && !dataSubmitted) {
+                e.preventDefault();
+            }
+        }
+        
+        function handleVisibilityChange() {
+            if (testActive && document.hidden && !dataSubmitted) {
+                showFullscreenWarning();
+                window.focus();
+            }
+        }
+        
+        function handleMouseLeave(e) {
+            if (testActive && e.clientY < 0 && !dataSubmitted) {
+                exitWarning.style.display = 'block';
+                setTimeout(() => {
+                    exitWarning.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        function handlePopState(e) {
+            if (testActive && !dataSubmitted) {
+                e.preventDefault();
+                showFullscreenWarning();
+                history.pushState(null, null, window.location.href);
+            }
+        }
+        
+        function handleKeyDown(e) {
+            if (testActive && !dataSubmitted && (
+                e.key === 'F5' || 
+                e.key === 'F4' || 
+                (e.altKey && e.key === 'Tab') ||
+                (e.ctrlKey && (e.key === 'r' || e.key === 'R')) ||
+                (e.ctrlKey && (e.key === 'w' || e.key === 'W')) ||
+                (e.altKey && (e.key === 'F4')) ||
+                (e.metaKey && (e.key === 'r' || e.key === 'R'))
+            )) {
+                e.preventDefault();
+                showFullscreenWarning();
+            }
+        }
+        
+        function handleContextMenu(e) {
+            if (testActive && !dataSubmitted) {
+                e.preventDefault();
+                showFullscreenWarning();
+            }
+        }
+        
+        function handleDragStart(e) {
+            if (testActive && !dataSubmitted) {
+                e.preventDefault();
+            }
+        }
+        
+        function handleSelectStart(e) {
+            if (testActive && !dataSubmitted) {
+                e.preventDefault();
+            }
+        }
+        
+        function showFullscreenWarning() {
+            if (dataSubmitted) return;
+            
+            leaveAttempts++;
+            attemptCounter.textContent = leaveAttempts;
+            fullscreenOverlay.style.display = 'flex';
+            
+            if (leaveAttempts >= 3) {
+                // Only remove required attributes when forced to submit due to violations
+                removeRequiredAttributes();
+                
+                // Create a hidden form that will actually be submitted
+                const hiddenForm = document.createElement('form');
+                hiddenForm.method = 'POST';
+                hiddenForm.action = '';
+                hiddenForm.style.display = 'none';
+                
+                // Get the CSRF token from the original form
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                
+                // Add CSRF token
+                const csrfInput = document.createElement('input');
+                csrfInput.type = 'hidden';
+                csrfInput.name = 'csrfmiddlewaretoken';
+                csrfInput.value = csrfToken;
+                hiddenForm.appendChild(csrfInput);
+                
+                // Add mcq_id
+                const mcqIdInput = document.createElement('input');
+                mcqIdInput.type = 'hidden';
+                mcqIdInput.name = 'event_name';
+                mcqIdInput.value = '{{ mcq.event_name }}';
+                hiddenForm.appendChild(mcqIdInput);
+                
+                // Add submission type
+                const submissionInput = document.createElement('input');
+                submissionInput.type = 'hidden';
+                submissionInput.name = 'submission_type';
+                submissionInput.value = 'auto_leave';
+                hiddenForm.appendChild(submissionInput);
+                
+                // Add all radio button answers
+                const radioInputs = document.querySelectorAll('input[type="radio"]:checked');
+                radioInputs.forEach(radio => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = radio.name;
+                    input.value = radio.value;
+                    hiddenForm.appendChild(input);
+                });
+                
+                // Add all unanswered questions as empty values
+                for (let i = 1; i <= totalQuestions; i++) {
+                    const questionName = 'q' + i;
+                    const existingAnswer = document.querySelector(`input[name="${questionName}"]:checked`);
+                    if (!existingAnswer) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = questionName;
+                        input.value = '';
+                        hiddenForm.appendChild(input);
+                    }
+                }
+                
+                // Add the form to the document
+                document.body.appendChild(hiddenForm);
+                
+                setTimeout(() => {
+                    hiddenForm.submit();
+                    fullscreenOverlay.style.display = 'none';
+                }, 2000);
+            }
+        }
+        
+        function returnToTest() {
+            fullscreenOverlay.style.display = 'none';
+            requestFullscreen();
+        }
+        
+        function closeModal() {
+            sessionModal.style.display = 'none';
+        }
+        
+        function leavePage() {
+            testActive = false;
+            // Only remove required attributes when leaving page
+            removeRequiredAttributes();
+            
+            // Create a hidden form that will actually be submitted
+            const hiddenForm = document.createElement('form');
+            hiddenForm.method = 'POST';
+            hiddenForm.action = '';
+            hiddenForm.style.display = 'none';
+            
+            // Get the CSRF token from the original form
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            
+            // Add CSRF token
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            hiddenForm.appendChild(csrfInput);
+            
+            // Add mcq_id
+            const mcqIdInput = document.createElement('input');
+            mcqIdInput.type = 'hidden';
+            mcqIdInput.name = 'event_name';
+            mcqIdInput.value = '{{ mcq.event_name }}';
+            hiddenForm.appendChild(mcqIdInput);
+            
+            // Add submission type
+            const submissionInput = document.createElement('input');
+            submissionInput.type = 'hidden';
+            submissionInput.name = 'submission_type';
+            submissionInput.value = 'auto_leave';
+            hiddenForm.appendChild(submissionInput);
+            
+            // Add all radio button answers
+            const radioInputs = document.querySelectorAll('input[type="radio"]:checked');
+            radioInputs.forEach(radio => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = radio.name;
+                input.value = radio.value;
+                hiddenForm.appendChild(input);
+            });
+            
+            // Add all unanswered questions as empty values
+            for (let i = 1; i <= totalQuestions; i++) {
+                const questionName = 'q' + i;
+                const existingAnswer = document.querySelector(`input[name="${questionName}"]:checked`);
+                if (!existingAnswer) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = questionName;
+                    input.value = '';
+                    hiddenForm.appendChild(input);
+                }
+            }
+            
+            // Add the form to the document and submit it
+            document.body.appendChild(hiddenForm);
+            hiddenForm.submit();
+            removeSessionProtection();
+        }
+        
+        function requestFullscreen() {
+            const docElement = document.documentElement;
+            if (docElement.requestFullscreen) {
+                docElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen request failed:', err);
+                    fullscreenMessage.style.display = 'block';
+                });
+            } else if (docElement.mozRequestFullScreen) {
+                docElement.mozRequestFullScreen();
+            } else if (docElement.webkitRequestFullscreen) {
+                docElement.webkitRequestFullscreen();
+            } else if (docElement.msRequestFullscreen) {
+                docElement.msRequestFullscreen();
+            }
+            isFullScreen = true;
+        }
+        
+        function exitFullscreen() {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.mozCancelFullScreen) {
+                document.mozCancelFullScreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            isFullScreen = false;
+        }
+        
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement && 
+                !document.webkitFullscreenElement && 
+                !document.mozFullScreenElement &&
+                !document.msFullscreenElement && testActive && !dataSubmitted) {
+                isFullScreen = false;
+                showFullscreenWarning();
+                requestFullscreen();
+            } else {
+                isFullScreen = true;
+                fullscreenMessage.style.display = 'none';
+            }
+        }
+        
+        history.pushState(null, null, window.location.href);
+        window.addEventListener('popstate', function(event) {
+            history.pushState(null, null, window.location.href);
+            if (testActive && !dataSubmitted) {
+                showFullscreenWarning();
+            }
+        });
+    });
+</script>
+</body>
+</html>

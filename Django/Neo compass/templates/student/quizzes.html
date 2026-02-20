@@ -1,0 +1,20 @@
+{% extends 'base.html' %} {% block content %}
+<h1 class="fw-bold mb-5">
+  Knowledge <span class="text-gradient">Quizzes</span>
+</h1>
+<div class="row g-4">
+  {% for quiz in quizzes %}
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h5 class="fw-bold">{{ quiz.domain.name }} - Assessment</h5>
+      <p class="text-muted">{{ quiz.question|truncatewords:10 }}</p>
+      <a
+        href="{% url 'take_quiz' quiz.id %}"
+        class="btn btn-outline-primary mt-3"
+        >Take Quiz (20 Points)</a
+      >
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}Become a Seller - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 680px; margin-top: 3rem;">
+    <div class="card fade-in" style="border: none; box-shadow: var(--shadow-2xl);">
+        <div class="card-header"
+            style="background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%); color: white; padding: 2.5rem; text-align: center; border: none;">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem;">🚀</div>
+            <h1 style="color: white; font-size: 2.25rem; margin-bottom: 0.75rem;">Become a Seller</h1>
+            <p style="font-size: 1.125rem; opacity: 0.95; margin: 0;">Start your journey to selling on our platform</p>
+        </div>
+
+        <div class="card-body" style="padding: 3rem;">
+            <form method="post">
+                {% if not session.get('user_id') %}
+                <div
+                    style="background: var(--primary-subtle); padding: 1.5rem; border-radius: var(--radius-lg); margin-bottom: 2rem;">
+                    <h3 style="font-size: 1.25rem; margin-bottom: 1rem; color: var(--primary-dark);">Account Information
+                    </h3>
+
+                    <div class="form-group">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" id="username" name="username" class="form-input" required autofocus
+                            placeholder="Choose a username">
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" id="password" name="password" class="form-input" required
+                                    placeholder="Create a password">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="confirm_password" class="form-label">Confirm Password</label>
+                                <input type="password" id="confirm_password" name="confirm_password" class="form-input"
+                                    required placeholder="Confirm password">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <h3 style="font-size: 1.25rem; margin-bottom: 1.5rem; color: var(--text-dark);">Seller Information</h3>
+
+                <div class="form-group">
+                    <label for="display_name" class="form-label">Display Name *</label>
+                    <input type="text" id="display_name" name="display_name" class="form-input" required
+                        placeholder="Your shop or brand name">
+                    <small style="color: var(--text-medium); display: block; margin-top: 0.5rem;">
+                        This is how customers will see you
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="company_name" class="form-label">Company Name</label>
+                    <input type="text" id="company_name" name="company_name" class="form-input"
+                        placeholder="Optional: Your company name">
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea id="description" name="description" class="form-textarea"
+                        placeholder="Tell customers about your shop..."></textarea>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="business_email" class="form-label">Business Email</label>
+                            <input type="email" id="business_email" name="business_email" class="form-input"
+                                placeholder="contact@example.com">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="business_phone" class="form-label">Business Phone</label>
+                            <input type="tel" id="business_phone" name="business_phone" class="form-input"
+                                placeholder="+1 (555) 123-4567">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="website_url" class="form-label">Website</label>
+                    <input type="url" id="website_url" name="website_url" class="form-input"
+                        placeholder="https://yourwebsite.com">
+                </div>
+
+                <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color);">
+                    <div
+                        style="background: #fef3c7; padding: 1.25rem; border-radius: var(--radius-lg); margin-bottom: 1.5rem;">
+                        <p style="margin: 0; color: #92400e; font-size: 0.9375rem;">
+                            ⚠️ <strong>Note:</strong> Your seller account will need to be approved by an administrator
+                            before you can start listing products.
+                        </p>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
+                        Submit Seller Application →
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

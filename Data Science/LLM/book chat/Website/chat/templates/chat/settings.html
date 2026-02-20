@@ -1,0 +1,268 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block title %}Knowledge Core - DocuChat AI{% endblock %}
+
+{% block extra_css %}
+:root { --settings-width: 1300px; }
+@media (max-width: 1100px) {
+.settings-layout { grid-template-columns: 1fr !important; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="neural-overlay" id="neural-overlay"
+    style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(1, 1, 1, 0.96); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); display: {% if is_processing %}flex{% else %}none{% endif %}; align-items: center; justify-content: center; z-index: 10000; animation: fadeIn 0.5s ease;">
+    <div class="neural-card"
+        style="background: var(--bg-secondary); border: 1px solid var(--glass-border); padding: 5rem; border-radius: var(--radius-lg); text-align: center; max-width: 600px; width: 90%; box-shadow: 0 50px 150px rgba(0, 0, 0, 0.9);">
+        <div class="neural-spinner"
+            style="width: 100px; height: 100px; border: 4px solid rgba(255,255,255,0.03); border-top: 4px solid var(--accent-primary); border-radius: 50%; animation: spin 1s infinite cubic-bezier(0.4, 0, 0.2, 1); margin: 0 auto 4rem auto; filter: drop-shadow(0 0 20px var(--accent-glow));">
+        </div>
+        <div id="progress-container">
+            <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1rem; letter-spacing: -1px;">INITIALIZING
+                NEURAL PATHS</h2>
+        </div>
+        <p
+            style="color: var(--text-tertiary); font-size: 0.9rem; letter-spacing: 1px; text-transform: uppercase; font-weight: 700;">
+            DECRYPTING & VECTORIZING KNOWLEDGE • DO NOT INTERRUPT
+        </p>
+    </div>
+</div>
+
+<div class="settings-wrapper"
+    style="padding: 6rem 3rem; display: flex; flex-direction: column; align-items: center; z-index: 1;">
+    <header class="settings-header"
+        style="width: 100%; max-width: var(--settings-width); margin-bottom: 6rem; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 1s ease;">
+        <a href="{% url 'index' %}" class="btn btn-secondary">
+            <i class="fas fa-chevron-left"></i> RETURN TO INTERFACE
+        </a>
+        <h1 class="settings-title"
+            style="font-size: 4.5rem; font-weight: 900; letter-spacing: -4px; background: linear-gradient(to bottom, #ffffff 40%, #888); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.4));">
+            CORE_CONFIG</h1>
+        <div style="width: 200px;"></div>
+    </header>
+
+    <div class="settings-layout"
+        style="width: 100%; max-width: var(--settings-width); display: grid; grid-template-columns: 1fr 450px; gap: 4rem; animation: slideUp 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;">
+        <div class="main-column">
+            <section class="console-card"
+                style="background: rgba(15, 15, 15, 0.4); backdrop-filter: blur(50px) saturate(180%); -webkit-backdrop-filter: blur(50px) saturate(180%); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 4rem; box-shadow: var(--shadow-lg); transition: var(--transition); position: relative; overflow: hidden;"
+                onmouseover="this.style.borderColor='rgba(16, 163, 127, 0.3)'; this.style.transform='translateY(-8px)'; this.style.boxShadow='0 60px 120px rgba(0, 0, 0, 0.7)'"
+                onmouseout="this.style.borderColor='var(--glass-border)'; this.style.transform='none'; this.style.boxShadow='var(--shadow-lg)'">
+                <div class="console-header"
+                    style="display: flex; align-items: center; gap: 2.5rem; margin-bottom: 4rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--border-color);">
+                    <div class="console-icon"
+                        style="width: 70px; height: 70px; background: var(--grad-accent); display: flex; align-items: center; justify-content: center; border-radius: 22px; font-size: 1.8rem; color: #fff; box-shadow: 0 15px 30px var(--accent-glow);">
+                        <i class="fas fa-layer-group"></i>
+                    </div>
+                    <h2 class="console-h2"
+                        style="font-size: 2.2rem; font-weight: 800; letter-spacing: -1.5px; background: linear-gradient(to right, #fff, #bbb); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                        Knowledge Enclave</h2>
+                </div>
+
+                <div class="console-content">
+                    {% if messages %}
+                    <div style="margin-bottom: 3rem;">
+                        {% for message in messages %}
+                        <div
+                            style="background: rgba(16, 163, 127, 0.1); border: 1px solid var(--accent-primary); color: #fff; padding: 1.5rem 2rem; border-radius: 20px; font-weight: 700; display: flex; align-items: center; gap: 15px;">
+                            <i class="fas fa-check-circle" style="color: var(--accent-primary);"></i>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <form id="upload-form" action="{% url 'upload_documents' %}" method="post"
+                        enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="upload-zone" onclick="document.getElementById('document-upload').click()"
+                            style="background: rgba(0, 0, 0, 0.2); border: 2px dashed rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 4rem; text-align: center; cursor: pointer; transition: var(--transition); margin-bottom: 2.5rem;"
+                            onmouseover="this.style.background='rgba(16, 163, 127, 0.04)'; this.style.borderColor='var(--accent-primary)'; this.style.transform='scale(1.01)'"
+                            onmouseout="this.style.background='rgba(0,0,0,0.2)'; this.style.borderColor='rgba(255,255,255,0.1)'; this.style.transform='none'">
+                            <input type="file" name="documents" id="document-upload" multiple accept=".pdf,.txt"
+                                style="display: none;">
+                            <i class="fas fa-cloud-bolt"
+                                style="font-size: 3.5rem; color: var(--accent-primary); margin-bottom: 2rem; filter: drop-shadow(0 0 15px var(--accent-glow)); display: inline-block;"></i>
+                            <h3 style="font-size: 1.5rem; font-weight: 800; margin-bottom: 0.8rem;">Attach Knowledge
+                                Fragments</h3>
+                            <p style="color: var(--text-tertiary); font-weight: 600;">DRAG & DROP OR BROADCAST LOCAL
+                                FILES</p>
+                        </div>
+
+                        {% if user.is_superuser %}
+                        <div
+                            style="display: flex; align-items: center; gap: 1.5rem; background: rgba(255,255,255,0.02); padding: 1.5rem 2rem; border-radius: 20px; border: 1px solid var(--glass-border); margin-bottom: 2.5rem;">
+                            <input type="checkbox" name="is_global" id="is_global" checked
+                                style="width: 24px; height: 24px; accent-color: var(--accent-primary);">
+                            <label for="is_global"
+                                style="font-weight: 700; color: var(--text-secondary); cursor: pointer;">ESTABLISH
+                                GLOBAL NEURAL PERSISTENCE</label>
+                        </div>
+                        {% endif %}
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1.4rem;">
+                            START VECTORIZATION SEQUENCE <i class="fas fa-microchip" style="margin-left: 12px;"></i>
+                        </button>
+                    </form>
+
+                    <div style="margin-top: 6rem;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;">
+                            <h3 style="font-size: 1.8rem; font-weight: 800; letter-spacing: -1px;">ACTIVE REPOSITORY
+                            </h3>
+                            {% if library_books %}
+                            <form action="{% url 'clear_library' %}" method="post"
+                                onsubmit="return confirm('Permanently clear all documents from your local library?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn"
+                                    style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); padding: 0.8rem 1.8rem; font-size: 0.75rem;">
+                                    CLEAR ALL
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+
+                        <div class="library-grid"
+                            style="display: flex; flex-direction: column; gap: 1.2rem; margin-top: 3rem;">
+                            {% for book in library_books %}
+                            <div class="book-card"
+                                style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--glass-border); border-radius: 20px; padding: 1.8rem 2.2rem; display: flex; align-items: center; gap: 2rem; transition: var(--transition);"
+                                onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.borderColor='rgba(255, 255, 255, 0.15)'; this.style.transform='translateX(10px)'"
+                                onmouseout="this.style.background='rgba(255, 255, 255, 0.02)'; this.style.borderColor='var(--glass-border)'; this.style.transform='none'">
+                                <i class="fas {% if book.name|lower|slice:'-3:' == 'pdf' %}fa-file-pdf{% else %}fa-file-code{% endif %}"
+                                    style="font-size: 1.8rem; color: var(--accent-primary); filter: drop-shadow(0 0 8px var(--accent-glow));"></i>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                                        <span style="font-weight: 800; font-size: 1.05rem;">{{ book.name }}</span>
+                                        <div style="display: flex; align-items: center; gap: 1.5rem;">
+                                            <span class="pill-badge"
+                                                style="padding: 6px 14px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-radius: 100px; {% if book.is_global %}background: var(--grad-accent); color: #fff;{% else %}background: rgba(255,255,255,0.08); color: var(--text-secondary);{% endif %}">
+                                                {{ book.is_global|yesno:"Global,Link-Locked" }}
+                                            </span>
+
+                                            {% if not book.is_global or user.is_superuser %}
+                                            <form action="{% url 'delete_document' book.id %}" method="post">
+                                                {% csrf_token %}
+                                                <button type="submit"
+                                                    style="background: none; border: none; color: var(--text-tertiary); cursor: pointer; transition: color 0.3s;"
+                                                    onmouseover="this.style.color='#ef4444'"
+                                                    onmouseout="this.style.color='var(--text-tertiary)'">
+                                                    <i class="fas fa-trash-alt"></i>
+                                                </button>
+                                            </form>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                    <div
+                                        style="font-size: 0.75rem; color: var(--text-tertiary); font-weight: 700; margin-top: 0.6rem; letter-spacing: 1px;">
+                                        OPERATOR: {{ book.owner|upper }} | FRAGMENT_ID: #{{ book.id }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div
+                                style="padding: 6rem; text-align: center; background: rgba(255,255,255,0.01); border-radius: 28px; border: 2px dashed rgba(255,255,255,0.05);">
+                                <p style="color: var(--text-tertiary); font-weight: 700; letter-spacing: 2px;">
+                                    REPOSITORY EMPTY • AWAITING DATA INPUT</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="sidebar-column" style="display: flex; flex-direction: column; gap: 4rem;">
+            <section class="console-card info-panel"
+                style="background: linear-gradient(135deg, rgba(16, 163, 127, 0.15), rgba(0, 0, 0, 0.4)); border: 1px solid rgba(16, 163, 127, 0.2); padding: 4rem; border-radius: var(--radius-lg); position: relative; overflow: hidden;">
+                <div class="console-header" style="border: none; margin-bottom: 2rem;">
+                    <div class="console-icon"
+                        style="width: 70px; height: 70px; background: var(--grad-premium); display: flex; align-items: center; justify-content: center; border-radius: 22px; font-size: 1.8rem; color: #fff; box-shadow: 0 15px 30px rgba(168, 85, 247, 0.3);">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h2 class="console-h2"
+                        style="font-size: 2.2rem; font-weight: 800; letter-spacing: -1.5px; background: linear-gradient(to right, #fff, #bbb); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+                        Neural Spec</h2>
+                </div>
+                <div class="tech-item"
+                    style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">
+                    <i class="fas fa-brain" style="color: var(--accent-primary);"></i> MODEL: LLAVA-7B (MULTIMODAL)
+                </div>
+                <div class="tech-item"
+                    style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">
+                    <i class="fas fa-diagram-project" style="color: #6366f1;"></i> RETRIEVAL: TOP-K VECTOR RAG
+                </div>
+                <div class="tech-item"
+                    style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">
+                    <i class="fas fa-database" style="color: #fbbf24;"></i> V-DB: CHROMADB (PERSISTED)
+                </div>
+                <div class="tech-item"
+                    style="display: flex; align-items: center; gap: 15px; margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--text-secondary); font-weight: 600;">
+                    <i class="fas fa-fingerprint" style="color: #10a37f;"></i> LOCAL_OFFLINE_DEPLOYMENT
+                </div>
+            </section>
+
+            <section class="console-card"
+                style="background: rgba(15, 15, 15, 0.4); border: 1px solid var(--glass-border); border-radius: var(--radius-lg); padding: 3rem; position: relative; overflow: hidden;">
+                <h3 style="font-size: 1.1rem; font-weight: 800; margin-bottom: 2rem; letter-spacing: 1px;">SYSTEM
+                    INTEGRITY</h3>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: rgba(16, 163, 127, 0.05); border-radius: 16px;">
+                        <span
+                            style="font-size: 0.8rem; font-weight: 800; color: var(--text-secondary);">RAG_LOADER</span>
+                        <span style="color: var(--accent-primary); font-weight: 900; font-size: 0.8rem;">OPTIMAL</span>
+                    </div>
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: rgba(99, 102, 241, 0.05); border-radius: 16px;">
+                        <span
+                            style="font-size: 0.8rem; font-weight: 800; color: var(--text-secondary);">ENCRYPTION</span>
+                        <span style="color: #6366f1; font-weight: 900; font-size: 0.8rem;">ACTIVE</span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const fileInput = document.getElementById('document-upload');
+    const uploadZone = document.querySelector('.upload-zone');
+    const uploadForm = document.getElementById('upload-form');
+    const overlay = document.getElementById('neural-overlay');
+
+    if (fileInput) {
+        fileInput.addEventListener('change', function () {
+            if (this.files.length > 0) {
+                uploadZone.style.borderColor = 'var(--accent-primary)';
+                uploadZone.querySelector('p').textContent = `${this.files.length} FRAGMENTS READY FOR BROADCAST`;
+            }
+        });
+    }
+
+    if (uploadForm) {
+        uploadForm.addEventListener('submit', function (e) {
+            if (fileInput.files.length > 0) {
+                overlay.style.display = 'flex';
+                htmx.ajax('GET', '{% url "upload_progress" %}', {
+                    target: '#progress-container',
+                    swap: 'innerHTML'
+                });
+            }
+        });
+    }
+
+    // Trigger polling on load if we are already processing
+    {% if is_processing %}
+    document.addEventListener('DOMContentLoaded', function () {
+        htmx.ajax('GET', '{% url "upload_progress" %}', {
+            target: '#progress-container',
+            swap: 'innerHTML'
+        });
+    });
+    {% endif %}
+</script>
+{% endblock %}

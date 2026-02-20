@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}My Profile - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">👤 My Profile</h1>
+    <p style="color: var(--text-medium); font-size: 1.125rem;">Manage your account information</p>
+</div>
+
+<div class="alert alert-info mb-4"
+    style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1)); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-md); padding: 1rem;">
+    <strong>📋 Complete Profile Required for Checkout</strong><br>
+    <small>All fields are required to place orders. Please fill in your complete profile information.</small>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 style="margin: 0;">Profile Information</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    <div class="form-group">
+                        <label for="full_name" class="form-label">Full Name *</label>
+                        <input type="text" id="full_name" name="full_name" class="form-input" required
+                            value="{{ profile.full_name if profile else '' }}" placeholder="Enter your full name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address" class="form-label">Address *</label>
+                        <textarea id="address" name="address" class="form-textarea" required
+                            placeholder="Enter your address">{{ profile.address if profile else '' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone_number" class="form-label">Phone Number *</label>
+                        <input type="tel" id="phone_number" name="phone_number" class="form-input" required
+                            value="{{ profile.phone_number if profile else '' }}" placeholder="Enter your phone number">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 style="margin: 0;">Account Info</h3>
+            </div>
+            <div class="card-body">
+                <p style="margin-bottom: 1rem;">
+                    <strong>Username:</strong><br>
+                    {{ session.username }}
+                </p>
+                <a href="{{ url_for('customer.orders') }}" class="btn btn-secondary"
+                    style="width: 100%; margin-bottom: 0.5rem;">
+                    View My Orders
+                </a>
+                <a href="{{ url_for('customer.view_cart') }}" class="btn btn-secondary" style="width: 100%;">
+                    View My Cart
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

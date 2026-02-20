@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-speedometer2"></i> Admin Dashboard</h2>
+    <span class="text-muted">Welcome, {{ user.get_full_name }}</span>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card stat-card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Total Patients</h6>
+                        <h2 class="mb-0">{{ total_patients }}</h2>
+                        <small>{{ active_patients }} active</small>
+                    </div>
+                    <i class="bi bi-people stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Today's Appointments</h6>
+                        <h2 class="mb-0">{{ today_appointments }}</h2>
+                        <small>{{ pending_appointments }} pending</small>
+                    </div>
+                    <i class="bi bi-calendar-check stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Active Admissions</h6>
+                        <h2 class="mb-0">{{ active_admissions }}</h2>
+                        <small>{{ available_beds }} beds available</small>
+                    </div>
+                    <i class="bi bi-hospital stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card stat-card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h6 class="text-uppercase mb-1">Revenue (30 days)</h6>
+                        <h2 class="mb-0">₹{{ revenue|floatformat:0 }}</h2>
+                        <small>{{ pending_bills }} pending bills</small>
+                    </div>
+                    <i class="bi bi-currency-rupee stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Info Cards -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-door-open"></i> Bed Availability</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4">
+                        <h3 class="text-primary">{{ total_beds }}</h3>
+                        <p class="text-muted">Total Beds</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-danger">{{ occupied_beds }}</h3>
+                        <p class="text-muted">Occupied</p>
+                    </div>
+                    <div class="col-4">
+                        <h3 class="text-success">{{ available_beds }}</h3>
+                        <p class="text-muted">Available</p>
+                    </div>
+                </div>
+                <div class="progress" style="height: 25px;">
+                    {% if total_beds > 0 %}
+                    <div class="progress-bar bg-danger" role="progressbar"
+                        style="width: {% widthratio occupied_beds total_beds 100 %}%">
+                        {% widthratio occupied_beds total_beds 100 %}% Occupied
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-exclamation-triangle"></i> Alerts</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-warning mb-2">
+                    <i class="bi bi-capsule"></i> <strong>{{ low_stock_medicines }}</strong> medicines are low in stock
+                </div>
+                <div class="alert alert-info mb-2">
+                    <i class="bi bi-receipt"></i> <strong>{{ pending_bills }}</strong> bills are pending payment
+                </div>
+                <div class="alert alert-success mb-0">
+                    <i class="bi bi-calendar-check"></i> <strong>{{ pending_appointments }}</strong> appointments
+                    pending confirmation
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2">
+                        <a href="{% url 'patients:patient_create' %}" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-person-plus"></i><br>Add Patient
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="{% url 'appointments:appointment_create' %}"
+                            class="btn btn-outline-success w-100 mb-2">
+                            <i class="bi bi-calendar-plus"></i><br>New Appointment
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/admin/doctors/doctor/add/" class="btn btn-outline-info w-100 mb-2">
+                            <i class="bi bi-person-badge"></i><br>Add Doctor
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/admin/billing/bill/add/" class="btn btn-outline-warning w-100 mb-2">
+                            <i class="bi bi-receipt"></i><br>Create Bill
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/admin/rooms/admission/add/" class="btn btn-outline-danger w-100 mb-2">
+                            <i class="bi bi-hospital"></i><br>Admit Patient
+                        </a>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="/admin/" class="btn btn-outline-secondary w-100 mb-2">
+                            <i class="bi bi-gear"></i><br>Admin Panel
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

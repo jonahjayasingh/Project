@@ -1,0 +1,4 @@
+<option value="">---------</option>
+{% for test in tests %}
+<option value="{{ test.id }}" data-price="{{ test.price }}">{{ test.test_name }} (₹{{ test.price }})</option>
+{% endfor %}

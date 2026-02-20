@@ -1,0 +1,31 @@
+<!-- User Message -->
+<div class="message-row user">
+    <div class="msg-avatar ua-gradient">
+        <i class="fas fa-fingerprint"></i>
+    </div>
+    <div class="msg-content">
+        <div class="msg-header">
+            <span class="msg-name">Operator</span>
+            <span class="msg-role-badge role-user">CMD</span>
+        </div>
+        <div class="msg-text">
+            {{ user_message.content|linebreaks }}
+        </div>
+    </div>
+</div>
+
+<!-- Assistant Message -->
+<div class="message-row assistant">
+    <div class="msg-avatar ai-gradient">
+        <i class="fas fa-atom"></i>
+    </div>
+    <div class="msg-content">
+        <div class="msg-header">
+            <span class="msg-name">Neural Core</span>
+            <span class="msg-role-badge role-ai">GEN</span>
+        </div>
+        <div class="msg-text">
+            {{ assistant_message.content|linebreaks }}
+        </div>
+    </div>
+</div>

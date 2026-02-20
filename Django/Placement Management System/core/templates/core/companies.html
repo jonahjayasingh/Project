@@ -1,0 +1,154 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Companies Database | PlacementPro{% endblock %}
+
+{% block layout %}
+<main style="display: block;">
+    <div style="width: 100%; max-width: 1400px;">
+        <!-- Header -->
+        <div style="margin-bottom: 2.5rem;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1
+                        style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); margin: 0; letter-spacing: -0.5px;">
+                        Companies
+                    </h1>
+                </div>
+                <div
+                    style="padding: 0.875rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 8px; height: 8px; background: var(--secondary); border-radius: 50%;"></div>
+                        <div>
+                            <div
+                                style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 0.125rem;">
+                                Total Registered
+                            </div>
+                            <div
+                                style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); line-height: 1;">
+                                {{ companies|length }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); margin: 0; font-size: 1rem; max-width: 600px;">
+                Manage company registrations and approve access to the placement system
+            </p>
+        </div>
+
+        <!-- Companies Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 25%;">Company</th>
+                        <th style="width: 15%;">Industry</th>
+                        <th style="width: 18%;">Location</th>
+                        <th style="width: 18%;">Contact</th>
+                        <th style="width: 12%;">Status</th>
+                        <th style="width: 12%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for company in companies %}
+                    <tr style="transition: all 0.2s;">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.875rem;">
+                                <div
+                                    style="width: 44px; height: 44px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9375rem; font-weight: 700; color: white; flex-shrink: 0; box-shadow: var(--shadow-sm);">
+                                    {{ company.company_name.0|upper }}
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.125rem; font-size: 0.9375rem;">
+                                        {{ company.company_name }}
+                                    </div>
+                                    <div style="font-size: 0.8125rem; color: var(--text-secondary); font-weight: 500;">
+                                        {{ company.user.username }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="color: var(--text-primary); font-weight: 600; font-size: 0.9375rem;">
+                                {{ company.industry }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="color: var(--text-primary); font-weight: 600; font-size: 0.9375rem;">
+                                {{ company.location }}
+                            </span>
+                        </td>
+                        <td>
+                            <div>
+                                <div
+                                    style="font-size: 0.8125rem; color: var(--text-primary); font-weight: 600; margin-bottom: 0.25rem;">
+                                    {{ company.contact_email }}
+                                </div>
+                                <div style="font-size: 0.8125rem; color: var(--text-secondary); font-weight: 500;">
+                                    {{ company.contact_phone }}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if company.is_approved %}
+                            <span
+                                style="padding: 0.375rem 0.875rem; background: rgba(16, 185, 129, 0.1); border-radius: 6px; color: var(--success); font-size: 0.8125rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.375rem;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Approved
+                            </span>
+                            {% else %}
+                            <span
+                                style="padding: 0.375rem 0.875rem; background: rgba(245, 158, 11, 0.1); border-radius: 6px; color: var(--warning); font-size: 0.8125rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.375rem;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                </svg>
+                                Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'approve_company' company.id %}"
+                                style="padding: 0.5rem 1rem; background: {% if company.is_approved %}rgba(239, 68, 68, 0.1){% else %}rgba(16, 185, 129, 0.1){% endif %}; border: 1.5px solid {% if company.is_approved %}var(--danger){% else %}var(--success){% endif %}; border-radius: 6px; color: {% if company.is_approved %}var(--danger){% else %}var(--success){% endif %}; text-decoration: none; font-weight: 700; font-size: 0.8125rem; transition: all 0.2s; display: inline-block; white-space: nowrap;"
+                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='var(--shadow-sm)'"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                {% if company.is_approved %}Revoke{% else %}Approve{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 5rem 2rem;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+                                <div
+                                    style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        stroke="var(--text-tertiary)" stroke-width="2">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.375rem; font-size: 1.25rem;">
+                                        No Companies Yet
+                                    </div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9375rem;">
+                                        Companies will appear here once they register for the placement system
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+{% endblock %}

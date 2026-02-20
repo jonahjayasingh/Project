@@ -1,0 +1,56 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Pending Approval | PlacementPro{% endblock %}
+
+{% block layout %}
+<main>
+    <div class="glass-card">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div
+                style="width: 80px; height: 80px; background: rgba(255, 230, 109, 0.15); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; font-size: 2.5rem; border: 2px solid var(--accent);">
+                ⏳
+            </div>
+            <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1rem;">Approval Pending</h2>
+            <p style="color: var(--text-secondary); font-size: 1rem; max-width: 400px; margin: 0 auto;">Your
+                registration is under review by the college administration.</p>
+        </div>
+
+        <div
+            style="background: rgba(255, 230, 109, 0.1); border: 1.5px solid rgba(255, 230, 109, 0.3); border-radius: 20px; padding: 2rem; margin-bottom: 2rem;">
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--accent);">Your Details
+            </h3>
+            <div style="display: grid; gap: 1rem;">
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <span style="color: var(--text-secondary); font-weight: 600;">Username:</span>
+                    <span style="font-weight: 700;">{{ user.username }}</span>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <span style="color: var(--text-secondary); font-weight: 600;">Register Number:</span>
+                    <span style="font-weight: 700;">{{ profile.register_number }}</span>
+                </div>
+                <div
+                    style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
+                    <span style="color: var(--text-secondary); font-weight: 600;">Department:</span>
+                    <span style="font-weight: 700;">{{ profile.department }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                    <span style="color: var(--text-secondary); font-weight: 600;">Year:</span>
+                    <span style="font-weight: 700;">{{ profile.year_of_study }}th Year</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 2rem; background: rgba(255, 255, 255, 0.02); border-radius: 16px;">
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem; line-height: 1.7;">
+                <strong style="color: var(--text-primary);">What's next?</strong><br>
+                The placement cell administrator will review your application. You'll receive access to your dashboard
+                once approved. Please check back later or contact your placement officer for updates.
+            </p>
+            <a href="{% url 'logout' %}" class="btn-secondary"
+                style="display: inline-block; text-decoration: none;">Logout</a>
+        </div>
+    </div>
+</main>
+{% endblock %}

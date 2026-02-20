@@ -1,0 +1,54 @@
+<nav class="navbar navbar-expand-lg border-bottom sticky-top">
+    <div class="container text-align-center">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <span class="me-2">🥗</span> SmartFood
+        </a>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse"
+            data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                </li>
+                {% if user.role == 'donor' %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'chatbot' %}"><i class="bi bi-robot"></i> AI Assistant</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link bg-primary text-white px-4" href="{% url 'create_donation' %}">+ New Donation</a>
+                </li>
+                {% endif %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'donation_history' %}"><i class="bi bi-clock-history"></i>
+                        History</a>
+                </li>
+                <li class="nav-item ms-lg-3">
+                    <div class="dropdown">
+                        <a class="btn btn-light rounded-pill px-3 py-2 border d-flex align-items-center dropdown-toggle fw-semibold"
+                            href="#" role="button" data-bs-toggle="dropdown">
+                            <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=4F46E5&color=fff"
+                                class="rounded-circle me-2" width="28">
+                            {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg mt-2 rounded-4 p-2">
+                            <li><a class="dropdown-item py-2 px-3 rounded-3" href="{% url 'logout' %}">Logout
+                                    Account</a></li>
+                        </ul>
+                    </div>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'login' %}">Login</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-primary text-white ms-lg-2 px-4 shadow-sm"
+                        href="{% url 'register' %}">Get Started</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

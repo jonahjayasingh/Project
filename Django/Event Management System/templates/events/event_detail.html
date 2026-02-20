@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ event.name }} - Event Details{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="text-white">
+            <i class="bi bi-calendar-event"></i> {{ event.name }}
+        </h1>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'events:event_update' event.pk %}" class="btn btn-warning">
+            <i class="bi bi-pencil"></i> Edit
+        </a>
+        <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Delete
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Event Details -->
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Event Information</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <strong><i class="bi bi-calendar"></i> Date:</strong>
+                        <p>{{ event.date }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong><i class="bi bi-geo-alt"></i> Venue:</strong>
+                        <p>{{ event.venue }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <strong><i class="bi bi-people"></i> Expected Guests:</strong>
+                        <p>{{ event.expected_guests }}</p>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <p><span class="badge bg-success fs-6">Rs. {{ event.budget }}</span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vendor Bookings -->
+        <div class="card mb-4">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-bookmark-check"></i> Vendor Bookings</h5>
+                <a href="{% url 'bookings:booking_create' %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus"></i> Book Vendor
+                </a>
+            </div>
+            <div class="card-body">
+                {% if bookings %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Vendor</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>{{ booking.vendor.name }}</td>
+                                <td>{{ booking.vendor.category }}</td>
+                                <td>Rs. {{ booking.price }}</td>
+                                <td><span class="badge bg-success">{{ booking.status }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">No vendor bookings yet.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Guest List -->
+        <div class="card">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-people"></i> Guest List</h5>
+                <a href="{% url 'guests:guest_create' %}" class="btn btn-sm btn-primary">
+                    <i class="bi bi-plus"></i> Add Guest
+                </a>
+            </div>
+            <div class="card-body">
+                {% if guests %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Contact</th>
+                                <th>Category</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for guest in guests %}
+                            <tr>
+                                <td>{{ guest.name }}</td>
+                                <td>{{ guest.contact }}</td>
+                                <td><span class="badge bg-info">{{ guest.category }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center mb-0">No guests added yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Budget Tracker -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-calculator"></i> Budget Tracker</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <small class="text-muted">Total Budget</small>
+                    <h4 class="text-success">Rs. {{ event.budget }}</h4>
+                </div>
+
+                <div class="mb-3">
+                    <small class="text-muted">Total Bookings Cost</small>
+                    <h4 class="text-danger">- Rs. {{ total_bookings }}</h4>
+                </div>
+
+                <hr>
+
+                <div>
+                    <small class="text-muted">Remaining Balance</small>
+                    <h3 class="{% if remaining_budget >= 0 %}text-success{% else %}text-danger{% endif %}">
+                        Rs. {{ remaining_budget }}
+                    </h3>
+                    {% if remaining_budget < 0 %} <small class="text-danger">
+                        <i class="bi bi-exclamation-triangle"></i> Over budget!
+                        </small>
+                        {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-white">
+                <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Budget Breakdown</h6>
+            </div>
+            <div class="card-body">
+                <div class="progress mb-2" style="height: 25px;">
+                    {% widthratio total_bookings event.budget 100 as percentage %}
+                    <div class="progress-bar {% if percentage > 100 %}bg-danger{% else %}bg-primary{% endif %}"
+                        role="progressbar"
+                        style="width: {% if percentage > 100 %}100{% else %}{{ percentage }}{% endif %}%">
+                        {{ percentage }}%
+                    </div>
+                </div>
+                <small class="text-muted">Budget utilized</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col">
+        <a href="{% url 'events:event_list' %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Events
+        </a>
+    </div>
+</div>
+{% endblock %}

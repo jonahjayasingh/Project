@@ -1,0 +1,253 @@
+{% extends 'resorts/base.html' %}
+
+{% block title %}Check-In Verification{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="page-header text-center mb-5 animate-in">
+            <h6 class="text-primary fw-800 text-uppercase tracking-widest mb-3">CONCIERGE ACCESS</h6>
+            <h1 class="display-3 fw-bold mb-0">Identity <span class="gradient-text">Verification</span></h1>
+            <p class="text-muted fs-5 mt-2">Authenticated resort entry via QR Scan or OTP.</p>
+        </div>
+
+        <div class="card border-0 shadow-premium animate-in"
+            style="border-radius: 40px; overflow: hidden; background: var(--bg-card);">
+
+            <!-- Dual Mode Navigation -->
+            <ul class="nav nav-pills nav-fill p-3 bg-light m-4 mb-0" style="border-radius: 20px;">
+                <li class="nav-item">
+                    <button class="nav-link active fw-800 py-3" id="manual-tab" data-bs-toggle="pill"
+                        data-bs-target="#manual-mode" style="border-radius: 14px;">
+                        <i class="bi bi-keyboard me-2"></i> MANUAL ENTRY
+                    </button>
+                </li>
+                <li class="nav-item">
+                    <button class="nav-link fw-800 py-3" id="scan-tab" data-bs-toggle="pill" data-bs-target="#scan-mode"
+                        style="border-radius: 14px;">
+                        <i class="bi bi-qr-code-scan me-2"></i> NEURAL SCANNER
+                    </button>
+                </li>
+            </ul>
+
+            <div class="card-body p-5">
+                <div class="tab-content">
+                    <!-- Manual Mode -->
+                    <div class="tab-pane fade show active" id="manual-mode">
+                        {% if booking %}
+                        <div class="animate-in" style="animation-duration: 0.8s;">
+                            <div class="bg-success-subtle p-5 rounded-4 mb-4"
+                                style="border: 2px dashed rgba(25, 135, 84, 0.3);">
+                                <div class="bg-success text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-4 shadow-lg"
+                                    style="width: 80px; height: 80px;">
+                                    <i class="bi bi-check-lg display-4"></i>
+                                </div>
+                                <h2 class="fw-800 text-success-emphasis mb-1">CLEARED FOR ENTRY</h2>
+                                <p class="smallest fw-800 text-uppercase tracking-widest text-success opacity-75">
+                                    IDENTITY VERIFIED | STATUS: CHECKED-IN</p>
+                            </div>
+
+                            <div class="text-start bg-light p-5 rounded-4 border">
+                                <h6 class="smallest text-primary fw-800 text-uppercase tracking-widest mb-4">Manifest
+                                    Intelligence</h6>
+
+                                <div class="d-flex align-items-center gap-4 mb-5">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-800 fs-2 shadow-sm"
+                                        style="width: 65px; height: 65px;">
+                                        {{ booking.user.username|first|upper }}
+                                    </div>
+                                    <div>
+                                        <h4 class="fw-800 mb-0">{{ booking.user.username|upper }}</h4>
+                                        <p class="smallest text-muted fw-800 text-uppercase tracking-widest mb-0"><i
+                                                class="bi bi-envelope-fill me-2"></i>{{ booking.user.email }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="row g-4 mb-4">
+                                    <div class="col-6">
+                                        <label
+                                            class="smallest text-muted fw-800 text-uppercase tracking-widest mb-1 d-block">Party
+                                            Size</label>
+                                        <div class="fw-800 fs-5">{{ booking.guests_count }} GUESTS</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label
+                                            class="smallest text-muted fw-800 text-uppercase tracking-widest mb-1 d-block">Duration</label>
+                                        <div class="fw-800 fs-5">{{ booking.check_in|date:"M d" }} - {{
+                                            booking.check_out|date:"M d" }}</div>
+                                    </div>
+                                </div>
+
+                                <hr class="my-4">
+
+                                <h6 class="smallest text-muted fw-800 text-uppercase tracking-widest mb-3">Suite
+                                    Allocation</h6>
+                                {% for br in booking.booked_rooms.all %}
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="fw-800 text-dark">{{ br.quantity }} × {{ br.room.room_type }}</span>
+                                    <span
+                                        class="badge bg-white text-primary border rounded-pill px-3 py-1 fw-800 smallest">VERIFIED</span>
+                                </div>
+                                {% endfor %}
+
+                                <div class="d-grid mt-5 pt-3">
+                                    <a href="{% url 'check_in_verification' %}"
+                                        class="btn btn-outline-primary py-3 fw-800 rounded-4 border-2">
+                                        <i class="bi bi-arrow-left me-2"></i>NEXT ARRIVAL
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="mb-5">
+                            <div class="bg-primary-subtle d-inline-flex align-items-center justify-content-center mb-4"
+                                style="width: 100px; height: 100px; border-radius: 30px;">
+                                <i class="bi bi-qr-code-scan display-4 text-primary"></i>
+                            </div>
+                            <h3 class="fw-bold">OTP Verification</h3>
+                            <p class="text-muted">Ask the guest for their 6-digit verification code.</p>
+                        </div>
+
+                        <form method="POST" id="verification-form">
+                            {% csrf_token %}
+                            <div class="mb-4">
+                                <label
+                                    class="smallest text-primary fw-800 text-uppercase tracking-widest mb-3 d-block">Resort
+                                    Node ID</label>
+                                <div class="premium-input-wrapper">
+                                    <input type="text" name="booking_id" id="booking_id_input"
+                                        class="form-control text-center fs-5 fw-800" placeholder="Enter ID" required
+                                        style="border-radius: 18px; padding: 1.2rem;">
+                                </div>
+                            </div>
+                            <div class="mb-5">
+                                <label
+                                    class="smallest text-primary fw-800 text-uppercase tracking-widest mb-3 d-block">Verification
+                                    Hash (OTP)</label>
+                                <div class="premium-input-wrapper">
+                                    <input type="text" name="otp" id="otp_input"
+                                        class="form-control text-center fs-1 fw-800" placeholder="······" maxlength="6"
+                                        required
+                                        style="border-radius: 18px; padding: 1.2rem; letter-spacing: 12px; color: var(--primary);">
+                                </div>
+                            </div>
+                            <div class="d-grid shadow-premium-hover">
+                                <button type="submit" class="btn btn-primary btn-lg py-4"
+                                    style="border-radius: 20px; font-weight: 800;">
+                                    <i class="bi bi-shield-lock-fill me-3"></i>AUTHENTICATE ACCESS
+                                </button>
+                            </div>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <!-- Scanner Mode -->
+                    <div class="tab-pane fade" id="scan-mode">
+                        <div class="text-center mb-5">
+                            <div id="reader"
+                                style="width: 100%; border-radius: 24px; overflow: hidden; border: none !important;">
+                            </div>
+                            <div id="scan-result-overlay" class="mt-4 p-4 rounded-4 animate-in"
+                                style="display: none; background: rgba(var(--primary-rgb), 0.1);">
+                                <h6 class="smallest fw-800 text-primary text-uppercase tracking-widest mb-2">PASS
+                                    DETECTED</h6>
+                                <p class="mb-0 fw-800 fs-5 text-dark" id="detected-id">BOOKING #00</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5 animate-in" style="animation-delay: 0.2s;">
+            <p class="text-muted fw-500">System is operating in real-time. <a href="{% url 'admin_booking_list' %}"
+                    class="text-primary fw-800 text-decoration-none ms-2">EXPLORE LOGS <i
+                        class="bi bi-arrow-right"></i></a></p>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    function onScanSuccess(decodedText, decodedResult) {
+        // Parse format: BOOKING-{id}-OTP-{otp}
+        const regex = /BOOKING-(\d+)-OTP-(\d{6})/;
+        const match = decodedText.match(regex);
+
+        if (match) {
+            const bookingId = match[1];
+            const otp = match[2];
+
+            // Visual feedback
+            const overlay = document.getElementById('scan-result-overlay');
+            const detectedText = document.getElementById('detected-id');
+            detectedText.textContent = `RESORT PASS #${bookingId}`;
+            overlay.style.display = 'block';
+
+            // Auto-populate manual form and submit
+            document.getElementById('booking_id_input').value = bookingId;
+            document.getElementById('otp_input').value = otp;
+
+            // Stop scanning and submit
+            html5QrCode.stop().then(() => {
+                document.getElementById('verification-form').submit();
+            }).catch(err => {
+                console.error("Stop failed", err);
+                document.getElementById('verification-form').submit();
+            });
+        }
+    }
+
+    const html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+
+    document.getElementById('scan-tab').addEventListener('click', () => {
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+    });
+
+    document.getElementById('manual-tab').addEventListener('click', () => {
+        if (html5QrCode.isScanning) {
+            html5QrCode.stop();
+        }
+    });
+
+    // Initial start if scanner tab is active
+    if (document.getElementById('scan-mode').classList.contains('active')) {
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+    }
+</script>
+
+<style>
+    .premium-input-wrapper input {
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .premium-input-wrapper input:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .nav-pills .nav-link {
+        color: var(--text-muted);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .nav-pills .nav-link.active {
+        background: white;
+        color: var(--primary);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    #reader__dashboard_section_csr button {
+        background: var(--primary) !important;
+        border: none !important;
+        padding: 10px 20px !important;
+        border-radius: 10px !important;
+        color: white !important;
+        font-weight: 700 !important;
+    }
+</style>
+{% endblock %}

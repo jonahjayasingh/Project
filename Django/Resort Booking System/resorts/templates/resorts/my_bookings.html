@@ -1,0 +1,210 @@
+{% extends 'resorts/base.html' %}
+{% block title %}My Active Itineraries | Paradise Resorts{% endblock %}
+
+{% block content %}
+<!-- Elite Itinerary Header -->
+<div class="row align-items-end mb-5 animate-in">
+    <div class="col-lg-7">
+        <h6 class="text-primary fw-800 text-uppercase tracking-widest mb-3">YOUR ITINERARY</h6>
+        <h1 class="display-3 fw-800 mb-0">Active <span class="gradient-text">Expeditions</span></h1>
+        <p class="text-muted fs-5 mt-2 fw-500">Orchestrating your upcoming journeys within the global network.</p>
+    </div>
+    <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
+        <a href="{% url 'booking_history' %}" class="btn btn-light px-5 py-3 shadow-sm"
+            style="border-radius: 18px; font-weight: 800; border: 1px solid var(--border);">
+            <i class="bi bi-clock-history me-3"></i>PAST DESTINATIONS
+        </a>
+    </div>
+</div>
+
+{% if bookings %}
+<div class="row g-5 animate-in" style="animation-delay: 0.1s;">
+    {% for booking in bookings %}
+    <div class="col-lg-6">
+        <div class="card border-0 p-4 p-xl-5 shadow-premium h-100"
+            style="border-radius: 40px; background: var(--bg-card);">
+            <div class="d-flex justify-content-between align-items-start mb-5">
+                <div>
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <span
+                            class="badge {% if booking.status == 'Pending' %}bg-warning-subtle text-warning{% elif booking.status == 'Confirmed' %}bg-success-subtle text-success{% else %}bg-primary-subtle text-primary{% endif %} px-3 py-2 border-0 fw-800 smallest tracking-widest">
+                            {{ booking.status|upper }}
+                        </span>
+                        {% if not booking.is_paid %}
+                        <span
+                            class="badge bg-danger-subtle text-danger px-3 py-2 border-0 fw-800 smallest tracking-widest">
+                            UNPAID
+                        </span>
+                        {% endif %}
+                        <span class="smallest text-muted fw-800 text-uppercase tracking-widest opacity-50">NODE ID
+                            #{{booking.id }}</span>
+                    </div>
+                    <h2 class="fw-800 mb-2">{{ booking.booked_rooms.first.room.resort.name }}</h2>
+                    <p class="text-muted fw-500 mb-0"><i
+                            class="bi bi-geo-alt-fill text-primary me-2"></i>{{booking.booked_rooms.first.room.resort.location
+                        }}</p>
+                </div>
+                {% if booking.status == 'Pending' %}
+                <form action="{% url 'cancel_booking' booking.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit"
+                        class="btn btn-action-danger p-3 d-flex align-items-center justify-content-center"
+                        style="border-radius: 16px; width: 54px; height: 54px;"
+                        onclick="return confirm('Relinquish your reservation at {{ booking.booked_rooms.first.room.resort.name }}?')">
+                        <i class="bi bi-x-lg fs-5"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+
+            <div class="row g-4 mb-5 p-5" style="border-radius: 32px; background: #f8fafc;">
+                <div class="col-6">
+                    <h6 class="smallest text-primary fw-800 text-uppercase tracking-widest mb-3">Check-In Node</h6>
+                    <div class="fs-4 fw-800 text-dark">{{ booking.check_in|date:"D, d M" }}</div>
+                </div>
+                <div class="col-6 border-start ps-5">
+                    <h6 class="smallest text-primary fw-800 text-uppercase tracking-widest mb-3">Check-Out Node</h6>
+                    <div class="fs-4 fw-800 text-dark">{{ booking.check_out|date:"D, d M"|upper }}</div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <h6 class="smallest text-muted fw-800 text-uppercase tracking-widest mb-4">Configuration Details</h6>
+                {% for br in booking.booked_rooms.all %}
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="fw-800 fs-5">{{ br.quantity }} × {{ br.room.room_type }}</div>
+                    <div class="text-primary fw-800 fs-5">₹ {{ br.room.price }}</div>
+                </div>
+                {% endfor %}
+                <div class="d-flex justify-content-between align-items-center pt-4 border-top mt-4">
+                    <div class="fw-800 text-uppercase tracking-widest smallest text-muted">Total Investment</div>
+                    <div class="h3 fw-800 text-dark mb-0">₹ {{ booking.total_price }}</div>
+                </div>
+            </div>
+
+            {% if booking.status == 'Confirmed' and booking.is_paid %}
+            <div class="card border-0 p-4 shadow-lg bg-dark text-white" style="border-radius: 32px;">
+                <div class="row align-items-center">
+                    <div class="col-sm-4 text-center mb-4 mb-sm-0">
+                        <div class="bg-white p-3 d-inline-block shadow-sm" style="border-radius: 20px;">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BOOKING-{{ booking.id }}-OTP-{{ booking.decrypted_otp }}"
+                                alt="Access QR" class="img-fluid" style="width: 100px;">
+                        </div>
+                    </div>
+                    <div class="col-sm-8 text-center text-sm-start">
+                        <h5 class="fw-800 mb-2 text-uppercase tracking-widest smallest text-primary">Priority Pass</h5>
+                        <p class="smallest text-white opacity-50 mb-4">Present at verification node for seamless entry.
+                        </p>
+                        <div class="bg-white bg-opacity-10 py-3 px-4 fw-800 fs-3 rounded-4 text-center"
+                            style="letter-spacing: 8px;">
+                            {{ booking.decrypted_otp }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% elif not booking.is_paid and booking.status != 'Cancelled' %}
+            <div class="card border-0 p-4 shadow-lg bg-primary-subtle"
+                style="border-radius: 32px; border: 2px dashed var(--primary) !important;">
+                <div class="row align-items-center">
+                    <div class="col-md-7 mb-4 mb-md-0">
+                        <h5 class="fw-800 mb-1 text-primary">Payment Required</h5>
+                        <p class="smallest text-muted mb-0 fw-600">Your resort is held but not yet secured. Complete
+                            payment to receive your digital pass.</p>
+                    </div>
+                    <div class="col-md-5">
+                        <a href="{% url 'complete_payment' booking.id %}"
+                            class="btn btn-primary w-100 py-3 shadow-premium"
+                            style="border-radius: 16px; font-weight: 800;">
+                            <i class="bi bi-credit-card me-2"></i>PAY NOW
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% elif booking.status == 'Checked-In' %}
+            <div class="card border-0 p-4 shadow-lg bg-warning-subtle"
+                style="border-radius: 32px; border: 2px dashed rgba(255, 193, 7, 0.5) !important;">
+                <div class="row align-items-center">
+                    <div class="col-md-7 mb-4 mb-md-0">
+                        <h5 class="fw-800 mb-1 text-warning-emphasis">Live Testimonial</h5>
+                        <p class="smallest text-muted mb-0 fw-600">You are currently experiencing this resort. Share
+                            your elite impressions with the world.</p>
+                    </div>
+                    <div class="col-md-5">
+                        <a href="{% url 'add_review' booking.booked_rooms.first.room.resort.id %}"
+                            class="btn btn-warning w-100 py-3 shadow-premium text-white"
+                            style="border-radius: 16px; font-weight: 800; background: #ffc107;">
+                            <i class="bi bi-star-fill me-2"></i>SHARE EXPERIENCE
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="text-center py-5 animate-in">
+    <div class="mb-5">
+        <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center"
+            style="width: 140px; height: 140px;">
+            <i class="bi bi-calendar-x-fill display-2 text-muted opacity-25"></i>
+        </div>
+    </div>
+    <h2 class="fw-800 mb-3 fs-1">Itinerary Clear</h2>
+    <p class="text-muted fs-5 mb-5 mx-auto fw-500" style="max-width: 500px;">Your travel logs are currently empty. It's
+        time to discover your next elite resort.</p>
+    <a href="{% url 'resort_list' %}" class="btn btn-primary btn-lg px-5 py-4 shadow-premium"
+        style="border-radius: 20px; font-weight: 800;">
+        DISCOVER RESORTS
+    </a>
+</div>
+{% endif %}
+
+<style>
+    .btn-action-danger {
+        background: #fee2e2;
+        color: #dc2626;
+        border: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-action-danger:hover {
+        background: #dc2626;
+        color: white;
+        transform: rotate(90deg);
+    }
+
+    @media (max-width: 991.98px) {
+        .display-3 {
+            font-size: 2.5rem;
+        }
+
+        .card {
+            padding: 2rem !important;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .display-3 {
+            font-size: 2rem;
+        }
+
+        .row.g-4.mb-5.p-5 {
+            padding: 2rem !important;
+        }
+
+        .fs-4 {
+            font-size: 1.1rem !important;
+        }
+
+        .fs-3 {
+            font-size: 1.5rem !important;
+        }
+
+        .card.p-xl-5 {
+            padding: 1.5rem !important;
+        }
+    }
+</style>
+{% endblock %}

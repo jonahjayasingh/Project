@@ -1,0 +1,12 @@
+<h1>Register Certificate</h1>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Register on Blockchain</button>
+</form>
+
+{% if tx_hash %}
+  <p style="color: green;">Registered successfully</p>
+  <p>Transaction hash: {{ tx_hash }}</p>
+{% endif %}

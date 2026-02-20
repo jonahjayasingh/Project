@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block title %}Discover Laboratories - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4">
+        <h2 class="fw-bold">Discover Laboratories</h2>
+        <p class="text-muted">Find the best diagnostic centers near you</p>
+    </div>
+
+    <!-- Filters Sidebar -->
+    <div class="col-lg-3 mb-4">
+        <div class="card p-4 border-0 shadow-sm rounded-4 sticky-top" style="top: 20px;">
+            <h5 class="fw-bold mb-4">Filters</h5>
+            <form method="GET">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Search Lab</label>
+                    <input type="text" name="q" class="form-control" placeholder="Name or keyword..."
+                        value="{{ query }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">City</label>
+                    <input type="text" name="city" class="form-control" placeholder="e.g. Mumbai" value="{{ city }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Pincode</label>
+                    <input type="text" name="pincode" class="form-control" placeholder="6-digit code"
+                        value="{{ pincode }}">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Min. Rating</label>
+                    <select name="min_rating" class="form-select">
+                        <option value="">Any Rating</option>
+                        <option value="4" {% if min_rating=='4' %}selected{% endif %}>4+ Stars</option>
+                        <option value="3" {% if min_rating=='3' %}selected{% endif %}>3+ Stars</option>
+                    </select>
+                </div>
+                <div class="form-check form-switch mb-4">
+                    <input class="form-check-input" type="checkbox" name="only_packages" id="packageFilter" {% if
+                        only_packages %}checked{% endif %}>
+                    <label class="form-check-label small fw-bold" for="packageFilter">Combo Offers Only</label>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 rounded-pill shadow-sm">Apply Filters</button>
+                <a href="{% url 'lab_discovery' %}" class="btn btn-link w-100 text-muted small mt-2">Clear All</a>
+            </form>
+        </div>
+    </div>
+
+    <!-- Labs Listing -->
+    <div class="col-lg-9">
+        <div class="row g-4">
+            {% for lab in labs %}
+            <div class="col-md-6">
+                <div class="card h-100 p-4 border-0 shadow-sm rounded-4 hover-lift">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <div>
+                            <h5 class="fw-bold mb-1 text-primary">{{ lab.lab_name }}</h5>
+                            <span class="text-warning small">
+                                <i class="fa-solid fa-star"></i> {{ lab.rating_avg|floatformat:1 }} ({{
+                                lab.reviews.count }}
+                                reviews)
+                            </span>
+                        </div>
+                        <div class="text-end">
+                            <span
+                                class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 mb-1">Active</span>
+                            {% if lab.packages.exists %}
+                            <div class="small fw-bold text-success"><i class="fas fa-tags me-1"></i>Combo Offers</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        {% if lab.available_tests.exists or lab.packages.exists %}
+                        <div class="small text-muted mb-1">Services starting from:</div>
+                        <div class="h5 fw-bold text-dark mb-0">₹199</div> {# Dynamic pricing logic could be added here
+                        #}
+                        {% endif %}
+                    </div>
+                    <p class="text-muted small mb-4">{{ lab.bio|default:"Highly professional laboratory with
+                        state-of-the-art equipment and experienced staff."|truncatechars:120 }}</p>
+                    <div class="mt-auto d-flex justify-content-between align-items-center">
+                        <div class="text-muted small">
+                            <i class="fas fa-map-marker-alt me-1"></i> {{ lab.city|default:"NA" }}, {{ lab.pincode }}
+                        </div>
+                        <a href="{% url 'book_test' %}?lab={{ lab.id }}"
+                            class="btn btn-sm btn-outline-primary px-4 rounded-pill">Book Now</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <i class="fas fa-search fa-4x mb-3 text-muted opacity-25"></i>
+                <h5>No laboratories found matching your criteria.</h5>
+                <p class="text-muted">Try adjusting your filters or search terms.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

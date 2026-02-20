@@ -1,0 +1,160 @@
+{% extends 'resorts/base.html' %}
+{% block content %}
+<div class="auth-wrapper d-flex align-items-center justify-content-center">
+    <div class="container py-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6 col-xl-5 animate-in">
+                <div class="text-center mb-5">
+                    <h6 class="text-secondary fw-bold text-uppercase tracking-widest mb-3">MEMBERSHIP</h6>
+                    <h1 class="display-5 fw-bold mb-0">Join the <span class="gradient-text-secondary">Elite</span></h1>
+                </div>
+
+                <div class="card border-0 p-4 p-md-5 shadow-premium"
+                    style="border-radius: 40px; background: var(--bg-card);">
+                    <form method="post" novalidate id="register-form">
+                        {% csrf_token %}
+
+                        {% for field in form %}
+                        <div class="mb-4">
+                            <label class="smallest text-secondary fw-bold text-uppercase tracking-widest mb-2 d-block">{{ field.label }}</label>
+                            <div class="premium-input-box-secondary">
+                                {% if field.name == 'username' %}
+                                <i class="bi bi-person"></i>
+                                {% elif field.name == 'email' %}
+                                <i class="bi bi-envelope"></i>
+                                {% elif 'password' in field.name %}
+                                <i class="bi bi-shield-lock"></i>
+                                {% endif %}
+
+                                {{ field }}
+
+                                {% if 'password' in field.name %}
+                                <span class="password-toggle-trigger" data-target="{{ field.id_for_label }}">
+                                    <i class="bi bi-eye"></i>
+                                </span>
+                                {% endif %}
+                            </div>
+
+                            {% if field.errors %}
+                            {% for error in field.errors %}
+                            <div class="text-danger smallest fw-bold mt-2 text-uppercase tracking-widest">
+                                <i class="bi bi-exclamation-circle me-1"></i>{{ error }}
+                            </div>
+                            {% endfor %}
+                            {% endif %}
+
+                            {% if field.help_text %}
+                            <div class="smallest text-muted mt-2 opacity-75">
+                                {{ field.help_text|safe }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+
+                        <div class="d-grid mb-4 mt-5">
+                            <button type="submit" class="btn btn-secondary btn-lg py-3 shadow-premium"
+                                style="border-radius: 18px; font-weight: 700;">
+                                CREATE ARCHIVE
+                            </button>
+                        </div>
+                    </form>
+
+                    <div class="text-center">
+                        <div class="smallest text-muted text-uppercase tracking-widest fw-bold mb-3">Already a Guest?
+                        </div>
+                        <a href="{% url 'login' %}" class="btn btn-light w-100 py-3"
+                            style="border-radius: 18px; font-weight: 600;">
+                            Sign In Instead
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .auth-wrapper {
+        min-height: 80vh;
+    }
+
+    .gradient-text-secondary {
+        background: linear-gradient(135deg, var(--secondary), #db2777);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .premium-input-box-secondary {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .premium-input-box-secondary i:not(.bi-eye):not(.bi-eye-slash) {
+        position: absolute;
+        left: 20px;
+        font-size: 1.2rem;
+        color: var(--secondary);
+        opacity: 0.6;
+    }
+
+    .premium-input-box-secondary input {
+        width: 100%;
+        padding: 1.1rem 1.5rem 1.1rem 55px;
+        background: #f8fafc;
+        border: 2px solid transparent;
+        border-radius: 16px;
+        font-family: 'Inter', sans-serif;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .premium-input-box-secondary input:focus {
+        outline: none;
+        background: white;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+    }
+
+    .password-toggle-trigger {
+        position: absolute;
+        right: 20px;
+        cursor: pointer;
+        color: var(--text-muted);
+        transition: color 0.3s;
+    }
+
+    .password-toggle-trigger:hover {
+        color: var(--secondary);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleButtons = document.querySelectorAll('.password-toggle-trigger');
+        toggleButtons.forEach(toggle => {
+            toggle.addEventListener('click', function () {
+                const targetId = this.getAttribute('data-target');
+                const passwordInput = document.getElementById(targetId);
+                const icon = this.querySelector('i');
+                if (passwordInput) {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    icon.classList.toggle('bi-eye');
+                    icon.classList.toggle('bi-eye-slash');
+                }
+            });
+        });
+
+        // Add placeholders
+        const inputs = document.querySelectorAll('input');
+        inputs.forEach(input => {
+            if (input.name === 'username') input.placeholder = "Enter your username";
+            if (input.name === 'email') input.placeholder = "Enter your email address";
+            if (input.name === 'password1') input.placeholder = "Create a strong password";
+            if (input.name === 'password2') input.placeholder = "Confirm your password";
+        });
+    });
+</script>
+{% endblock %}

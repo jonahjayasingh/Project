@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - GymMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-3">Our Professional Trainers</h1>
+            <p class="lead text-muted">Choose a trainer that matches your fitness goals</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for trainer in trainers %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-body text-center p-4">
+                    <div class="mb-3">
+                        {% if trainer.user.profile_photo %}
+                        <img src="{{ trainer.user.profile_photo.url }}" alt="{{ trainer.user.get_full_name }}"
+                            class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% else %}
+                        <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center"
+                            style="width: 120px; height: 120px; font-size: 3rem;">
+                            {{ trainer.user.first_name.0 }}{{ trainer.user.last_name.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <h4 class="fw-bold mb-2">{{ trainer.user.get_full_name }}</h4>
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-star-fill text-warning me-1"></i>
+                        {{ trainer.get_specialization_display }}
+                    </p>
+
+                    <div class="mb-3">
+                        <span class="badge bg-info">{{ trainer.experience_years }} years experience</span>
+                        {% if trainer.hourly_rate %}
+                        <span class="badge bg-success">₹{{ trainer.hourly_rate }}/hour</span>
+                        {% endif %}
+                    </div>
+
+                    {% if trainer.bio %}
+                    <p class="text-muted small mb-3">{{ trainer.bio|truncatewords:20 }}</p>
+                    {% endif %}
+
+                    <h6 class="fw-bold mb-2">Certifications:</h6>
+                    <ul class="list-unstyled small text-start">
+                        {% for cert in trainer.certifications.splitlines|slice:":3" %}
+                        <li class="mb-1">
+                            <i class="bi bi-patch-check-fill text-success me-1"></i>
+                            {{ cert }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-3">
+                    <a href="{% url 'requests:request_trainer_with_preference' trainer.id %}"
+                        class="btn btn-primary w-100">
+                        <i class="bi bi-person-plus me-2"></i>Request This Trainer
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2"></i>
+                No trainers are currently available. Please check back later.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <a href="{% url 'requests:request_trainer' %}" class="btn btn-outline-primary btn-lg">
+                <i class="bi bi-search me-2"></i>Request by Specialization
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+{% endblock %}

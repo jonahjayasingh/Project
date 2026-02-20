@@ -1,0 +1,93 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="shortcut icon" href="{% static 'icon.png' %}" type="image/x-icon">
+    <title>Work Update</title>
+    <link rel="stylesheet" href="{% static 'css/flowbite.min.css' %}">
+    <script src="{% static 'js/flowbite.min.js' %}"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+    
+        .bg-gradient-header {
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+    
+        th, td {
+            padding: 12px 16px;
+            border: 1px solid #d1d5db; /* Tailwind gray-300 */
+            text-align: left;
+        }
+    
+        th {
+            background-color: #f9fafb; /* Tailwind gray-50 */
+            font-weight: 600;
+            color: #374151; /* Tailwind gray-700 */
+        }
+    
+        tr:nth-child(even) {
+            background-color: #f3f4f6; /* Tailwind gray-100 */
+        }
+    
+        tr:hover {
+            background-color: #e5e7eb; /* Tailwind gray-200 */
+        }
+    </style>
+    
+</head>
+<body class="bg-gray-50">
+    <nav class="bg-gradient-header shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            
+            <div class="flex justify-between h-16 items-center">
+                <a href="#" class="text-white font-extrabold text-xl">Staff Dashboard</a>
+                <a
+            href="{% url 'app:logout' %}"
+            class="bg-white/20 hover:bg-white/30 text-white font-bold py-2 px-6 rounded-full shadow-md transition duration-300 backdrop-blur-sm"
+            >
+            <span class="hidden sm:inline">Logout</span>
+            </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 mt-6">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="text-2xl font-bold gradient-text">Work Update</h2>
+            <div class="flex gap-4">
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="last_month" value="ss">
+                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+                    last Month
+                    </button>
+                </form>
+                
+                <a href="{{ filename }}" download class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+                    Download Excel
+                </a>
+                <a href="{% url 'staff:staff_dashboard' %}" class="bg-gray-600 hover:bg-gray-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-300">
+                    Back
+                </a>
+            </div>
+        </div>
+        
+        <div class="overflow-auto shadow-md rounded-lg mb-6">
+            <div class="bg-white p-4 rounded-lg">
+                {{ html_table|safe }}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Report History - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold">Report Revision History</h2>
+            <p class="text-muted">Tracking updates for: <strong>{{ booking.test_name }}</strong></p>
+        </div>
+        {% if user.patient_profile %}
+        <a href="{% url 'patient_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        {% else %}
+        <a href="{% url 'lab_dashboard' %}" class="btn btn-outline-secondary">Back to Dashboard</a>
+        {% endif %}
+    </div>
+
+    <div class="col-md-9 mx-auto">
+        <!-- Current Version -->
+        <div class="card p-4 border-primary shadow-sm rounded-4 mb-4 border-start border-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="badge bg-primary rounded-pill mb-2">Current Active Report</span>
+                    <h5 class="fw-bold mb-1">Finalized Document</h5>
+                    {% if booking.report_file %}
+                    <a href="{{ booking.report_file.url }}" class="btn btn-sm btn-primary mt-2" target="_blank">
+                        <i class="fas fa-file-download me-1"></i> Download Latest
+                    </a>
+                    {% else %}
+                    <p class="text-muted small mb-0">No final report uploaded yet.</p>
+                    {% endif %}
+                </div>
+                <div class="text-end">
+                    <div class="small text-muted">Last Updated</div>
+                    <div class="fw-bold">{{ booking.updated_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Timeline -->
+        <h5 class="fw-bold mb-4">Revisions Timeline</h5>
+        <div class="timeline">
+            {% for v in versions %}
+            <div class="card p-4 border-0 shadow-sm rounded-4 mb-3">
+                <div class="d-flex justify-content-between">
+                    <div>
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-secondary rounded-pill me-2">Version {{ v.version_number }}</span>
+                            <small class="text-muted">{{ v.created_at|date:"M d, Y H:i" }}</small>
+                        </div>
+                        <p class="mb-2">Uploaded by: <strong>{{ v.uploaded_by.username }}</strong></p>
+                        {% if v.notes %}
+                        <div class="bg-light p-2 rounded small text-muted mb-2 italic">
+                            "{{ v.notes }}"
+                        </div>
+                        {% endif %}
+                        <a href="{{ v.report_file.url }}" class="btn btn-sm btn-outline-secondary" target="_blank">
+                            <i class="fas fa-eye me-1"></i> View This Version
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="fas fa-history fa-4x mb-3 text-muted opacity-25"></i>
+                <h5>No version history available.</h5>
+                <p class="text-muted">Previous uploads will appear here as they are revised.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .timeline {
+        position: relative;
+        padding-left: 20px;
+        border-left: 2px dashed #e2e8f0;
+    }
+</style>
+{% endblock %}

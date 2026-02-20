@@ -1,0 +1,237 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Welcome to Paradise Resorts | World's Finest Escapes{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero-container {
+        position: relative;
+        padding: 6rem 0;
+        margin-bottom: 4rem;
+    }
+
+    .hero-visual {
+        position: relative;
+        z-index: 1;
+    }
+
+    .main-display-text {
+        font-size: 5.5rem;
+        font-weight: 900;
+        line-height: 0.95;
+        letter-spacing: -0.05em;
+        margin-bottom: 2rem;
+    }
+
+    .hero-stat-float {
+        position: absolute;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(24px);
+        padding: 2rem;
+        border-radius: 40px;
+        box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        z-index: 10;
+    }
+
+    .stat-pill {
+        background: #f1f5f9;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.7rem;
+        color: var(--primary);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+    }
+
+    .premium-feature-card {
+        background: white;
+        border-radius: 45px;
+        padding: 4rem;
+        border: 1px solid var(--border);
+        transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+        height: 100%;
+    }
+
+    .premium-feature-card:hover {
+        transform: translateY(-15px);
+        box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.1);
+        border-color: var(--primary);
+    }
+
+    .icon-circle {
+        width: 100px;
+        height: 100px;
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 2.5rem;
+        font-size: 2.5rem;
+    }
+
+    .carousel-elite {
+        border-radius: 70px;
+        overflow: hidden;
+        box-shadow: 0 60px 120px -30px rgba(0, 0, 0, 0.2);
+        border: 10px solid white;
+    }
+
+    @media (max-width: 991.98px) {
+        .main-display-text {
+            font-size: 3.5rem;
+            text-align: center;
+        }
+
+        .hero-container {
+            text-align: center;
+            padding: 3rem 0;
+        }
+
+        .hero-stat-float {
+            position: relative;
+            margin: 2rem auto;
+            width: fit-content;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-container animate-in">
+    <div class="row align-items-center g-5">
+        <div class="col-lg-6">
+            <div class="stat-pill mb-4 d-inline-block">
+                <i class="bi bi-patch-check-fill me-2"></i>Global Registry Verified
+            </div>
+            <h1 class="main-display-text">
+                The New <br>
+                <span class="gradient-text">Dimension</span> <br>
+                of Escapism
+            </h1>
+            <p class="fs-4 text-muted mb-5 fw-500 pe-lg-5">
+                Curating high-performance architectural resorts for the modern executive. Experience the
+                intersection of technology and tranquility.
+            </p>
+            <div class="d-flex gap-4 flex-wrap align-items-center">
+                <a href="{% url 'resort_list' %}" class="btn btn-primary btn-lg px-5 py-4">
+                    EXPLORE COLLECTION
+                </a>
+                <span class="text-muted smallest fw-800 text-uppercase tracking-widest d-none d-sm-block">
+                    <i class="bi bi-chevron-right me-2"></i> 142 Active Nodes
+                </span>
+            </div>
+
+            <div class="row mt-5 pt-5 border-top border-light g-4">
+                <div class="col-4">
+                    <div class="display-6 fw-900 mb-0">94.8%</div>
+                    <div class="smallest text-muted text-uppercase fw-800 tracking-widest mt-1">Satisfaction</div>
+                </div>
+                <div class="col-4 border-start border-end ps-4">
+                    <div class="display-6 fw-900 mb-0">2.4k</div>
+                    <div class="smallest text-muted text-uppercase fw-800 tracking-widest mt-1">Elite Stays</div>
+                </div>
+                <div class="col-4 ps-4">
+                    <div class="display-6 fw-900 mb-0">4.9</div>
+                    <div class="smallest text-muted text-uppercase fw-800 tracking-widest mt-1">Node Rating</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 hero-visual">
+            <div class="carousel slide carousel-elite" id="mainHeroCarousel" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=1200&q=80"
+                            class="d-block w-100" style="height: 700px; object-fit: cover;" alt="Global 01">
+                        <div class="carousel-caption d-none d-md-block text-start p-5"
+                            style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); left: 0; right:0; bottom:0; width:100%;">
+                            <h2 class="fw-800 mb-1">Horizon Resort</h2>
+                            <p class="opacity-50">Private overwater nodes with neural security integration.</p>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80"
+                            class="d-block w-100" style="height: 700px; object-fit: cover;" alt="Global 02">
+                        <div class="carousel-caption d-none d-md-block text-start p-5"
+                            style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); left: 0; right:0; bottom:0; width:100%;">
+                            <h2 class="fw-800 mb-1">Peak Observation</h2>
+                            <p class="opacity-50">Alpine excellence at the edge of the world.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-stat-float d-none d-xl-block" style="top: 10%; right: -20px;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-success p-2 rounded-circle shadow-sm"></div>
+                    <div>
+                        <div class="fw-900 fs-5 mb-0">LIVE</div>
+                        <div class="smallest text-muted text-uppercase fw-800 tracking-widest">Global Operations</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-stat-float d-none d-xl-block" style="bottom: 15%; left: -40px;">
+                <h6 class="smallest text-primary fw-900 text-uppercase tracking-widest mb-3">Recent Activation</h6>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="fw-800">Node #184 Secured</div>
+                    <i class="bi bi-shield-check text-primary fs-4"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="py-5 mt-5">
+    <div class="text-center mb-5 pb-5">
+        <h6 class="text-primary fw-800 text-uppercase tracking-widest mb-3">Architectural Principles</h6>
+        <h2 class="display-3 fw-900 mb-0">High-Fidelity <span class="gradient-text">Standards</span></h2>
+    </div>
+
+    <div class="row g-5">
+        <div class="col-lg-4">
+            <div class="premium-feature-card">
+                <div class="icon-circle bg-primary-subtle text-primary">
+                    <i class="bi bi-cpu"></i>
+                </div>
+                <h4 class="fw-800 mb-4">Neural Infrastructure</h4>
+                <p class="text-muted fw-500 line-height-base mb-0">Our resorts are equipped with state-of-the-art
+                    automation systems, providing seamless control over your environment.</p>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="premium-feature-card">
+                <div class="icon-circle bg-secondary-subtle text-secondary">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h4 class="fw-800 mb-4">Secured Isolation</h4>
+                <p class="text-muted fw-500 line-height-base mb-0">Experience absolute seclusion with advanced perimeter
+                    protocols and multi-layer privacy verification.</p>
+            </div>
+        </div>
+        <div class="col-lg-4">
+            <div class="premium-feature-card">
+                <div class="icon-circle bg-info-subtle text-info">
+                    <i class="bi bi-box-seam-fill"></i>
+                </div>
+                <h4 class="fw-800 mb-4">Bespoke Logistics</h4>
+                <p class="text-muted fw-500 line-height-base mb-0">From private arrivals to tailored nutrition, every
+                    logistical node is optimized for your peak performance.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5 mt-5">
+    <div class="card border-0 p-5 shadow-premium text-center"
+        style="border-radius: 60px; background: var(--text-main); color: white;">
+        <h2 class="display-4 fw-900 mb-4">Ready to enter <br> the <span class="gradient-text">resort?</span></h2>
+        <p class="fs-5 text-white opacity-50 mb-5 mx-auto" style="max-width: 600px;">Join the elite network and discover
+            the architectural pinnacle of global tourism.</p>
+        <div class="d-flex justify-content-center gap-4">
+            <a href="{% url 'register' %}" class="btn btn-primary px-5 py-4">INITIALIZE MEMBERSHIP</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %}Remove Guest{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i> Confirm Removal
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="mb-4">
+                    Are you sure you want to remove this guest?
+                </p>
+
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <p><strong>Guest:</strong> {{ guest.name }}</p>
+                        <p><strong>Contact:</strong> {{ guest.contact }}</p>
+                        <p><strong>Category:</strong> {{ guest.category }}</p>
+                        <p class="mb-0"><strong>Event:</strong> {{ guest.event.name }}</p>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Yes, Remove Guest
+                        </button>
+                        <a href="{% url 'guests:guest_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

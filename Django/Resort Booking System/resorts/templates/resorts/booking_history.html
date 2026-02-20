@@ -1,0 +1,151 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Legacy Dossier | Paradise Resorts{% endblock %}
+
+{% block content %}
+<!-- Historical Dossier Header -->
+<div class="row align-items-end mb-5 animate-in">
+    <div class="col-lg-7">
+        <h6 class="text-primary fw-800 text-uppercase tracking-widest mb-3">LEGACY DOSSIER</h6>
+        <h1 class="display-3 fw-800 mb-0">Past <span class="gradient-text">Excursions</span></h1>
+        <p class="text-muted fs-5 mt-2 fw-500">A historical audit of your stays within the elite resort network.</p>
+    </div>
+    <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
+        <a href="{% url 'my_bookings' %}" class="btn btn-primary px-5 py-4 shadow-premium"
+            style="border-radius: 20px; font-weight: 800;">
+            <i class="bi bi-calendar2-check-fill me-3"></i>ACTIVE ITINERARIES
+        </a>
+    </div>
+</div>
+
+<div class="card border-0 shadow-premium animate-in"
+    style="border-radius: 40px; background: var(--bg-card); animation-delay: 0.1s;">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-legacy-table">
+                <thead>
+                    <tr class="bg-light bg-opacity-30">
+                        <th class="ps-5 py-4 smallest text-uppercase tracking-widest fw-800 text-muted">Node Identity
+                        </th>
+                        <th class="py-4 smallest text-uppercase tracking-widest fw-800 text-muted">Resort</th>
+                        <th class="py-4 smallest text-uppercase tracking-widest fw-800 text-muted">Timeline Audit</th>
+                        <th class="py-4 smallest text-uppercase tracking-widest fw-800 text-muted">Investment</th>
+                        <th class="py-4 smallest text-uppercase tracking-widest fw-800 text-muted text-center">Status
+                        </th>
+                        <th class="pe-5 py-4 smallest text-uppercase tracking-widest fw-800 text-muted text-end">
+                            Archives</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr>
+                        <td class="ps-5 py-4">
+                            <span class="fw-800 text-dark opacity-50 smallest tracking-widest">#{{ booking.id }}</span>
+                        </td>
+                        <td class="py-4">
+                            {% with first_room=booking.booked_rooms.first %}
+                            <div class="fw-800 fs-5 text-dark">{{ first_room.room.resort.name }}</div>
+                            <div class="smallest text-muted fw-800 text-uppercase tracking-wider">{{
+                                booking.booked_rooms.count }} UNITS RESERVED</div>
+                            {% endwith %}
+                        </td>
+                        <td class="py-4">
+                            <div class="fw-500 text-muted">{{ booking.check_in|date:"M d, Y" }} <br> <span
+                                    class="smallest opacity-50 fw-800">TO</span> {{booking.check_out|date:"M d, Y" }}
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <span class="fw-800 text-primary fs-5">₹ {{ booking.total_price }}</span>
+                        </td>
+                        <td class="py-4 text-center">
+                            <span
+                                class="badge {% if booking.status == 'Completed' %}bg-success-subtle text-success{% else %}bg-secondary-subtle text-secondary{% endif %} px-3 py-2 rounded-3 border-0 fw-800 smallest text-uppercase">
+                                {{ booking.status|upper }}
+                            </span>
+                        </td>
+                        <td class="pe-5 py-4 text-end">
+                            <button class="btn btn-action- dossier px-4 py-2"
+                                style="border-radius: 12px; font-weight: 800; border: 1px solid var(--border);"
+                                data-bs-toggle="modal" data-bs-target="#modal-{{ booking.id }}">
+                                AUDIT
+                            </button>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="bi bi-journal-x display-1 text-muted opacity-10"></i>
+                            <p class="text-muted fw-800 text-uppercase tracking-widest smallest mt-4">Legacy Logs
+                                Uninitialized</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% for booking in bookings %}
+<div class="modal fade" id="modal-{{ booking.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-premium" style="border-radius: 40px; background: white;">
+            <div class="modal-header border-0 p-5 pb-0">
+                <h3 class="fw-800 mb-0">Stay Review <span class="text-primary opacity-50">#{{ booking.id }}</span></h3>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-5">
+                <div class="mb-5 pb-4 border-bottom">
+                    <h6 class="smallest text-primary fw-800 text-uppercase tracking-widest mb-3">Timeline Diagnostics
+                    </h6>
+                    <div class="fs-4 fw-800 text-dark">{{ booking.check_in|date:"M d, Y" }} — {{ booking.check_out|date:"M d, Y" }}</div>
+                </div>
+
+                <div class="mb-5">
+                    <h6 class="smallest text-primary fw-800 text-uppercase tracking-widest mb-4">Configuration Audit
+                    </h6>
+                    {% for br in booking.booked_rooms.all %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div class="fw-800 fs-5">{{ br.quantity }} × {{ br.room.room_type }}</div>
+                        <div class="text-primary fw-800 fs-5">₹ {{ br.room.price }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="bg-light p-4 rounded-4 mb-4" style="background: #f8fafc !important;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="fw-800 text-uppercase tracking-widest smallest text-muted opacity-50">Final
+                            Investment</div>
+                        <div class="h3 fw-800 text-dark mb-0">₹ {{ booking.total_price }}</div>
+                    </div>
+                </div>
+
+                {% if booking.status == 'Completed' or booking.status == 'Checked-In' %}
+                <div class="d-grid mt-4">
+                    <a href="{% url 'add_review' booking.booked_rooms.first.room.resort.id %}"
+                        class="btn btn-primary py-3 shadow-premium" style="border-radius: 18px; font-weight: 800;">
+                        <i class="bi bi-star-fill me-2"></i>SHARE TESTIMONIAL
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+<style>
+    .custom-legacy-table tr {
+        transition: all 0.2s ease;
+    }
+
+    .custom-legacy-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .btn-action-dossier:hover {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary) !important;
+    }
+</style>
+{% endblock %}

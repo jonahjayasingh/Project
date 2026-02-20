@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Finance Manager{% endblock %}
+
+{% block content %}
+<div class="md:flex md:items-center md:justify-between mb-8">
+    <div class="flex-1 min-w-0">
+        <h2 class="text-2xl font-bold leading-7 text-gray-900 sm:text-3xl sm:truncate">
+            Financial Reports
+        </h2>
+        <p class="mt-1 text-sm text-gray-500">
+            Comprehensive breakdown of your financial health.
+        </p>
+    </div>
+    <div class="mt-4 flex md:mt-0 md:ml-4 space-x-2">
+        <form method="get" class="flex items-center">
+            <label for="account" class="sr-only">Account</label>
+            <select id="account" name="account" onchange="this.form.submit()"
+                class="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md border">
+                <option value="">All Accounts</option>
+                {% for acc in accounts %}
+                <option value="{{ acc.id }}" 
+                {% if selected_account == acc.id %}selected{% endif %}
+                >
+                    {{ acc.name }}
+                </option>
+                {% endfor %}
+
+
+            </select>
+        </form>
+        <a href="{% url 'export_transactions' %}?{{ request.GET.urlencode }}"
+            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+            <svg class="-ml-1 mr-2 h-5 w-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export to CSV {{selected_account}}
+        </a>
+    </div>
+</div>
+
+<!-- Summary Cards -->
+<div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 mb-8">
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <dt class="text-sm font-medium text-gray-500 truncate">Total Income</dt>
+            <dd class="mt-1 text-3xl font-semibold text-green-600">${{ income_total|floatformat:2 }}</dd>
+        </div>
+    </div>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <dt class="text-sm font-medium text-gray-500 truncate">Total Expenses</dt>
+            <dd class="mt-1 text-3xl font-semibold text-red-600">${{ expense_total|floatformat:2 }}</dd>
+        </div>
+    </div>
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+            <dt class="text-sm font-medium text-gray-500 truncate">Net Savings</dt>
+            <dd class="mt-1 text-3xl font-semibold text-indigo-600">
+                ${{ net_savings|floatformat:2 }}
+            </dd>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Grid -->
+<div class="grid grid-cols-1 gap-8 lg:grid-cols-2">
+    <!-- Income vs Expenses -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Income vs Expenses</h3>
+        <div class="relative" style="height: 300px;">
+            <canvas id="incomeExpenseChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Monthly Trend -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">6 Month Trend</h3>
+        <div class="relative" style="height: 300px;">
+            <canvas id="trendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Expenses by Category -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Expenses by Category</h3>
+        <div class="relative" style="height: 300px;">
+            <canvas id="expenseCategoryChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Income by Category -->
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Income by Category</h3>
+        <div class="relative" style="height: 300px;">
+            <canvas id="incomeCategoryChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Colors
+    const colors = {
+        green: 'rgb(34, 197, 94)',
+        red: 'rgb(239, 68, 68)',
+        indigo: 'rgb(99, 102, 241)',
+        palette: [
+            'rgb(59, 130, 246)', 'rgb(16, 185, 129)', 'rgb(245, 158, 11)', 'rgb(239, 68, 68)',
+            'rgb(139, 92, 246)', 'rgb(236, 72, 153)', 'rgb(107, 114, 128)', 'rgb(20, 184, 166)'
+        ]
+    };
+
+    // 1. Income vs Expense
+    new Chart(document.getElementById('incomeExpenseChart'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Income', 'Expense'],
+            datasets: [{
+                data: [{{ income_total }}, {{ expense_total }}],
+        backgroundColor: [colors.green, colors.red],
+        borderWidth: 1
+    }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+    });
+
+    // 2. Monthly Trend
+    new Chart(document.getElementById('trendChart'), {
+        type: 'line',
+        data: {
+            labels: {{ trend_labels| safe }},
+        datasets: [{
+            label: 'Income',
+            data: {{ trend_income| safe }},
+        borderColor: colors.green,
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        tension: 0.3,
+        fill: true
+            }, {
+            label: 'Expense',
+            data: {{ trend_expense| safe }},
+        borderColor: colors.red,
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        tension: 0.3,
+        fill: true
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+    });
+
+    // 3. Expenses by Category
+    new Chart(document.getElementById('expenseCategoryChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ expense_cat_labels| safe }},
+        datasets: [{
+            data: {{ expense_cat_data| safe }},
+        backgroundColor: colors.palette,
+        borderWidth: 1
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+    });
+
+    // 4. Income by Category
+    new Chart(document.getElementById('incomeCategoryChart'), {
+        type: 'pie',
+        data: {
+            labels: {{ income_cat_labels| safe }},
+        datasets: [{
+            data: {{ income_cat_data| safe }},
+        backgroundColor: colors.palette,
+        borderWidth: 1
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: false
+    }
+    });
+</script>
+{% endblock %}

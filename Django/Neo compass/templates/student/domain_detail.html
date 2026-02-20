@@ -1,0 +1,57 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row">
+  <div class="col-md-12 mb-4">
+    <a
+      href="{% url 'student_domains' %}"
+      class="btn btn-sm btn-outline-secondary mb-3"
+      >← Back to Domains</a
+    >
+    <h1 class="fw-bold">
+      {{ domain.name }} <span class="text-gradient">Classroom</span>
+    </h1>
+    <p class="text-muted">{{ domain.description }}</p>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <h3 class="fw-bold mb-4">Resources</h3>
+    <div class="row g-3">
+      {% for res in resources %}
+      <div class="col-md-6">
+        <div class="card p-3 h-100">
+          <h6 class="fw-bold">{{ res.title }}</h6>
+          <p class="small text-muted mb-3">{{ res.description }}</p>
+          <a
+            href="{{ res.youtube_link }}"
+            target="_blank"
+            class="btn btn-sm btn-danger mt-auto"
+            >Watch on YouTube 📺</a
+          >
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-muted">No resources available.</p>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-md-4">
+    <h3 class="fw-bold mb-4">Assignments</h3>
+    {% for assignment in assignments %}
+    <div class="card p-3 mb-3">
+      <h6 class="fw-bold mb-1">{{ assignment.title }}</h6>
+      <p class="small text-muted mb-2">
+        Due: {{ assignment.due_date|date:"M d, Y" }}
+      </p>
+      <a
+        href="{% url 'submit_assignment' assignment.id %}"
+        class="btn btn-sm btn-primary w-100"
+        >Submit / View Status</a
+      >
+    </div>
+    {% empty %}
+    <p class="text-muted">No assignments posted.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

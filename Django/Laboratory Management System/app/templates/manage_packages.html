@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Packages - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold">Test Packages</h2>
+            <p class="text-muted">Create bundled test offers for patients</p>
+        </div>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addPackageModal">
+            <i class="fas fa-plus me-2"></i> Create New Package
+        </button>
+    </div>
+
+    <div class="col-12">
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Package Name</th>
+                            <th>Included Tests</th>
+                            <th>Original Price</th>
+                            <th>Discount</th>
+                            <th>Final Price</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for package in packages %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ package.package_name }}</div>
+                                <small class="text-muted">{{ package.description|truncatechars:50 }}</small>
+                            </td>
+                            <td>
+                                {% for test in package.tests.all %}
+                                <span class="badge bg-info bg-opacity-10 text-info small mb-1">{{ test.test_name
+                                    }}</span>
+                                {% endfor %}
+                            </td>
+                            <td><del class="text-muted small">${{ package.price }}</del></td>
+                            <td><span class="badge bg-success rounded-pill">{{ package.discount_percentage }}%
+                                    Off</span></td>
+                            <td class="fw-bold text-primary">${{ package.final_price|floatformat:2 }}</td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                        data-bs-target="#editPackageModal{{ package.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form action="{% url 'delete_package' package.id %}" method="POST"
+                                        onsubmit="return confirm('Delete this package?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                <!-- Edit Package Modal -->
+                                <div class="modal fade" id="editPackageModal{{ package.id }}" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content border-0 rounded-4 shadow">
+                                            <div class="modal-header border-0 pb-0">
+                                                <h5 class="fw-bold">Edit Test Package</h5>
+                                                <button type="button" class="btn-close"
+                                                    data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <form action="{% url 'edit_package' package.id %}" method="POST">
+                                                {% csrf_token %}
+                                                <div class="modal-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-8">
+                                                            <label class="form-label small fw-bold">Package Name</label>
+                                                            <input type="text" name="name" class="form-control"
+                                                                value="{{ package.package_name }}" required>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label class="form-label small fw-bold">Base Price</label>
+                                                            <div class="input-group">
+                                                                <span class="input-group-text">$</span>
+                                                                <input type="number" step="0.01" name="price"
+                                                                    class="form-control" value="{{ package.price }}"
+                                                                    required>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-12">
+                                                            <label class="form-label small fw-bold">Description</label>
+                                                            <textarea name="description" class="form-control" rows="3"
+                                                                required>{{ package.description }}</textarea>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label small fw-bold">Included
+                                                                Tests</label>
+                                                            <select name="tests" class="form-select" multiple
+                                                                style="height: 120px;" required>
+                                                                {% for test in tests %}
+                                                                <option value="{{ test.id }}" {% if test in package.tests.all %}selected{% endif %}>{{ test.test_name }}</option>
+                                                                {% endfor %}
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label class="form-label small fw-bold">Discount
+                                                                Percentage</label>
+                                                            <div class="input-group">
+                                                                <input type="number" name="discount"
+                                                                    class="form-control"
+                                                                    value="{{ package.discount_percentage }}" min="0"
+                                                                    max="99">
+                                                                <span class="input-group-text">%</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer border-0">
+                                                    <button type="button" class="btn btn-light rounded-pill px-4"
+                                                        data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit"
+                                                        class="btn btn-primary rounded-pill px-4">Update
+                                                        Package</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No packages created yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Package Modal -->
+<div class="modal fade" id="addPackageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="fw-bold">Create Test Package</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold">Package Name</label>
+                            <input type="text" name="name" class="form-control" placeholder="e.g. Full Body Checkup"
+                                required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Base Price</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" step="0.01" name="price" class="form-control" placeholder="0.00"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Description</label>
+                            <textarea name="description" class="form-control" rows="3"
+                                placeholder="Describe what is included and the benefits..." required></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Select Tests</label>
+                            <select name="tests" class="form-select" multiple style="height: 120px;" required>
+                                {% for test in tests %}
+                                <option value="{{ test.id }}">{{ test.test_name }} (${{test.price }})</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Hold Ctrl/Cmd to select multiple.</div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Discount Percentage</label>
+                            <div class="input-group">
+                                <input type="number" name="discount" class="form-control" value="0" min="0" max="99">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <div class="form-text">Visible savings for patients.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-get="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">Create Package</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

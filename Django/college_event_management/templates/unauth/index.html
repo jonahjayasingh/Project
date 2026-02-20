@@ -1,0 +1,472 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block style %}
+<style>
+  :root {
+    --primary: #2c3e50;
+    --secondary: #3498db;
+    --accent: #e74c3c;
+    --light: #f8f9fa;
+    --dark: #212529;
+    --white: #ffffff;
+    --gray: #6c757d;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light);
+    color: var(--dark);
+    line-height: 1.6;
+  }
+
+  /* Hero Banner */
+  .hero-banner {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    color: var(--white);
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 3rem;
+  }
+
+  .hero-banner::before {
+    content: "";
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?auto=format&fit=crop&w=1470&q=80') center/cover;
+    opacity: 0.1;
+  }
+
+  .university-logo {
+    height: 120px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+
+  .hero-title {
+    font-weight: 800;
+    font-size: 2.5rem;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+    margin-bottom: 0.75rem;
+  }
+
+  .hero-subtitle {
+    font-weight: 300;
+    font-size: 1.4rem;
+    opacity: 0.9;
+  }
+
+  .badge-pill {
+    padding: 0.5rem 1.25rem;
+    font-weight: 500;
+    border-radius: 50px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+
+  /* Scrolling Banner */
+  .marquee-banner {
+    background-color: var(--primary);
+    color: var(--white);
+    padding: 1rem 0;
+    margin-bottom: 3rem;
+    overflow: hidden;
+  }
+
+  .marquee-content {
+    display: inline-block;
+    white-space: nowrap;
+    animation: scroll 50s linear infinite;
+    padding-left: 100%;
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+  }
+
+  .marquee-item {
+    display: inline-block;
+    margin-right: 3rem;
+    position: relative;
+    font-weight: 500;
+  }
+
+  .marquee-item:after {
+    content: "•";
+    position: absolute;
+    right: -1.5rem;
+    color: rgba(255,255,255,0.5);
+  }
+
+  /* Coordinators Section */
+  .coordinators-section {
+    padding: 4rem 0;
+    background-color: var(--white);
+    margin-bottom: 3rem;
+  }
+
+  .section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+
+  .section-title {
+    font-weight: 700;
+    color: var(--primary);
+    position: relative;
+    display: inline-block;
+    padding-bottom: 1rem;
+  }
+
+  .section-title:after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: var(--secondary);
+    border-radius: 2px;
+  }
+
+  .section-subtitle {
+    color: var(--gray);
+    max-width: 700px;
+    margin: 1rem auto 0;
+  }
+
+  /* Coordinators Cards - CENTERED */
+  .coordinators-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* This centers the cards */
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+
+  .coordinator-card {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+    width: 300px; /* Fixed width for consistent cards */
+    flex: 0 0 auto; /* Don't grow or shrink */
+  }
+
+  .coordinator-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+  }
+
+  .coordinator-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1.5rem;
+    border: 4px solid var(--secondary);
+    padding: 3px;
+    background: var(--white);
+  }
+
+  .coordinator-name {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+  }
+
+  .coordinator-title {
+    color: var(--secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .coordinator-contact {
+    background: rgba(52, 152, 219, 0.1);
+    padding: 0.75rem;
+    border-radius: 8px;
+    margin-top: 1rem;
+  }
+
+  .contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--gray);
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .contact-item i {
+    color: var(--secondary);
+    width: 20px;
+  }
+
+  /* Gallery Section */
+  .gallery-section {
+    padding: 4rem 0;
+    background-color: var(--light);
+  }
+
+  .gallery-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+  }
+
+  .gallery-card {
+    background: var(--white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .gallery-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+  }
+
+  .card-image-container {
+    position: relative;
+    padding-top: 60%; /* 5:3 aspect ratio */
+    overflow: hidden;
+  }
+
+  .card-image {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+  }
+
+  .gallery-card:hover .card-image {
+    transform: scale(1.05);
+  }
+
+  .card-body {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .card-title {
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 0.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .gallery-card:hover .card-title {
+    color: var(--secondary);
+  }
+
+  .card-description {
+    color: var(--gray);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+    flex: 1;
+  }
+
+  .card-footer {
+    padding: 0 1.5rem 1.5rem;
+    margin-top: auto;
+  }
+
+  .card-date {
+    color: var(--gray);
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+  }
+
+  .card-date i {
+    margin-right: 0.5rem;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 992px) {
+    .hero-title { font-size: 2rem; }
+    .hero-subtitle { font-size: 1.2rem; }
+  }
+
+  @media (max-width: 768px) {
+    .hero-banner { padding: 3rem 0; }
+    .hero-title { font-size: 1.8rem; }
+    .university-logo { height: 100px; margin-bottom: 1rem; }
+    .gallery-container {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+    .coordinator-card {
+      width: 280px;
+      padding: 1.5rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .gallery-container { grid-template-columns: 1fr; }
+    .card-image-container { padding-top: 75%; } /* 4:3 on mobile */
+    .coordinator-card {
+      width: 100%;
+      max-width: 320px;
+    }
+    .coordinator-avatar {
+      width: 100px;
+      height: 100px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<!-- Hero Banner -->
+<header class="hero-banner">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-3 text-center text-lg-start">
+        <img src="{% static 'logo.png' %}" alt="University Logo" class="university-logo img-fluid">
+      </div>
+      <div class="col-lg-9 text-center text-lg-start mt-4 mt-lg-0">
+        <h1 class="hero-title">PACIFIC COAST UNIVERSITY</h1>
+        <p class="hero-subtitle">College of Engineering and Technology</p>
+        <div class="mt-3">
+          <span class="badge bg-primary badge-pill me-2"><i class="fas fa-map-marker-alt me-1"></i>San Francisco, CA</span>
+          <span class="badge bg-success badge-pill"><i class="fas fa-graduation-cap me-1"></i>Est. 1952</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Marquee Banner -->
+<div class="marquee-banner">
+  <div class="container-fluid">
+    <div class="marquee-content">
+      {% for event in events %}
+      <span class="marquee-item">{{event.event_name}}</span>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Coordinators Section -->
+<section class="coordinators-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Our Coordinators</h2>
+      <p class="section-subtitle">Meet our dedicated coordinators who work tirelessly to organize memorable events and foster community engagement</p>
+    </div>
+
+    {% if coordinators %}
+    <div class="coordinators-container">
+      {% for coordinator in coordinators %}
+      <div class="coordinator-card">
+        {% if coordinator.profile.profile_pic %}
+        <img src="{{ coordinator.profile.profile_pic.url }}" alt="{{ coordinator.get_full_name }}" class="coordinator-avatar">
+        {% else %}
+        <div class="coordinator-avatar" style="background: var(--secondary); color: white; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: bold;">
+          {{ coordinator.first_name|first|upper }}{{ coordinator.last_name|first|upper }}
+        </div>
+        {% endif %}
+        
+        <h2 class="coordinator-title"> 
+          {% if coordinator.profile.type == "student" %}
+            Student Coordinator
+          {% else %}
+            Faculty Coordinator
+          {% endif %}
+
+        </h2>
+        <h3 class="coordinator-name">
+          {% if coordinator.first_name or coordinator.last_name %}
+            {{ coordinator.first_name }} {{ coordinator.last_name }}
+          {% else %}
+            {{ coordinator.username }}
+          {% endif %}
+        </h3>        
+        <div class="coordinator-contact">
+          <div class="contact-item">
+            <i class="fas fa-user"></i>
+            <span>@{{ coordinator.username }}</span>
+          </div>
+          {% if coordinator.email %}
+          <div class="contact-item">
+            <i class="fas fa-envelope"></i>
+            <span>{{ coordinator.email }}</span>
+          </div>
+          {% endif %}
+          {% if coordinator.profile.phone %}
+          <div class="contact-item">
+            <i class="fas fa-phone"></i>
+            <span>{{ coordinator.profile.phone }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="fas fa-users fa-3x text-muted mb-3" style="opacity: 0.5;"></i>
+      <h4 class="text-muted">No coordinators available</h4>
+      <p class="text-muted">Check back later for coordinator information</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- Gallery Section -->
+<section class="gallery-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title">Our Event Gallery</h2>
+      <p class="section-subtitle">Explore moments from our past events and get a glimpse of what makes Pacific Coast University special</p>
+    </div>
+
+    {% if galleries %}
+    <div class="gallery-container">
+      {% for gallery in galleries %}
+      <a href="{% url 'coordinator:gallery'  %}" class="gallery-card">
+        <div class="card-image-container">
+          <img src="{{gallery.image.url}}" alt="{{gallery.caption}}" class="card-image">
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">{{gallery.gallery_type}}</h3>
+          <p class="card-description">{{gallery.caption|truncatechars:100}}</p>
+          <div class="card-footer">
+            <p class="card-date"><i class="far fa-calendar-alt"></i>{{gallery.date|date:"F j, Y"}}</p>
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+      <i class="fas fa-images fa-3x text-muted mb-3" style="opacity: 0.5;"></i>
+      <h4 class="text-muted">No gallery items available</h4>
+      <p class="text-muted">Check back later for event photos and updates</p>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to GymMS - Gym Management System</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --success-color: #10b981;
+            --danger-color: #ef4444;
+            --warning-color: #f59e0b;
+            --info-color: #3b82f6;
+            --dark-color: #1f2937;
+            --light-color: #f9fafb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse"><path d="M 100 0 L 0 0 0 100" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100%" height="100%" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            color: white;
+        }
+
+        .hero-title {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            font-weight: 300;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .btn-hero {
+            padding: 1rem 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-hero-primary {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        .btn-hero-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            color: var(--primary-color);
+        }
+
+        .btn-hero-outline {
+            background: transparent;
+            color: white;
+            border: 2px solid white;
+        }
+
+        .btn-hero-outline:hover {
+            background: white;
+            color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        /* Stats Section */
+        .stats-section {
+            margin-top: -80px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 1.1rem;
+            color: #6b7280;
+            font-weight: 500;
+            margin-top: 0.5rem;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 6rem 0;
+        }
+
+        .section-title {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #6b7280;
+            margin-bottom: 4rem;
+        }
+
+        .feature-card {
+            text-align: center;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .feature-icon {
+            transform: scale(1.1);
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+
+        .feature-description {
+            color: #6b7280;
+            line-height: 1.7;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            padding: 6rem 0;
+            color: white;
+            text-align: center;
+        }
+
+        .cta-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+        }
+
+        .cta-description {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-link:hover {
+            color: white;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        .form-control:focus {
+            background: transparent !important;
+            color: white !important;
+            border-bottom-color: white !important;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.2rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1 class="hero-title">Transform Your Fitness Journey</h1>
+                    <p class="hero-subtitle">Modern gym management system designed for excellence. Track progress,
+                        manage memberships, and achieve your fitness goals.</p>
+                    <div class="d-flex gap-3 flex-wrap">
+                        <a href="#features" class="btn btn-hero btn-hero-primary">
+                            <i class="bi bi-rocket-takeoff me-2"></i>Get Started
+                        </a>
+                        <a href="#features" class="btn btn-hero btn-hero-outline">
+                            <i class="bi bi-info-circle me-2"></i>Learn More
+                        </a>
+                    </div>
+                </div>
+                <div class="col-lg-5 offset-lg-1">
+                    <div class="card bg-white bg-opacity-10 border-white border-opacity-20 shadow-lg"
+                        style="backdrop-filter: blur(10px); border-radius: 24px;">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="text-white mb-4 fw-bold text-center">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Sign In
+                            </h3>
+
+                            {% if messages %}
+                            <div class="mb-4">
+                                {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }} bg-opacity-20 border-0 text-white small"
+                                    style="background-color: rgba(255,255,255,0.1); backdrop-filter: blur(5px);">
+                                    <i
+                                        class="bi {% if message.tags == 'error' %}bi-exclamation-circle{% else %}bi-info-circle{% endif %} me-2"></i>
+                                    {{ message }}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            <div class="d-grid gap-3">
+                                <a href="{% url 'accounts:member_login' %}"
+                                    class="btn btn-hero btn-hero-primary py-3 text-decoration-none">
+                                    <i class="bi bi-person-circle me-2"></i>Member Login
+                                </a>
+
+                                <a href="{% url 'accounts:trainer_login' %}"
+                                    class="btn btn-hero btn-hero-outline py-3 text-decoration-none">
+                                    <i class="bi bi-person-workspace me-2"></i>Trainer Login
+                                </a>
+
+                                <div style="border-top: 1px solid rgba(255,255,255,0.2); margin: 0.5rem 0;"></div>
+
+                                <a href="{% url 'accounts:admin_login' %}"
+                                    class="btn btn-hero btn-hero-outline py-3 text-decoration-none"
+                                    style="border-color: rgba(255,255,255,0.5);">
+                                    <i class="bi bi-shield-lock me-2"></i>Admin Login
+                                </a>
+                            </div>
+
+                            <div class="text-center mt-4">
+                                <p class="text-white-50 small mb-0">
+                                    <i class="bi bi-shield-check me-1"></i>
+                                    Secure login for all users
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_members|default:"0" }}+</div>
+                        <div class="stat-label">Active Members</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_trainers|default:"0" }}+</div>
+                        <div class="stat-label">Expert Trainers</div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_classes|default:"0" }}+</div>
+                        <div class="stat-label">Fitness Classes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+        <div class="container">
+            <h2 class="section-title">Why Choose GymMS?</h2>
+            <p class="section-subtitle">Everything you need to manage your gym efficiently</p>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <h3 class="feature-title">Member Management</h3>
+                        <p class="feature-description">Comprehensive member profiles with health tracking, attendance
+                            history, and membership management all in one place.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+                        <h3 class="feature-title">Class Scheduling</h3>
+                        <p class="feature-description">Easy-to-use class booking system with automatic waitlist
+                            management and capacity tracking.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-graph-up-arrow"></i>
+                        </div>
+                        <h3 class="feature-title">Analytics Dashboard</h3>
+                        <p class="feature-description">Real-time insights into revenue, attendance, and member
+                            engagement with detailed reports.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-credit-card"></i>
+                        </div>
+                        <h3 class="feature-title">Payment Processing</h3>
+                        <p class="feature-description">Streamlined payment tracking with invoice generation and
+                            automated payment reminders.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-person-workspace"></i>
+                        </div>
+                        <h3 class="feature-title">Trainer Portal</h3>
+                        <p class="feature-description">Dedicated trainer dashboard for managing schedules, tracking
+                            assigned members, and monitoring progress.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="feature-card">
+                        <div class="feature-icon bg-secondary bg-opacity-10 text-secondary">
+                            <i class="bi bi-clock-history"></i>
+                        </div>
+                        <h3 class="feature-title">Attendance Tracking</h3>
+                        <p class="feature-description">Automated check-in/check-out system with duration tracking and
+                            attendance reports.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="container">
+            <h2 class="cta-title">Ready to Get Started?</h2>
+            <p class="cta-description">Join our community and take your fitness journey to the next level</p>
+            <a href="{% url 'home' %}" class="btn btn-hero btn-hero-primary">
+                <i class="bi bi-rocket-takeoff me-2"></i>Get Started Now
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-3"><i class="bi bi-heart-pulse-fill me-2"></i>GymMS</h5>
+                    <p class="text-white-50">Modern gym management system designed for excellence.</p>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="mb-3">Quick Links</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="{% url 'home' %}" class="footer-link">Login</a></li>
+                        <li class="mb-2"><a href="#features" class="footer-link">Features</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6 class="mb-3">Contact</h6>
+                    <p class="text-white-50">
+                        <i class="bi bi-envelope me-2"></i>info@gymms.com<br>
+                        <i class="bi bi-telephone me-2"></i>+1 234 567 8900
+                    </p>
+                </div>
+            </div>
+            <hr class="my-4" style="border-color: rgba(255,255,255,0.1);">
+            <div class="text-center text-white-50">
+                <p class="mb-0">&copy; 2026 GymMS. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

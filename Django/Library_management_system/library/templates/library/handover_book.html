@@ -1,0 +1,189 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Hand Over Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .request-info {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 2px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .info-item {
+        padding: 1rem;
+        background: white;
+        border-radius: 0.75rem;
+    }
+
+    .info-label {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-weight: 700;
+        color: var(--dark);
+        font-size: 1.1rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card card">
+    <h1 style="text-align: center; margin-bottom: 2rem;">📚 Hand Over Book</h1>
+
+    <div class="request-info">
+        <h2 style="margin-bottom: 1.5rem;">Request Details</h2>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <div class="info-label">Student</div>
+                <div class="info-value">{{ borrow_request.student.name }}</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem;">
+                    {{ borrow_request.student.student_number }}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Department</div>
+                <div class="info-value">{{ borrow_request.student.department }}</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem;">
+                    {{ borrow_request.student.class_name }}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Book</div>
+                <div class="info-value">{{ borrow_request.book.title }}</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.25rem;">
+                    by {{ borrow_request.book.author }}
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Category</div>
+                <div class="info-value">
+                    <span class="badge badge-primary">{{ borrow_request.book.get_category_display }}</span>
+                </div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Requested Days</div>
+                <div class="info-value" style="color: var(--primary);">{{ borrow_request.requested_days }} days</div>
+            </div>
+
+            <div class="info-item">
+                <div class="info-label">Request Date</div>
+                <div class="info-value" style="font-size: 0.95rem;">{{ borrow_request.request_date|date:"M d, Y" }}
+                </div>
+            </div>
+        </div>
+
+        {% if borrow_request.notes %}
+        <div style="margin-top: 1.5rem; padding: 1rem; background: white; border-radius: 0.75rem;">
+            <div class="info-label">Student Notes</div>
+            <div style="color: var(--text); margin-top: 0.5rem;">{{ borrow_request.notes }}</div>
+        </div>
+        {% endif %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div
+            style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-radius: 1rem; padding: 1.5rem; margin-bottom: 2rem; border-left: 4px solid #10b981;">
+            <h3 style="color: #065f46; margin-bottom: 0.75rem;">✓ Approved Due Date</h3>
+            <p style="margin: 0; color: #065f46; font-size: 1.2rem; font-weight: 700;">
+                {{ borrow_request.due_date|date:"F d, Y" }}
+            </p>
+            <p style="margin-top: 0.5rem; color: #065f46; font-size: 0.9rem;">
+                ({{ borrow_request.requested_days }} days from approval)
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                <input type="checkbox" id="adjust_checkbox" onchange="toggleAdjustment()"
+                    style="width: 20px; height: 20px;">
+                <span style="font-weight: 600;">Adjust due date (if needed)</span>
+            </label>
+        </div>
+
+        <div id="adjustment_section" style="display: none;">
+            <input type="hidden" name="adjust_due_date" id="adjust_due_date" value="no">
+            <div class="form-group">
+                <label for="return_days">New Return Period (Days) *</label>
+                <input type="number" id="return_days" name="return_days" min="1" max="90"
+                    value="{{ borrow_request.requested_days }}" placeholder="Number of days">
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-light);">
+                    Adjust only if there's a special circumstance
+                </p>
+            </div>
+        </div>
+
+        <script>
+            function toggleAdjustment() {
+                const checkbox = document.getElementById('adjust_checkbox');
+                const section = document.getElementById('adjustment_section');
+                const hiddenInput = document.getElementById('adjust_due_date');
+
+                if (checkbox.checked) {
+                    section.style.display = 'block';
+                    hiddenInput.value = 'yes';
+                } else {
+                    section.style.display = 'none';
+                    hiddenInput.value = 'no';
+                }
+            }
+        </script>
+
+        <div class="form-group">
+            <label for="admin_notes">Librarian Notes (Optional)</label>
+            <textarea id="admin_notes" name="admin_notes" rows="3"
+                placeholder="Any special instructions or notes..."></textarea>
+        </div>
+
+        <div
+            style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 0.75rem; padding: 1.25rem; margin: 1.5rem 0; border-left: 4px solid var(--warning);">
+            <p style="margin: 0; color: #92400e; font-weight: 600;">
+                <strong>⚠️ Important:</strong> Make sure the student is present and has their ID. The book will be
+                marked as "borrowed" and the available copies will be reduced.
+            </p>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                ← Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                ✓ Hand Over Book
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Trainer - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirm Deletion</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Are you sure you want to delete the trainer:</p>
+                    <div class="alert alert-light">
+                        <div class="d-flex align-items-center">
+                            {% if trainer.user.profile_photo %}
+                            <img src="{{ trainer.user.profile_photo.url }}" class="rounded-circle me-3" width="60"
+                                height="60" alt="Profile">
+                            {% else %}
+                            <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center me-3"
+                                style="width: 60px; height: 60px; font-size: 2rem;">
+                                <i class="bi bi-person-badge"></i>
+                            </div>
+                            {% endif %}
+                            <div>
+                                <h5 class="mb-0">{{ trainer.user.get_full_name }}</h5>
+                                <p class="mb-0 text-muted">{{ trainer.get_specialization_display }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>Warning:</strong> This action cannot be undone. All associated data including
+                        availability schedules and assignment history will be permanently deleted.
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Yes, Delete Trainer
+                        </button>
+                        <a href="{% url 'trainers:trainer_detail' trainer.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

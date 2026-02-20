@@ -1,0 +1,48 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ user_type }} Login | PlacementPro{% endblock %}
+
+{% block layout %}
+<main>
+    <div class="glass-card">
+        <div style="text-align: center; margin-bottom: 3rem;">
+            <div
+                style="width: 60px; height: 60px; background: rgba(139, 92, 246, 0.1); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto; border: 1px solid var(--glass-border);">
+                <span style="font-size: 1.5rem; color: var(--primary);">
+                    {% if user_type == 'Admin' %}🔒{% else %}👤{% endif %}
+                </span>
+            </div>
+            <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem;">{{ user_type }} Login</h2>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Welcome back! Please enter your details.</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-primary" style="width: 100%; border: none; cursor: pointer;">Sign
+                In</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            {% if user_type == 'Student' %}
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                New here? <a href="{% url 'student_register' %}"
+                    style="color: var(--primary); text-decoration: none; font-weight: 600;">Create an account</a>
+            </p>
+            {% else %}
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                Not an admin? <a href="{% url 'student_login' %}"
+                    style="color: var(--primary); text-decoration: none; font-weight: 600;">Student Login</a>
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</main>
+{% endblock %}

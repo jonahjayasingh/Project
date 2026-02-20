@@ -1,0 +1,6 @@
+--- Credentials (Password is '1' for all) ---
+Admin: admin
+Owner 1: owner1
+Owner 2: owner2
+Customer: user1
+Customer: user2

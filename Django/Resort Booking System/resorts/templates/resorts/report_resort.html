@@ -1,0 +1,38 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Report Concern | Paradise Resorts{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center pt-5">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-premium" style="border-radius: 40px; background: var(--bg-card);">
+            <div class="p-5">
+                <h6 class="text-danger fw-800 text-uppercase tracking-widest mb-3">INTEGRITY REPORT</h6>
+                <h2 class="fw-800 mb-4">Report <span class="text-danger">{{ resort.name }}</span></h2>
+                <p class="text-muted mb-5">Your feedback helps us maintain the highest standards of luxury and safety.
+                    Please provide details regarding your concern.</p>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label smallest fw-800 text-uppercase text-muted tracking-wide">Reason for
+                            Report</label>
+                        <textarea name="reason" class="form-control" rows="5"
+                            placeholder="Please describe the issue in detail..." required
+                            style="border-radius: 20px;"></textarea>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <button type="submit" class="btn btn-danger py-3 fw-800" style="border-radius: 16px;">
+                            SUBMIT REPORT
+                        </button>
+                        <a href="{% url 'resort_list' %}" class="btn btn-light py-3 fw-800"
+                            style="border-radius: 16px;">
+                            CANCEL
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

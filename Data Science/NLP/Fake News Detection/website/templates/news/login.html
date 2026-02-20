@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}TruthLens AI - Login{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Sign In</h2>
+    <form method="post">
+        {% csrf_token %}
+        <div style="margin-bottom: 1rem;">
+            <label for="id_username"
+                style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Username</label>
+            <input type="text" name="username" id="id_username" required>
+        </div>
+        <div style="margin-bottom: 2rem;">
+            <label for="id_password"
+                style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">Password</label>
+            <input type="password" name="password" id="id_password" required>
+        </div>
+        <button type="submit" class="submit-btn">Login</button>
+    </form>
+    <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+        Don't have an account? <a href="{% url 'register' %}"
+            style="color: var(--primary); text-decoration: none;">Register here</a>
+    </p>
+</div>
+{% endblock %}

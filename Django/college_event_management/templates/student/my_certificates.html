@@ -1,0 +1,404 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pacific Coast University | My Certificates</title>
+    <link href="{% static 'bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-bg: #f8f9fa;
+            --dark-bg: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-bg);
+            color: #333;
+            overflow-x: hidden;
+            height: 100vh;
+            padding-top: 76px;
+        }
+        
+        /* Main container */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            min-height: calc(100vh - 76px);
+        }
+        
+        /* Navbar Styling */
+        .navbar-custom {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 0.8rem 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .navbar-brand i {
+            margin-right: 10px;
+            font-size: 1.5rem;
+        }
+        
+        /* Dropdown item active state */
+        .dropdown-item.active {
+            background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%);
+            color: white !important;
+        }
+        
+        /* Content area */
+        .content-wrapper {
+            display: flex;
+            flex-grow: 1;
+            padding: 1.5rem;
+        }
+        
+        /* Main content */
+        .main-content {
+            flex-grow: 1;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 2rem;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .section-header h2 {
+            color: var(--primary-color);
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .section-header h2 i {
+            margin-right: 12px;
+            color: var(--secondary-color);
+            background: rgba(52, 152, 219, 0.1);
+            padding: 10px;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Certificate Grid */
+        .certificates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .certificate-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .certificate-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .certificate-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .certificate-info {
+            padding: 1.5rem;
+        }
+        
+        .certificate-info h3 {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+        }
+        
+        .certificate-info p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .certificate-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .btn-certificate {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-view {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .btn-download {
+            background: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-certificate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: #ddd;
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: #666;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Toast Notifications */
+        .toast {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .content-wrapper {
+                flex-direction: column;
+            }
+            
+            .certificates-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .section-header h2 {
+                font-size: 1.6rem;
+            }
+            
+            body {
+                padding-top: 70px;
+            }
+            
+            .certificates-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .content-wrapper {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1.5rem;
+            }
+            
+            .section-header h2 {
+                font-size: 1.4rem;
+            }
+            
+            .section-header h2 i {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+            
+            .certificate-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <i class="fas fa-university"></i> PACIFIC COAST UNIVERSITY
+        </a>
+
+        <div class="dropdown ms-auto">
+            <a class="btn text-white" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle"></i> Student Account
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                <li>
+                    <a class="dropdown-item" href="{% url 'student:student' %}">
+                        <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'student:profile' %}">
+                        <i class="fas fa-user me-1"></i> Profile
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item active" href="{% url 'student:my_certificates' %}">
+                        <i class="fas fa-calendar-check me-1"></i> My Certificates
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{% url 'coordinator:logout' %}">
+                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="main-container">
+    <div class="content-wrapper">
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="section-header">
+                <h2><i class="fas fa-certificate"></i>My Certificates</h2>
+            </div>
+            
+            {% if certificates %}
+                <div class="certificates-grid">
+                    {% for certificate in certificates %}
+                        <div class="certificate-card">
+                            {% if certificate.pdf %}
+                                <img src="{{ certificate.pdf.url }}" alt="{{ certificate.event.name }}" class="certificate-image">
+                            {% else %}
+                                <div style="width: 100%; height: 200px; background: linear-gradient(135deg, var(--secondary-color) 0%, var(--primary-color) 100%); display: flex; align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-certificate" style="font-size: 3rem;"></i>
+                                </div>
+                            {% endif %}
+                            <div class="certificate-info">
+                                <h3>{{ certificate.event.name }}</h3>
+                                <p><strong>Issued:</strong> {{ certificate.issue_date|date:"F j, Y" }}</p>
+                                <p><strong>Type:</strong> {{ certificate.certificate_type|default:"Participation" }}</p>
+                                <p><strong>Status:</strong> 
+                                    <span style="color: {% if certificate.status == 'verified' %}#28a745{% else %}#ffc107{% endif %};">
+                                        {{ certificate.status|title }}
+                                    </span>
+                                </p>
+                                <div class="certificate-actions">
+                                    <a href="{{ certificate.pdf.url }}" target="_blank" class="btn-certificate btn-view">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </a>
+                                    <a href="{{ certificate.pdf.url }}" download class="btn-certificate btn-download">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-certificate"></i>
+                    <h3>No Certificates Yet</h3>
+                    <p>You haven't earned any certificates yet. Participate in events to earn certificates!</p>
+                    <a href="{% url 'student:student' %}" class="btn btn-primary mt-3">
+                        <i class="fas fa-calendar me-1"></i> Browse Events
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+    <div aria-live="polite" aria-atomic="true" class="position-relative">
+        <div class="toast-container position-fixed bottom-0 end-0 p-3">
+            {% for message in messages %}
+                <div class="toast align-items-center text-bg-{{ message.tags }} border-0" 
+                    role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+                            {{ message }}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" 
+                                data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<script src="{% static 'bootstrap.bundle.min.js' %}"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Initialize toasts
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        toastElList.map(function (toastEl) {
+            var toast = new bootstrap.Toast(toastEl)
+            toast.show()
+        });
+
+        // Add confirmation for downloads
+        const downloadButtons = document.querySelectorAll('.btn-download');
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Optional: Add download tracking or confirmation here
+                console.log('Downloading certificate...');
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% extends 'base.html' %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-5">
+  <div>
+    <h1 class="fw-bold mb-1">My <span class="text-gradient">Domains</span></h1>
+    <p class="text-muted small mb-0">
+      Manage your learning tracks, resources, and assignments.
+    </p>
+  </div>
+  <a
+    href="{% url 'mentor_add_domain' %}"
+    class="btn btn-primary px-4 shadow-sm"
+  >
+    <i class="fas fa-plus me-2"></i> New Domain
+  </a>
+</div>
+
+<div class="row g-4">
+  {% for domain in domains %}
+  <div class="col-md-6">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
+      <!-- Top accent -->
+      <div
+        style="
+          height: 4px;
+          background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        "
+      ></div>
+      <div class="p-4">
+        <!-- Title -->
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="fw-bold text-dark mb-0">{{ domain.name }}</h5>
+          <span class="badge bg-light text-primary border small"
+            >Lead Mentor</span
+          >
+        </div>
+        <p class="text-muted small mb-4">
+          {{ domain.description|truncatechars:100 }}
+        </p>
+
+        <!-- Stats -->
+        <div class="row g-2 mb-4">
+          <div class="col-6">
+            <div
+              class="p-3 rounded-3 d-flex align-items-center gap-2"
+              style="background: #f0f4ff"
+            >
+              <i class="fas fa-file-alt text-primary small"></i>
+              <div>
+                <p class="fw-bold mb-0 small">
+                  {{ domain.resources.count }} Resources
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div
+              class="p-3 rounded-3 d-flex align-items-center gap-2"
+              style="background: #fefce8"
+            >
+              <i class="fas fa-tasks text-warning small"></i>
+              <div>
+                <p class="fw-bold mb-0 small">
+                  {{ domain.assignments.count }} Assignments
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resource List -->
+        {% if domain.resources.all %}
+        <div class="mb-3">
+          <p class="small fw-semibold text-muted mb-2">Recent Resources</p>
+          {% for r in domain.resources.all|slice:":3" %}
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <i
+              class="fas fa-circle text-primary"
+              style="font-size: 0.45rem"
+            ></i>
+            <span class="small text-muted text-truncate">{{ r.title }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="d-flex gap-2 pt-3 border-top">
+          <a
+            href="{% url 'mentor_add_resource' domain.id %}"
+            class="btn btn-sm btn-outline-primary flex-fill"
+          >
+            <i class="fas fa-plus me-1"></i> Resource
+          </a>
+          <a
+            href="{% url 'mentor_add_assignment' domain.id %}"
+            class="btn btn-sm btn-outline-warning flex-fill"
+          >
+            <i class="fas fa-plus me-1"></i> Assignment
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm rounded-4 py-5 text-center">
+      <i class="fas fa-cubes fa-3x opacity-25 text-muted mb-3"></i>
+      <h5 class="text-muted fw-semibold">No domains yet</h5>
+      <p class="text-muted small">
+        Create your first domain to start guiding students.
+      </p>
+      <a
+        href="{% url 'mentor_add_domain' %}"
+        class="btn btn-primary btn-sm px-4 mt-2"
+      >
+        <i class="fas fa-plus me-1"></i> Create Domain
+      </a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

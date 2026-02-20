@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}TruthLens AI - Detector{% endblock %}
+
+{% block extra_css %}
+<style>
+    .detector-card {
+        max-width: 800px !important;
+    }
+
+    textarea {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 1rem;
+        padding: 1.25rem;
+        color: var(--text);
+        font-family: inherit;
+        font-size: 1rem;
+        resize: vertical;
+        min-height: 200px;
+        transition: all 0.3s ease;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2);
+    }
+
+    .result {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        text-align: center;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .result.REAL {
+        background: rgba(34, 197, 94, 0.1);
+        border: 1px solid var(--success);
+        color: var(--success);
+    }
+
+    .result.FAKE {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid var(--danger);
+        color: var(--danger);
+    }
+
+    .confidence {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        opacity: 0.8;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card detector-card">
+    <h1
+        style="font-size: 2.5rem; font-weight: 600; margin-bottom: 0.5rem; text-align: center; background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">
+        Fake News Detector</h1>
+    <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Enter a news article or headline to
+        check its authenticity.</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <textarea name="news_text" placeholder="Paste news content here..." required>{{ text }}</textarea>
+        <button type="submit" class="submit-btn"
+            style="display: flex; justify-content: center; align-items: center; gap: 0.5rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            Analyze News
+        </button>
+    </form>
+
+    {% if result %}
+    <div class="result {{ result }}">
+        <h2 style="margin: 0; font-size: 1.5rem;">PREDICTION: {{ result }}</h2>
+        <div class="confidence">Confidence: {{ confidence }}%</div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

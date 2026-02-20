@@ -1,0 +1,127 @@
+{% extends 'core/base.html' %}
+{% block title %}Mentor Dashboard - Neo-Compass{% endblock %}
+{% block content %}
+<div class="page-header animate-up d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold mb-1">Mentor Control Panel</h2>
+        <p class="text-muted mb-0">Manage curricula, track student performance, and curate resources.</p>
+    </div>
+    <a href="{% url 'manage_approvals' %}" class="btn btn-primary d-flex align-items-center shadow-sm">
+        <i class="bi bi-shield-check me-2"></i>Verify Students
+        {% if pending_students.count > 0 %}
+        <span class="badge bg-white text-primary ms-2 rounded-pill">{{ pending_students.count }}</span>
+        {% endif %}
+    </a>
+</div>
+
+<div class="row g-4 animate-up" style="animation-delay: 0.1s;">
+    <!-- Sidebar Management -->
+    <div class="col-lg-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-4">Quick Actions</h5>
+                <div class="d-grid gap-3">
+                    <a href="{% url 'mentor_add_domain' %}"
+                        class="btn btn-primary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-plus-circle me-2"></i>New Domain
+                    </a>
+                    <a href="{% url 'mentor_add_resource' %}"
+                        class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-file-earmark-plus me-2"></i>Add Resource
+                    </a>
+                    <a href="{% url 'mentor_add_assignment' %}"
+                        class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-clipboard-plus me-2"></i>Add Assignment
+                    </a>
+                    <hr class="my-2 opacity-10">
+                    <a href="{% url 'mentor_view_scores' %}"
+                        class="btn btn-light text-primary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-bar-chart-line me-2"></i>Student Scores
+                    </a>
+                    <a href="{% url 'view_student_profiles' %}"
+                        class="btn btn-light text-primary d-flex align-items-center justify-content-center">
+                        <i class="bi bi-people me-2"></i>Student Directory
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-lg-9">
+
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Active Learning Domains</h5>
+                <span class="badge-soft-info badge">{{ domains.count }} Domains Total</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4">Domain Name</th>
+                                <th>Resources</th>
+                                <th>Assignments</th>
+                                <th class="text-end pe-4">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for domain in domains %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary text-white rounded-3 p-2 me-3"
+                                            style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="bi bi-book"></i>
+                                        </div>
+                                        <span class="fw-bold">{{ domain.name }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge-soft-primary">{{ domain.resources.count }} Items</span>
+                                </td>
+                                <td>
+                                    <span class="badge-soft-success">{{ domain.assignments.count }} Tasks</span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-light text-primary"><i
+                                            class="bi bi-three-dots"></i></button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <i class="bi bi-inbox fs-1 d-block mb-3 opacity-25"></i>
+                                    No domains created yet. Start by adding your first domain.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm bg-gradient text-white"
+                    style="background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);">
+                    <div class="card-body p-4 text-center">
+                        <h1 class="display-4 fw-bold">{{ students.count|default:"0" }}</h1>
+                        <p class="mb-0 fw-medium">Active Students</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm bg-white border">
+                    <div class="card-body p-4 text-center">
+                        <h1 class="display-4 fw-bold text-primary">{{ domains.count|default:"0" }}</h1>
+                        <p class="mb-0 fw-medium text-muted">Educational Domains</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

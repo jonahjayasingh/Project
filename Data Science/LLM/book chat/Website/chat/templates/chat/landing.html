@@ -1,0 +1,131 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block title %}DocuChat AI - Intelligent Neural Retrieval{% endblock %}
+
+{% block extra_css %}
+@media (max-width: 1100px) {
+.title-giant { font-size: 4.5rem !important; letter-spacing: -2px !important; }
+.grid-premium { grid-template-columns: 1fr !important; }
+.nav-links { display: none !important; }
+}
+{% endblock %}
+
+{% block content %}
+<div class="landing-wrapper" style="min-height: 100vh; display: flex; flex-direction: column;">
+    <nav class="nav-glass"
+        style="position: fixed; top: 0; left: 0; right: 0; padding: 2rem 10%; display: flex; justify-content: space-between; align-items: center; z-index: 1000; background: rgba(2, 2, 2, 0.4); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-bottom: 1px solid var(--glass-border); animation: fadeIn 1s ease;">
+        <a href="/" class="logo-premium"
+            style="font-size: 1.6rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 15px; text-decoration: none; letter-spacing: -1.5px;">
+            <i class="fas fa-atom"
+                style="font-size: 2rem; background: var(--grad-accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 15px var(--accent-glow));"></i>
+            DOCUCHAT AI
+        </a>
+        <div class="nav-links" style="display: flex; gap: 3rem; align-items: center;">
+            <a href="#features" class="nav-item"
+                style="color: var(--text-secondary); text-decoration: none; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; transition: var(--transition);"
+                onmouseover="this.style.color='#fff'; this.style.textShadow='0 0 15px rgba(255,255,255,0.4)'"
+                onmouseout="this.style.color='var(--text-secondary)'; this.style.textShadow='none'">Core Systems</a>
+            <a href="{% url 'login' %}" class="nav-item"
+                style="color: var(--text-secondary); text-decoration: none; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 2px; transition: var(--transition);"
+                onmouseover="this.style.color='#fff'; this.style.textShadow='0 0 15px rgba(255,255,255,0.4)'"
+                onmouseout="this.style.color='var(--text-secondary)'; this.style.textShadow='none'">Operator Login</a>
+            <a href="{% url 'register' %}" class="btn btn-primary" style="padding: 0.8rem 2rem;">Initialize</a>
+        </div>
+    </nav>
+
+    <section class="hero-premium"
+        style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10rem 10% 5rem 10%; text-align: center; position: relative;">
+        <div class="hero-info" style="max-width: 1100px; animation: slideUp 1.2s cubic-bezier(0.16, 1, 0.3, 1);">
+            <div class="badge-premium"
+                style="display: inline-flex; align-items: center; gap: 10px; padding: 0.7rem 1.8rem; background: rgba(16, 163, 127, 0.1); border: 1px solid rgba(16, 163, 127, 0.2); border-radius: 100px; color: var(--accent-primary); font-size: 0.75rem; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 3rem;">
+                <i class="fas fa-shield-halved"></i>
+                ENCRYPTED NEURAL RETRIEVAL ACTIVE
+            </div>
+            <h1 class="title-giant"
+                style="font-size: 6.5rem; font-weight: 900; line-height: 0.95; letter-spacing: -5px; margin-bottom: 3rem; background: linear-gradient(to bottom, #ffffff 40%, #777); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 30px 50px rgba(0,0,0,0.6));">
+                Your Knowledge, <span
+                    style="background: var(--grad-accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Reinvented.</span>
+            </h1>
+            <p class="subtitle-premium"
+                style="font-size: 1.5rem; color: var(--text-secondary); margin-bottom: 5rem; max-width: 850px; margin-left: auto; margin-right: auto; line-height: 1.6; font-weight: 500;">
+                Transform static archives into dynamic intelligence. DocuChat AI leverages decentralized vector
+                processing to bring your documents to life.
+            </p>
+            <div class="action-group" style="display: flex; gap: 2.5rem; justify-content: center;">
+                <a href="{% url 'register' %}" class="btn btn-primary"
+                    style="padding: 1.2rem 4rem; font-size: 1rem;">Deploy Nexus <i class="fas fa-bolt"
+                        style="margin-left: 10px;"></i></a>
+                <a href="{% url 'login' %}" class="btn btn-secondary"
+                    style="padding: 1.2rem 3.5rem; font-size: 1rem;">System Access</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-premium" id="features" style="padding: 5rem 10% 10rem 10%;">
+        <div class="grid-premium" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 3rem;">
+            <!-- Neural Engine Card -->
+            <div class="card-premium"
+                style="background: rgba(15, 15, 15, 0.35); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); padding: 4.5rem 3.5rem; border-radius: var(--radius-lg); border: 1px solid var(--glass-border); transition: var(--transition); position: relative; overflow: hidden;"
+                onmouseover="this.style.transform='translateY(-20px) scale(1.03)'; this.style.borderColor='rgba(16, 163, 127, 0.4)'; this.style.background='rgba(20, 20, 20, 0.5)'; this.style.boxShadow='0 50px 100px rgba(0,0,0,0.8)'"
+                onmouseout="this.style.transform='none'; this.style.borderColor='var(--glass-border)'; this.style.background='rgba(15, 15, 15, 0.35)'; this.style.boxShadow='none'">
+                <div class="icon-box"
+                    style="width: 80px; height: 80px; background: var(--grad-accent); color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 24px; font-size: 2rem; margin-bottom: 3rem; box-shadow: 0 20px 40px var(--accent-glow);">
+                    <i class="fas fa-microchip"></i>
+                </div>
+                <h3 class="card-title"
+                    style="font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px;">Neural
+                    Engine</h3>
+                <p class="card-text" style="color: var(--text-secondary); line-height: 1.9; font-size: 1.1rem;">Advanced
+                    LLAVA-7B synthesis provides human-grade understanding of complex technical documentation.</p>
+            </div>
+
+            <!-- Private Vault Card -->
+            <div class="card-premium"
+                style="background: rgba(15, 15, 15, 0.35); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); padding: 4.5rem 3.5rem; border-radius: var(--radius-lg); border: 1px solid var(--glass-border); transition: var(--transition); position: relative; overflow: hidden;"
+                onmouseover="this.style.transform='translateY(-20px) scale(1.03)'; this.style.borderColor='rgba(16, 163, 127, 0.4)'; this.style.background='rgba(20, 20, 20, 0.5)'; this.style.boxShadow='0 50px 100px rgba(0,0,0,0.8)'"
+                onmouseout="this.style.transform='none'; this.style.borderColor='var(--glass-border)'; this.style.background='rgba(15, 15, 15, 0.35)'; this.style.boxShadow='none'">
+                <div class="icon-box"
+                    style="width: 80px; height: 80px; background: var(--grad-premium); color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 24px; font-size: 2rem; margin-bottom: 3rem; box-shadow: 0 20px 40px rgba(168, 85, 247, 0.3);">
+                    <i class="fas fa-vault"></i>
+                </div>
+                <h3 class="card-title"
+                    style="font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px;">Private
+                    Vault</h3>
+                <p class="card-text" style="color: var(--text-secondary); line-height: 1.9; font-size: 1.1rem;">
+                    Documents are vectorized and stored in a secure local enclave. No data ever crosses the public
+                    cloud.</p>
+            </div>
+
+            <!-- Vector Graph Card -->
+            <div class="card-premium"
+                style="background: rgba(15, 15, 15, 0.35); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); padding: 4.5rem 3.5rem; border-radius: var(--radius-lg); border: 1px solid var(--glass-border); transition: var(--transition); position: relative; overflow: hidden;"
+                onmouseover="this.style.transform='translateY(-20px) scale(1.03)'; this.style.borderColor='rgba(16, 163, 127, 0.4)'; this.style.background='rgba(20, 20, 20, 0.5)'; this.style.boxShadow='0 50px 100px rgba(0,0,0,0.8)'"
+                onmouseout="this.style.transform='none'; this.style.borderColor='var(--glass-border)'; this.style.background='rgba(15, 15, 15, 0.35)'; this.style.boxShadow='none'">
+                <div class="icon-box"
+                    style="width: 80px; height: 80px; background: var(--grad-accent); color: #fff; display: flex; align-items: center; justify-content: center; border-radius: 24px; font-size: 2rem; margin-bottom: 3rem; box-shadow: 0 20px 40px var(--accent-glow);">
+                    <i class="fas fa-network-wired"></i>
+                </div>
+                <h3 class="card-title"
+                    style="font-size: 1.8rem; font-weight: 800; margin-bottom: 1.5rem; letter-spacing: -1px;">Vector
+                    Graph</h3>
+                <p class="card-text" style="color: var(--text-secondary); line-height: 1.9; font-size: 1.1rem;">Instant
+                    cross-document semantic grouping allows you to query your entire library as a single brain.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer
+        style="padding: 6rem 10%; text-align: center; border-top: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
+        <div class="logo-premium"
+            style="justify-content: center; margin-bottom: 3rem; transform: scale(0.8); display: flex; align-items: center; gap: 15px; text-decoration: none; color: #fff;">
+            <i class="fas fa-atom"
+                style="font-size: 2rem; background: var(--grad-accent); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;"></i>
+            DOCUCHAT AI
+        </div>
+        <p style="color: var(--text-tertiary); font-size: 0.8rem; letter-spacing: 2px; font-weight: 700;">
+            PROJECT OVERVIEW • V2.8.4 • ARCHITECTURE: RAG-HYBRID
+        </p>
+    </footer>
+</div>
+{% endblock %}

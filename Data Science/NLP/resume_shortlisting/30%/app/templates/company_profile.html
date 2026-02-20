@@ -1,0 +1,142 @@
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Company Profile - MyCompany</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+        theme: {
+            extend: {
+            colors: {
+                primary: '#2563eb',
+                secondary: '#64748b',
+                success: '#22c55e'
+            }
+            }
+        }
+        }
+    </script>
+    </head>
+    <body class="bg-gray-50 min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-blue-600 text-white px-4 py-3 shadow-md">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <i class="fas fa-building text-xl"></i>
+            <h1 class="text-lg font-bold">MyCompany</h1>
+        </div>
+        <ul class="flex space-x-4 md:space-x-6">
+            <li><a href="{% url 'dashboard' %}" class="hover:underline flex items-center"><i class="fas fa-th-large mr-1"></i> <span class="hidden md:inline">Dashboard</span></a></li>
+            <li><a href="#" class="hover:underline flex items-center"><i class="fas fa-user mr-1"></i> <span class="hidden md:inline">Profile</span></a></li>
+            <li><a href="{% url 'logout' %}" class="hover:underline flex items-center"><i class="fas fa-sign-out-alt mr-1"></i> <span class="hidden md:inline">Logout</span></a></li>
+        </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 py-8">
+        <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <!-- Header -->
+        <div class="bg-primary text-white px-6 py-4">
+            <h2 class="text-xl font-bold">Company Profile</h2>
+            <p class="text-blue-100">Manage your company information</p>
+        </div>
+        
+        <!-- Profile Form -->
+        <form method="POST" enctype="multipart/form-data" class="p-6 space-y-6">
+            {% csrf_token %}
+            
+            <!-- Logo Upload -->
+            <div class="flex flex-col items-center mb-6">
+            <div class="relative mb-4">
+                <img id="logo-preview" src="{% if user.companyprofile.all.0.company_logo %}{{ user.companyprofile.all.0.company_logo.url }}{% else %}{% endif %}" alt="" class="w-32 h-32 rounded-full object-cover border-4 border-gray-200">
+                <label for="logo-upload" class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full cursor-pointer shadow-md">
+                <i class="fas fa-camera"></i>
+                </label>
+                <input id="logo-upload" type="file" name="company_logo" accept="image/*" class="hidden">
+            </div>
+            <p class="text-sm text-gray-500">Click on camera icon to upload logo</p>
+            </div>
+            
+
+            
+            <!-- Form Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 text-center items-center justify-center">
+            <div class="md:col-span-2">
+                <label for="user_name" class="block text-sm font-medium text-gray-700 mb-1"> User Name</label>
+                <input type="text" id="user_name" name="user_name" value="{{ user.username }}" disabled
+                    class="w-full text-center px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-center">
+            </div>
+            
+            <div>
+                <label for="company_name" class="block text-sm font-medium text-gray-700 mb-1">Company Name *</label>
+                <input type="text" id="company_name" name="company_name" value="{{ user.companyprofile.all.0.company_name }}" required
+                    class="w-full text-center px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+            </div>
+            
+            <!-- Phone -->
+            <div>
+                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
+                <input type="tel" id="phone" name="phone" value="{{ user.companyprofile.all.0.phone }}" required
+                    class="w-full text-center px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+            </div>
+            
+            <!-- Address -->
+            <div class="md:col-span-2">
+                <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Address *</label>
+                <input type="text" id="address" name="address" value="{{ user.companyprofile.all.0.address }}" required
+                    class="w-full text-center px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+            </div>
+            
+            <!-- Company Description -->
+            <div class="md:col-span-2">
+                <label for="company_description" class="block text-sm font-medium text-gray-700 mb-1">Company Description *</label>
+                <textarea id="company_description" name="company_description" rows="4" required
+                        class="w-full text-center px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">{{ user.companyprofile.all.0.company_description }}</textarea>
+            </div>
+            </div>
+            
+            <!-- Form Actions -->
+            <div class="flex flex-col-reverse md:flex-row justify-between items-center gap-4 pt-6 border-t">
+            {% comment %} <a href="#" class="text-sm text-blue-600 hover:text-blue-800 hover:underline">Change Password</a> {% endcomment %}
+            <div class="flex space-x-3">
+                
+                <button type="submit" class="px-5 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 transition-colors flex items-center">
+                <i class="fas fa-save mr-2"></i> Save Changes
+                </button>
+            </div>
+            </div>
+        </form>
+        </div>
+        
+        <!-- Success Message (would be shown after successful update) -->
+        <div id="success-message" class="hidden mt-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+        <strong class="font-bold">Success!</strong>
+        <span class="block sm:inline"> Your profile has been updated successfully.</span>
+        <span class="absolute top-0 bottom-0 right-0 px-4 py-3">
+            <i class="fas fa-times cursor-pointer" onclick="this.parentElement.parentElement.style.display='none'"></i>
+        </span>
+        </div>
+    </main>
+
+    <script>
+        // Logo preview functionality
+        document.getElementById('logo-upload').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+            document.getElementById('logo-preview').src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+        });
+        
+       
+    </script>
+    </body>
+    </html>

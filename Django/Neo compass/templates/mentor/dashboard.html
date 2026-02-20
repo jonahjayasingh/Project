@@ -1,0 +1,256 @@
+{% extends 'base.html' %} {% block content %}
+
+<!-- Header -->
+<div class="d-flex justify-content-between align-items-center mb-5">
+  <div>
+    <h1 class="fw-bold mb-1">
+      Mentor <span class="text-gradient">Dashboard</span>
+    </h1>
+    <p class="text-muted small mb-0">
+      Welcome back, <strong>{{ request.user.username }}</strong>. Here's your
+      overview.
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a
+      href="{% url 'mentor_add_domain' %}"
+      class="btn btn-primary btn-sm px-3 shadow-sm"
+    >
+      <i class="fas fa-plus me-1"></i> New Domain
+    </a>
+  </div>
+</div>
+
+<!-- Stats Row -->
+<div class="row g-4 mb-5">
+  <div class="col-sm-6 col-md-3">
+    <div
+      class="card border-0 shadow-sm p-4"
+      style="border-left: 4px solid #4f46e5 !important"
+    >
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted small fw-semibold mb-1">Total Students</p>
+          <h2 class="fw-bold mb-0" style="color: #1e293b">
+            {{ my_students.count }}
+          </h2>
+        </div>
+        <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary">
+          <i class="fas fa-user-graduate fa-lg"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-3">
+    <div
+      class="card border-0 shadow-sm p-4"
+      style="border-left: 4px solid #10b981 !important"
+    >
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted small fw-semibold mb-1">Approved</p>
+          <h2 class="fw-bold mb-0" style="color: #059669">
+            {{ approved_students.count }}
+          </h2>
+        </div>
+        <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success">
+          <i class="fas fa-user-check fa-lg"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-3">
+    <div
+      class="card border-0 shadow-sm p-4"
+      style="border-left: 4px solid #f59e0b !important"
+    >
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted small fw-semibold mb-1">Pending Reviews</p>
+          <h2 class="fw-bold mb-0" style="color: #d97706">
+            {{ pending_approvals.count }}
+          </h2>
+        </div>
+        <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning">
+          <i class="fas fa-user-clock fa-lg"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-md-3">
+    <div
+      class="card border-0 shadow-sm p-4"
+      style="border-left: 4px solid #6366f1 !important"
+    >
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <p class="text-muted small fw-semibold mb-1">My Domains</p>
+          <h2 class="fw-bold mb-0" style="color: #4f46e5">
+            {{ my_domains.count }}
+          </h2>
+        </div>
+        <div
+          class="bg-secondary bg-opacity-10 p-3 rounded-3"
+          style="color: #6366f1"
+        >
+          <i class="fas fa-cubes fa-lg"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Pending Approvals -->
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm overflow-hidden">
+      <div
+        class="px-4 py-3 d-flex justify-content-between align-items-center border-bottom"
+      >
+        <h6 class="fw-bold mb-0">
+          <i class="fas fa-hourglass-half text-warning me-2"></i>Pending
+          Approvals
+        </h6>
+        {% if pending_approvals.count > 0 %}
+        <span class="badge" style="background: #fef3c7; color: #92400e"
+          >{{ pending_approvals.count }} waiting</span
+        >
+        {% endif %}
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th class="ps-4">Student</th>
+              <th>Preferred Domain</th>
+              <th class="text-end pe-4">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for profile in pending_approvals %}
+            <tr>
+              <td class="ps-4">
+                <div class="d-flex align-items-center">
+                  <div
+                    class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center fw-bold me-3"
+                    style="width: 38px; height: 38px"
+                  >
+                    {{ profile.user.username|first|upper }}
+                  </div>
+                  <div>
+                    <p class="fw-bold mb-0 small">
+                      {{ profile.user.username }}
+                    </p>
+                    <p class="text-muted mb-0" style="font-size: 0.75rem">
+                      Joined recently
+                    </p>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border small">
+                  {{ profile.preferred_domain.name|default:"Not set" }}
+                </span>
+              </td>
+              <td class="text-end pe-4">
+                <a
+                  href="{% url 'mentor_approve_student' profile.id %}"
+                  class="btn btn-sm btn-primary px-3"
+                >
+                  <i class="fas fa-eye me-1"></i> Review
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="3" class="py-5 text-center text-muted">
+                <i
+                  class="fas fa-check-circle fa-2x text-success mb-2 d-block opacity-50"
+                ></i>
+                All students reviewed — no pending approvals.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions + Student Roster -->
+  <div class="col-lg-5 d-flex flex-column gap-4">
+    <!-- Quick Actions -->
+    <div class="card border-0 shadow-sm p-4">
+      <h6 class="fw-bold mb-4">
+        <i class="fas fa-bolt text-primary me-2"></i>Quick Actions
+      </h6>
+      <div class="d-grid gap-2">
+        <a
+          href="{% url 'mentor_domains' %}"
+          class="btn btn-outline-primary text-start px-4 py-2"
+        >
+          <i class="fas fa-cubes me-2"></i> Manage Domains
+        </a>
+        <a
+          href="{% url 'grade_submissions' %}"
+          class="btn btn-outline-warning text-start px-4 py-2"
+        >
+          <i class="fas fa-star-half-alt me-2"></i> Grade Submissions
+        </a>
+        <a
+          href="{% url 'mentor_students' %}"
+          class="btn btn-outline-secondary text-start px-4 py-2"
+        >
+          <i class="fas fa-users me-2"></i> View All Students
+        </a>
+      </div>
+    </div>
+
+    <!-- My Students Mini-List -->
+    <div class="card border-0 shadow-sm overflow-hidden flex-grow-1">
+      <div
+        class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center"
+      >
+        <h6 class="fw-bold mb-0">
+          <i class="fas fa-users text-secondary me-2"></i>My Students
+        </h6>
+        <a
+          href="{% url 'mentor_students' %}"
+          class="small text-primary text-decoration-none fw-bold"
+          >View all →</a
+        >
+      </div>
+      <div style="max-height: 280px; overflow-y: auto">
+        {% for profile in my_students %}
+        <div class="d-flex align-items-center px-4 py-3 border-bottom">
+          <div
+            class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-3"
+            style="width: 36px; height: 36px; font-size: 0.8rem"
+          >
+            {{ profile.user.username|first|upper }}
+          </div>
+          <div class="flex-grow-1">
+            <p class="fw-semibold mb-0 small">{{ profile.user.username }}</p>
+            <p class="text-muted mb-0" style="font-size: 0.73rem">
+              {{ profile.points }} pts · Level {{ profile.level }}
+            </p>
+          </div>
+          <span
+            class="badge {% if profile.approval_status == 'APPROVED' %}bg-success{% elif profile.approval_status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %}"
+            style="font-size: 0.7rem"
+          >
+            {{ profile.approval_status }}
+          </span>
+        </div>
+        {% empty %}
+        <div class="py-5 text-center text-muted small">
+          <i class="fas fa-user-plus fa-2x mb-2 d-block opacity-25"></i>
+          No students assigned yet.
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

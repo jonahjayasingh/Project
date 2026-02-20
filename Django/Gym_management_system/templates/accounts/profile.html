@@ -1,0 +1,790 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Gym Management System{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 20px;
+        padding: 3rem 2rem;
+        color: white;
+        position: relative;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .profile-header::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+        animation: pulse 15s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            transform: scale(1);
+            opacity: 0.5;
+        }
+
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+    }
+
+    .profile-photo-wrapper {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .profile-photo {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 6px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .profile-photo:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .profile-photo-placeholder {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.1) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        border: 6px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .photo-upload-btn {
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .photo-upload-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .photo-upload-btn i {
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .profile-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .stat-item {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        padding: 1.5rem;
+        text-align: center;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .stat-item:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-5px);
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        border: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+    .profile-card:hover {
+        box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+        transform: translateY(-5px);
+    }
+
+    .nav-tabs-custom {
+        border-bottom: 2px solid #e5e7eb;
+        margin-bottom: 2rem;
+    }
+
+    .nav-tabs-custom .nav-link {
+        border: none;
+        color: #6b7280;
+        font-weight: 600;
+        padding: 1rem 1.5rem;
+        position: relative;
+        transition: all 0.3s ease;
+    }
+
+    .nav-tabs-custom .nav-link:hover {
+        color: #667eea;
+        background: transparent;
+    }
+
+    .nav-tabs-custom .nav-link.active {
+        color: #667eea;
+        background: transparent;
+    }
+
+    .nav-tabs-custom .nav-link.active::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 3px 3px 0 0;
+    }
+
+    .form-floating-custom {
+        position: relative;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-floating-custom input,
+    .form-floating-custom select,
+    .form-floating-custom textarea {
+        width: 100%;
+        padding: 1rem 1rem 1rem 3rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+    }
+
+    .form-floating-custom input:focus,
+    .form-floating-custom select:focus,
+    .form-floating-custom textarea:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        outline: none;
+    }
+
+    .form-floating-custom label {
+        position: absolute;
+        top: 50%;
+        left: 3rem;
+        transform: translateY(-50%);
+        color: #6b7280;
+        font-size: 1rem;
+        pointer-events: none;
+        transition: all 0.3s ease;
+        background: white;
+        padding: 0 0.5rem;
+    }
+
+    .form-floating-custom input:focus+label,
+    .form-floating-custom input:not(:placeholder-shown)+label,
+    .form-floating-custom select:focus+label,
+    .form-floating-custom select:not([value=""])+label,
+    .form-floating-custom textarea:focus+label,
+    .form-floating-custom textarea:not(:placeholder-shown)+label {
+        top: 0;
+        left: 2.5rem;
+        font-size: 0.75rem;
+        color: #667eea;
+        font-weight: 600;
+    }
+
+    .form-icon {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #9ca3af;
+        font-size: 1.2rem;
+        z-index: 1;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .info-row:last-child {
+        border-bottom: none;
+    }
+
+    .info-label {
+        color: #6b7280;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .info-value {
+        font-weight: 600;
+        color: #1f2937;
+    }
+
+    .btn-gradient {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-gradient:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-outline-gradient {
+        background: transparent;
+        border: 2px solid #667eea;
+        color: #667eea;
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-gradient:hover {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: transparent;
+        transform: translateY(-2px);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #1f2937;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 3px solid #667eea;
+        display: inline-block;
+    }
+
+    .badge-status {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.875rem;
+    }
+
+    .file-upload-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+
+    .file-upload-wrapper input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+
+    .file-upload-label {
+        display: inline-block;
+        padding: 0.5rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+
+    .file-upload-label:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            padding: 2rem 1rem;
+        }
+
+        .profile-stats {
+            grid-template-columns: 1fr;
+        }
+
+        .stat-item {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="row align-items-center position-relative" style="z-index: 1;">
+            <div class="col-md-4 text-center">
+                <div class="profile-photo-wrapper">
+                    {% if user.profile_photo %}
+                    <img src="{{ user.profile_photo.url }}" class="profile-photo" alt="Profile Photo"
+                        id="profilePhotoPreview">
+                    {% else %}
+                    <div class="profile-photo-placeholder">
+                        <i class="bi bi-person"></i>
+                    </div>
+                    {% endif %}
+                    <label for="id_profile_photo" class="photo-upload-btn">
+                        <i class="bi bi-camera-fill"></i>
+                    </label>
+                </div>
+                <h3 class="mb-2">{{ user.get_full_name|default:user.username }}</h3>
+                <p class="mb-0 opacity-75"><i class="bi bi-shield-check me-2"></i>{{ user.get_role_display }}</p>
+            </div>
+            <div class="col-md-8">
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value"><i class="bi bi-calendar-check"></i></div>
+                        <div class="stat-label">Member Since</div>
+                        <div class="mt-2">{{ user.date_joined|date:"M Y" }}</div>
+                    </div>
+                    {% if member_profile %}
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            {% if member_profile.status == 'active' %}
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            {% elif member_profile.status == 'inactive' %}
+                            <i class="bi bi-x-circle-fill text-secondary"></i>
+                            {% else %}
+                            <i class="bi bi-pause-circle-fill text-warning"></i>
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Status</div>
+                        <div class="mt-2">{{ member_profile.get_status_display }}</div>
+                    </div>
+                    {% if member_profile.height and member_profile.weight %}
+                    <div class="stat-item">
+                        <div class="stat-value">{{ member_profile.weight|floatformat:1 }}</div>
+                        <div class="stat-label">Weight (kg)</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ member_profile.height|floatformat:0 }}</div>
+                        <div class="stat-label">Height (cm)</div>
+                    </div>
+                    {% endif %}
+                    {% endif %}
+                    {% if trainer_profile %}
+                    <div class="stat-item">
+                        <div class="stat-value">{{ trainer_profile.experience_years }}</div>
+                        <div class="stat-label">Years Exp.</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">
+                            {% if trainer_profile.is_available %}
+                            <i class="bi bi-check-circle-fill text-success"></i>
+                            {% else %}
+                            <i class="bi bi-x-circle-fill text-danger"></i>
+                            {% endif %}
+                        </div>
+                        <div class="stat-label">Availability</div>
+                        <div class="mt-2">{% if trainer_profile.is_available %}Available{% else %}Busy{% endif %}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="profile-card">
+                <div class="card-body p-4">
+                    <!-- Tabs -->
+                    <ul class="nav nav-tabs nav-tabs-custom" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="personal-tab" data-bs-toggle="tab"
+                                data-bs-target="#personal" type="button" role="tab">
+                                <i class="bi bi-person me-2"></i>Personal Info
+                            </button>
+                        </li>
+                        {% if member_form %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="health-tab" data-bs-toggle="tab" data-bs-target="#health"
+                                type="button" role="tab">
+                                <i class="bi bi-heart-pulse me-2"></i>Health & Fitness
+                            </button>
+                        </li>
+                        {% endif %}
+                        {% if trainer_form %}
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="professional-tab" data-bs-toggle="tab"
+                                data-bs-target="#professional" type="button" role="tab">
+                                <i class="bi bi-award me-2"></i>Professional
+                            </button>
+                        </li>
+                        {% endif %}
+                    </ul>
+
+                    <!-- Tab Content -->
+                    <form method="post" enctype="multipart/form-data" id="profileForm">
+                        {% csrf_token %}
+
+                        <!-- Hidden file input -->
+                        <div style="display: none;">
+                            {{ user_form.profile_photo }}
+                        </div>
+
+                        <div class="tab-content mt-4">
+                            <!-- Personal Information Tab -->
+                            <div class="tab-pane fade show active" id="personal" role="tabpanel">
+                                <h5 class="section-title">Personal Information</h5>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-person form-icon"></i>
+                                            {{ user_form.first_name }}
+                                            <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-person form-icon"></i>
+                                            {{ user_form.last_name }}
+                                            <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-envelope form-icon"></i>
+                                            {{ user_form.email }}
+                                            <label for="{{ user_form.email.id_for_label }}">Email Address</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-telephone form-icon"></i>
+                                            {{ user_form.phone_number }}
+                                            <label for="{{ user_form.phone_number.id_for_label }}">Phone Number</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-calendar form-icon"></i>
+                                            {{ user_form.date_of_birth }}
+                                            <label for="{{ user_form.date_of_birth.id_for_label }}">Date of
+                                                Birth</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-gender-ambiguous form-icon"></i>
+                                            {{ user_form.gender }}
+                                            <label for="{{ user_form.gender.id_for_label }}">Gender</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-floating-custom">
+                                    <i class="bi bi-geo-alt form-icon"></i>
+                                    {{ user_form.address }}
+                                    <label for="{{ user_form.address.id_for_label }}">Address</label>
+                                </div>
+                            </div>
+
+                            <!-- Health & Fitness Tab (Members) -->
+                            {% if member_form %}
+                            <div class="tab-pane fade" id="health" role="tabpanel">
+                                <h5 class="section-title">Health & Fitness Information</h5>
+
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-droplet form-icon"></i>
+                                            {{ member_form.blood_group }}
+                                            <label for="{{ member_form.blood_group.id_for_label }}">Blood Group</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-rulers form-icon"></i>
+                                            {{ member_form.height }}
+                                            <label for="{{ member_form.height.id_for_label }}">Height (cm)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-speedometer form-icon"></i>
+                                            {{ member_form.weight }}
+                                            <label for="{{ member_form.weight.id_for_label }}">Weight (kg)</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-floating-custom">
+                                    <i class="bi bi-trophy form-icon"></i>
+                                    {{ member_form.fitness_goal }}
+                                    <label for="{{ member_form.fitness_goal.id_for_label }}">Fitness Goals</label>
+                                </div>
+
+                                <div class="form-floating-custom">
+                                    <i class="bi bi-clipboard-pulse form-icon"></i>
+                                    {{ member_form.medical_notes }}
+                                    <label for="{{ member_form.medical_notes.id_for_label }}">Medical Notes</label>
+                                </div>
+
+                                <h5 class="section-title mt-4">Emergency Contact</h5>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-person-badge form-icon"></i>
+                                            {{ member_form.emergency_contact_name }}
+                                            <label for="{{ member_form.emergency_contact_name.id_for_label }}">Contact
+                                                Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-telephone-fill form-icon"></i>
+                                            {{ member_form.emergency_contact_phone }}
+                                            <label for="{{ member_form.emergency_contact_phone.id_for_label }}">Contact
+                                                Phone</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            <!-- Professional Tab (Trainers) -->
+                            {% if trainer_form %}
+                            <div class="tab-pane fade" id="professional" role="tabpanel">
+                                <h5 class="section-title">Professional Information</h5>
+
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-award form-icon"></i>
+                                            {{ trainer_form.specialization }}
+                                            <label
+                                                for="{{ trainer_form.specialization.id_for_label }}">Specialization</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-calendar-check form-icon"></i>
+                                            {{ trainer_form.experience_years }}
+                                            <label for="{{ trainer_form.experience_years.id_for_label }}">Experience
+                                                (years)</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="form-floating-custom">
+                                            <i class="bi bi-currency-dollar form-icon"></i>
+                                            {{ trainer_form.hourly_rate }}
+                                            <label for="{{ trainer_form.hourly_rate.id_for_label }}">Hourly Rate</label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-floating-custom">
+                                    <i class="bi bi-patch-check form-icon"></i>
+                                    {{ trainer_form.certifications }}
+                                    <label for="{{ trainer_form.certifications.id_for_label }}">Certifications</label>
+                                </div>
+
+                                <div class="form-floating-custom">
+                                    <i class="bi bi-file-text form-icon"></i>
+                                    {{ trainer_form.bio }}
+                                    <label for="{{ trainer_form.bio.id_for_label }}">Professional Bio</label>
+                                </div>
+
+                                <div class="form-check form-switch" style="padding-left: 3rem;">
+                                    {{ trainer_form.is_available }}
+                                    <label class="form-check-label" for="{{ trainer_form.is_available.id_for_label }}"
+                                        style="font-weight: 600;">
+                                        <i class="bi bi-check-circle me-2"></i>Available for Training Sessions
+                                    </label>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="mt-4 d-flex gap-3">
+                            <button type="submit" class="btn btn-gradient">
+                                <i class="bi bi-save me-2"></i>Save Changes
+                            </button>
+                            <a href="{% url 'dashboard:home' %}" class="btn btn-outline-gradient">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Information Sidebar -->
+        <div class="col-lg-4">
+            <div class="profile-card">
+                <div class="card-body p-4">
+                    <h5 class="section-title">Account Details</h5>
+
+                    <div class="info-card">
+                        <div class="info-row">
+                            <span class="info-label">
+                                <i class="bi bi-person-circle"></i>
+                                Username
+                            </span>
+                            <span class="info-value">{{ user.username }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">
+                                <i class="bi bi-shield-check"></i>
+                                Role
+                            </span>
+                            <span class="info-value">{{ user.get_role_display }}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">
+                                <i class="bi bi-calendar-check"></i>
+                                Joined
+                            </span>
+                            <span class="info-value">{{ user.date_joined|date:"M d, Y" }}</span>
+                        </div>
+                        {% if member_profile %}
+                        <div class="info-row">
+                            <span class="info-label">
+                                <i class="bi bi-activity"></i>
+                                Status
+                            </span>
+                            <span class="info-value">
+                                {% if member_profile.status == 'active' %}
+                                <span class="badge bg-success badge-status">Active</span>
+                                {% elif member_profile.status == 'inactive' %}
+                                <span class="badge bg-secondary badge-status">Inactive</span>
+                                {% else %}
+                                <span class="badge bg-warning badge-status">Frozen</span>
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-gradient w-100">
+                            <i class="bi bi-key me-2"></i>Change Password
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if member_profile and member_profile.fitness_goal %}
+            <div class="profile-card mt-4">
+                <div class="card-body p-4">
+                    <h5 class="section-title">Fitness Goal</h5>
+                    <div class="info-card">
+                        <p class="mb-0" style="color: #4b5563; line-height: 1.6;">
+                            <i class="bi bi-trophy text-warning me-2"></i>
+                            {{ member_profile.fitness_goal }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    // Profile photo preview
+    document.getElementById('id_profile_photo').addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const preview = document.getElementById('profilePhotoPreview');
+                if (preview) {
+                    preview.src = e.target.result;
+                } else {
+                    // Create new image if placeholder exists
+                    const placeholder = document.querySelector('.profile-photo-placeholder');
+                    if (placeholder) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'profile-photo';
+                        img.id = 'profilePhotoPreview';
+                        placeholder.replaceWith(img);
+                    }
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Add placeholder attribute to inputs for floating labels
+    document.querySelectorAll('.form-floating-custom input, .form-floating-custom select, .form-floating-custom textarea').forEach(input => {
+        input.setAttribute('placeholder', ' ');
+    });
+</script>
+{% endblock %}

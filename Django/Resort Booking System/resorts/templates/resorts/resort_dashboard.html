@@ -1,0 +1,685 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Manage {{ resort.name }} | Paradise Resorts{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --stat-card-gradient: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    }
+
+    .dashboard-container {
+        padding-top: 1rem;
+    }
+
+    .glass-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 32px;
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--premium-shadow);
+    }
+
+    .stat-card {
+        padding: 2rem;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .stat-icon {
+        width: 56px;
+        height: 56px;
+        border-radius: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+        margin-bottom: 0;
+        background: linear-gradient(135deg, var(--text-main), #475569);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .premium-table {
+        margin-bottom: 0;
+    }
+
+    .premium-table th {
+        background: transparent;
+        border-bottom: 2px solid var(--border);
+        padding: 1.5rem 1rem;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 800;
+    }
+
+    .premium-table td {
+        padding: 1.5rem 1rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .suite-image-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: var(--bg-main);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary);
+    }
+
+    .action-button {
+        width: 42px;
+        height: 42px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--text-main);
+        text-decoration: none;
+    }
+
+    .action-button:hover {
+        background: var(--primary);
+        color: white;
+        transform: scale(1.1);
+        border-color: var(--primary);
+    }
+
+    .action-button.delete:hover {
+        background: #ef4444;
+        border-color: #ef4444;
+    }
+
+    .action-button.edit:hover {
+        background: var(--primary);
+    }
+
+    .action-button.view:hover {
+        background: var(--secondary);
+        border-color: var(--secondary);
+    }
+
+    .badge-premium {
+        padding: 0.6rem 1.2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 0.05em;
+    }
+
+    .bg-revenue {
+        background: rgba(99, 102, 241, 0.1);
+        color: var(--primary);
+    }
+
+    .bg-bookings {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+    }
+
+    .bg-checkins {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--accent);
+    }
+
+    .bg-status {
+        background: var(--text-main);
+        color: white;
+    }
+
+    .chart-container {
+        height: 300px;
+        margin-top: 2rem;
+    }
+
+    .quick-action-card {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        border-radius: 32px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .quick-action-card h4 {
+        color: white;
+        font-weight: 800;
+    }
+
+    .quick-action-card p {
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 0.9rem;
+    }
+
+    .floating-icon {
+        position: absolute;
+        bottom: -20px;
+        right: -10px;
+        font-size: 8rem;
+        opacity: 0.1;
+        transform: rotate(-15deg);
+    }
+
+    .breadcrumb-premium {
+        margin-bottom: 2rem;
+    }
+
+    .breadcrumb-premium .breadcrumb-item a {
+        color: var(--text-muted);
+        text-decoration: none;
+        font-weight: 700;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-premium .breadcrumb-item a:hover {
+        color: var(--primary);
+    }
+
+    .breadcrumb-premium .breadcrumb-item.active {
+        color: var(--text-main);
+        font-weight: 800;
+    }
+
+    .scroll-x-mobile {
+        display: flex;
+        overflow-x: auto;
+        padding-bottom: 10px;
+        gap: 10px;
+    }
+
+    .scroll-x-mobile::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    .scroll-x-mobile::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .display-4 {
+            font-size: 2.25rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Header/Breadcrumb -->
+    <nav aria-label="breadcrumb" class="breadcrumb-premium animate-in">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'owner_dashboard' %}">Portfolio Hub</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ resort.name }} Console</li>
+        </ol>
+    </nav>
+
+    <!-- Main Title & Actions -->
+    <div class="row align-items-center mb-5 animate-in">
+        <div class="col-lg-7">
+            <h6 class="text-primary fw-800 text-uppercase tracking-widest mb-2">Resort Command Center</h6>
+            <h1 class="display-4 fw-bold mb-3">{{ resort.name }} <span class="gradient-text">Operations</span></h1>
+            <div class="d-flex flex-wrap align-items-center text-muted gap-4">
+                <div><i class="bi bi-geo-alt-fill text-primary me-2"></i>{{ resort.location }}</div>
+                <div><i class="bi bi-calendar3 text-primary me-2"></i>Managing since {{resort.owner.date_joined|date:"Y" }}</div>
+                <div><span
+                        class="badge {% if resort.is_approved %}bg-success{% else %}bg-warning{% endif %} rounded-pill px-3">{%if resort.is_approved %}Verified Property{% else %}Pending Approval{% endif %}</span></div>
+            </div>
+        </div>
+        <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
+            <div class="d-flex gap-2 justify-content-lg-end scroll-x-mobile">
+                <a href="{% url 'resort_update' resort.id %}"
+                    class="btn btn-light px-4 py-3 glass-card shadow-sm border-0"
+                    style="border-radius: 18px; font-weight: 700; white-space: nowrap;">
+                    <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                </a>
+                <a href="{% url 'room_create' resort.id %}" class="btn btn-primary px-4 py-3 shadow-premium"
+                    style="border-radius: 18px; font-weight: 700; white-space: nowrap;">
+                    <i class="bi bi-plus-lg me-2"></i>Add Suite
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="row g-4 mb-5 animate-in">
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card h-100">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-icon bg-revenue">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                        <div class="stat-label">Total Revenue</div>
+                    </div>
+                    <div class="stat-value">₹ {{ total_revenue|floatformat:0 }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card h-100">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-icon bg-bookings">
+                            <i class="bi bi-calendar2-check"></i>
+                        </div>
+                        <div class="stat-label">Reservations</div>
+                    </div>
+                    <div class="stat-value">{{ total_bookings }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card h-100">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-icon bg-checkins">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                        <div class="stat-label">Today's Guests</div>
+                    </div>
+                    <div class="stat-value">{{ checkins_today }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="glass-card h-100">
+                <div class="stat-card">
+                    <div>
+                        <div class="stat-icon bg-status">
+                            <i class="bi bi-shield-lock-fill"></i>
+                        </div>
+                        <div class="stat-label">Channel Status</div>
+                    </div>
+                    <div class="stat-value text-uppercase" style="font-size: 1.5rem;">{%if resort.is_approved%}ACTIVE{% else %}PENDING{% endif %}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-5">
+        <!-- Main Content Column -->
+        <div class="col-xl-8">
+            <!-- Suite Management -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-800 mb-0">Inventory <span class="gradient-text">Suites</span></h3>
+                <span class="badge bg-light text-muted border px-3 py-2 rounded-4 fw-800 smallest text-uppercase">
+                    {{ rooms.count }} UNIT TYPES
+                </span>
+            </div>
+
+            <div class="glass-card mb-5 border-0 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table premium-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Accommodation</th>
+                                <th>Daily Rate</th>
+                                <th class="text-center">Inventory</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for room in rooms %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="suite-image-placeholder me-3">
+                                            <i class="bi bi-house-door-fill"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-800 fs-5 text-dark">{{ room.room_type }}</div>
+                                            <div class="smallest text-muted fw-bold text-uppercase opacity-75">
+                                                Max {{ room.capacity }} Guests Configuration
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="fw-800 text-primary fs-5">₹ {{ room.price }}</span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge-premium bg-success-subtle text-success">
+                                        {{ room.total_rooms }} UNITS
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex gap-2 justify-content-end">
+                                        {% if room.ar_model %}
+                                        <button type="button" class="action-button view" data-bs-toggle="modal"
+                                            data-bs-target="#arRoomModal" data-room-name="{{ room.room_type }}"
+                                            data-ar-model="{{ room.ar_model.url }}" title="Digital Twin">
+                                            <i class="bi bi-box-seam"></i>
+                                        </button>
+                                        {% endif %}
+                                        <a href="{% url 'room_update' room.id %}" class="action-button edit"
+                                            title="Configure Suite"><i class="bi bi-pencil-fill"></i></a>
+                                        <a href="{% url 'room_delete' room.id %}"
+                                            class="action-button delete text-danger" title="Retire Suite"><i
+                                                class="bi bi-trash-fill"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center py-5 text-muted">
+                                    <div class="mb-3"><i class="bi bi-inbox fs-1 opacity-25"></i></div>
+                                    No suites cataloged yet.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-800 mb-0">Manifest <span class="gradient-text">Bookings</span></h3>
+                <a href="{% url 'admin_booking_list' %}" class="text-primary fw-800 text-decoration-none smallest">VIEW
+                    ALL BOOKINGS <i class="bi bi-arrow-right ms-1"></i></a>
+            </div>
+
+            <div class="glass-card mb-5 border-0 shadow-sm">
+                <div class="table-responsive">
+                    <table class="table premium-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Guest Identity</th>
+                                <th>Stay Duration</th>
+                                <th>Financials</th>
+                                <th>Status</th>
+                                <th class="text-end">Verification</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="rounded-circle bg-light border me-3 d-flex align-items-center justify-content-center"
+                                            style="width: 40px; height: 40px;">
+                                            <i class="bi bi-person text-muted"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-800 text-dark">{{ booking.user.username }}</div>
+                                            <div class="smallest text-muted fw-bold">REF: #{{ booking.id }}</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="fw-700 small">{{ booking.check_in|date:"M d" }} -
+                                        {{booking.check_out|date:"M d" }}</div>
+                                    <div class="smallest text-muted">{{ booking.guests_count }} Guests</div>
+                                </td>
+                                <td>
+                                    <div class="fw-800 text-dark">₹ {{ booking.total_price }}</div>
+                                    <div
+                                        class="smallest {% if booking.is_paid %}text-success{% else %}text-warning{% endif %} fw-800">
+                                        {% if booking.is_paid %}<i class="bi bi-check-circle-fill me-1"></i>SETTLED{% else %}<i class="bi bi-clock-fill me-1"></i>PENDING{%endif %}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span
+                                        class="badge-premium {% if booking.status == 'Confirmed' %}bg-success-subtle text-success{% elif booking.status == 'Pending' %}bg-warning-subtle text-warning{% elif booking.status == 'Checked-In' %}bg-info-subtle text-info{% else %}bg-secondary-subtle text-secondary{% endif %}">
+                                        {{ booking.status|upper }}
+                                    </span>
+                                </td>
+                                <td class="text-end">
+                                    <span class="user-select-all fw-800 text-primary font-monospace fs-5">
+                                        {{ booking.decrypted_otp|default:"----" }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">No manifest records found.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Column -->
+        <div class="col-xl-4">
+            <div class="sticky-top" style="top: 100px;">
+                <!-- Quick Action Card -->
+                <div class="card quick-action-card p-4 mb-4 shadow-premium">
+                    <h4 class="mb-2">Operational Tools</h4>
+                    <p class="mb-4">Secure guest arrivals with OTP-based verification for maximum security.</p>
+                    <div class="d-grid gap-3">
+                        <a href="{% url 'check_in_verification' %}" class="btn btn-white py-3 fw-800 text-primary"
+                            style="background: white; border-radius: 16px;">
+                            <i class="bi bi-qr-code-scan me-2"></i>SECURE CHECK-IN
+                        </a>
+                        <a href="{% url 'reports_page' %}" class="btn btn-outline-light border-2 py-3 fw-800"
+                            style="border-radius: 16px;">
+                            <i class="bi bi-graph-up-arrow me-2"></i>REPORTS HUB
+                        </a>
+                    </div>
+                    <i class="bi bi-shield-lock floating-icon"></i>
+                </div>
+
+                <!-- AR View Button (If available) -->
+                {% if resort.ar_model %}
+                <div class="glass-card p-4 mb-4 text-center">
+                    <h5 class="fw-800 mb-3">Property Digital Twin</h5>
+                    <p class="smallest text-muted mb-4 text-uppercase tracking-widest">High-Definition Photogrammetry
+                        Model</p>
+                    <button type="button" class="btn btn-dark w-100 py-3 fw-800" style="border-radius: 16px;"
+                        data-bs-toggle="modal" data-bs-target="#arResortModal" data-resort-name="{{ resort.name }}"
+                        data-resort-location="{{ resort.location }}" data-ar-model="{{ resort.ar_model.url }}">
+                        <i class="bi bi-box-seam me-2"></i>VERIFY RESORT AR
+                    </button>
+                </div>
+                {% endif %}
+
+                <!-- Description Card -->
+                <div class="glass-card p-4 mb-4">
+                    <h5 class="fw-800 mb-3">Architectural Vision</h5>
+                    <p class="text-muted small line-height-base mb-4">{{ resort.description }}</p>
+                    <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                        <span class="smallest text-muted text-uppercase fw-800">Resort Identifier</span>
+                        <code class="fw-800 text-primary">#{{ resort.id }}</code>
+                    </div>
+                    <div class="pt-2 d-flex justify-content-between align-items-center">
+                        <span class="smallest text-muted text-uppercase fw-800">Category</span>
+                        <span class="badge bg-light text-dark fw-800">{{ resort.category }}</span>
+                    </div>
+                </div>
+
+                <!-- Quick Chart Visualization -->
+                <div class="glass-card p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="fw-800 mb-0">Financial Pulse</h5>
+                        <i class="bi bi-info-circle text-muted" title="Last 6 months projection"></i>
+                    </div>
+                    <div style="height: 120px;">
+                        <canvas id="miniRevenueChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+<!-- AR Room Modal -->
+<div class="modal fade" id="arRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content border-0 bg-dark text-white">
+            <div class="modal-header border-0 p-4 position-absolute top-0 start-0 w-100 z-3 d-flex align-items-center justify-content-between"
+                style="background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none;">
+                <div style="pointer-events: auto;">
+                    <h2 class="fw-bold mb-0" id="ar-room-title">Luxurious Suite</h2>
+                    <p class="text-white-50 small mb-0"><i class="bi bi-geo-alt me-1"></i>{{ resort.name }} | <span
+                            class="text-primary fw-bold text-uppercase tracking-widest smallest">AR IMMERSIVE
+                            PREVIEW</span></p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                    style="pointer-events: auto;"></button>
+            </div>
+            <div class="modal-body p-0 overflow-hidden d-flex align-items-center justify-content-center bg-black">
+                <model-viewer id="room-viewer" src="" ar ar-modes="webxr scene-viewer quick-look" camera-controls
+                    auto-rotate shadow-intensity="1" exposure="1" environment-image="neutral"
+                    style="width: 100%; height: 100vh; --poster-color: #000;">
+                    <button slot="ar-button"
+                        class="ar-button position-absolute bottom-0 start-50 translate-middle-x mb-5 btn btn-primary btn-lg shadow-lg"
+                        style="border-radius: 50px; padding: 15px 40px; font-weight: 700; border: 4px solid rgba(255,255,255,0.2);">
+                        <i class="bi bi-camera-fill me-2"></i>VIEW IN YOUR ROOM
+                    </button>
+                </model-viewer>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Resort AR Modal -->
+<div class="modal fade" id="arResortModal" tabindex="-1">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content border-0 bg-dark">
+            <div class="modal-header border-0 p-5 position-absolute top-0 start-0 w-100 z-3 d-flex align-items-center justify-content-between"
+                style="background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none;">
+                <div style="pointer-events: auto;">
+                    <h2 class="fw-800 mb-1 text-white" id="ar-resort-title">Paradise Resort</h2>
+                    <p class="text-white opacity-50 smallest fw-800 text-uppercase tracking-widest"><i
+                            class="bi bi-geo-alt-fill me-2"></i><span id="ar-resort-loc">Location</span> | RESORT
+                        DIGITAL TWIN</p>
+                </div>
+                <button type="button" class="btn-close btn-close-white shadow-none" data-bs-dismiss="modal"
+                    style="pointer-events: auto;"></button>
+            </div>
+            <div class="modal-body p-0 overflow-hidden bg-black">
+                <model-viewer id="resort-viewer" src="" ar ar-modes="webxr scene-viewer quick-look" camera-controls
+                    auto-rotate shadow-intensity="1.5" exposure="1.2" environment-image="neutral"
+                    style="width: 100%; height: 100vh;">
+                    <button slot="ar-button"
+                        class="btn btn-primary btn-lg px-5 py-3 shadow-lg position-absolute bottom-0 start-50 translate-middle-x mb-5"
+                        style="border-radius: 50px; font-weight: 800; border: 3px solid rgba(255,255,255,0.2);">
+                        <i class="bi bi-view-stacked me-2"></i>CALIBRATE AR
+                    </button>
+                </model-viewer>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // AR Room Logic
+        const arRoomModal = document.getElementById('arRoomModal');
+        if (arRoomModal) {
+            arRoomModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const roomName = button.getAttribute('data-room-name');
+                const arModelUrl = button.getAttribute('data-ar-model');
+                arRoomModal.querySelector('#ar-room-title').textContent = roomName;
+                const viewer = document.getElementById('room-viewer');
+                if (arModelUrl) {
+                    if (arModelUrl.toLowerCase().endsWith('.usdz')) {
+                        viewer.iosSrc = arModelUrl;
+                        viewer.src = '';
+                    } else {
+                        viewer.src = arModelUrl;
+                        viewer.iosSrc = '';
+                    }
+                }
+            });
+        }
+
+        // AR Resort Logic
+        const resortArModal = document.getElementById('arResortModal');
+        if (resortArModal) {
+            resortArModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const name = button.getAttribute('data-resort-name');
+                const loc = button.getAttribute('data-resort-location');
+                const arModelUrl = button.getAttribute('data-ar-model');
+                resortArModal.querySelector('#ar-resort-title').textContent = name;
+                resortArModal.querySelector('#ar-resort-loc').textContent = loc;
+                const viewer = document.getElementById('resort-viewer');
+                if (arModelUrl) {
+                    if (arModelUrl.toLowerCase().endsWith('.usdz')) {
+                        viewer.iosSrc = arModelUrl;
+                        viewer.src = '';
+                    } else {
+                        viewer.src = arModelUrl;
+                        viewer.iosSrc = '';
+                    }
+                }
+            });
+        }
+
+        // Mini Revenue Chart - Randomized but feels dynamic
+        const ctx = document.getElementById('miniRevenueChart');
+        if (ctx) {
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Sep', 'Oct', 'Nov', 'Dec', 'Jan', 'Feb'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [65000, 59000, 80000, 110000, 75000, 95000],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { display: false },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

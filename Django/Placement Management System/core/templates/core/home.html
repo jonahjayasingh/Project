@@ -1,0 +1,144 @@
+{% extends 'core/base.html' %}
+
+{% block layout %}
+<section class="hero">
+    <div class="hero-badge">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
+            <path d="M2 17l10 5 10-5M2 12l10 5 10-5"></path>
+        </svg>
+        <span>Smart Placement Management</span>
+    </div>
+
+    <h1>
+        Streamline Your College<br>
+        <span>Placement Process</span>
+    </h1>
+
+    <p>
+        The complete campus recruitment solution for educational institutions. Manage student profiles,
+        coordinate with companies, and track placement activities efficiently.
+    </p>
+
+    <div class="cta-group">
+        <a href="{% url 'student_register' %}" class="btn-primary">Student Registration</a>
+        <a href="{% url 'company_register' %}" class="btn-primary" style="background: var(--secondary);">Company
+            Registration</a>
+        <a href="{% url 'userlogin' %}" class="btn-secondary">Sign In</a>
+    </div>
+
+    <!-- Stats Section -->
+    <div
+        style="margin-top: 5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; max-width: 900px; width: 100%;">
+        <div style="text-align: center; padding: 2rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); transition: all 0.2s; box-shadow: var(--shadow-sm);"
+            onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
+            <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+                500+</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">
+                Students Placed</div>
+        </div>
+
+        <div style="text-align: center; padding: 2rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); transition: all 0.2s; box-shadow: var(--shadow-sm);"
+            onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
+            <div style="font-size: 2.5rem; font-weight: 700; color: var(--secondary); margin-bottom: 0.5rem;">
+                95%</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">
+                Placement Rate</div>
+        </div>
+
+        <div style="text-align: center; padding: 2rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); transition: all 0.2s; box-shadow: var(--shadow-sm);"
+            onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='var(--shadow-md)'"
+            onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='var(--shadow-sm)'">
+            <div style="font-size: 2.5rem; font-weight: 700; color: var(--accent); margin-bottom: 0.5rem;">
+                100+</div>
+            <div style="font-size: 0.875rem; color: var(--text-secondary); font-weight: 500;">
+                Partner Companies</div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <div style="margin-top: 6rem; max-width: 1200px; width: 100%;">
+        <h2
+            style="text-align: center; font-size: 2.25rem; font-weight: 700; margin-bottom: 3rem; color: var(--text-primary);">
+            Why Choose <span style="color: var(--primary);">PlacementPro</span>
+        </h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <!-- Feature 1 -->
+            <div style="padding: 2rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); transition: all 0.2s; box-shadow: var(--shadow-sm);"
+                onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.transform='translateY(-4px)'"
+                onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.transform='translateY(0)'">
+                <div
+                    style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">
+                    Student Management</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.9375rem;">
+                    Efficiently manage student profiles, track academic records, and maintain a comprehensive database
+                    of eligible candidates.
+                </p>
+            </div>
+
+            <!-- Feature 2 -->
+            <div style="padding: 2rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); transition: all 0.2s; box-shadow: var(--shadow-sm);"
+                onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.transform='translateY(-4px)'"
+                onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.transform='translateY(0)'">
+                <div
+                    style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">
+                    Company Coordination</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.9375rem;">
+                    Streamline communication with recruiting companies, schedule campus drives, and manage placement
+                    activities seamlessly.
+                </p>
+            </div>
+
+            <!-- Feature 3 -->
+            <div style="padding: 2rem; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); transition: all 0.2s; box-shadow: var(--shadow-sm);"
+                onmouseover="this.style.boxShadow='var(--shadow-md)'; this.style.transform='translateY(-4px)'"
+                onmouseout="this.style.boxShadow='var(--shadow-sm)'; this.style.transform='translateY(0)'">
+                <div
+                    style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), var(--success)); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.75rem; color: var(--text-primary);">
+                    Analytics & Reports</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; font-size: 0.9375rem;">
+                    Track placement statistics, generate comprehensive reports, and gain insights into your
+                    institution's recruitment performance.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- CTA Section -->
+    <div
+        style="margin-top: 6rem; padding: 3rem; background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(8, 145, 178, 0.05)); border-radius: 16px; border: 1px solid var(--border); max-width: 800px; width: 100%; text-align: center;">
+        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary);">
+            Ready to Transform Your Placement Process?
+        </h2>
+        <p
+            style="font-size: 1.0625rem; color: var(--text-secondary); margin-bottom: 2rem; max-width: 600px; margin-left: auto; margin-right: auto;">
+            Join institutions nationwide who are modernizing their campus recruitment with our platform.
+        </p>
+        <a href="{% url 'student_register' %}" class="btn-primary" style="display: inline-block;">Get Started Today</a>
+    </div>
+</section>
+{% endblock %}

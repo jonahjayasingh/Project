@@ -1,0 +1,175 @@
+/* ================= ENHANCED THEME VARIABLES ================= */
+:root {
+  --pink: #ec4899;
+  --pink-light: #f472b6;
+  --pink-dark: #db2777;
+  --purple: #8b5cf6;
+  --purple-light: #a78bfa;
+  --purple-dark: #7c3aed;
+  --gradient-primary: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+  --gradient-secondary: linear-gradient(135deg, #f472b6 0%, #a78bfa 100%);
+  --gradient-vibrant: linear-gradient(135deg, #ff0080 0%, #7928ca 100%);
+  --glass: rgba(255, 255, 255, 0.1);
+  --glass-hover: rgba(255, 255, 255, 0.15);
+  --shadow-sm: 0 4px 20px rgba(236, 72, 153, 0.15);
+  --shadow-md: 0 8px 30px rgba(236, 72, 153, 0.25);
+  --shadow-lg: 0 15px 50px rgba(236, 72, 153, 0.35);
+  --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  --text-dark: #1f2937;
+  --text-gray: #6b7280;
+  --bg-light: #f9fafb;
+}
+
+/* ——— Page ——— */
+.login-page {
+  min-height: 100vh;
+  width: 100%;
+  background: linear-gradient(135deg, #fdf2f8 0%, #faf5ff 40%, #fff 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+}
+
+/* ——— Card ——— */
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 32px;
+  border-radius: 20px;
+  text-align: center;
+  border: 2px solid rgba(236, 72, 153, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition-smooth);
+  backdrop-filter: blur(20px);
+}
+
+.login-card:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--pink);
+  transform: translateY(-5px);
+}
+
+/* ——— Titles ——— */
+.login-title {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.login-subtitle {
+  color: var(--text-gray);
+  margin-bottom: 24px;
+  font-size: 15px;
+}
+
+/* ——— Main Icon ——— */
+.login-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 12px 0 10px 0;
+}
+
+.login-icon {
+  font-size: 55px;
+  color: var(--pink);
+  opacity: 0.95;
+}
+
+/* ——— Form ——— */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Form fields */
+.form-group {
+  position: relative;
+  text-align: left;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 44px 12px 12px;
+  border-radius: 10px;
+  border: 2px solid #e9ecef;
+  font-size: 15px;
+  transition: var(--transition-smooth);
+  background: #f8f9fa;
+}
+
+/* ——— Matching Register focus ——— */
+.form-group input:focus {
+  border-color: var(--pink);
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.1);
+  outline: none;
+  background: #ffffff;
+}
+
+/* ——— Eye icon inside input ——— */
+.password-inside-icon {
+  position: absolute;
+  right: 12px;
+  top: 50px;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 22px;
+  color: #888;
+  transition: color 0.2s;
+}
+
+.password-inside-icon:hover {
+  color: var(--pink);
+}
+
+/* ——— Button (same gradient as Register) ——— */
+.login-button {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 50px;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3);
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(236, 72, 153, 0.5);
+}
+
+/* ——— Bottom link ——— */
+.register-text {
+  margin-top: 24px;
+  color: var(--text-gray);
+}
+
+.register-text a {
+  color: var(--pink);
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.register-text a:hover {
+  color: var(--purple);
+}

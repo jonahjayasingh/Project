@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}TruthLens AI - Home{% endblock %}
+
+{% block extra_css %}
+<style>
+    .hero {
+        text-align: center;
+        max-width: 800px !important;
+    }
+
+    .hero h1 {
+        font-size: 3.5rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+    }
+
+    .hero p {
+        font-size: 1.25rem;
+        color: var(--text-muted);
+        margin-bottom: 2.5rem;
+    }
+
+    .features {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 1.5rem;
+        margin-top: 3rem;
+    }
+
+    .feature-card {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 1.5rem;
+        border-radius: 1rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-align: left;
+    }
+
+    .feature-card h3 {
+        margin-top: 0;
+        color: var(--primary);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card hero">
+    <h1>Combat Misinformation with <span
+            style="background: linear-gradient(to right, #818cf8, #c084fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">TruthLens
+            AI</span></h1>
+    <p>Using advanced machine learning to analyze news content and identify potential misinformation in real-time. Our
+        model is trained on a massive dataset of 44,000+ verified articles.</p>
+
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{% url 'predict' %}" class="btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Try Detector
+            Now</a>
+        {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}"
+            style="padding: 1rem 2rem; font-size: 1.1rem; border: 1px solid var(--primary); border-radius: 0.75rem; text-decoration: none; color: var(--text);">Create
+            Account</a>
+        {% endif %}
+    </div>
+
+    <div class="features">
+        <div class="feature-card">
+            <h3>98% Accuracy</h3>
+            <p>Our Logistic Regression model provides highly reliable predictions based on deep text analysis.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Real-time Analysis</h3>
+            <p>Get instant results on any news snippet or headline you paste into the system.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Massive Dataset</h3>
+            <p>Trained on thousands of real world political and news articles for better context.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

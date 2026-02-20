@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block title %}Class Bookings - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Version Marker: V4-BYPASS-FORMATTER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar3"></i> Class Bookings</h2>
+        <a href="{% url 'classes:booking_create' %}" class="btn btn-primary">
+            <i class="bi bi-calendar-plus"></i> New Booking
+        </a>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Search Member</label>
+                    <input type="text" name="q" class="form-control" placeholder="Name or email..." value="{{ request.GET.q }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="confirmed" {% if request.GET.status == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                        <option value="waitlist" {% if request.GET.status == 'waitlist' %}selected{% endif %}>Waitlist</option>
+                        <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                        <option value="attended" {% if request.GET.status == 'attended' %}selected{% endif %}>Attended</option>
+                        <option value="no_show" {% if request.GET.status == 'no_show' %}selected{% endif %}>No Show</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Member</th>
+                            <th>Class</th>
+                            <th>Schedule</th>
+                            <th>Booked On</th>
+                            <th>Status</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'members:member_detail' booking.member.pk %}" class="text-decoration-none fw-bold">
+                                    {{ booking.member.user.get_full_name }}
+                                </a>
+                            </td>
+                            <td>
+                                <a href="{% url 'classes:class_detail' booking.schedule.fitness_class.pk %}" class="text-decoration-none">
+                                    {{ booking.schedule.fitness_class.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {{ booking.schedule.get_day_of_week_display }} at {{ booking.schedule.start_time|time:"g:i A" }}
+                            </td>
+                            <td>{{ booking.booked_at|date:"M d, Y" }}</td>
+                            <td>
+                                {% if booking.status == 'confirmed' %}
+                                <span class="badge bg-success">Confirmed</span>
+                                {% elif booking.status == 'waitlist' %}
+                                <span class="badge bg-warning text-dark">Waitlist</span>
+                                {% elif booking.status == 'cancelled' %}
+                                <span class="badge bg-danger">Cancelled</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if booking.status == 'confirmed' or booking.status == 'waitlist' %}
+                                <form method="post" action="{% url 'classes:booking_cancel' booking.pk %}" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Cancel Booking">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">No bookings found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    {% if bookings.has_other_pages %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if bookings.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ bookings.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Previous</a>
+            </li>
+            {% endif %}
+
+            {% for i in bookings.paginator.page_range %}
+            {% if bookings.number == i %}
+            <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+            {% else %}
+            <li class="page-item"><a class="page-link" href="?page={{ i }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ i }}</a></li>
+            {% endif %}
+            {% endfor %}
+
+            {% if bookings.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ bookings.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

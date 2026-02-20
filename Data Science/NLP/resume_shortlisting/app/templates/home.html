@@ -1,0 +1,34 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Resume Shortlisting</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-image: url('{% static "bg.png" %}');
+      background-size: cover;
+      background-position: center;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen relative bg-black/50">
+
+  <!-- Content card positioned bottom-left -->
+  <div class="absolute bottom-6 left-6 bg-white/80 rounded-2xl shadow-xl p-8 max-w-sm backdrop-blur-md">
+    <h1 class="text-3xl font-extrabold text-gray-800 mb-3">
+      AI-Powered Resume Shortlisting
+    </h1>
+    <p class="text-gray-600 mb-5">
+      Streamline recruitment with intelligent resume analysis and fair shortlisting.
+    </p>
+    <a href="{% url 'login' %}"
+       class="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">
+      Get Started
+    </a>
+  </div>
+
+</body>
+</html>

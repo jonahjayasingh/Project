@@ -1,0 +1,44 @@
+{% extends 'base.html' %} {% block content %}
+<h2 class="fw-bold mb-4">
+  Grade <span class="text-gradient">Submissions</span>
+</h2>
+<div class="glass-panel">
+  <div class="table-responsive">
+    <table class="table table-dark table-hover">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>Assignment</th>
+          <th>File</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sub in submissions %}
+        <tr>
+          <td>{{ sub.student.username }}</td>
+          <td>{{ sub.assignment.title }}</td>
+          <td>
+            {% if sub.submission_file %}
+            <a
+              href="{{ sub.submission_file.url }}"
+              target="_blank"
+              class="btn btn-sm btn-link text-info"
+              >View File</a
+            >
+            {% else %} No file {% endif %}
+          </td>
+          <td>
+            <a
+              href="{% url 'grade_submission' sub.id %}"
+              class="btn btn-sm btn-primary"
+              >Grade</a
+            >
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

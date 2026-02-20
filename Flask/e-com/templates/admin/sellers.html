@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Sellers - Admin Panel{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">👥 Seller Management</h1>
+    <p style="color: var(--text-medium); font-size: 1.125rem;">Approve, manage, and monitor seller accounts</p>
+</div>
+
+<!-- Summary Statistics -->
+<div class="card mb-4"
+    style="border: none; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-3 col-6 mb-3 mb-md-0">
+                <div
+                    style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    {{ sellers|length }}</div>
+                <div
+                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                    Total Shown</div>
+            </div>
+            <div class="col-md-3 col-6 mb-3 mb-md-0">
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--warning-color);">
+                    {{ sellers|selectattr('status.value', 'equalto', 'pending')|list|length }}
+                </div>
+                <div
+                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                    Pending</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--success-color);">
+                    {{ sellers|selectattr('status.value', 'equalto', 'active')|list|length }}
+                </div>
+                <div
+                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                    Active</div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--error-color);">
+                    {{ sellers|selectattr('status.value', 'equalto', 'suspended')|list|length }}
+                </div>
+                <div
+                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                    Suspended</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Info Alert -->
+<div
+    style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(99, 102, 241, 0.1)); border-left: 4px solid var(--info-color); padding: 1rem 1.5rem; border-radius: var(--radius-md); margin-bottom: 2rem;">
+    <div style="display: flex; align-items: start; gap: 1rem;">
+        <span style="font-size: 1.5rem;">ℹ️</span>
+        <div>
+            <strong style="display: block; margin-bottom: 0.25rem; color: var(--info-color);">Approval Required</strong>
+            <p style="margin: 0; color: var(--text-medium); font-size: 0.9375rem;">Sellers must be approved by an admin
+                before they can list products and start selling.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced Filter Tabs -->
+<div class="card mb-4" style="border: none; overflow: visible;">
+    <div class="card-body" style="padding: 1rem;">
+        <div class="flex gap-2" style="flex-wrap: wrap;">
+            <a href="{{ url_for('admin.manage_sellers', status='all') }}"
+                class="btn {% if current_status == 'all' %}btn-primary{% else %}btn-secondary{% endif %}"
+                style="border-radius: var(--radius-lg); font-weight: 600;">
+                📊 All Sellers
+                <span class="badge"
+                    style="background: {% if current_status == 'all' %}rgba(255,255,255,0.3){% else %}var(--bg-gray){% endif %}; color: {% if current_status == 'all' %}white{% else %}var(--text-dark){% endif %}; margin-left: 0.5rem; padding: 0.25rem 0.5rem; border-radius: 12px; font-size: 0.75rem;">
+                    {{ sellers|length }}
+                </span>
+            </a>
+            <a href="{{ url_for('admin.manage_sellers', status='pending') }}"
+                class="btn {% if current_status == 'pending' %}btn-warning{% else %}btn-secondary{% endif %}"
+                style="border-radius: var(--radius-lg); font-weight: 600;">
+                ⏳ Pending Approvals
+            </a>
+            <a href="{{ url_for('admin.manage_sellers', status='active') }}"
+                class="btn {% if current_status == 'active' %}btn-success{% else %}btn-secondary{% endif %}"
+                style="border-radius: var(--radius-lg); font-weight: 600;">
+                ✓ Active
+            </a>
+            <a href="{{ url_for('admin.manage_sellers', status='suspended') }}"
+                class="btn {% if current_status == 'suspended' %}btn-danger{% else %}btn-secondary{% endif %}"
+                style="border-radius: var(--radius-lg); font-weight: 600;">
+                ⏸ Suspended
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Sellers Grid -->
+{% if sellers %}
+<div class="product-grid"
+    style="grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+    {% for seller in sellers %}
+    <div class="card fade-in"
+        style="border: none; overflow: hidden; display: flex; flex-direction: column; {% if seller.status.value == 'pending' %}border: 2px solid rgba(245, 158, 11, 0.3);{% endif %}">
+        <!-- Card Header with Status -->
+        <div
+            style="background: linear-gradient(135deg, {% if seller.status.value == 'pending' %}#fef3c7{% elif seller.status.value == 'active' %}#d1fae5{% elif seller.status.value == 'suspended' %}#fee2e2{% else %}#f1f5f9{% endif %}, white); padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <div class="flex-between" style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <!-- Seller Avatar -->
+                    <div
+                        style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #ec4899); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.25rem; box-shadow: var(--shadow-md);">
+                        {{ seller.display_name[0]|upper }}
+                    </div>
+
+                    <div>
+                        <h3 style="font-size: 1.25rem; margin: 0 0 0.25rem 0; color: var(--text-dark);">{{
+                            seller.display_name }}</h3>
+                        <div
+                            style="display: flex; align-items: center; gap: 0.5rem; color: var(--text-medium); font-size: 0.875rem;">
+                            <span>ID: #{{ seller.id }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status Badge -->
+                <div>
+                    {% if seller.status.value == 'pending' %}
+                    <span class="badge badge-warning" style="font-size: 0.875rem; padding: 0.5rem 1rem;">⏳
+                        Pending</span>
+                    {% elif seller.status.value == 'active' %}
+                    <span class="badge badge-success" style="font-size: 0.875rem; padding: 0.5rem 1rem;">✓ Active</span>
+                    {% elif seller.status.value == 'suspended' %}
+                    <span class="badge badge-error" style="font-size: 0.875rem; padding: 0.5rem 1rem;">⏸
+                        Suspended</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            {% if seller.is_verified %}
+            <span class="badge badge-info" style="font-size: 0.75rem;">🔒 Verified Seller</span>
+            {% endif %}
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body" style="padding: 1.5rem; flex: 1;">
+            <!-- Seller Details -->
+            <div style="margin-bottom: 1.5rem;">
+                <div style="display: grid; gap: 0.75rem;">
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <span style="color: var(--text-light); min-width: 24px;">👤</span>
+                        <div style="flex: 1;">
+                            <div
+                                style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">
+                                Username</div>
+                            <div style="color: var(--text-dark); font-weight: 600;">{{ seller.user.username }}</div>
+                        </div>
+                    </div>
+
+                    {% if seller.company_name %}
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <span style="color: var(--text-light); min-width: 24px;">🏢</span>
+                        <div style="flex: 1;">
+                            <div
+                                style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">
+                                Company</div>
+                            <div style="color: var(--text-dark); font-weight: 600;">{{ seller.company_name }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if seller.business_email %}
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <span style="color: var(--text-light); min-width: 24px;">📧</span>
+                        <div style="flex: 1;">
+                            <div
+                                style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">
+                                Email</div>
+                            <div style="color: var(--text-dark); font-weight: 600; word-break: break-all;">{{
+                                seller.business_email }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if seller.business_phone %}
+                    <div style="display: flex; align-items: start; gap: 0.75rem;">
+                        <span style="color: var(--text-light); min-width: 24px;">📱</span>
+                        <div style="flex: 1;">
+                            <div
+                                style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.125rem;">
+                                Phone</div>
+                            <div style="color: var(--text-dark); font-weight: 600;">{{ seller.business_phone }}</div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Stats -->
+            <div
+                style="display: grid; grid-template-columns: 1fr; gap: 0.75rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); margin-bottom: 1.5rem;">
+                <div class="flex-between">
+                    <span style="color: var(--text-medium); font-size: 0.875rem;">Products</span>
+                    <strong style="font-size: 1.25rem; color: var(--primary-color);">{{ seller.user.products|length
+                        }}</strong>
+                </div>
+            </div>
+
+            <!-- Description (if exists) -->
+            {% if seller.description %}
+            <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                <div
+                    style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                    About</div>
+                <p style="margin: 0; color: var(--text-medium); font-size: 0.875rem; line-height: 1.5;">{{
+                    seller.description }}</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Card Footer with Actions -->
+        <div
+            style="padding: 1.5rem; background: var(--bg-light); border-top: 2px solid var(--border-color); margin-top: auto;">
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                {% if seller.status.value == 'pending' %}
+                <form method="post" action="{{ url_for('admin.approve_seller', seller_id=seller.id) }}"
+                    style="flex: 1;">
+                    <button type="submit" class="btn btn-success" style="width: 100%;"
+                        onclick="return confirm('Approve this seller? They will be able to list products.')">
+                        ✓ Approve Seller
+                    </button>
+                </form>
+                <form method="post" action="{{ url_for('admin.reject_seller', seller_id=seller.id) }}" style="flex: 1;">
+                    <button type="submit" class="btn btn-danger" style="width: 100%;"
+                        onclick="return confirm('Reject and delete this seller application permanently?')">
+                        ✗ Reject
+                    </button>
+                </form>
+                {% elif seller.status.value == 'active' %}
+                <form method="post" action="{{ url_for('admin.suspend_seller', seller_id=seller.id) }}"
+                    style="flex: 1;">
+                    <button type="submit" class="btn btn-warning" style="width: 100%;"
+                        onclick="return confirm('Suspend this seller? They will not be able to sell.')">
+                        ⏸ Suspend
+                    </button>
+                </form>
+                <form method="post" action="{{ url_for('admin.delete_seller', seller_id=seller.id) }}" style="flex: 1;">
+                    <button type="submit" class="btn btn-danger" style="width: 100%;"
+                        onclick="return confirm('⚠️ DELETE this seller permanently? This cannot be undone!')">
+                        🗑️ Delete
+                    </button>
+                </form>
+                {% elif seller.status.value == 'suspended' %}
+                <form method="post" action="{{ url_for('admin.activate_seller', seller_id=seller.id) }}"
+                    style="flex: 1;">
+                    <button type="submit" class="btn btn-success" style="width: 100%;"
+                        onclick="return confirm('Reactivate this seller?')">
+                        ▶ Reactivate
+                    </button>
+                </form>
+                <form method="post" action="{{ url_for('admin.delete_seller', seller_id=seller.id) }}" style="flex: 1;">
+                    <button type="submit" class="btn btn-danger" style="width: 100%;"
+                        onclick="return confirm('⚠️ DELETE this seller permanently? This cannot be undone!')">
+                        🗑️ Delete
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<div class="empty-state" style="padding: 4rem 2rem;">
+    <div
+        style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #dbeafe, #c7d2fe); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+        👥
+    </div>
+    <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">No Sellers Found</h3>
+    <p style="color: var(--text-medium); margin-bottom: 2rem;">
+        {% if current_status != 'all' %}
+        No sellers match the "{{ current_status }}" filter.
+        {% else %}
+        There are no sellers in the system yet.
+        {% endif %}
+    </p>
+    {% if current_status != 'all' %}
+    <a href="{{ url_for('admin.manage_sellers', status='all') }}" class="btn btn-primary">View All Sellers</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}

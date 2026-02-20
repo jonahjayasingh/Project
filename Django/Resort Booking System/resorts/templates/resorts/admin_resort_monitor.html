@@ -1,0 +1,177 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Admin Console | Paradise Resorts{% endblock %}
+
+{% block content %}
+<div class="row mb-5 animate-in">
+    <div class="col-12">
+        <a href="{% url 'admin_dashboard' %}" class="text-decoration-none text-muted small fw-bold mb-2 d-inline-block">
+            <i class="bi bi-arrow-left me-1"></i>Back to Oversight Panel
+        </a>
+        <h6 class="text-primary fw-800 text-uppercase tracking-widest mb-2">RESORT SURVEILLANCE</h6>
+        <h1 class="display-4 fw-bold mb-0">Platform <span class="gradient-text">Oversight</span></h1>
+        <p class="text-muted fs-5">Monitoring property health, approvals, and integrity reports.</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5 animate-in" style="animation-delay: 0.1s;">
+    <div class="col-md-4">
+        <div class="card border-0 p-4 h-100 shadow-premium" style="border-radius: 20px; background: var(--bg-card);">
+            <i class="bi bi-buildings-fill text-primary fs-3 mb-2"></i>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 smallest tracking-widest">Total Resorts</h6>
+            <h2 class="fw-800 mb-0">{{ total_resorts }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 p-4 h-100 shadow-premium" style="border-radius: 20px; background: var(--bg-card);">
+            <i class="bi bi-shield-exclamation text-warning fs-3 mb-2"></i>
+            <h6 class="text-uppercase text-muted fw-bold mb-1 smallest tracking-widest">Pending Verification</h6>
+            <h2 class="fw-800 mb-0 text-warning">{{ pending_resorts.count }}</h2>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 p-4 h-100 shadow-premium"
+            style="border-radius: 20px; background: var(--text-main); color: white;">
+            <i class="bi bi-flag-fill text-danger fs-3 mb-2"></i>
+            <h6 class="text-uppercase text-white opacity-50 fw-bold mb-1 smallest tracking-widest">Global Watchlist</h6>
+            <h2 class="fw-800 mb-0">Active</h2>
+        </div>
+    </div>
+</div>
+
+<div class="row g-5">
+    <div class="col-lg-8">
+        <!-- New Approvals -->
+        {% if pending_resorts %}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-800 mb-0">Resort <span class="gradient-text">Activations</span></h4>
+            <span class="badge bg-warning-subtle text-warning border-0 px-3 py-2 rounded-pill fw-800 smallest">NEW
+                REQUESTS</span>
+        </div>
+        {% for resort in pending_resorts %}
+        <div class="card border-0 shadow-premium mb-4"
+            style="border-radius: 30px; background: #fffcf0; border-left: 6px solid var(--accent) !important;">
+            <div class="p-5">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="fw-800 mb-1">{{ resort.name }}</h3>
+                        <p class="text-muted small fw-bold mb-3"><i
+                                class="bi bi-geo-alt-fill me-1"></i>{{resort.location }}</p>
+                        <div class="d-flex gap-2">
+                            <span class="badge bg-white text-dark border-0 shadow-sm px-3 py-2 rounded-3 fw-bold">Owner:
+                                {{ resort.owner.username }}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mt-4 mt-md-0 d-grid gap-2">
+                        <a href="{% url 'approve_resort' resort.id %}"
+                            class="btn btn-success py-3 fw-800 rounded-4">APPROVE</a>
+                        <form action="{% url 'resort_delete_admin' resort.id %}" method="POST"
+                            onsubmit="return confirm('Permanently reject and delete this registration?');">
+                            {% csrf_token %}
+                            <button type="submit"
+                                class="btn btn-outline-danger py-3 fw-800 rounded-4 w-100">REJECT</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <!-- Property Registry -->
+        <div class="d-flex justify-content-between align-items-center mb-5 mt-5">
+            <h3 class="fw-800 mb-0">Property <span class="gradient-text">Registry</span></h3>
+            <form class="d-flex" method="GET">
+                <div class="input-group glass-panel"
+                    style="border-radius: 15px; overflow: hidden; border: 1px solid var(--border);">
+                    <input type="text" name="search" class="form-control border-0" placeholder="Search Node ID..."
+                        value="{{ search_query }}" style="background: white;">
+                    <button class="btn btn-white border-0" type="submit"><i class="bi bi-search"></i></button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card border-0 shadow-premium"
+            style="border-radius: 40px; background: var(--bg-card); overflow: hidden;">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light bg-opacity-50">
+                        <tr>
+                            <th class="ps-5 py-4 smallest fw-800 text-muted text-uppercase tracking-widest border-0">
+                                Identity</th>
+                            <th class="py-4 smallest fw-800 text-muted text-uppercase tracking-widest border-0">Status
+                            </th>
+                            <th class="py-4 smallest fw-800 text-muted text-uppercase tracking-widest border-0">Reports
+                            </th>
+                            <th
+                                class="pe-5 py-4 text-end smallest fw-800 text-muted text-uppercase tracking-widest border-0">
+                                Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in resort_stats %}
+                        <tr>
+                            <td class="ps-5 py-4">
+                                <div class="fw-800 text-dark">{{ item.resort.name }}</div>
+                                <div class="smallest text-muted fw-bold">Owner: {{ item.resort.owner.username }}</div>
+                            </td>
+                            <td>
+                                {% if item.resort.is_active %}
+                                <span
+                                    class="badge bg-success-subtle text-success px-3 py-1 rounded-pill smallest fw-800">OPERATIONAL</span>
+                                {% else %}
+                                <span
+                                    class="badge bg-danger-subtle text-danger px-3 py-1 rounded-pill smallest fw-800">DEACTIVATED</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.report_count > 0 %}
+                                <span class="fw-800 text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{
+                                    item.report_count }} Flags</span>
+                                {% else %}
+                                <span class="text-muted opacity-50 fw-bold smallest">CLEAR</span>
+                                {% endif %}
+                            </td>
+                            <td class="pe-5 text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <form action="{% url 'toggle_resort_status' item.resort.id %}" method="POST"
+                                        class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                            class="btn btn-sm {% if item.resort.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %} fw-800 px-3 rounded-3">
+                                            {% if item.resort.is_active %}DEACTIVATE{% else %}ACTIVATE{% endif %}
+                                        </button>
+                                    </form>
+                                    <form action="{% url 'resort_delete_admin' item.resort.id %}" method="POST"
+                                        class="d-inline"
+                                        onsubmit="return confirm('Permanently remove this resort from the platform?');">
+                                        {% csrf_token %}
+                                        <button type="submit"
+                                            class="btn btn-sm btn-dark fw-800 px-3 rounded-3">REMOVE</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="sticky-top" style="top: 120px;">
+            <div class="card border-0 p-5 shadow-premium mb-5" style="border-radius: 40px; background: var(--bg-card);">
+                <h4 class="fw-800 mb-4">Advisory</h4>
+                <p class="text-muted line-height-base small mb-4">You are viewing the Global Oversight Monitor. Your
+                    role is restricted to **ecosystem integrity**. You cannot modify property details or pricing
+                    directly; those are handled by Resort Owners.</p>
+                <div class="p-4 rounded-4 bg-light border-0">
+                    <p class="smallest text-muted fw-bold text-uppercase mb-2 tracking-wide"><i
+                            class="bi bi-info-circle me-2"></i>Admin Directive</p>
+                    <p class="smallest text-muted mb-0">Prioritize resorts with >3 flags for manual investigation.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

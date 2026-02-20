@@ -1,0 +1,457 @@
+{% extends 'chat/base.html' %}
+{% load static %}
+
+{% block title %}Neural Core - DocuChat AI{% endblock %}
+
+{% block extra_css %}
+/* --- Layout & Structure --- */
+.app-layout {
+display: flex;
+height: 100vh;
+width: 100vw;
+overflow: hidden;
+position: relative;
+z-index: 10;
+background: radial-gradient(circle at 50% 50%, #0a0a0a 0%, #000000 100%);
+}
+
+/* --- Sidebar --- */
+.sidebar {
+width: 300px;
+background: rgba(5, 5, 5, 0.9);
+backdrop-filter: blur(20px);
+border-right: 1px solid rgba(255, 255, 255, 0.05);
+display: flex;
+flex-direction: column;
+z-index: 50;
+transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.sidebar-header { padding: 1.5rem; }
+
+.new-chat-btn {
+width: 100%; padding: 0.8rem;
+background: rgba(255,255,255,0.03);
+border: 1px solid rgba(255,255,255,0.08);
+border-radius: 12px;
+color: var(--accent-primary);
+font-weight: 700; font-size: 0.8rem;
+display: flex; align-items: center; justify-content: center; gap: 8px;
+text-decoration: none; transition: all 0.3s ease;
+text-transform: uppercase; letter-spacing: 1px;
+}
+
+.new-chat-btn:hover {
+background: rgba(16, 163, 127, 0.1); border-color: rgba(16, 163, 127, 0.3);
+color: #fff; transform: translateY(-1px);
+}
+
+.sidebar-section-title {
+font-size: 0.65rem; font-weight: 800; text-transform: uppercase;
+letter-spacing: 1.5px; color: var(--text-tertiary);
+margin-bottom: 0.8rem; padding: 0 1.5rem; opacity: 0.6;
+}
+
+.conversations-list {
+flex: 1; overflow-y: auto; padding: 0 0.8rem;
+display: flex; flex-direction: column; gap: 4px;
+}
+
+.conversation-item {
+padding: 0.8rem 1rem; border-radius: 10px;
+color: #888; display: flex; align-items: center; gap: 10px;
+text-decoration: none; transition: all 0.2s ease;
+font-size: 0.85rem; font-weight: 500;
+position: relative; overflow: hidden;
+}
+
+.conversation-item:hover { color: #ddd; background: rgba(255,255,255,0.03); }
+
+.conversation-item.active {
+background: linear-gradient(90deg, rgba(16, 163, 127, 0.1) 0%, transparent 100%);
+color: #fff; border-left: 2px solid var(--accent-primary);
+}
+
+.conversation-item.active i { color: var(--accent-primary); }
+
+.sidebar-footer {
+padding: 1rem; background: rgba(0, 0, 0, 0.3);
+border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.footer-btn {
+display: flex; align-items: center; gap: 10px; padding: 0.8rem;
+border-radius: 10px; background: transparent;
+border: 1px solid rgba(255, 255, 255, 0.05);
+transition: all 0.2s ease; color: var(--text-secondary);
+text-decoration: none; margin-bottom: 0.8rem;
+font-weight: 600; font-size: 0.8rem; justify-content: center;
+}
+
+.footer-btn:hover {
+background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.1); color: #fff;
+}
+
+.user-profile {
+display: flex; align-items: center; gap: 10px; padding: 0.5rem;
+border-top: 1px solid rgba(255,255,255,0.03); margin-top: 0.5rem; padding-top: 0.8rem;
+}
+
+.avatar-circle {
+width: 32px; height: 32px; border-radius: 8px;
+background: #222; border: 1px solid rgba(255,255,255,0.1);
+display: flex; align-items: center; justify-content: center;
+font-weight: 700; color: #fff; font-size: 0.9rem;
+}
+
+/* --- Main Chat Area --- */
+.main-pane {
+flex: 1; display: flex; flex-direction: column;
+background: transparent; position: relative; overflow: hidden;
+}
+
+.chat-header {
+padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center;
+background: rgba(5, 5, 5, 0.6); backdrop-filter: blur(10px);
+border-bottom: 1px solid rgba(255, 255, 255, 0.05); z-index: 20; height: 70px;
+}
+
+.chat-title {
+font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px;
+color: #fff; display: flex; align-items: center; gap: 10px;
+}
+
+.chat-title i { color: var(--accent-primary); }
+
+.status-capsule {
+background: rgba(10, 10, 10, 0.5); border: 1px solid rgba(255, 255, 255, 0.08);
+padding: 4px 12px; border-radius: 100px; font-size: 0.6rem;
+color: rgba(255, 255, 255, 0.5); font-weight: 700; letter-spacing: 1px;
+text-transform: uppercase; display: flex; align-items: center; gap: 6px;
+}
+
+.status-dot {
+width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;
+box-shadow: 0 0 6px var(--accent-primary); animation: pulseDot 3s infinite ease-in-out;
+}
+
+@keyframes pulseDot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+/* --- Messages --- */
+.messages-container {
+flex: 1; overflow-y: auto; padding: 1.5rem; scroll-behavior: smooth;
+display: flex; flex-direction: column; gap: 1.5rem;
+}
+
+.message-row {
+display: flex; gap: 1rem; max-width: 80%;
+margin-bottom: 1rem; position: relative;
+}
+
+/* Sides Logic */
+.message-row.user {
+align-self: flex-end; /* Flexbox alignment for column layout container */
+margin-left: auto; /* Push user messages to the right */
+flex-direction: row-reverse; /* Avatar on the right */
+text-align: right;
+}
+
+.message-row.assistant {
+align-self: flex-start;
+margin-right: auto;
+text-align: left;
+}
+
+.msg-avatar {
+width: 36px; height: 36px; border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+flex-shrink: 0; font-size: 0.9rem; color: #fff;
+background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+}
+
+.ua-gradient { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); }
+.ai-gradient { background: linear-gradient(135deg, #10a37f 0%, #059669 100%); }
+
+.msg-content {
+padding: 1rem 1.2rem; border-radius: 18px;
+font-size: 0.95rem; line-height: 1.5;
+position: relative;
+}
+
+/* User Bubble Style */
+.message-row.user .msg-content {
+background: rgba(99, 102, 241, 0.1);
+border: 1px solid rgba(99, 102, 241, 0.2);
+border-top-right-radius: 4px; /* Distinct corner */
+color: #e0e7ff;
+}
+
+/* Assistant Bubble Style */
+.message-row.assistant .msg-content {
+background: rgba(255, 255, 255, 0.03);
+border: 1px solid rgba(255, 255, 255, 0.08);
+border-top-left-radius: 4px; /* Distinct corner */
+color: rgba(255,255,255,0.9);
+}
+
+.msg-header { display: none; } /* Hide headers for cleaner bubble look */
+
+.msg-text p { margin-bottom: 0.8rem; }
+.msg-text p:last-child { margin-bottom: 0; }
+
+/* Code blocks */
+.msg-text pre {
+background: #0d0d0d; border: 1px solid rgba(255,255,255,0.1);
+border-radius: 8px; padding: 1rem; overflow-x: auto;
+margin: 0.8rem 0; font-family: 'JetBrains Mono', monospace;
+font-size: 0.8rem; color: #eee; text-align: left; /* Always align code left */
+}
+
+/* --- Input Area --- */
+.input-section {
+padding: 1rem 2rem 2rem 2rem;
+background: linear-gradient(to top, #000 0%, transparent 100%);
+position: relative; z-index: 30;
+}
+
+.input-card {
+background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(20px);
+border: 1px solid rgba(255,255,255,0.1); border-radius: 16px;
+padding: 0.6rem 0.8rem; display: flex; align-items: flex-end; gap: 0.8rem;
+box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); transition: all 0.3s ease;
+}
+
+.input-card:focus-within {
+border-color: rgba(16, 163, 127, 0.4);
+box-shadow: 0 10px 50px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(16, 163, 127, 0.1);
+}
+
+.chat-textarea {
+flex: 1; background: transparent; border: none; color: #fff;
+font-family: inherit; font-size: 0.95rem; padding: 0.6rem;
+resize: none; outline: none; min-height: 24px; max-height: 150px;
+}
+
+.chat-textarea::placeholder { color: rgba(255,255,255,0.3); }
+
+.action-btn {
+width: 36px; height: 36px; border-radius: 10px;
+display: flex; align-items: center; justify-content: center;
+cursor: pointer; transition: all 0.2s; border: none; font-size: 0.9rem; flex-shrink: 0;
+}
+
+.btn-send {
+background: var(--accent-primary); color: #000;
+box-shadow: 0 4px 12px rgba(16, 163, 127, 0.3);
+}
+.btn-send:hover {
+transform: scale(1.05); background: #12b58e;
+box-shadow: 0 6px 16px rgba(16, 163, 127, 0.5);
+}
+
+.footer-text {
+text-align: center; color: rgba(255,255,255,0.2); font-size: 0.6rem;
+margin-top: 0.8rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+}
+
+/* --- Processing Indicator --- */
+.processing-indicator {
+display: none;
+opacity: 0;
+transition: opacity 0.3s ease;
+order: 9999;
+}
+
+.htmx-request.processing-indicator,
+.htmx-request .processing-indicator {
+display: flex !important;
+opacity: 1;
+}
+
+.processing-bubbles {
+display: flex;
+gap: 5px;
+align-items: center;
+height: 20px;
+}
+
+.processing-bubbles span {
+width: 8px;
+height: 8px;
+background: var(--accent-primary);
+border-radius: 50%;
+display: block;
+animation: bubbleBounce 1.4s infinite ease-in-out both;
+opacity: 0.6;
+}
+
+.processing-bubbles span:nth-child(1) { animation-delay: -0.32s; }
+.processing-bubbles span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes bubbleBounce {
+0%, 80%, 100% { transform: scale(0); }
+40% { transform: scale(1); }
+}
+
+.is-locked { pointer-events: none; cursor: not-allowed; }
+.is-locked textarea { opacity: 0.5; }
+
+/* --- Placeholder --- */
+.placeholder-content {
+height: 100%; display: flex; flex-direction: column;
+align-items: center; justify-content: center; text-align: center;
+padding: 2rem; opacity: 0.5;
+}
+
+.placeholder-icon {
+font-size: 3rem; margin-bottom: 1.5rem; color: rgba(255,255,255,0.05);
+}
+
+@media (max-width: 900px) {
+.sidebar { width: 260px; }
+.message-row { max-width: 90%; }
+.input-section { padding: 1rem; }
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+{% endblock %}
+
+{% block content %}
+<div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="{% url 'new_conversation' %}" class="new-chat-btn">
+                <i class="fas fa-plus-circle"></i>
+                <span>INITIALIZE NEURAL LINK</span>
+            </a>
+        </div>
+
+        <div class="sidebar-section-title">Dialogue Cycles</div>
+
+        <div class="conversations-list" id="conversations-list">
+            {% include 'chat/partials/sidebar.html' %}
+        </div>
+
+        <div class="sidebar-footer">
+            <div style="display: flex; gap: 8px; margin-bottom: 0.8rem;">
+                <a href="{% url 'settings' %}" class="footer-btn" style="flex: 1; margin-bottom: 0;">
+                    <i class="fas fa-microchip" style="color: var(--accent-primary);"></i>
+                    <span>KNOWLEDGE CORE</span>
+                </a>
+                <form action="{% url 'clear_library' %}" method="post"
+                    onsubmit="return confirm('PURGE ALL VECTOR DATA?');" style="margin: 0;">
+                    {% csrf_token %}
+                    <button type="submit" class="footer-btn"
+                        style="width: 44px; color: #ef4444; border-color: rgba(239, 68, 68, 0.2); margin-bottom: 0;"
+                        title="Purge Data">
+                        <i class="fas fa-fire-extinguisher"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div class="user-profile">
+                <div class="avatar-circle">
+                    {{ user.username|first|upper }}
+                </div>
+                <div style="flex: 1; overflow: hidden;">
+                    <div style="font-weight: 800; color: #fff; font-size: 0.9rem;">{{user.username }}</div>
+                    <div style="font-size: 0.7rem; color: var(--text-tertiary); font-weight: 700;">SYSTEM OPERATOR</div>
+                </div>
+                <a href="{% url 'logout' %}" style="color: var(--text-tertiary); transition: var(--transition);"
+                    onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-tertiary)'">
+                    <i class="fas fa-power-off"></i>
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="main-pane">
+        <header class="chat-header">
+            <h1 class="chat-title">
+                <i class="fas fa-cube"></i>
+                {% if current_conversation %}{{ current_conversation.title }}{% else %}Neural Core Interface{% endif %}
+            </h1>
+            <div class="status-capsule">
+                <div class="status-dot"></div>
+                RAG INFRASTRUCTURE ACTIVE
+            </div>
+        </header>
+
+        <div class="messages-container" id="messages-container">
+            {% if not current_conversation %}
+            <div class="placeholder-content">
+                <div class="placeholder-icon">
+                    <i class="fas fa-atom"></i>
+                </div>
+                <h2
+                    style="font-size: 1.5rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--text-tertiary); margin-bottom: 1rem;">
+                    Awaiting Query
+                </h2>
+                <p style="color: var(--text-tertiary); max-width: 400px; line-height: 1.8;">
+                    Select a dialogue cycle or initialize a new link to start querying your vectorized knowledge base.
+                </p>
+            </div>
+            {% else %}
+            {% include 'chat/partials/messages.html' %}
+            {% endif %}
+
+            <!-- Inline Processing Indicator -->
+            <div class="message-row assistant processing-indicator htmx-indicator" id="ai-processing">
+                <div class="msg-avatar ai-gradient">
+                    <i class="fas fa-atom"></i>
+                </div>
+                <div class="msg-content">
+                    <div class="processing-bubbles">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div
+                        style="font-size: 0.7rem; color: var(--accent-primary); font-weight: 800; letter-spacing: 1px; margin-top: 5px;">
+                        NEURAL CORE PROCESSING...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <div class="input-card" id="input-container">
+                <form id="message-form" class="message-form"
+                    style="display: flex; width: 100%; gap: 1rem; align-items: flex-end;"
+                    hx-post="{% if current_conversation %}{% url 'send_message_to_conversation' current_conversation.id %}{% else %}{% url 'send_message' %}{% endif %}"
+                    hx-target="#messages-container" hx-swap="beforeend" hx-indicator="#ai-processing"
+                    hx-disabled-elt="#message-input, .btn-send" hx-on::before-request="
+                        const input = document.getElementById('message-input');
+                        const container = document.getElementById('messages-container');
+                        if(input.value.trim()) {
+                            const userMsg = `<div class='message-row user temporary-msg'><div class='msg-avatar ua-gradient'><i class='fas fa-user'></i></div><div class='msg-content'><div class='msg-text'>${input.value.replace(/\n/g, '<br>')}</div></div></div>`;
+                            container.insertAdjacentHTML('beforeend', userMsg);
+                        }
+                        this.classList.add('is-locked'); 
+                        document.getElementById('input-container').style.opacity='0.5'; 
+                        container.scrollTop = container.scrollHeight;
+                    " hx-on::after-request="
+                        this.reset(); 
+                        this.classList.remove('is-locked'); 
+                        document.getElementById('input-container').style.opacity='1'; 
+                        document.querySelectorAll('.temporary-msg').forEach(m => m.remove());
+                        setTimeout(() => { document.getElementById('messages-container').scrollTop = document.getElementById('messages-container').scrollHeight; }, 50);
+                    " hx-trigger="submit, messageAdded from:body">
+                    {% csrf_token %}
+
+                    <textarea name="message" id="message-input" class="chat-textarea"
+                        placeholder="Transmit query to neural core..." required></textarea>
+
+                    <button type="submit" class="action-btn btn-send" id="send-btn">
+                        <i class="fas fa-arrow-up"></i>
+                    </button>
+                </form>
+            </div>
+            <div class="footer-text">
+                CORE PROTOCOL: ENCRYPTED • RETRIEVAL: ENABLED • LOCAL DEPLOYMENT
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

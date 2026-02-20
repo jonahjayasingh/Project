@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - GymMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row mb-5">
+        <div class="col-12 text-center">
+            <h1 class="display-4 fw-bold mb-3">Choose Your Membership Plan</h1>
+            <p class="lead text-muted">Select the perfect plan for your fitness journey</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {% for plan in plans %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm hover-card">
+                <div class="card-header bg-primary text-white text-center py-4">
+                    <h3 class="mb-0">{{ plan.name }}</h3>
+                    <p class="mb-0 mt-2">{{ plan.get_duration_months_display }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="display-4 fw-bold">₹{{ plan.price }}</h2>
+                        <p class="text-muted">for {{ plan.duration_months }} month{{ plan.duration_months|pluralize }}
+                        </p>
+                    </div>
+
+                    <p class="text-muted mb-3">{{ plan.description }}</p>
+
+                    <div class="mb-3">
+                        <span class="badge bg-info">{{ plan.get_access_level_display }}</span>
+                    </div>
+
+                    <h5 class="fw-bold mb-3">Benefits:</h5>
+                    <ul class="list-unstyled">
+                        {% for benefit in plan.benefits.splitlines %}
+                        <li class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            {{ benefit }}
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="card-footer bg-transparent border-0 p-4">
+                    <a href="{% url 'requests:request_membership_with_plan' plan.id %}"
+                        class="btn btn-primary w-100 btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Request This Plan
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <i class="bi bi-info-circle me-2"></i>
+                No membership plans are currently available. Please check back later.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12 text-center">
+            <p class="text-muted">
+                <i class="bi bi-question-circle me-2"></i>
+                Have questions? <a href="{% url 'home' %}">Contact us</a> for more information.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+    }
+</style>
+{% endblock %}

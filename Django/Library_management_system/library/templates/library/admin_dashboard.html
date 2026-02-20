@@ -1,0 +1,255 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .quick-actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 1.25rem;
+        margin-top: 1.5rem;
+    }
+
+    .action-card {
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        border: 2px solid rgba(99, 102, 241, 0.1);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: block;
+        color: var(--dark);
+    }
+
+    .action-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary);
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+        box-shadow: 0 10px 30px rgba(99, 102, 241, 0.2);
+    }
+
+    .action-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        display: block;
+    }
+
+    .action-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--dark);
+    }
+
+    .action-desc {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        margin-top: 0.5rem;
+    }
+
+    .recent-activity-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .view-all-link {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .view-all-link:hover {
+        color: var(--primary-dark);
+        transform: translateX(5px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-header">
+    <h1>Admin Dashboard 👨‍💼</h1>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <h3>Total Students</h3>
+        <div class="stat-value">{{ total_students }}</div>
+    </div>
+
+    <div class="stat-card" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <h3>Total Books</h3>
+        <div class="stat-value">{{ total_books }}</div>
+    </div>
+
+    <div class="stat-card" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">
+        <h3>Currently Borrowed</h3>
+        <div class="stat-value">{{ total_borrowed }}</div>
+    </div>
+
+    <div class="stat-card" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+        <h3>Pending Requests</h3>
+        <div class="stat-value">{{ pending_requests }}</div>
+    </div>
+
+    <div class="stat-card" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+        <h3>Overdue Books</h3>
+        <div class="stat-value">{{ overdue_books }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Quick Actions</h2>
+    <div class="quick-actions-grid">
+        <a href="{% url 'pending_requests' %}" class="action-card" style="border-color: #8b5cf6;">
+            <span class="action-icon">📋</span>
+            <div class="action-title">Pending Requests</div>
+            <div class="action-desc">Review book requests</div>
+            {% if pending_requests > 0 %}
+            <span class="badge badge-danger" style="margin-top: 0.5rem;">{{ pending_requests }} new</span>
+            {% endif %}
+        </a>
+        <a href="{% url 'add_student' %}" class="action-card">
+            <span class="action-icon">👤</span>
+            <div class="action-title">Add Student</div>
+            <div class="action-desc">Register new student</div>
+        </a>
+        <a href="{% url 'add_book' %}" class="action-card">
+            <span class="action-icon">📖</span>
+            <div class="action-title">Add Book</div>
+            <div class="action-desc">Add to library collection</div>
+        </a>
+        <a href="{% url 'manage_students' %}" class="action-card">
+            <span class="action-icon">👥</span>
+            <div class="action-title">Manage Students</div>
+            <div class="action-desc">View & edit students</div>
+        </a>
+        <a href="{% url 'manage_books' %}" class="action-card">
+            <span class="action-icon">📚</span>
+            <div class="action-title">Manage Books</div>
+            <div class="action-desc">View & edit books</div>
+        </a>
+    </div>
+</div>
+
+{% if approved_requests %}
+<div class="card"
+    style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); border-left: 4px solid #10b981;">
+    <h2 style="color: #065f46;">✓ Approved Requests - Ready for Collection</h2>
+    <p style="color: #065f46; margin-bottom: 1.5rem; font-weight: 600;">
+        These students can collect their approved books
+    </p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Book</th>
+                <th>Approved On</th>
+                <th>Due Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in approved_requests %}
+            <tr>
+                <td>
+                    <div style="font-weight: 700;">{{ req.student.name }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">{{ req.student.student_number }}</div>
+                </td>
+                <td>
+                    <div style="font-weight: 700;">{{ req.book.title }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">by {{ req.book.author }}</div>
+                </td>
+                <td>{{ req.approved_date|date:"M d, Y" }}</td>
+                <td>
+                    <div style="font-weight: 700; color: #065f46;">{{ req.due_date|date:"M d, Y" }}</div>
+                </td>
+                <td>
+                    <a href="{% url 'handover_book' req.id %}" class="btn btn-success"
+                        style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                        📚 Hand Over
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div class="card">
+    <div class="recent-activity-header">
+        <h2>Recent Borrow Activity</h2>
+        <a href="{% url 'borrow_history' %}" class="view-all-link">View All →</a>
+    </div>
+
+    {% if recent_borrows %}
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Book</th>
+                <th>Borrow Date</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in recent_borrows %}
+            <tr>
+                <td>
+                    <div style="font-weight: 600;">{{ record.student.name }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">{{ record.student.student_number }}</div>
+                </td>
+                <td>
+                    <div style="font-weight: 600;">{{ record.book.title }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">{{ record.book.author }}</div>
+                </td>
+                <td>{{ record.borrow_date|date:"M d, Y" }}</td>
+                <td>{{ record.due_date|date:"M d, Y" }}</td>
+                <td>
+                    {% if record.status == 'borrowed' %}
+                    <span class="badge badge-success">Borrowed</span>
+                    {% elif record.status == 'returned' %}
+                    <span class="badge badge-primary">Returned</span>
+                    {% elif record.status == 'overdue' %}
+                    <span class="badge badge-danger">Overdue</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if record.status != 'returned' %}
+                    <form action="{% url 'return_book' record.id %}" method="post" style="display: inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success"
+                            style="padding: 0.5rem 1.25rem; font-size: 0.9rem;">
+                            ✓ Mark Returned
+                        </button>
+                    </form>
+                    {% else %}
+                    <span style="color: var(--text-light); font-weight: 500;">Completed</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No borrow activity yet.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

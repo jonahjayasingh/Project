@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-md-5">
+            <div class="card shadow-lg">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-heart-pulse-fill text-primary" style="font-size: 4rem;"></i>
+                        <h2 class="mt-3 fw-bold">Gym Management System</h2>
+                        <p class="text-muted">Sign in to your account</p>
+                    </div>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-semibold">
+                                <i class="bi bi-person"></i> Username
+                            </label>
+                            <input type="text" name="username" class="form-control form-control-lg" id="id_username"
+                                placeholder="Enter your username" required autofocus>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="id_password" class="form-label fw-semibold">
+                                <i class="bi bi-lock"></i> Password
+                            </label>
+                            <input type="password" name="password" class="form-control form-control-lg" id="id_password"
+                                placeholder="Enter your password" required>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mb-3">
+                            <i class="bi bi-box-arrow-in-right"></i> Sign In
+                        </button>
+
+                        <div class="text-center text-muted">
+                            <small>Contact admin for account access</small>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="text-center mt-4 text-muted">
+                <small>&copy; 2026 Gym Management System</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .card {
+        border-radius: 20px;
+        border: none;
+    }
+
+    .form-control:focus {
+        border-color: #6366f1;
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    }
+</style>
+{% endblock %}

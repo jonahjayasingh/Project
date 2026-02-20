@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row align-items-center mb-5">
+    <div class="col">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Pending Approvals</li>
+            </ol>
+        </nav>
+        <h1 class="fw-bold text-dark">Pending Approvals</h1>
+        <p class="text-muted">Verify and activate NGO and Volunteer accounts.</p>
+    </div>
+</div>
+
+<!-- Search and Filter Bar -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <form method="get" class="card border-0 shadow-sm rounded-4 p-3 mb-0">
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-white border-end-0 rounded-start-3" id="basic-addon1">🔎</span>
+                        <input type="text" name="q" class="form-control border-start-0 rounded-end-3"
+                            placeholder="Search by name, email or phone..." value="{{ search_query }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="role" class="form-select rounded-3">
+                        <option value="">All Roles</option>
+                        <option value="ngo" {% if role_filter == 'ngo' %}selected{% endif %}>NGO</option>
+                        <option value="volunteer" {% if role_filter == 'volunteer' %}selected{% endif %}>Volunteer
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-primary w-100 rounded-3">Search</button>
+                </div>
+                <div class="col-md-2">
+                    <a href="{% url 'pending_approvals' %}" class="btn btn-light w-100 rounded-3 border">Clear</a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Role</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in pending_users %}
+                    <tr>
+                        <td class="ps-4 fw-medium">{{ u.username }}</td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.phone_number|default:"N/A" }}</td>
+                        <td><span class="badge bg-soft-info text-info px-3 py-2 rounded-pill">{{ u.role|upper }}</span>
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'approve_user' u.id %}"
+                                class="btn btn-success btn-sm px-4 rounded-pill shadow-sm">Approve User</a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-5 text-muted lead">No pending user approvals at this time.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+    .bg-soft-info {
+        background-color: #e0f2fe;
+    }
+
+    .text-info {
+        color: #0ea5e9 !important;
+    }
+</style>
+{% endblock %}

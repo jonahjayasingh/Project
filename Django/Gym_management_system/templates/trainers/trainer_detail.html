@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ trainer.user.get_full_name }} - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-person-badge"></i> {{ trainer.user.get_full_name }}</h2>
+        <div>
+            <a href="{% url 'trainers:trainer_edit' trainer.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="{% url 'trainers:trainer_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Trainer Info Card -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    {% if trainer.user.profile_photo %}
+                    <img src="{{ trainer.user.profile_photo.url }}" class="rounded-circle mb-3" width="150" height="150"
+                        alt="Profile">
+                    {% else %}
+                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center mb-3"
+                        style="width: 150px; height: 150px; font-size: 4rem;">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    {% endif %}
+                    <h4>{{ trainer.user.get_full_name }}</h4>
+                    <p class="text-muted">{{ trainer.user.username }}</p>
+                    <p>
+                        <span class="badge bg-info">{{ trainer.get_specialization_display }}</span>
+                        {% if trainer.is_available %}
+                        <span class="badge bg-success">Available</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Unavailable</span>
+                        {% endif %}
+                    </p>
+                    <hr>
+                    <div class="text-start">
+                        <p><strong>Email:</strong> {{ trainer.user.email|default:"—" }}</p>
+                        <p><strong>Phone:</strong> {{ trainer.user.phone_number|default:"—" }}</p>
+                        <p><strong>Experience:</strong> {{ trainer.experience_years }} years</p>
+                        <p><strong>Hourly Rate:</strong> {% if trainer.hourly_rate %}₹{{ trainer.hourly_rate }}/hr{%
+                            else %}—{% endif %}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bio Card -->
+            {% if trainer.bio %}
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5>Bio</h5>
+                    <p class="text-muted">{{ trainer.bio }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Certifications Card -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5>Certifications</h5>
+                    <ul class="list-unstyled">
+                        {% for cert in trainer.certifications.splitlines %}
+                        <li><i class="bi bi-award text-warning"></i> {{ cert }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Tabs -->
+        <div class="col-md-8 mb-4">
+            <ul class="nav nav-tabs" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-bs-toggle="tab" href="#availability">Availability</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#assignments">Active Clients</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#classes">Class Schedule</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-bs-toggle="tab" href="#history">History</a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- Availability Tab -->
+                <div id="availability" class="tab-pane fade show active">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Weekly Availability</h5>
+                            <a href="{% url 'trainers:availability_create' trainer.pk %}"
+                                class="btn btn-sm btn-primary">
+                                <i class="bi bi-plus"></i> Add Slot
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% if availability %}
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Day</th>
+                                            <th>Time</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for slot in availability %}
+                                        <tr>
+                                            <td>{{ slot.get_day_of_week_display }}</td>
+                                            <td>{{ slot.start_time|time:"g:i A" }} - {{ slot.end_time|time:"g:i A" }}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'trainers:availability_delete' slot.pk %}"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                    <i class="bi bi-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No availability slots added</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Assignments Tab -->
+                <div id="assignments" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Active Client Assignments</h5>
+                            <a href="{% url 'trainers:assignment_create' %}" class="btn btn-sm btn-primary">
+                                <i class="bi bi-plus"></i> Assign Client
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% if active_assignments %}
+                            <div class="list-group list-group-flush">
+                                {% for assignment in active_assignments %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>{{ assignment.member.user.get_full_name }}</strong><br>
+                                            <small class="text-muted">
+                                                Started: {{ assignment.start_date|date:"M d, Y" }} |
+                                                Sessions: {{ assignment.sessions_per_week }}/week
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'trainers:assignment_update' assignment.pk %}"
+                                                class="btn btn-sm btn-outline-secondary">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% if assignment.notes %}
+                                    <p class="mt-2 mb-0 text-muted"><small>{{ assignment.notes }}</small></p>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No active client assignments</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Class Schedule Tab -->
+                <div id="classes" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="mb-3">Class Schedule</h5>
+                            {% if class_schedules %}
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Class</th>
+                                            <th>Day</th>
+                                            <th>Time</th>
+                                            <th>Location</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for schedule in class_schedules %}
+                                        <tr>
+                                            <td>{{ schedule.fitness_class.name }}</td>
+                                            <td>{{ schedule.get_day_of_week_display }}</td>
+                                            <td>{{ schedule.start_time|time:"g:i A" }}</td>
+                                            <td>{{ schedule.room_location|default:"—" }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No class schedules assigned</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Tab -->
+                <div id="history" class="tab-pane fade">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="mb-3">Assignment History</h5>
+                            {% if assignment_history %}
+                            <div class="list-group list-group-flush">
+                                {% for assignment in assignment_history %}
+                                <div class="list-group-item">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <strong>{{ assignment.member.user.get_full_name }}</strong><br>
+                                            <small class="text-muted">
+                                                {{ assignment.start_date|date:"M d, Y" }} -
+                                                {% if assignment.end_date %}{{ assignment.end_date|date:"M d, Y" }}{%
+                                                else %}Present{% endif %}
+                                            </small>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-secondary">{{ assignment.get_status_display }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <p class="text-muted">No assignment history</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

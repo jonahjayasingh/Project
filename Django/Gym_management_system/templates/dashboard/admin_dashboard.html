@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4"><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row">
+        <!-- Total Members -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Total Members</p>
+                            <h2 class="mb-0 fw-bold">{{ total_members }}</h2>
+                        </div>
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Members -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Active Members</p>
+                            <h2 class="mb-0 fw-bold text-success">{{ active_members }}</h2>
+                        </div>
+                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Month Revenue -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">This Month Revenue</p>
+                            <h2 class="mb-0 fw-bold text-info">₹{{ this_month_revenue|floatformat:0 }}</h2>
+                        </div>
+                        <div class="stat-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-currency-rupee"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Attendance -->
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Today's Attendance</p>
+                            <h2 class="mb-0 fw-bold text-warning">{{ today_attendance }}</h2>
+                        </div>
+                        <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                            <i class="bi bi-calendar-check-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional Stats Row -->
+    <div class="row">
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Expiring Soon</p>
+                    <h3 class="mb-0 fw-bold text-danger">{{ expiring_soon }}</h3>
+                    <small class="text-muted">Within 7 days</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Inactive Members</p>
+                    <h3 class="mb-0 fw-bold">{{ inactive_members }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Frozen Memberships</p>
+                    <h3 class="mb-0 fw-bold">{{ frozen_members }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <p class="text-muted mb-1">This Week Attendance</p>
+                    <h3 class="mb-0 fw-bold">{{ this_week_attendance }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Payments and Popular Classes -->
+    <div class="row">
+        <!-- Recent Payments -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-cash-stack"></i> Recent Payments</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Invoice</th>
+                                    <th>Member</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in recent_payments %}
+                                <tr>
+                                    <td><code>{{ payment.invoice_number }}</code></td>
+                                    <td>{{ payment.member.user.get_full_name }}</td>
+                                    <td class="fw-bold">₹{{ payment.amount }}</td>
+                                    <td>{{ payment.get_payment_method_display }}</td>
+                                    <td>
+                                        {% if payment.status == 'completed' %}
+                                        <span class="badge bg-success">{{ payment.get_status_display }}</span>
+                                        {% elif payment.status == 'pending' %}
+                                        <span class="badge bg-warning">{{ payment.get_status_display }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary">{{ payment.get_status_display }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted py-4">No recent payments</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular Classes -->
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-star-fill"></i> Popular Classes</h5>
+                </div>
+                <div class="card-body">
+                    {% for class in popular_classes %}
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="mb-0">{{ class.name }}</h6>
+                            <small class="text-muted">{{ class.booking_count }} bookings</small>
+                        </div>
+                        <span class="badge bg-primary">{{ class.get_difficulty_level_display }}</span>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">No class data available</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pending Payments -->
+    {% if pending_payments %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle-fill text-warning"></i> Pending Payments</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Invoice</th>
+                                    <th>Member</th>
+                                    <th>Amount</th>
+                                    <th>Type</th>
+                                    <th>Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for payment in pending_payments %}
+                                <tr>
+                                    <td><code>{{ payment.invoice_number }}</code></td>
+                                    <td>{{ payment.member.user.get_full_name }}</td>
+                                    <td class="fw-bold text-danger">₹{{ payment.amount }}</td>
+                                    <td>{{ payment.get_payment_type_display }}</td>
+                                    <td>{{ payment.payment_date|date:"M d, Y" }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="mb-3"><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{% url 'members:member_create' %}" class="btn btn-primary">
+                            <i class="bi bi-person-plus"></i> Add Member
+                        </a>
+                        <a href="{% url 'members:member_list' %}" class="btn btn-secondary">
+                            <i class="bi bi-people"></i> View All Members
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

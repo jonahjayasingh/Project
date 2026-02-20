@@ -1,0 +1,33 @@
+{% extends 'core/base.html' %}
+{% block title %}Take Quiz - Neo-Compass{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h2>Skill Evaluation</h2>
+            <hr>
+            <p class="lead"><strong>Q: {{ quiz.question }}</strong></p>
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="option" id="opt1" value="1" required>
+                    <label class="form-check-label" for="opt1">{{ quiz.option1 }}</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="option" id="opt2" value="2">
+                    <label class="form-check-label" for="opt2">{{ quiz.option2 }}</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="option" id="opt3" value="3">
+                    <label class="form-check-label" for="opt3">{{ quiz.option3 }}</label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="option" id="opt4" value="4">
+                    <label class="form-check-label" for="opt4">{{ quiz.option4 }}</label>
+                </div>
+                <button type="submit" class="btn btn-primary mt-3">Submit Answer</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

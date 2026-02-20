@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - LMS Admin{% endblock %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold">User Management Panel</h2>
+        <a href="{% url 'admin_dashboard' %}" class="btn btn-outline-secondary btn-sm">Back to Summary</a>
+    </div>
+
+    <!-- Patients List -->
+    <div class="col-12 mb-5">
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4 text-primary"><i class="fas fa-user-injured me-2"></i>Patients</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Location</th>
+                            <th>Stats</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for patient in patients %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ patient.full_name }}</div>
+                                <small class="text-muted">{{ patient.user.email }}</small>
+                            </td>
+                            <td>{{ patient.whatsapp_number }}</td>
+                            <td>{{ patient.address|truncatechars:30 }}</td>
+                            <td>{{ patient.bookings.count }} Bookings</td>
+                            <td><span class="badge bg-success rounded-pill">Active</span></td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="py-3 text-center text-muted">No patients registered</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Labs List -->
+    <div class="col-12">
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4 text-success"><i class="fas fa-flask me-2"></i>Laboratories</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Laboratory Name</th>
+                            <th>License No.</th>
+                            <th>Username</th>
+                            <th>Approval</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lab in labs %}
+                        <tr>
+                            <td class="fw-bold">{{ lab.lab_name }}</td>
+                            <td><code>{{ lab.license_number }}</code></td>
+                            <td>{{ lab.user.username }}</td>
+                            <td>
+                                {% if lab.is_approved %}
+                                <span class="badge bg-success rounded-pill">Approved</span>
+                                {% else %}
+                                <span class="badge bg-warning text-dark rounded-pill">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lab.is_active %}
+                                <span class="badge bg-success rounded-pill">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger rounded-pill">Disabled</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-1">
+                                    {% if not lab.is_approved %}
+                                    <a href="{% url 'approve_lab' lab.id %}" class="btn btn-sm btn-success">Approve</a>
+                                    {% endif %}
+                                    <a href="{% url 'toggle_lab_status' lab.id %}"
+                                        class="btn btn-sm {% if lab.is_active %}btn-outline-danger{% else %}btn-outline-success{% endif %}">
+                                        {% if lab.is_active %}Disable{% else %}Enable{% endif %}
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="py-3 text-center text-muted">No laboratories registered</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

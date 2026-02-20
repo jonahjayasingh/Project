@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0"><i class="bi bi-people"></i> Manage Users</h4>
+        </div>
+        <div class="card-body">
+            <!-- Filters -->
+            <form method="get" class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <input type="text" name="q" class="form-control"
+                            placeholder="Search by username, email, or phone" value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-3">
+                        <select name="role" class="form-select">
+                            <option value="">All Roles</option>
+                            <option value="donor" {% if role_filter == 'donor' %}selected{% endif %}>Donor</option>
+                            <option value="ngo" {% if role_filter == 'ngo' %}selected{% endif %}>NGO</option>
+                            <option value="volunteer" {% if role_filter == 'volunteer' %}selected{% endif %}>Volunteer
+                            </option>
+                            <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Admin</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select name="approval" class="form-select">
+                            <option value="">All Status</option>
+                            <option value="approved" {% if approval_filter == 'approved' %}selected{% endif %}>Approved
+                            </option>
+                            <option value="pending" {% if approval_filter == 'pending' %}selected{% endif %}>Pending
+                                Approval</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-search"></i> Filter
+                        </button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Users Table -->
+            {% if users %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Phone</th>
+                            <th>Status</th>
+                            <th>Approved</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user_item in users %}
+                        <tr>
+                            <td>{{ user_item.id }}</td>
+                            <td>{{ user_item.username }}</td>
+                            <td>{{ user_item.email }}</td>
+                            <td><span class="badge bg-secondary">{{ user_item.get_role_display }}</span></td>
+                            <td>{{ user_item.phone_number|default:"-" }}</td>
+                            <td>
+                                {% if user_item.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-danger">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user_item.is_approved %}
+                                <span class="badge bg-success">Yes</span>
+                                {% else %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user_item.date_joined|date:"M d, Y" }}</td>
+                            <td>
+                                {% if user_item.id != user.id %}
+                                {% if not user_item.is_approved %}
+                                <a href="{% url 'approve_user' user_item.id %}" class="btn btn-sm btn-success"
+                                    title="Approve User">
+                                    <i class="bi bi-check-circle"></i>
+                                </a>
+                                {% endif %}
+                                <a href="{% url 'toggle_user_status' user_item.id %}"
+                                    class="btn btn-sm {% if user_item.is_active %}btn-warning{% else %}btn-info{% endif %}"
+                                    title="{% if user_item.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                    <i
+                                        class="bi bi-{% if user_item.is_active %}x-circle{% else %}check-circle{% endif %}"></i>
+                                </a>
+                                {% else %}
+                                <span class="text-muted small">You</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="bi bi-people" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="mt-3 text-muted">No users found.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

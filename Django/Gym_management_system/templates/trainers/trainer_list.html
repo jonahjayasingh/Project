@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+
+{% block title %}Trainers - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1><i class="bi bi-person-badge-fill"></i> Trainers</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{% url 'trainers:trainer_create' %}" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Add New Trainer
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control"
+                        placeholder="Search by name, email, or specialization..." value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="specialization" class="form-select">
+                        <option value="">All Specializations</option>
+                        {% for value, label in specialization_choices %}
+                        <option value="{{ value }}" {% if specialization_filter == value %}selected{% endif %}>{{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="availability" class="form-select">
+                        <option value="">All Availability</option>
+                        <option value="true" {% if availability_filter == 'true' %}selected{% endif %}>Available</option>
+                        <option value="false" {% if availability_filter == 'false' %}selected{% endif %}>Unavailable
+                        </option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Trainers Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Name</th>
+                            <th>Specialization</th>
+                            <th>Experience</th>
+                            <th>Hourly Rate</th>
+                            <th>Active Clients</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for trainer in page_obj %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if trainer.user.profile_photo %}
+                                    <img src="{{ trainer.user.profile_photo.url }}" class="rounded-circle me-2"
+                                        width="40" height="40" alt="Profile">
+                                    {% else %}
+                                    <div class="rounded-circle bg-success bg-opacity-10 text-success d-inline-flex align-items-center justify-content-center me-2"
+                                        style="width: 40px; height: 40px;">
+                                        <i class="bi bi-person-badge"></i>
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ trainer.user.get_full_name }}</strong><br>
+                                        <small class="text-muted">{{ trainer.user.email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-info">{{ trainer.get_specialization_display }}</span>
+                            </td>
+                            <td>{{ trainer.experience_years }} years</td>
+                            <td>
+                                {% if trainer.hourly_rate %}
+                                ₹{{ trainer.hourly_rate }}/hr
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ trainer.active_assignments }}</span>
+                            </td>
+                            <td>
+                                {% if trainer.is_available %}
+                                <span class="badge bg-success">Available</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Unavailable</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'trainers:trainer_detail' trainer.pk %}"
+                                        class="btn btn-outline-primary" title="View Details">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a href="{% url 'trainers:trainer_edit' trainer.pk %}"
+                                        class="btn btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a href="{% url 'trainers:trainer_delete' trainer.pk %}"
+                                        class="btn btn-outline-danger" title="Delete">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No trainers found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if specialization_filter %}&specialization={{ specialization_filter }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}">First</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if specialization_filter %}&specialization={{ specialization_filter }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}">Previous</a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if specialization_filter %}&specialization={{ specialization_filter }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}">Next</a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if specialization_filter %}&specialization={{ specialization_filter }}{% endif %}{% if availability_filter %}&availability={{ availability_filter }}{% endif %}">Last</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

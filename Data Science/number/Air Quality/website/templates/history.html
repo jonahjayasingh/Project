@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Prediction History{% endblock %}
+
+{% block style %}
+<style>
+    .history-container {
+        max-width: 1000px;
+        margin: 2rem auto;
+    }
+    .table th {
+        background-color: #f8f9fa;
+        border-top: none;
+    }
+    .badge-aqi {
+        padding: 0.4rem 0.8rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+    }
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    .empty-state i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 1rem;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container history-container">
+    <div class="card">
+        <div class="card-body p-4">
+            <h2 class="mb-4">Prediction History</h2>
+            
+            {% if predictions %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Date & Time</th>
+                            <th>PM2.5</th>
+                            <th>PM10</th>
+                            <th>Predicted AQI</th>
+                            <th>Confidence</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in predictions %}
+                        <tr>
+                            <td>{{ pred.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ "%.1f"|format(pred.pm25) }}</td>
+                            <td>{{ "%.1f"|format(pred.pm10) }}</td>
+                            <td>
+                                {% set badge_color = {
+                                    'Good': 'success',
+                                    'Moderate': 'warning',
+                                    'Poor': 'warning',
+                                    'Unhealthy': 'danger',
+                                    'Very Unhealthy': 'danger',
+                                    'Hazardous': 'dark'
+                                } %}
+                                <span class="badge badge-aqi bg-{{ badge_color.get(pred.predicted_aqi, 'secondary') }}">
+                                    {{ pred.predicted_aqi }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                        <div class="progress-bar bg-{{ badge_color.get(pred.predicted_aqi, 'secondary') }}" 
+                                             style="width: {{ pred.confidence }}%"></div>
+                                    </div>
+                                    <small>{{ "%.0f"|format(pred.confidence) }}%</small>
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        data-bs-toggle="modal" 
+                                        data-bs-target="#detailsModal{{ pred.id }}">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Details Modal -->
+                        <div class="modal fade" id="detailsModal{{ pred.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Prediction Details</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Date:</strong> {{ pred.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                        <p><strong>Predicted AQI:</strong> 
+                                            <span class="badge bg-{{ badge_color.get(pred.predicted_aqi, 'secondary') }}">
+                                                {{ pred.predicted_aqi }}
+                                            </span>
+                                        </p>
+                                        <p><strong>Confidence:</strong> {{ "%.1f"|format(pred.confidence) }}%</p>
+                                        <hr>
+                                        <h6>Pollutant Values (μg/m³):</h6>
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <small>PM2.5: {{ "%.1f"|format(pred.pm25) }}</small><br>
+                                                <small>PM10: {{ "%.1f"|format(pred.pm10) }}</small><br>
+                                                <small>NO: {{ "%.1f"|format(pred.no) }}</small><br>
+                                                <small>NO2: {{ "%.1f"|format(pred.no2) }}</small>
+                                            </div>
+                                            <div class="col-6">
+                                                <small>NH3: {{ "%.1f"|format(pred.nh3) }}</small><br>
+                                                <small>CO: {{ "%.1f"|format(pred.co) }}</small><br>
+                                                <small>SO2: {{ "%.1f"|format(pred.so2) }}</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-clock-history"></i>
+                <h4>No predictions yet</h4>
+                <p class="text-muted">Make your first prediction to see it here.</p>
+                <a href="{{ url_for('predict') }}" class="btn btn-primary mt-2">
+                    Make Prediction
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

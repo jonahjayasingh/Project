@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}{{ action }} Patient - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-plus"></i> {{ action }} Patient</h2>
+    <a href="{% url 'patients:patient_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to List
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5><i class="bi bi-person"></i> Personal Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ user_form.username|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ user_form.email|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ user_form.first_name|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ user_form.last_name|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ user_form.phone|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ user_form.date_of_birth|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            {{ user_form.address|as_crispy_field }}
+                        </div>
+                    </div>
+                    {% if action == 'Create' %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ user_form.password|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ user_form.confirm_password|as_crispy_field }}
+                        </div>
+                    </div>
+                    <small class="text-muted">Leave password blank to use default: patient123</small>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5><i class="bi bi-heart-pulse"></i> Medical Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ profile_form.blood_group|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ profile_form.height|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ profile_form.weight|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ profile_form.allergies|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ profile_form.chronic_conditions|as_crispy_field }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            {{ profile_form.current_medications|as_crispy_field }}
+                        </div>
+                        <div class="col-md-6">
+                            {{ profile_form.past_surgeries|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5><i class="bi bi-telephone"></i> Emergency Contact</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ profile_form.emergency_contact_name|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ profile_form.emergency_contact_phone|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ profile_form.emergency_contact_relation|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5><i class="bi bi-info-circle"></i> Status Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            {{ profile_form.status|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ profile_form.admission_date|as_crispy_field }}
+                        </div>
+                        <div class="col-md-4">
+                            {{ profile_form.discharge_date|as_crispy_field }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="bi bi-save"></i> Save Patient
+                </button>
+                <a href="{% url 'patients:patient_list' %}" class="btn btn-secondary btn-lg">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

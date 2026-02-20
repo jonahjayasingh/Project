@@ -1,0 +1,15 @@
+Event Management System - User Credentials
+
+ADMIN:
+Username: admin
+Email: admin@example.com
+Password: 1
+Role: ADMIN
+
+CLIENT:
+Username: client
+Email: client@example.com
+Password: 1
+Role: CLIENT
+
+Note: These users were updated as requested.

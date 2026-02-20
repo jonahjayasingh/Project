@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Review - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-5 justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 border-0 shadow-lg rounded-4">
+            <h3 class="fw-bold mb-2">Rate Your Experience</h3>
+            <p class="text-muted mb-2">Service: <strong>{{ booking.test_name }}</strong> at {{ lab.lab_name }}</p>
+            <p class="small text-muted mb-4 text-uppercase fw-bold">Booking ID: #{{ booking.id }}</p>
+
+            <form method="POST" id="reviewForm">
+                {% csrf_token %}
+                <div class="mb-4 text-center">
+                    <label class="form-label d-block fw-bold mb-3">Your Overall Rating</label>
+                    <div class="rating-container d-flex justify-content-center flex-row-reverse gap-1">
+                        {% for i in "54321" %}
+                        <input type="radio" name="rating" value="{{ i }}" id="star{{ i }}" class="btn-check" required>
+                        <label for="star{{ i }}" class="star-item">
+                            <i class="fa-regular fa-star fa-2x text-warning"></i>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Detailed Feedback</label>
+                    <textarea name="comment" class="form-control rounded-4 shadow-sm" rows="5"
+                        placeholder="Please share details about labs cleanliness, staff behavior, and reporting speed..."
+                        required></textarea>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                        <i class="fas fa-paper-plane me-2"></i>Post Review
+                    </button>
+                    <a href="{% url 'patient_dashboard' %}"
+                        class="btn btn-light w-100 py-3 rounded-pill fw-bold">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+    .rating-container {
+        font-size: 1.5rem;
+    }
+
+    .star-item {
+        cursor: pointer;
+        padding: 0 5px;
+        transition: transform 0.2s;
+    }
+
+    .star-item:hover {
+        transform: scale(1.2);
+    }
+
+    /* Hover highlight */
+    .star-item:hover i,
+    .star-item:hover~.star-item i {
+        font-weight: 900 !important;
+        color: #ffc107 !important;
+    }
+
+    /* Checked highlight */
+    .btn-check:checked~.star-item i {
+        font-weight: 900 !important;
+        color: #ffc107 !important;
+    }
+</style>
+
+<script>
+    document.querySelectorAll('.star-item').forEach(item => {
+        item.addEventListener('click', function () {
+            const radio = document.getElementById(this.getAttribute('for'));
+            const stars = Array.from(document.querySelectorAll('.star-item i'));
+            const val = parseInt(radio.value);
+
+            // Note: Since we use flex-row-reverse, the order in DOM is 5,4,3,2,1
+            // idx 0 is star 5, idx 4 is star 1
+            stars.forEach((star, idx) => {
+                const starVal = 5 - idx;
+                if (starVal <= val) {
+                    star.classList.remove('fa-regular');
+                    star.classList.add('fa-solid');
+                } else {
+                    star.classList.remove('fa-solid');
+                    star.classList.add('fa-regular');
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

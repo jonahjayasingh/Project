@@ -1,0 +1,134 @@
+{% extends 'services/base.html' %}
+{% block title %}My Favorite Professionals - ServiceFinder{% endblock %}
+
+{% block extra_css %}
+<style>
+    .fav-hero {
+        background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+        padding: 80px 0 40px;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .fav-card {
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        border: 1px solid rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .fav-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .heart-btn-active {
+        background: #fff1f2;
+        color: #f43f5e;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+    }
+
+    .heart-btn-active:hover {
+        background: #f43f5e;
+        color: white;
+    }
+
+    .pro-avatar-large {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 20px;
+        border: 3px solid white;
+        box-shadow: var(--shadow-sm);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="fav-hero">
+    <div class="container text-center">
+        <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill fw-bold mb-3">CURATED NETWORK</span>
+        <h1 class="display-5 fw-800 mb-3">Your Favorite Pros</h1>
+        <p class="text-muted lead">The elite professionals you've handpicked for your recurring needs.</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4">
+        {% for fav in favorites %}
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 fav-card rounded-5 p-4 bg-white shadow-sm border-0">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div class="d-flex align-items-center gap-3">
+                        {% if fav.provider.profile_image %}
+                        <img src="{{ fav.provider.profile_image.url }}" alt="{{ fav.provider.name }}"
+                            class="pro-avatar-large">
+                        {% else %}
+                        <div
+                            class="pro-avatar-large bg-light d-flex align-items-center justify-content-center text-primary fs-3">
+                            <i class="bi {{ fav.provider.categories.first.icon|default:'bi-person' }}"></i>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h5 class="fw-bold mb-1 text-dark">{{ fav.provider.name }}</h5>
+                            <span class="badge bg-light text-muted border rounded-pill px-3 py-1 x-small fw-bold">
+                                {{ fav.provider.categories.first.name }}
+                            </span>
+                        </div>
+                    </div>
+                    <a href="{% url 'toggle_favorite' fav.provider.id %}" class="heart-btn-active"
+                        title="Remove from favorites">
+                        <i class="bi bi-heart-fill"></i>
+                    </a>
+                </div>
+
+                <div class="row g-2 mb-4">
+                    <div class="col-6">
+                        <div class="bg-light rounded-4 p-2 text-center">
+                            <div class="text-warning small mb-1"><i class="bi bi-star-fill"></i> {{ fav.provider.rating}}</div>
+                            <div class="x-small text-muted fw-bold">RATING</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-light rounded-4 p-2 text-center">
+                            <div class="text-dark small mb-1 fw-800">₹{{ fav.provider.price_per_hour }}</div>
+                            <div class="x-small text-muted fw-bold">PER HOUR</div>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="text-muted small mb-4 line-clamp-2" style="height: 40px;">
+                    {{ fav.provider.bio|truncatechars:100 }}
+                </p>
+
+                <div class="d-grid gap-2">
+                    <a href="{% url 'provider_detail' fav.provider.pk %}"
+                        class="btn btn-primary rounded-pill py-2 fw-bold">
+                        Book Again
+                    </a>
+                    <a href="{% url 'provider_detail' fav.provider.pk %}"
+                        class="btn btn-outline-light text-muted border rounded-pill py-2 small fw-bold">
+                        View Details
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <div class="glass-card p-5 rounded-5 border-0 bg-light">
+                <i class="bi bi-heart display-1 text-muted opacity-25 mb-4 d-block"></i>
+                <h3 class="fw-bold">Your list is empty</h3>
+                <p class="text-muted">Save professionals that you love to see them here.</p>
+                <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-5 py-3 mt-3 fw-bold shadow">
+                    Find High-Rated Pros
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

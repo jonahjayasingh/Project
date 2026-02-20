@@ -1,0 +1,52 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Pending Approval | PlacementPro{% endblock %}
+
+{% block layout %}
+<main>
+    <div class="glass-card" style="max-width: 600px; text-align: center;">
+        <div
+            style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem;">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+
+        <h2 style="font-size: 2rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-primary);">
+            Approval Pending
+        </h2>
+
+        <p style="color: var(--text-secondary); font-size: 1.0625rem; margin-bottom: 2rem; line-height: 1.6;">
+            Thank you for registering, <strong>{{ profile.company_name }}</strong>! Your account is currently pending
+            admin approval. You'll be able to access your dashboard once approved.
+        </p>
+
+        <div style="background: var(--bg-secondary); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+            <h3
+                style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                Company Information
+            </h3>
+            <div style="display: grid; gap: 0.75rem; text-align: left;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary); font-weight: 500;">Company:</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">{{ profile.company_name }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary); font-weight: 500;">Industry:</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">{{ profile.industry }}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span style="color: var(--text-secondary); font-weight: 500;">Location:</span>
+                    <span style="color: var(--text-primary); font-weight: 600;">{{ profile.location }}</span>
+                </div>
+            </div>
+        </div>
+
+        <a href="{% url 'logout' %}" class="btn-secondary" style="display: inline-block;">
+            Logout
+        </a>
+    </div>
+</main>
+{% endblock %}

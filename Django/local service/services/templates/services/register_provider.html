@@ -1,0 +1,459 @@
+{% extends 'services/base.html' %}
+
+{% block title %}{% if instance %}Edit Professional Profile{% else %}Become a Professional{% endif %} -
+ServiceFinder{%endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(255, 255, 255, 0.4);
+    }
+
+    .pro-registration-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        padding: 40px 0;
+    }
+
+    /* Left Info Panel */
+    .info-panel {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        border-radius: 40px;
+        color: white;
+        padding: 50px;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .info-panel::before {
+        content: '';
+        position: absolute;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        top: -100px;
+        right: -100px;
+    }
+
+    .info-panel::after {
+        content: '';
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 50%;
+        bottom: 50px;
+        left: -30px;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 30px;
+        gap: 20px;
+    }
+
+    .benefit-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        flex-shrink: 0;
+    }
+
+    /* Right Form Panel */
+    .form-panel {
+        background: var(--glass-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 40px;
+        padding: 50px;
+        box-shadow: var(--shadow-lg);
+    }
+
+    .section-title {
+        font-size: 0.85rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: var(--primary);
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title::after {
+        content: '';
+        flex-grow: 1;
+        height: 2px;
+        background: linear-gradient(to right, rgba(99, 102, 241, 0.2), transparent);
+    }
+
+    .form-label-premium {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 10px;
+        display: block;
+    }
+
+    .premium-input {
+        border-radius: 16px;
+        border: 2px solid #e2e8f0;
+        padding: 14px 20px;
+        background: #f8fafc;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .premium-input:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        outline: none;
+    }
+
+    /* Category Select Styling */
+    .categories-grid-premium {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 12px;
+    }
+
+    .categories-grid-premium input[type="checkbox"] {
+        display: none;
+    }
+
+    .categories-grid-premium label {
+        display: block;
+        padding: 12px 15px;
+        background: white;
+        border: 2px solid #e2e8f0;
+        border-radius: 15px;
+        cursor: pointer;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.85rem;
+        transition: all 0.3s ease;
+        color: #64748b;
+        margin-bottom: 0;
+    }
+
+    .categories-grid-premium input[type="checkbox"]:checked+label {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(99, 102, 241, 0.3);
+    }
+
+    .categories-grid-premium label:hover {
+        border-color: var(--primary-light);
+        color: var(--primary);
+    }
+
+    .btn-pro-action {
+        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        color: white;
+        border: none;
+        padding: 18px;
+        border-radius: 20px;
+        font-weight: 800;
+        font-size: 1.1rem;
+        width: 100%;
+        margin-top: 30px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .btn-pro-action:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4);
+        color: white;
+    }
+
+    .rate-input-container {
+        position: relative;
+    }
+
+    .rate-input-container i {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--primary);
+    }
+
+    .rate-input-container .premium-input {
+        padding-left: 45px;
+    }
+
+    .profile-image-upload {
+        border: 2px dashed #cbd5e1;
+        border-radius: 20px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+        background: #f8fafc;
+        cursor: pointer;
+    }
+
+    .profile-image-upload:hover {
+        border-color: var(--primary);
+        background: rgba(99, 102, 241, 0.02);
+    }
+
+    /* Custom scrollbar for bio */
+    textarea.premium-input {
+        resize: none;
+        min-height: 120px;
+    }
+
+    @media (max-width: 991px) {
+        .info-panel {
+            margin-bottom: 30px;
+            padding: 30px;
+        }
+
+        .form-panel {
+            padding: 30px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="pro-registration-container">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Left Side: Information -->
+            <div class="col-lg-5 animate-up">
+                <div class="info-panel h-100">
+                    <div class="mb-5">
+                        <span class="badge bg-white text-primary px-3 py-2 rounded-pill fw-bold mb-3">ServiceFinder
+                            Pro</span>
+                        <h1 class="display-4 fw-bold mb-4">{% if instance %}Elevate Your Business{% else %}Grow Your
+                            Career{% endif %}</h1>
+                        <p class="lead opacity-75 mb-0">Join our network of elite professionals and reach thousands of
+                            customers in your area.</p>
+                    </div>
+
+                    <div class="benefits-list">
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="bi bi-graph-up-arrow"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Increased Visibility</h5>
+                                <p class="small opacity-75 mb-0">Our AI matching engine puts you in front of the right
+                                    customers at the right time.</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Secure Payments</h5>
+                                <p class="small opacity-75 mb-0">Get paid directly and securely. No hidden commission on
+                                    your hard-earned money.</p>
+                            </div>
+                        </div>
+
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="bi bi-stars"></i>
+                            </div>
+                            <div>
+                                <h5 class="fw-bold mb-1">Premium Identity</h5>
+                                <p class="small opacity-75 mb-0">Build your brand with a professional profile that
+                                    showcases your skills and ratings.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-auto pt-5">
+                        <div class="glass-card p-4 border-0 bg-white bg-opacity-10">
+                            <p class="small mb-0 italic">"Joining ServiceFinder was the best decision for my plumbing
+                                business. My leads increased by 200% in the first month!"</p>
+                            <div class="d-flex align-items-center mt-3">
+                                <div class="bg-white p-1 rounded-circle me-3" style="width: 40px; height: 40px;">
+                                    <i class="bi bi-person text-primary fs-5"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold small">Rajesh Kumar</div>
+                                    <div class="opacity-50 small">Pro Plumber since 2024</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Side: Registration Form -->
+            <div class="col-lg-7 animate-up" style="animation-delay: 0.2s;">
+                <div class="form-panel">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Step 1: Basic Info -->
+                        <div class="section-title">
+                            <i class="bi bi-1-circle-fill"></i> Professional Identity
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label-premium">Business or Professional Name</label>
+                            <input type="text" name="name" class="premium-input" placeholder="e.g. Sharp Electricals"
+                                value="{{ instance.name|default:'' }}" required>
+                        </div>
+
+                        <!-- Step 2: Categories -->
+                        <div class="section-title">
+                            <i class="bi bi-2-circle-fill"></i> Services Offered
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label-premium">Choose your domains (Select Multiple)</label>
+                            <div class="categories-grid-premium">
+                                {% for choice in form.categories.field.choices %}
+                                <div class="cat-item">
+                                    <input type="checkbox" name="categories" value="{{ choice.0 }}"
+                                        id="cat_{{ choice.0 }}" {% if choice.0 in form.categories.value or choice.0 in
+                                        form.initial.categories %}checked{% endif %}>
+                                    <label for="cat_{{ choice.0 }}">{{ choice.1 }}</label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <!-- Step 3: Details -->
+                        <div class="section-title">
+                            <i class="bi bi-3-circle-fill"></i> Business Details
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label-premium">Working Area / City</label>
+                                <div class="row g-2">
+                                    <div class="col-8">
+                                        <input type="text" name="location" id="location" class="premium-input"
+                                            placeholder="e.g. Nagercoil, Kanniyakumari"
+                                            value="{{ instance.location|default:'' }}" required>
+                                    </div>
+                                    <div class="col-4">
+                                        <button type="button" onclick="detectProLocation()"
+                                            class="btn btn-primary w-100 rounded-4 py-2 small fw-bold" id="locBtn">
+                                            <i class="bi bi-crosshair"></i> GPS
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row g-2 mt-2">
+                                    <div class="col-6">
+                                        <input type="text" name="latitude" id="latitude"
+                                            class="form-control py-1 x-small bg-light border-0"
+                                            value="{{ instance.latitude|default:'' }}" readonly placeholder="Lat">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="text" name="longitude" id="longitude"
+                                            class="form-control py-1 x-small bg-light border-0"
+                                            value="{{ instance.longitude|default:'' }}" readonly placeholder="Lon">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label-premium">Hourly Rate (₹)</label>
+                                <div class="rate-input-container">
+                                    <i class="bi bi-currency-rupee fs-5"></i>
+                                    <input type="number" name="price_per_hour" class="premium-input" placeholder="500"
+                                        value="{{ instance.price_per_hour|default:'' }}" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label-premium">Professional Bio</label>
+                            <textarea name="bio" class="premium-input"
+                                placeholder="Describe your experience, tools, and what makes your service stand out...">{{ instance.bio|default:'' }}</textarea>
+                            <div class="text-end mt-1">
+                                <span class="small text-muted opacity-50">Minimum 50 characters recommended</span>
+                            </div>
+                        </div>
+
+                        <!-- Step 4: Visuals -->
+                        <div class="section-title">
+                            <i class="bi bi-4-circle-fill"></i> Profile Media
+                        </div>
+                        <div class="mb-5">
+                            <label class="form-label-premium" for="id_profile_image">Profile Image or Logo</label>
+                            <div class="profile-image-upload"
+                                onclick="document.getElementById('id_profile_image').click()">
+                                <i class="bi bi-cloud-arrow-up display-6 text-primary mb-2 d-inline-block"></i>
+                                <div class="fw-bold">Click to upload your professional photo</div>
+                                <p class="small text-muted mb-0">PNG, JPG up to 5MB. Clear face or logo works best.</p>
+                                <input type="file" name="profile_image" id="id_profile_image" class="d-none"
+                                    onchange="updateFileName(this)">
+                                <div id="file-name" class="mt-2 fw-bold text-success small"></div>
+                                {% if instance.profile_image %}
+                                <div class="mt-2 badge bg-primary bg-opacity-10 text-primary">Currently: {{
+                                    instance.profile_image.name }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-pro-action">
+                            {% if instance %}Save Professional Settings{% else %}Create My Pro Profile Now{% endif %}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateFileName(input) {
+        const fileNameDiv = document.getElementById('file-name');
+        if (input.files.length > 0) {
+            fileNameDiv.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> Selected: ' + input.files[0].name;
+        }
+    }
+
+    function detectProLocation() {
+        const btn = document.getElementById('locBtn');
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+                    document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+                    btn.innerHTML = '<i class="bi bi-check"></i> OK';
+                    btn.classList.replace('btn-primary', 'btn-success');
+                },
+                (error) => {
+                    alert("GPS Error: " + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            alert("Geolocation not supported.");
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,210 @@
+{% extends 'services/base.html' %}
+{% load static %}
+
+{% block title %}Find Local Services - ServiceFinder{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+    .hero-premium {
+        padding: 140px 0 100px;
+        background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.08) 0%, transparent 40%), radial-gradient(circle at 90% 80%, rgba(244, 63, 94, 0.08) 0%, transparent 40%);
+    }
+
+    .glass-search {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 30px;
+        padding: 15px;
+    }
+
+    #serviceMap {
+        height: 450px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .emergency-toggle {
+        background: #fff;
+        border: 2px solid #fee2e2;
+        transition: all 0.3s ease;
+    }
+
+    .emergency-toggle.active {
+        background: #fef2f2;
+        border-color: #ef4444;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-premium">
+    <div class="container py-5 text-center">
+        <h1 class="display-3 fw-bold mb-4 animate-up"><span class="text-primary">Elite</span> Professionals<br>At Your
+            Service</h1>
+        <p class="lead text-muted mb-5 animate-up">The intelligent marketplace for local experts. Powered by AI, vetted
+            by us.</p>
+
+        <!-- Dynamic Search -->
+        <div class="glass-search max-width-md mx-auto mb-5 animate-up shadow-lg">
+            <form action="{% url 'search_results' %}" method="get" class="row g-3">
+                <div class="col-md-5">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" class="form-control border-0"
+                            placeholder="What do you need help with?" required>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="input-group">
+                        <span class="input-group-text bg-transparent border-0"><i class="bi bi-geo-alt"></i></span>
+                        <select name="location" class="form-select border-0">
+                            <option value="">Anywhere</option>
+                            {% for loc in locations %}
+                            <option value="{{ loc }}">{{ loc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 d-grid">
+                    <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold">Find Specialists</button>
+                </div>
+
+                <!-- Emergency Mode Selector -->
+                <div class="col-12 text-center pt-2">
+                    <div
+                        class="form-check form-check-inline form-switch p-3 emergency-toggle rounded-pill d-inline-flex align-items-center">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" name="emergency" id="emergencyMode">
+                        <label class="form-check-label fw-bold text-danger" for="emergencyMode">
+                            <i class="bi bi-lightning-charge-fill me-1"></i> I need help immediately (Emergency Mode)
+                        </label>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3 animate-up">
+            <span class="text-muted small fw-bold text-uppercase">Trending:</span>
+            {% for cat in categories|slice:":5" %}
+            <a href="{% url 'search_results' %}?category={{ cat.id }}"
+                class="btn btn-white btn-sm rounded-pill shadow-sm border px-3">{{ cat.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Map & Discovery -->
+<section class="py-5 container">
+    <div class="row g-5 align-items-center mb-5">
+        <div class="col-lg-5">
+            <span class="badge bg-soft-primary text-primary mb-3">LOCAL EXPERTS</span>
+            <h2 class="display-5 fw-bold mb-4">Discover Nearby Professionals</h2>
+            <p class="fs-5 text-muted mb-4">See top-rated experts in your area. Our radar shows professionals who are
+                available and ready to work right now.</p>
+            <div class="d-grid gap-3 mb-4">
+                <div
+                    class="d-flex align-items-start border-start border-primary border-4 p-3 bg-white shadow-sm rounded-3">
+                    <i class="bi bi-geo-fill text-primary mt-1 me-3 fs-3"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Hyper-Local Matching</h6>
+                        <p class="small text-muted mb-0">We prioritize professionals within 10km for faster arrival.</p>
+                    </div>
+                </div>
+                <div
+                    class="d-flex align-items-start border-start border-success border-4 p-3 bg-white shadow-sm rounded-3">
+                    <i class="bi bi-clock-history text-success mt-1 me-3 fs-3"></i>
+                    <div>
+                        <h6 class="fw-bold mb-1">Real-time Availability</h6>
+                        <p class="small text-muted mb-0">Only professionals with open calendars are shown on the radar.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <a href="{% url 'search_results' %}" class="btn btn-outline-primary rounded-pill px-5">View List Mode</a>
+        </div>
+        <div class="col-lg-7">
+            <div id="serviceMap"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Top Categories -->
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Professional Services</h2>
+            <p class="text-muted">Whatever the task, we have an expert for it.</p>
+        </div>
+        <div class="row row-cols-2 row-cols-md-4 row-cols-lg-6 g-4">
+            {% for cat in categories %}
+            <div class="col">
+                <a href="{% url 'search_results' %}?category={{ cat.id }}" class="text-decoration-none group">
+                    <div class="text-center p-4 border rounded-4 hover-up bg-light">
+                        <div class="fs-1 text-primary mb-3"><i class="bi {{ cat.icon }}"></i></div>
+                        <h6 class="text-dark fw-bold mb-0">{{ cat.name }}</h6>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize Map
+        const map = L.map('serviceMap').setView([8.1783, 77.4300], 13); // Default to Nagercoil, Kanniyakumari
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+        // Geolocation Logic
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(position => {
+                const uLat = position.coords.latitude;
+                const uLon = position.coords.longitude;
+                map.setView([uLat, uLon], 13);
+                L.marker([uLat, uLon], { icon: L.divIcon({ className: 'user-marker', html: '<i class="bi bi-person-circle text-primary fs-3"></i>' }) }).addTo(map)
+                    .bindPopup('You are here').openPopup();
+            });
+        }
+
+        
+        const providers = [
+    {% for cat in categories %}
+        {% for p in cat.providers.all %}
+            {% if p.latitude and p.longitude %}
+            {
+                lat: {{ p.latitude }},
+                lon: {{ p.longitude }},
+                name: "{{ p.name|escapejs }}",
+                cat: "{{ cat.name|escapejs }}",
+                rating: {{ p.rating|default:0 }},
+                url: "{% url 'provider_detail' p.id %}"
+            },
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+];
+console.log("Providers plotted:", providers);
+
+
+
+    providers.forEach(p => {
+        L.marker([p.lat, p.lon]).addTo(map)
+            .bindPopup(`<strong>${p.name}</strong><br>${p.cat}<br><i class="bi bi-star-fill text-warning"></i> ${p.rating}<br><a href="${p.url}" class="btn btn-sm btn-primary mt-2 text-white">Review Profile</a>`);
+    });
+
+    // Emergency Toggle Styling
+    const toggle = document.getElementById('emergencyMode');
+    toggle.addEventListener('change', function () {
+        this.parentElement.classList.toggle('active', this.checked);
+    });
+    });
+</script>
+{% endblock %}

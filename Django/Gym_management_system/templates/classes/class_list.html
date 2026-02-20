@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Classes - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1><i class="bi bi-calendar-event"></i> Fitness Classes</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{% url 'classes:class_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Add New Class
+            </a>
+        </div>
+    </div>
+
+    <!-- Search and Filter -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Search classes..."
+                        value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="difficulty" class="form-select">
+                        <option value="">All Difficulty Levels</option>
+                        {% for value, label in difficulty_choices %}
+                        <option value="{{ value }}" {% if difficulty_filter == value %}selected{% endif %}>{{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="true" {% if status_filter == 'true' %}selected{% endif %}>Active</option>
+                        <option value="false" {% if status_filter == 'false' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Classes Grid -->
+    <div class="row">
+        {% for class in page_obj %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if class.image %}
+                <img src="{{ class.image.url }}" class="card-img-top" alt="{{ class.name }}"
+                    style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ class.name }}</h5>
+                    <p class="card-text">{{ class.description|truncatewords:20 }}</p>
+                    <div class="mb-2">
+                        <span class="badge bg-info">{{ class.get_difficulty_level_display }}</span>
+                        <span class="badge bg-secondary">{{ class.duration_minutes }} min</span>
+                        <span class="badge bg-primary">Capacity: {{ class.capacity }}</span>
+                    </div>
+                    <p class="text-muted mb-2"><small><i class="bi bi-calendar"></i> {{ class.schedule_count }}
+                            schedules</small></p>
+                </div>
+                <div class="card-footer bg-white">
+                    <div class="btn-group btn-group-sm w-100">
+                        <a href="{% url 'classes:class_detail' class.pk %}" class="btn btn-outline-primary">
+                            <i class="bi bi-eye"></i> View
+                        </a>
+                        <a href="{% url 'classes:class_edit' class.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a href="{% url 'classes:class_delete' class.pk %}" class="btn btn-outline-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="text-center text-muted py-5">
+                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                <p class="mt-2">No classes found</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+            </li>
+            {% endif %}
+            <li class="page-item active">
+                <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+            </li>
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link"
+                    href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

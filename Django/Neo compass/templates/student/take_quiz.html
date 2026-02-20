@@ -1,0 +1,171 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row justify-content-center py-4">
+  <div class="col-lg-8 col-md-10">
+    <!-- Header/Context -->
+    <div class="d-flex align-items-center justify-content-between mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb small mb-1">
+            <li class="breadcrumb-item">
+              <a
+                href="{% url 'student_quizzes' %}"
+                class="text-primary text-decoration-none"
+                >Quizzes</a
+              >
+            </li>
+            <li class="breadcrumb-item active text-muted">
+              {{ quiz.domain.name }}
+            </li>
+          </ol>
+        </nav>
+        <h5 class="fw-bold text-dark mb-0">Domain Assessment</h5>
+      </div>
+      <div
+        class="bg-white px-3 py-2 rounded-pill shadow-sm border small fw-bold text-primary"
+      >
+        <i class="fas fa-coins me-1"></i> Reward: 20 XP
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <!-- Progress Bar (Simulation) -->
+      <div class="progress rounded-0" style="height: 6px; background: #f1f5f9">
+        <div
+          class="progress-bar bg-primary"
+          role="progressbar"
+          style="width: 100%; transition: width 0.5s ease"
+        ></div>
+      </div>
+
+      <div class="p-4 p-md-5">
+        <!-- Question Section -->
+        <div class="mb-5">
+          <span
+            class="badge bg-primary bg-opacity-10 text-primary mb-3 px-3 py-2 rounded-3 small"
+          >
+            <i class="fas fa-question-circle me-1"></i> Knowledge Check
+          </span>
+          <h3 class="fw-bold text-dark lh-base" style="font-size: 1.5rem">
+            {{ quiz.question }}
+          </h3>
+        </div>
+
+        <!-- Options Section -->
+        <form method="post">
+          {% csrf_token %}
+          <div class="row g-3">
+            <div class="col-md-6">
+              <button
+                type="submit"
+                name="answer"
+                value="1"
+                class="quiz-option-btn w-100 text-start p-4 h-100 border-0 shadow-sm rounded-4 position-relative"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="option-indicator d-flex align-items-center justify-content-center fw-bold"
+                  >
+                    A
+                  </div>
+                  <span class="fw-semibold text-dark">{{ quiz.option1 }}</span>
+                </div>
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button
+                type="submit"
+                name="answer"
+                value="2"
+                class="quiz-option-btn w-100 text-start p-4 h-100 border-0 shadow-sm rounded-4 position-relative"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="option-indicator d-flex align-items-center justify-content-center fw-bold"
+                  >
+                    B
+                  </div>
+                  <span class="fw-semibold text-dark">{{ quiz.option2 }}</span>
+                </div>
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button
+                type="submit"
+                name="answer"
+                value="3"
+                class="quiz-option-btn w-100 text-start p-4 h-100 border-0 shadow-sm rounded-4 position-relative"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="option-indicator d-flex align-items-center justify-content-center fw-bold"
+                  >
+                    C
+                  </div>
+                  <span class="fw-semibold text-dark">{{ quiz.option3 }}</span>
+                </div>
+              </button>
+            </div>
+            <div class="col-md-6">
+              <button
+                type="submit"
+                name="answer"
+                value="4"
+                class="quiz-option-btn w-100 text-start p-4 h-100 border-0 shadow-sm rounded-4 position-relative"
+              >
+                <div class="d-flex align-items-center gap-3">
+                  <div
+                    class="option-indicator d-flex align-items-center justify-content-center fw-bold"
+                  >
+                    D
+                  </div>
+                  <span class="fw-semibold text-dark">{{ quiz.option4 }}</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div class="p-4 bg-light border-top text-center">
+        <p class="text-muted small mb-0">
+          <i class="fas fa-info-circle me-1"></i> Choose the most accurate
+          answer. Your score will be recorded instantly.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .quiz-option-btn {
+    background: #ffffff;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 2px solid transparent !important;
+  }
+
+  .quiz-option-btn:hover {
+    transform: translateY(-4px);
+    background: #f8fbff;
+    border-color: #4f46e5 !important;
+    box-shadow: 0 12px 24px rgba(79, 70, 229, 0.08) !important;
+  }
+
+  .option-indicator {
+    width: 32px;
+    height: 32px;
+    background: #f1f5f9;
+    color: #64748b;
+    border-radius: 8px;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+  }
+
+  .quiz-option-btn:hover .option-indicator {
+    background: #4f46e5;
+    color: white;
+  }
+
+  /* Floating animation for icons could go here */
+</style>
+{% endblock %}

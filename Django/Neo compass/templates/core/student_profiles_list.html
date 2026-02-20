@@ -1,0 +1,31 @@
+{% extends 'core/base.html' %} {% block title %}Student Profiles - Neo-Compass{%
+endblock %} {% block content %}
+<div class="card p-3">
+  <h2>Student Profiles</h2>
+  <table class="table table-striped">
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Preferred Domain</th>
+        <th>Enrollment Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for profile in profiles %}
+      <tr>
+        <td>{{ profile.user.username }}</td>
+        <td>{{ profile.preferred_domain.name|default:"Not selected" }}</td>
+        <td>{{ profile.domain_joined_at|date:"M d, Y"|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="3">No student profiles found.</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'dashboard' %}" class="btn btn-secondary"
+    >Back to Dashboard</a
+  >
+</div>
+{% endblock %}

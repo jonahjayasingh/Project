@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Contact Us - Lab Secure{% endblock %}
+
+{% block content %}
+<div class="row pt-5 align-items-center">
+    <div class="col-lg-5 mb-5 mb-lg-0">
+        <h2 class="fw-bold mb-4">Get in <span class="text-primary">Touch</span></h2>
+        <p class="text-muted mb-4">Have questions about our laboratory services or your reports? Our support team is
+            here to help you 24/7.</p>
+
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                <i class="fas fa-map-marker-alt text-primary"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-0">Our Location</h6>
+                <p class="text-muted small mb-0">123 Health Plaza, Medical District, NY</p>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                <i class="fas fa-phone-alt text-success"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-0">Call Us</h6>
+                <p class="text-muted small mb-0">+1 (555) 000-LABS</p>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center">
+            <div class="bg-info bg-opacity-10 p-3 rounded-circle me-3">
+                <i class="fas fa-envelope text-info"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-0">Email Support</h6>
+                <p class="text-muted small mb-0">support@labsecure.com</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card p-4 p-md-5 border-0 shadow-lg rounded-4">
+            <h4 class="fw-bold mb-4">Send us a Message</h4>
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Full Name</label>
+                        <input type="text" name="name" class="form-control" placeholder="John Doe" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Email Address</label>
+                        <input type="email" name="email" class="form-control" placeholder="john@example.com" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Subject</label>
+                        <input type="text" name="subject" class="form-control" placeholder="How can we help?" required>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Message</label>
+                        <textarea name="message" class="form-control" rows="5" placeholder="Your message here..."
+                            required></textarea>
+                    </div>
+                    <div class="col-12 mt-4">
+                        <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm">
+                            Send Message <i class="fas fa-paper-plane ms-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

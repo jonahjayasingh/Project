@@ -1,0 +1,239 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Borrow History{% endblock %}
+
+{% block extra_css %}
+<style>
+    .filter-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+        align-items: center;
+    }
+
+    .filter-label {
+        font-weight: 600;
+        color: var(--dark);
+        font-size: 0.95rem;
+    }
+
+    .filter-select {
+        padding: 0.75rem 1.25rem;
+        border: 2px solid var(--border);
+        border-radius: 0.75rem;
+        font-size: 0.95rem;
+        background: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    }
+
+    .record-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .record-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    .record-details h4 {
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+        font-size: 0.95rem;
+    }
+
+    .record-details p {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        margin: 0;
+    }
+
+    .date-info {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .date-label {
+        font-size: 0.7rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .date-value {
+        font-weight: 600;
+    }
+
+    /* === ACTION COLUMN FIX === */
+    .action-cell {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .action-btn {
+        padding: 0.55rem 1.1rem;
+        border-radius: 0.6rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border: 2px solid #10b981;
+        background: transparent;
+        color: #059669;
+        cursor: pointer;
+        transition: all 0.25s ease;
+    }
+
+    .action-btn:hover {
+        background: #10b981;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .action-complete {
+        padding: 0.5rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-radius: 999px;
+        background: rgba(16, 185, 129, 0.12);
+        color: #059669;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Borrow History 📋</h1>
+
+<div class="card">
+    <form method="get" class="filter-bar">
+        <div class="filter-group">
+            <label class="filter-label">Status:</label>
+            <select name="status" class="filter-select" onchange="this.form.submit()">
+                <option value="">All</option>
+                <option value="borrowed" {% if status_filter == 'borrowed' %}selected{% endif %}>Borrowed</option>
+                <option value="returned" {% if status_filter == 'returned' %}selected{% endif %}>Returned</option>
+                <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Overdue</option>
+            </select>
+        </div>
+
+        <input type="text" name="search" placeholder="🔍 Search student or book..."
+               value="{{ search_query }}"
+               style="flex:1; padding:0.75rem 1.25rem; border:2px solid var(--border); border-radius:0.75rem;">
+
+        <button class="btn btn-primary">Search</button>
+
+        {% if status_filter or search_query %}
+        <a href="{% url 'borrow_history' %}" class="btn btn-secondary">Clear</a>
+        {% endif %}
+    </form>
+</div>
+
+{% if records %}
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Book</th>
+                <th>Borrowed</th>
+                <th>Due</th>
+                <th>Returned</th>
+                <th>Status</th>
+                <th style="text-align:center;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for record in records %}
+            <tr>
+                <td>
+                    <div class="record-info">
+                        <div class="record-icon">👤</div>
+                        <div class="record-details">
+                            <h4>{{ record.student.name }}</h4>
+                            <p>{{ record.student.student_number }}</p>
+                        </div>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="record-info">
+                        <div class="record-icon" style="background:linear-gradient(135deg,#10b981,#059669)">📖</div>
+                        <div class="record-details">
+                            <h4>{{ record.book.title }}</h4>
+                            <p>{{ record.book.author }}</p>
+                        </div>
+                    </div>
+                </td>
+
+                <td>{{ record.borrow_date|date:"M d, Y" }}</td>
+                <td>{{ record.due_date|date:"M d, Y" }}</td>
+
+                <td>
+                    {% if record.return_date %}
+                        {{ record.return_date|date:"M d, Y" }}
+                    {% else %}
+                        <em style="color:var(--text-light)">—</em>
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if record.status == 'borrowed' %}
+                        <span class="badge badge-success">Borrowed</span>
+                    {% elif record.status == 'returned' %}
+                        <span class="badge badge-primary">Returned</span>
+                    {% else %}
+                        <span class="badge badge-danger">Overdue</span>
+                    {% endif %}
+                </td>
+
+                <td class="action-cell">
+                    {% if record.status != 'returned' %}
+                        <form method="post" action="{% url 'return_book' record.id %}">
+                            {% csrf_token %}
+                            <button class="action-btn">
+                                ✓ Return
+                            </button>
+                        </form>
+                    {% else %}
+                        <span class="action-complete">Completed</span>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="card">
+    <div class="empty-state">
+        <p>No borrow history available.</p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

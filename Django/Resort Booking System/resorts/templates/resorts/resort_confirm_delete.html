@@ -1,0 +1,171 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Strategic Retirement | Paradise Resorts{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --danger-gradient: linear-gradient(145deg, #ef4444 0%, #dc2626 100%);
+        --surface-card: var(--bg-card);
+        --surface-muted: var(--bg-main);
+        --border-color: var(--border);
+    }
+
+    .retirement-wrapper {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        padding: 4rem 0;
+        position: relative;
+    }
+
+    .retirement-card {
+        background: var(--surface-card);
+        border-radius: 40px;
+        box-shadow: 0 40px 100px -20px rgba(239, 68, 68, 0.15);
+        overflow: hidden;
+        border: 1px solid rgba(239, 68, 68, 0.1);
+        position: relative;
+    }
+
+    .retirement-header {
+        background: #fef2f2;
+        padding: 4rem 3rem;
+        text-align: center;
+        border-bottom: 2px dashed rgba(239, 68, 68, 0.1);
+    }
+
+    .warning-orb {
+        width: 100px;
+        height: 100px;
+        background: white;
+        border-radius: 35px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #ef4444;
+        margin: 0 auto 2rem;
+        box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.2);
+        animation: pulse-danger 2s infinite;
+    }
+
+    @keyframes pulse-danger {
+        0% {
+            transform: scale(1);
+            box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.2);
+        }
+
+        50% {
+            transform: scale(1.05);
+            box-shadow: 0 20px 40px -5px rgba(239, 68, 68, 0.3);
+        }
+
+        100% {
+            transform: scale(1);
+            box-shadow: 0 20px 40px -10px rgba(239, 68, 68, 0.2);
+        }
+    }
+
+    .retirement-content {
+        padding: 4rem 3rem;
+        text-align: center;
+    }
+
+    .property-identity {
+        background: var(--surface-muted);
+        padding: 1.5rem;
+        border-radius: 20px;
+        margin-bottom: 2.5rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-retire {
+        background: var(--danger-gradient);
+        color: white;
+        border: none;
+        padding: 1.25rem;
+        border-radius: 24px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        transition: all 0.3s ease;
+        box-shadow: 0 15px 30px -10px rgba(239, 68, 68, 0.5);
+    }
+
+    .btn-retire:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px -15px rgba(239, 68, 68, 0.6);
+        color: white;
+    }
+
+    .btn-abort {
+        background: white;
+        color: var(--text-muted);
+        border: 2px solid var(--border-color);
+        padding: 1.25rem;
+        border-radius: 24px;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: block;
+    }
+
+    .btn-abort:hover {
+        background: var(--surface-muted);
+        border-color: #cbd5e1;
+        color: var(--text-main);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="retirement-wrapper">
+    <div class="container">
+        <div class="row justify-content-center animate-in">
+            <div class="col-xl-6 col-lg-8">
+                <div class="retirement-card">
+                    <div class="retirement-header">
+                        <div class="warning-orb">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                        </div>
+                        <h6 class="text-danger fw-800 text-uppercase tracking-widest mb-2">Architectural Erasure</h6>
+                        <h1 class="display-5 fw-bold text-dark">Strategic Retirement</h1>
+                    </div>
+
+                    <div class="retirement-content">
+                        <p class="text-muted fs-5 mb-4">
+                            You are about to permanently decommission this asset from the sanctuary network. This
+                            operation is irreversible.
+                        </p>
+
+                        <div class="property-identity">
+                            <h4 class="fw-800 mb-1 text-dark">{{ object.name }}</h4>
+                            <p class="smallest fw-800 text-uppercase text-muted mb-0">Identifier: #{{ object.id }}</p>
+                        </div>
+
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="d-grid gap-3">
+                                <button type="submit" class="btn-retire">
+                                    <i class="bi bi-trash3-fill me-2"></i>Permanently Delete Property
+                                </button>
+                                <a href="{% if user.role == 'admin' %}{% url 'admin_dashboard' %}{% else %}{% url 'owner_dashboard' %}{% endif %}"
+                                    class="btn-abort">
+                                    <i class="bi bi-x-lg me-2"></i>Abort Deletion
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="text-center mt-5 opacity-50">
+                    <p class="smallest fw-800 text-uppercase tracking-widest">
+                        <i class="bi bi-shield-lock-fill me-2"></i>Security Authorization Required for Architectural
+                        Deletion
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
