@@ -1,0 +1,162 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Create Account - ServiceFinder{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 0;
+    }
+
+    .auth-card {
+        width: 100%;
+        max-width: 500px;
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+        padding: 40px;
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .auth-header i {
+        font-size: 3rem;
+        background: linear-gradient(135deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 15px;
+        display: inline-block;
+    }
+
+    .form-label-custom-signup {
+        font-weight: 600;
+        color: #475569;
+        margin-bottom: 8px;
+        font-size: 0.9rem;
+    }
+
+    .input-premium-group-signup {
+        position: relative;
+        margin-bottom: 5px;
+    }
+
+    .input-premium-group-signup i {
+        position: absolute;
+        left: 15px;
+        top: 27px;
+        transform: translateY(-50%);
+        color: #10b981;
+        font-size: 1.1rem;
+        z-index: 5;
+    }
+
+    .input-premium-group-signup input {
+        height: 55px;
+        padding-left: 45px !important;
+        border-radius: 15px;
+        border: 2px solid #f1f5f9;
+        background: #f8fafc;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .input-premium-group-signup input:focus {
+        background: #fff;
+        border-color: #10b981;
+        box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1);
+        outline: none;
+    }
+
+    .btn-accent-premium {
+        background: linear-gradient(135deg, #10b981, #059669);
+        border: none;
+        border-radius: 15px;
+        height: 55px;
+        font-weight: 700;
+        color: white;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+    }
+
+    .btn-accent-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2);
+        color: white;
+    }
+
+    .helptext {
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 5px;
+        display: block;
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 5px 0 15px 0;
+        color: #ef4444;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container animate-up">
+    <div class="auth-card">
+        <div class="auth-header">
+            <i class="bi bi-person-plus-fill"></i>
+            <h2 class="fw-bold">Join ServiceFinder</h2>
+            <p class="text-muted">Create an account to start booking experts</p>
+        </div>
+
+        <form method="post" class="auth-form">
+            {% csrf_token %}
+
+            <div class="row g-3">
+                {% for field in form %}
+                <div class="col-12 mb-3">
+                    <label class="form-label-custom-signup">{{ field.label }}</label>
+                    <div class="input-premium-group-signup">
+                        <i class="bi bi-shield-check"></i>
+                        {{ field }}
+                    </div>
+                    {% if field.help_text %}
+                    <span class="helptext">{{ field.help_text|safe }}</span>
+                    {% endif %}
+                    {% if field.errors %}
+                    {{ field.errors }}
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-accent-premium w-100 mb-4">
+                <span>Create My Account</span>
+                <i class="bi bi-rocket-takeoff"></i>
+            </button>
+
+            <div class="text-center">
+                <p class="text-muted mb-0">Already have an account?
+                    <a href="{% url 'login' %}" class="text-success fw-bold text-decoration-none ms-1">Login here</a>
+                </p>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

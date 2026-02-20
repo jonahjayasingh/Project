@@ -1,0 +1,217 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Rooms at {{ resort.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    @media (max-width: 991.98px) {
+        .card-body .row>div {
+            text-align: center !important;
+            margin-bottom: 1rem;
+        }
+
+        .card-body .row>div:last-child {
+            margin-bottom: 0;
+            text-align: center !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb" class="mb-5 animate-in">
+    <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="{% url 'resort_list' %}"
+                class="text-decoration-none text-muted fw-500">Global Portfolio</a></li>
+        <li class="breadcrumb-item active text-primary fw-bold" aria-current="page">{{ resort.name }}</li>
+    </ol>
+</nav>
+
+<div class="row align-items-end mb-5 animate-in">
+    <div class="col-lg-8">
+        <h6 class="text-primary fw-bold text-uppercase tracking-widest mb-3">CURATED SELECTION</h6>
+        <h1 class="display-4 fw-bold mb-3">Haven <span class="gradient-text">Suites</span> & Villas</h1>
+        <p class="text-muted mb-0 fs-5"><i class="bi bi-geo-alt-fill text-primary me-2"></i>{{ resort.location }} |
+            <span class="fw-bold text-dark">{{ resort.total_available_rooms }} Total Available</span>
+        </p>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    {% for room in rooms %}
+    <div class="col-12 animate-in" style="--delay: {{ forloop.counter0|add:0.1 }}s; animation-delay: var(--delay);">
+        <div class="card border-0 p-2 shadow-premium" style="border-radius: 32px; background: var(--bg-card);">
+            <div class="row g-0 align-items-center">
+                <div class="col-lg-3 p-3">
+                    <div class="bg-primary-subtle rounded-4 d-flex align-items-center justify-content-center"
+                        style="height: 180px; border-radius: 24px;">
+                        <i class="bi bi-door-open fs-1 text-primary"></i>
+                    </div>
+                </div>
+                <div class="col-lg-4 px-4">
+                    <h6 class="smallest text-primary fw-bold text-uppercase tracking-widest mb-2">Accomodation</h6>
+                    <h3 class="fw-bold mb-2">{{ room.room_type }}</h3>
+                    <div class="d-flex gap-3 text-muted smallest">
+                        <span><i class="bi bi-arrows-fullscreen me-1"></i> 450 sq ft</span>
+                        <span><i class="bi bi-people me-1"></i> 2 Adults</span>
+                        <span><i class="bi bi-wifi me-1"></i> Free Wi-Fi</span>
+                    </div>
+                </div>
+                <div class="col-lg-2 text-center border-start border-end py-3">
+                    <div class="h3 fw-bold text-primary mb-0">Rs. {{ room.price }}</div>
+                    <p class="smallest text-muted text-uppercase tracking-widest mb-0 fw-bold">per night</p>
+                </div>
+                <div class="col-lg-3 px-4 py-3 d-flex flex-column gap-2">
+                    {% if room.available_rooms > 0 %}
+                    <a href="{% url 'book_resort' resort.id %}" class="btn btn-primary shadow-premium"
+                        style="border-radius: 16px;">
+                        Reserve Suite
+                    </a>
+                    {% if room.ar_model %}
+                    <button type="button"
+                        class="btn btn-outline-primary p-2 d-flex align-items-center justify-content-center gap-2"
+                        style="border-radius: 16px; border-width: 2px; font-weight: 700;" data-bs-toggle="modal"
+                        data-bs-target="#arRoomModal" data-room-name="{{ room.room_type }}"
+                        data-resort-name="{{ resort.name }}" data-ar-model="{{ room.ar_model.url }}">
+                        <i class="bi bi-box-seam"></i> 3D PREVIEW
+                    </button>
+                    {% endif %}
+                    {% else %}
+                    <button class="btn btn-light text-muted w-100" style="border-radius: 16px; font-weight: 600;"
+                        disabled>
+                        Fully Booked
+                    </button>
+                    <button class="btn btn-outline-secondary w-100" style="border-radius: 16px; border-style: dashed;">
+                        Notify Availability
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <div class="card p-5 glass-panel" style="border-radius: 32px;">
+            <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+            <h3 class="text-muted mt-3">Refining Resorts</h3>
+            <p class="text-muted">We are currently updating our suite collection for this destination.</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Immersive AR/3D Modal -->
+<div class="modal fade" id="arRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content border-0 bg-dark text-white">
+            <div class="modal-header border-0 p-4 position-absolute top-0 start-0 w-100 z-3 d-flex align-items-center justify-content-between"
+                style="background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); pointer-events: none;">
+                <div style="pointer-events: auto;">
+                    <h2 class="fw-bold mb-0" id="ar-room-title">Luxurious Suite</h2>
+                    <p class="text-white-50 small mb-0"><i class="bi bi-geo-alt me-1"></i><span
+                            id="ar-resort-title">Paradise Resort</span> | <span class="text-primary fw-bold">AR
+                            IMMERSIVE PREVIEW</span></p>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"
+                    style="pointer-events: auto;"></button>
+            </div>
+
+            <div class="modal-body p-0 overflow-hidden d-flex align-items-center justify-content-center bg-black">
+                <!-- Placeholder for read action, wait for next step -->
+                <model-viewer id="room-viewer" src="" ar ar-modes="webxr scene-viewer quick-look" camera-controls
+                    auto-rotate shadow-intensity="1" exposure="1" environment-image="neutral"
+                    style="width: 100%; height: 100vh; --poster-color: #000;">
+
+                    <button slot="ar-button"
+                        class="ar-button position-absolute bottom-0 start-50 translate-middle-x mb-5 btn btn-primary btn-lg shadow-lg"
+                        style="border-radius: 50px; padding: 15px 40px; font-weight: 700; border: 4px solid rgba(255,255,255,0.2);">
+                        <i class="bi bi-camera-fill me-2"></i>VIEW IN YOUR ROOM
+                    </button>
+
+                    <div id="ar-instructions"
+                        class="position-absolute top-50 start-50 translate-middle text-center opacity-75">
+                        <div class="spinner-border text-primary mb-3" role="status"></div>
+                        <p class="smallest fw-bold text-uppercase tracking-widest">Calibrating 3D Environment...</p>
+                    </div>
+                </model-viewer>
+
+                <!-- UI Overlays -->
+                <div class="position-absolute bottom-0 start-0 p-4 w-100 d-flex justify-content-between align-items-end z-3"
+                    style="pointer-events: none;">
+                    <div class="glass-card p-4 d-none d-md-block"
+                        style="pointer-events: auto; border-radius: 24px; max-width: 300px; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1);">
+                        <h6 class="fw-bold smallest text-uppercase text-primary mb-3">Room Specifications</h6>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span class="smallest text-white-50">Dimensions:</span>
+                            <span class="smallest fw-bold">45m² / 484ft²</span>
+                        </div>
+                        <div class="mb-2 d-flex justify-content-between">
+                            <span class="smallest text-white-50">Ceiling Height:</span>
+                            <span class="smallest fw-bold">3.2m</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span class="smallest text-white-50">Lighting:</span>
+                            <span class="smallest fw-bold">Natural / Smart</span>
+                        </div>
+                    </div>
+
+                    <div class="text-end" style="pointer-events: auto;">
+                        <div class="badge bg-primary px-3 py-2 mb-3" style="border-radius: 10px;">
+                            <i class="bi bi-lightning-charge-fill me-1"></i>RAY-TRACED ASSETS
+                        </div>
+                        <p class="smallest text-white-50 mb-0">Interactive Explorer: Swipe to rotate, Pinch to zoom.</p>
+                        <div id="format-warning" class="mt-3 p-3 rounded-3 animate-in"
+                            style="display: none; background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.2); text-align: left;">
+                            <h6 class="smallest fw-800 text-warning mb-1"><i
+                                    class="bi bi-exclamation-triangle-fill me-2"></i>FORMAT ADVISORY</h6>
+                            <p class="Smallest text-white opacity-75 mb-0">This .USDZ asset is optimized for iOS AR
+                                Quick Look. To enable web-based 3D previews on desktop, please provide a .GLB version of
+                                the digital twin.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #room-viewer:not([error]) #ar-instructions {
+        display: none;
+    }
+</style>
+{% endblock %}
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const arModal = document.getElementById('arRoomModal');
+        if (arModal) {
+            arModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const roomName = button.getAttribute('data-room-name');
+                const resortName = button.getAttribute('data-resort-name');
+                const arModelUrl = button.getAttribute('data-ar-model');
+
+                arModal.querySelector('#ar-room-title').textContent = roomName;
+                arModal.querySelector('#ar-resort-title').textContent = resortName;
+
+                const viewer = document.getElementById('room-viewer');
+                const warning = document.getElementById('format-warning');
+                if (arModelUrl) {
+                    if (arModelUrl.toLowerCase().endsWith('.usdz')) {
+                        viewer.iosSrc = arModelUrl;
+                        viewer.src = '';
+                        if (warning) warning.style.display = 'block';
+                    } else {
+                        viewer.src = arModelUrl;
+                        viewer.iosSrc = '';
+                        if (warning) warning.style.display = 'none';
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

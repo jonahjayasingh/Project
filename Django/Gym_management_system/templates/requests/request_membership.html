@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - GymMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white py-4">
+                    <h2 class="mb-0 text-center">
+                        <i class="bi bi-person-plus-fill me-2"></i>
+                        Membership Request Form
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    {% if selected_plan %}
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle me-2"></i>Selected Plan:</h5>
+                        <p class="mb-0"><strong>{{ selected_plan.name }}</strong> - {{
+                            selected_plan.get_duration_months_display }} - ₹{{ selected_plan.price }}</p>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Personal Information -->
+                        <h4 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-person me-2"></i>Personal Information
+                        </h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name *</label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="text-danger small">{{ form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name *</label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="text-danger small">{{ form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email *</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone Number *</label>
+                                {{ form.phone_number }}
+                                {% if form.phone_number.errors %}
+                                <div class="text-danger small">{{ form.phone_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Date of Birth *</label>
+                                {{ form.date_of_birth }}
+                                {% if form.date_of_birth.errors %}
+                                <div class="text-danger small">{{ form.date_of_birth.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Gender *</label>
+                                {{ form.gender }}
+                                {% if form.gender.errors %}
+                                <div class="text-danger small">{{ form.gender.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Address *</label>
+                                {{ form.address }}
+                                {% if form.address.errors %}
+                                <div class="text-danger small">{{ form.address.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Emergency Contact -->
+                        <h4 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-telephone me-2"></i>Emergency Contact
+                        </h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Emergency Contact Name *</label>
+                                {{ form.emergency_contact_name }}
+                                {% if form.emergency_contact_name.errors %}
+                                <div class="text-danger small">{{ form.emergency_contact_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Emergency Contact Phone *</label>
+                                {{ form.emergency_contact_phone }}
+                                {% if form.emergency_contact_phone.errors %}
+                                <div class="text-danger small">{{ form.emergency_contact_phone.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Health Information -->
+                        <h4 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-heart-pulse me-2"></i>Health Information
+                        </h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="form-label">Blood Group</label>
+                                {{ form.blood_group }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Height (cm)</label>
+                                {{ form.height }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Weight (kg)</label>
+                                {{ form.weight }}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Medical Notes</label>
+                                {{ form.medical_notes }}
+                                <small class="form-text text-muted">Any medical conditions, allergies, or health
+                                    concerns</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Fitness Goals</label>
+                                {{ form.fitness_goal }}
+                            </div>
+                        </div>
+
+                        <!-- Membership Plan -->
+                        <h4 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-card-checklist me-2"></i>Membership Plan
+                        </h4>
+                        <div class="mb-4">
+                            <label class="form-label">Select Plan *</label>
+                            {{ form.selected_plan }}
+                            {% if form.selected_plan.errors %}
+                            <div class="text-danger small">{{ form.selected_plan.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'requests:membership_plans' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Plans
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send me-2"></i>Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

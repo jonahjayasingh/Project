@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Prediction Results{% endblock %}
+
+{% block style %}
+<style>
+    .results-container {
+        max-width: 800px;
+        margin: 2rem auto;
+    }
+    .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    .aqi-badge {
+        font-size: 1.2rem;
+        padding: 0.5rem 1.5rem;
+        border-radius: 50rem;
+    }
+    .confidence-bar {
+        height: 25px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, #dc3545, #ffc107, #198754);
+        position: relative;
+    }
+    .confidence-marker {
+        position: absolute;
+        top: -5px;
+        width: 3px;
+        height: 35px;
+        background-color: #000;
+    }
+    .probability-badge {
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+    }
+    .bg-good { background-color: #19875420; color: #198754; }
+    .bg-moderate { background-color: #ffc10720; color: #ffc107; }
+    .bg-poor { background-color: #fd7e1420; color: #fd7e14; }
+    .bg-unhealthy { background-color: #dc354520; color: #dc3545; }
+    .bg-very-unhealthy { background-color: #6f42c120; color: #6f42c1; }
+    .bg-hazardous { background-color: #00000020; color: #000000; }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container results-container">
+    <div class="card">
+        <div class="card-body p-4">
+            <h2 class="text-center mb-4">Prediction Results</h2>
+            
+            <!-- Prediction Result -->
+            <div class="text-center mb-5">
+                <h4 class="mb-3">Predicted AQI Category</h4>
+                {% set badge_class = {
+                    'Good': 'bg-success',
+                    'Moderate': 'bg-warning',
+                    'Poor': 'bg-warning',
+                    'Unhealthy': 'bg-danger',
+                    'Very Unhealthy': 'bg-danger',
+                    'Hazardous': 'bg-dark'
+                } %}
+                <span class="aqi-badge {{ badge_class.get(prediction, 'bg-secondary') }} text-white">
+                    {{ prediction }}
+                </span>
+                
+                <div class="mt-4">
+                    <h5>Confidence: {{ confidence }}%</h5>
+                    <div class="confidence-bar mt-2">
+                        <div class="confidence-marker" 
+                             style="left: {{ confidence }}%;"></div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-1">
+                        <small>0%</small>
+                        <small>50%</small>
+                        <small>100%</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Probabilities Breakdown -->
+            <div class="mt-4">
+                <h5 class="mb-3">Category Probabilities</h5>
+                <div class="row">
+                    {% set categories = ['Good', 'Moderate', 'Poor', 'Unhealthy', 'Very Unhealthy', 'Hazardous'] %}
+                    {% for i in range(6) %}
+                        <div class="col-md-4 mb-3">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-medium">{{ categories[i] }}</span>
+                                <span class="badge bg-light text-dark">
+                                    {{ "%.1f"|format((probabilities[i] * 100) if probabilities else 0) }}%
+                                </span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-{{ 
+                                    ['success', 'warning', 'warning', 'danger', 'danger', 'dark'][i] 
+                                }}" style="width: {{ (probabilities[i] * 100) if probabilities else 0 }}%"></div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="text-center mt-5">
+                <a href="{{ url_for('predict') }}" class="btn btn-primary me-3">
+                    <i class="bi bi-arrow-repeat me-2"></i>New Prediction
+                </a>
+                <a href="{{ url_for('history') }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-clock-history me-2"></i>View History
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Health Recommendations -->
+    <div class="card mt-4">
+        <div class="card-body">
+            <h5><i class="bi bi-heart-pulse me-2"></i>Health Recommendations</h5>
+            {% if prediction == 'Good' %}
+                <p class="mb-0">Air quality is satisfactory. Enjoy your normal activities.</p>
+            {% elif prediction == 'Moderate' %}
+                <p class="mb-0">Acceptable air quality. Unusually sensitive people should consider reducing prolonged outdoor exertion.</p>
+            {% elif prediction == 'Poor' %}
+                <p class="mb-0">Members of sensitive groups may experience health effects. General public is less likely to be affected.</p>
+            {% elif prediction == 'Unhealthy' %}
+                <p class="mb-0">Everyone may begin to experience health effects. Sensitive groups should avoid outdoor exertion.</p>
+            {% elif prediction == 'Very Unhealthy' %}
+                <p class="mb-0">Health alert: everyone may experience more serious health effects.</p>
+            {% else %}
+                <p class="mb-0">Health warning of emergency conditions. The entire population is likely to be affected.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

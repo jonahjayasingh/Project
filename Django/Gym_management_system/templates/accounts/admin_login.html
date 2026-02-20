@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - GymMS</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --primary-dark: #4f46e5;
+            --secondary-color: #8b5cf6;
+            --accent-color: #3b82f6;
+            --dark-bg: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.98);
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --shadow-lg: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            --shadow-xl: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow-x: hidden;
+            color: var(--text-primary);
+            padding: 20px 0;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            top: -200px;
+            right: -200px;
+            opacity: 0.15;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 50%;
+            bottom: -150px;
+            left: -150px;
+            opacity: 0.1;
+            animation: float 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(30px, -50px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+        }
+
+        /* Glass Morphism Effect */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: var(--shadow-xl);
+        }
+
+        /* Login Container */
+        .login-container {
+            position: relative;
+            z-index: 1;
+            max-width: 480px;
+            width: 100%;
+            padding: 10px 20px;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 24px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: var(--shadow-xl);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Header Styling */
+        .login-header {
+            height: 200px;
+            background: var(--primary-gradient);
+            padding: 2.5rem 2rem;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+        }
+
+        .login-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+
+            0%,
+            100% {
+                opacity: 0.5;
+            }
+
+            50% {
+                opacity: 0.8;
+            }
+        }
+
+        .login-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s ease;
+        }
+
+        .login-icon:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .login-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-subtitle {
+            font-size: 1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+            font-weight: 400;
+        }
+
+        .admin-badge {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 0.4rem 1.2rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            letter-spacing: 0.5px;
+        }
+
+        /* Body Styling */
+        .login-body {
+            padding: 2.5rem 2rem;
+            background: white;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-control {
+            padding: 1rem 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+            background: white;
+            transform: translateY(-1px);
+        }
+
+        .input-group {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .input-group-text {
+            background: #f1f5f9;
+            border: 2px solid #e2e8f0;
+            border-right: none;
+            padding: 1rem 1.2rem;
+            color: var(--primary-dark);
+            font-size: 1.1rem;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+        }
+
+        .input-group:focus-within .input-group-text {
+            background: var(--primary-dark);
+            color: white;
+            border-color: var(--primary-dark);
+        }
+
+        /* Button Styling */
+        .btn-login {
+            padding: 1.1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 12px;
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.4);
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        /* Security Notice */
+        .security-notice {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #bae6fd;
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .security-notice i {
+            color: var(--primary-dark);
+            font-size: 1.2rem;
+            margin-top: 0.1rem;
+        }
+
+        /* Messages/Alerts */
+        .alert {
+            border-radius: 12px;
+            border: none;
+            padding: 1.2rem 1.5rem;
+            animation: slideIn 0.5s ease-out;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Divider */
+        .divider {
+            text-align: center;
+            margin: 2rem 0;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #e2e8f0, transparent);
+        }
+
+        .divider span {
+            background: white;
+            padding: 0.5rem 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Other Logins */
+        .other-logins {
+            display: flex;
+            gap: 0.75rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .other-login-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .other-login-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--primary-gradient);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 1;
+        }
+
+        .other-login-link:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-dark);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .other-login-link:hover::before {
+            opacity: 0.1;
+        }
+
+        .other-login-link i {
+            position: relative;
+            z-index: 2;
+        }
+
+        .other-login-link span {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Back Link */
+        .back-link {
+            position: absolute;
+            top: 2.5rem;
+            left: 2.5rem;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            transition: all 0.3s ease;
+            z-index: 100;
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .back-link:hover {
+            transform: translateX(-5px);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        /* Footer */
+        .security-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .security-footer p {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .login-container {
+                padding: 15px;
+            }
+
+            .login-header {
+                padding: 2.5rem 1.5rem;
+                height: 200px;
+            }
+
+            .login-title {
+                font-size: 1.8rem;
+            }
+
+            .login-body {
+                padding: 2.5rem 1.5rem;
+            }
+
+            .back-link {
+                top: 1.5rem;
+                left: 1.5rem;
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-header {
+                height: 180px;
+                padding: 2rem 1rem;
+            }
+
+            .login-icon {
+                width: 70px;
+                height: 70px;
+                font-size: 2.2rem;
+            }
+
+            .login-body {
+                padding: 2rem 1.25rem;
+            }
+
+            .other-logins {
+                flex-direction: column;
+            }
+
+            .other-login-link {
+                justify-content: center;
+            }
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 2px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .strength-meter {
+            height: 100%;
+            width: 0;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        /* Floating Labels Animation */
+        .floating-label {
+            position: relative;
+        }
+
+        .floating-label label {
+            position: absolute;
+            left: 1.2rem;
+            top: 1rem;
+            transition: all 0.3s ease;
+            pointer-events: none;
+            color: var(--text-secondary);
+        }
+
+        .floating-label input:focus+label,
+        .floating-label input:not(:placeholder-shown)+label {
+            top: -0.5rem;
+            left: 1rem;
+            font-size: 0.8rem;
+            background: white;
+            padding: 0 0.5rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-animation"></div>
+
+    <a href="{% url 'home' %}" class="back-link">
+        <i class="bi bi-arrow-left"></i>
+        <span>Back to Home</span>
+    </a>
+
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <div class="login-icon">
+                    <i class="bi bi-shield-lock-fill"></i>
+                </div>
+                <h1 class="login-title">Admin Portal</h1>
+                <p class="login-subtitle">Secure Administrative Access</p>
+                <span class="admin-badge">
+                    <i class="bi bi-shield-check me-1"></i>RESTRICTED ACCESS
+                </span>
+            </div>
+
+            <div class="login-body">
+                <div class="security-notice">
+                    <i class="bi bi-shield-lock"></i>
+                    <div>
+                        <strong class="d-block">Administrative Access Only</strong>
+                        <small class="text-muted">
+                            This portal is restricted to authorized administrators and staff members only.
+                            Unauthorized access is prohibited.
+                        </small>
+                    </div>
+                </div>
+
+                {% if messages %}
+                <div class="mb-4">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} glass-effect">
+                        <i
+                            class="bi {% if message.tags == 'error' %}bi-exclamation-circle{% elif message.tags == 'success' %}bi-check-circle{% else %}bi-info-circle{% endif %} me-2"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <form action="{% url 'accounts:admin_login' %}" method="post">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-person-badge"></i>
+                            Admin Username
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-person-fill"></i>
+                            </span>
+                            <input type="text" name="username" class="form-control"
+                                placeholder="Enter administrator username" required autofocus>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label">
+                            <i class="bi bi-key-fill"></i>
+                            Password
+                        </label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="bi bi-lock-fill"></i>
+                            </span>
+                            <input type="password" name="password" class="form-control"
+                                placeholder="Enter your secure password" required>
+                            <button class="input-group-text" type="button" id="togglePassword">
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </div>
+                        <div class="password-strength mt-2">
+                            <div class="strength-meter" id="passwordStrength"></div>
+                        </div>
+                    </div>
+
+
+
+                    <button type="submit" class="btn btn-login w-100 mb-4">
+                        <i class="bi bi-shield-lock me-2"></i>Sign In to Admin Panel
+                    </button>
+                </form>
+
+                <div class="divider">
+                    <span>Alternative Access</span>
+                </div>
+
+                <div class="other-logins">
+                    <a href="{% url 'accounts:member_login' %}" class="other-login-link">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Member Portal</span>
+                    </a>
+                    <a href="{% url 'accounts:trainer_login' %}" class="other-login-link">
+                        <i class="bi bi-person-workspace"></i>
+                        <span>Trainer Portal</span>
+                    </a>
+                </div>
+
+                <div class="security-footer">
+                    <p>
+                        <i class="bi bi-lock-fill"></i>
+                        <span>Protected with AES-256 encryption & 2FA ready</span>
+                        <i class="bi bi-shield-check ms-2"></i>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Password toggle functionality
+        document.addEventListener('DOMContentLoaded', function () {
+            const togglePassword = document.getElementById('togglePassword');
+            const passwordInput = document.querySelector('input[name="password"]');
+            const passwordStrength = document.getElementById('passwordStrength');
+
+            if (togglePassword) {
+                togglePassword.addEventListener('click', function () {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.innerHTML = type === 'password' ?
+                        '<i class="bi bi-eye"></i>' :
+                        '<i class="bi bi-eye-slash"></i>';
+                });
+            }
+
+            // Password strength indicator
+            if (passwordInput && passwordStrength) {
+                passwordInput.addEventListener('input', function () {
+                    const password = this.value;
+                    let strength = 0;
+
+                    if (password.length >= 8) strength += 25;
+                    if (/[A-Z]/.test(password)) strength += 25;
+                    if (/[0-9]/.test(password)) strength += 25;
+                    if (/[^A-Za-z0-9]/.test(password)) strength += 25;
+
+                    passwordStrength.style.width = strength + '%';
+                    passwordStrength.style.background =
+                        strength < 50 ? '#ef4444' :
+                            strength < 75 ? '#f59e0b' : '#10b981';
+                });
+            }
+
+            // Add subtle hover effect to login card
+            const loginCard = document.querySelector('.login-card');
+            loginCard.addEventListener('mousemove', (e) => {
+                const xAxis = (window.innerWidth / 2 - e.pageX) / 25;
+                const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
+                loginCard.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
+            });
+
+            loginCard.addEventListener('mouseleave', () => {
+                loginCard.style.transform = 'rotateY(0deg) rotateX(0deg)';
+                loginCard.style.transition = 'all 0.5s ease';
+            });
+
+            loginCard.addEventListener('mouseenter', () => {
+                loginCard.style.transition = 'none';
+            });
+        });
+
+        // Add typing effect to form inputs
+        document.addEventListener('focus', function (e) {
+            if (e.target.tagName === 'INPUT') {
+                e.target.parentElement.style.transform = 'scale(1.02)';
+            }
+        }, true);
+
+        document.addEventListener('blur', function (e) {
+            if (e.target.tagName === 'INPUT') {
+                e.target.parentElement.style.transform = 'scale(1)';
+            }
+        }, true);
+    </script>
+</body>
+
+</html>

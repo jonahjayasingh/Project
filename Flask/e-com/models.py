@@ -1,0 +1,376 @@
+from enum import Enum
+from db import db
+from werkzeug.security import generate_password_hash, check_password_hash
+
+
+class UserType(str, Enum):
+    CUSTOMER = "customer"
+    ADMIN = "admin"
+    SELLER = "seller"
+
+
+class SellerStatus(str, Enum):
+    PENDING = "pending"
+    ACTIVE = "active"
+    SUSPENDED = "suspended"
+
+
+class User(db.Model):
+    __tablename__ = "users"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    username = db.Column(
+        db.String(80),
+        unique=True,
+        nullable=False,
+        index=True
+    )
+
+    password_hash = db.Column(db.String(128), nullable=False)
+
+    user_type = db.Column(
+        db.Enum(UserType, name="user_type_enum", native_enum=False),
+        default=UserType.CUSTOMER,
+        nullable=False
+    )
+
+    created_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+
+    updated_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        onupdate=db.func.now(),
+        nullable=False
+    )
+
+    # --- Password handling ---
+
+    def set_password(self, password: str) -> None:
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password: str) -> bool:
+        return check_password_hash(self.password_hash, password)
+
+    @property
+    def password(self):
+        raise AttributeError("Password is write-only")
+
+    @password.setter
+    def password(self, password: str) -> None:
+        self.set_password(password)
+
+    def __repr__(self):
+        return f"<User id={self.id} username={self.username}>"
+
+
+class Profile(db.Model):
+    __tablename__ = "profiles"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True
+    )
+
+    full_name = db.Column(db.String(120), nullable=True)
+    address = db.Column(db.String(255), nullable=True)
+    phone_number = db.Column(db.String(20), nullable=True)
+
+    user = db.relationship(
+        "User",
+        backref=db.backref(
+            "profile",
+            uselist=False,
+            cascade="all, delete-orphan"
+        )
+    )
+
+    def __repr__(self):
+        return f"<Profile id={self.id} user_id={self.user_id}>"
+
+
+class SellerProfile(db.Model):
+    __tablename__ = "seller_profiles"
+
+    id = db.Column(db.Integer, primary_key=True)
+
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False,
+        unique=True
+    )
+
+    # --- Public seller identity ---
+    display_name = db.Column(db.String(120), nullable=False)
+    company_name = db.Column(db.String(120), nullable=True)
+    description = db.Column(db.Text, nullable=True)
+    business_email = db.Column(db.String(120), nullable=True)
+    business_phone = db.Column(db.String(20), nullable=True)
+    website_url = db.Column(db.String(255), nullable=True)
+
+    # --- Seller trust & moderation ---
+    status = db.Column(
+        db.Enum(SellerStatus, name="seller_status_enum", native_enum=False),
+        default=SellerStatus.PENDING,
+        nullable=False
+    )
+
+    is_verified = db.Column(db.Boolean, default=False, nullable=False)
+    verified_at = db.Column(db.DateTime, nullable=True)
+
+    # --- Seller metrics ---
+    rating_avg = db.Column(db.Float, default=0.0, nullable=False)
+    rating_count = db.Column(db.Integer, default=0, nullable=False)
+    total_sales = db.Column(db.Integer, default=0, nullable=False)
+
+    user = db.relationship(
+        "User",
+        backref=db.backref(
+            "seller_profile",
+            uselist=False,
+            cascade="all, delete-orphan"
+        )
+    )
+
+    def __repr__(self):
+        return f"<SellerProfile id={self.id} user_id={self.user_id}>"
+
+
+class Category(db.Model):
+    __tablename__ = "categories"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False, unique=True)
+    slug = db.Column(db.String(100), nullable=False, unique=True, index=True)
+    description = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+
+    products = db.relationship("Product", backref="category", lazy="dynamic")
+
+    def __repr__(self):
+        return f"<Category id={self.id} name={self.name}>"
+
+
+class Product(db.Model):
+    __tablename__ = "products"
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text, nullable=True)
+    price = db.Column(db.Float, nullable=False)
+    quantity = db.Column(db.Integer, default=0, nullable=False)
+    
+    category_id = db.Column(
+        db.Integer,
+        db.ForeignKey("categories.id", ondelete="SET NULL"),
+        nullable=True
+    )
+    
+    seller_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    
+    # Comma-separated image filenames
+    images = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+    
+    updated_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        onupdate=db.func.now(),
+        nullable=False
+    )
+
+    seller = db.relationship("User", backref="products")
+
+    def __repr__(self):
+        return f"<Product id={self.id} name={self.name}>"
+
+    def get_image_list(self):
+        """Return list of image filenames"""
+        if self.images:
+            return [img.strip() for img in self.images.split(',') if img.strip()]
+        return []
+
+    def get_primary_image(self):
+        """Return the first image or None"""
+        images = self.get_image_list()
+        return images[0] if images else None
+
+
+class Cart(db.Model):
+    __tablename__ = "carts"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    
+    product_id = db.Column(
+        db.Integer,
+        db.ForeignKey("products.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    
+    quantity = db.Column(db.Integer, default=1, nullable=False)
+    
+    added_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+
+    user = db.relationship("User", backref="cart_items")
+    product = db.relationship("Product", backref="cart_entries")
+
+    def __repr__(self):
+        return f"<Cart id={self.id} user_id={self.user_id} product_id={self.product_id}>"
+
+    def get_subtotal(self):
+        """Calculate subtotal for this cart item"""
+        return self.product.price * self.quantity
+
+
+class OrderStatus(str, Enum):
+    PENDING = "pending"
+    PROCESSING = "processing"
+    SHIPPED = "shipped"
+    DELIVERED = "delivered"
+    CANCELLED = "cancelled"
+
+
+class Order(db.Model):
+    __tablename__ = "orders"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    
+    total_amount = db.Column(db.Float, nullable=False)
+    
+    status = db.Column(
+        db.Enum(OrderStatus, name="order_status_enum", native_enum=False),
+        default=OrderStatus.PENDING,
+        nullable=False
+    )
+    
+    shipping_address = db.Column(db.Text, nullable=False)
+    
+    created_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+    
+    updated_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        onupdate=db.func.now(),
+        nullable=False
+    )
+
+    user = db.relationship("User", backref="orders")
+    items = db.relationship("OrderItem", backref="order", cascade="all, delete-orphan")
+
+    def __repr__(self):
+        return f"<Order id={self.id} user_id={self.user_id} total={self.total_amount}>"
+
+
+class OrderItem(db.Model):
+    __tablename__ = "order_items"
+
+    id = db.Column(db.Integer, primary_key=True)
+    
+    order_id = db.Column(
+        db.Integer,
+        db.ForeignKey("orders.id", ondelete="CASCADE"),
+        nullable=False
+    )
+    
+    product_id = db.Column(
+        db.Integer,
+        db.ForeignKey("products.id", ondelete="SET NULL"),
+        nullable=True
+    )
+    
+    quantity = db.Column(db.Integer, nullable=False)
+    price_at_purchase = db.Column(db.Float, nullable=False)
+    
+    # Store product name in case product is deleted
+    product_name = db.Column(db.String(200), nullable=False)
+
+    product = db.relationship("Product", backref="order_items")
+
+    def __repr__(self):
+        return f"<OrderItem id={self.id} order_id={self.order_id}>"
+
+    def get_subtotal(self):
+        """Calculate subtotal for this order item"""
+        return self.price_at_purchase * self.quantity
+
+
+class Review(db.Model):
+    __tablename__ = 'reviews'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    
+    user_id = db.Column(
+        db.Integer,
+        db.ForeignKey('users.id', ondelete='CASCADE'),
+        nullable=False
+    )
+    
+    product_id = db.Column(
+        db.Integer,
+        db.ForeignKey('products.id', ondelete='CASCADE'),
+        nullable=False
+    )
+    
+    rating = db.Column(db.Integer, nullable=False)  # 1-5
+    comment = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(
+        db.DateTime,
+        server_default=db.func.now(),
+        nullable=False
+    )
+    
+    # Relationships
+    user = db.relationship('User', backref='reviews')
+    product = db.relationship('Product', backref='reviews')
+    
+    # Unique constraint: one review per user per product
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'product_id', name='unique_user_product_review'),
+    )
+    
+    def __repr__(self):
+        return f'<Review user_id={self.user_id} product_id={self.product_id} rating={self.rating}>'

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %}Verify {{ type }} OTP{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <h4 class="mb-0 fw-bold"><i class="bi bi-shield-lock-fill me-2"></i> {{ type }} Verification</h4>
+                </div>
+                <div class="card-body p-5 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-key-fill text-primary display-1"></i>
+                    </div>
+                    <h3 class="fw-bold mb-3">{{ donation.food_type }}</h3>
+                    <p class="text-muted mb-4">{{ description }}</p>
+
+                    <form method="post" class="mt-4">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <input type="text" name="otp" id="otp"
+                                class="form-control form-control-lg text-center fw-bold fs-2" placeholder="000000"
+                                maxlength="6" pattern="\d{6}" required autofocus
+                                style="letter-spacing: 0.5rem; border-radius: 1rem; border: 2px solid #dee2e6;">
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3 shadow-sm">
+                                <i class="bi bi-check-circle-fill me-2"></i> Verify & Confirm {{ type }}
+                            </button>
+                            <a href="{% url 'volunteer_dashboard' %}"
+                                class="btn btn-light btn-lg rounded-pill fw-bold py-3 text-muted">
+                                <i class="bi bi-x-circle me-2"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer bg-light p-4 border-0 text-center">
+                    <small class="text-muted">
+                        <i class="bi bi-info-circle me-1"></i> This verification ensures that the donation is handled
+                        securely.
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    #otp:focus {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+    }
+</style>
+{% endblock %}

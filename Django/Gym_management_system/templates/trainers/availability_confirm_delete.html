@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Availability - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirm Deletion</h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-3">Are you sure you want to delete this availability slot?</p>
+                    <div class="alert alert-light">
+                        <p class="mb-0"><strong>Trainer:</strong> {{ trainer.user.get_full_name }}</p>
+                        <p class="mb-0"><strong>Day:</strong> {{ availability.get_day_of_week_display }}</p>
+                        <p class="mb-0"><strong>Time:</strong> {{ availability.start_time|time:"g:i A" }} - {{
+                            availability.end_time|time:"g:i A" }}</p>
+                    </div>
+                </div>
+                <div class="card-footer bg-white">
+                    <form method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Yes, Delete
+                        </button>
+                        <a href="{% url 'trainers:trainer_detail' trainer.pk %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Cancel
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

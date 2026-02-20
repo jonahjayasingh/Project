@@ -1,0 +1,112 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .form-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-header h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card card">
+    <div class="form-header">
+        <div class="form-header-icon">✏️</div>
+        <h1>Edit Student</h1>
+        <p>Update student information</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required value="{{ student.name }}">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required value="{{ student.email }}">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="department">Department *</label>
+                <input type="text" id="department" name="department" required value="{{ student.department }}">
+            </div>
+
+            <div class="form-group">
+                <label for="class_name">Class *</label>
+                <input type="text" id="class_name" name="class_name" required value="{{ student.class_name }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="max_books_allowed">Maximum Books Allowed *</label>
+            <input type="number" id="max_books_allowed" name="max_books_allowed" required min="1"
+                value="{{ student.max_books_allowed }}">
+        </div>
+
+        <div
+            style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-radius: 0.75rem; padding: 1.25rem; margin-top: 1.5rem; border: 1px solid rgba(99, 102, 241, 0.1);">
+            <p style="margin: 0; color: var(--text-light); font-size: 0.9rem;">
+                <strong style="color: var(--dark);">Student Number:</strong> {{ student.student_number }}<br>
+                <strong style="color: var(--dark);">Username:</strong> {{ student.user.username }}<br>
+                <strong style="color: var(--dark);">Joined:</strong> {{ student.created_at|date:"M d, Y" }}
+            </p>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'manage_students' %}" class="btn btn-secondary">
+                ← Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                ✓ Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

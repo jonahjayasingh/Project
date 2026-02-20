@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background-color: #f4f7fb;
+    }
+
+    .hero {
+        background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+        color: white;
+        border-radius: 1rem;
+        padding: 4rem 2rem;
+    }
+
+    .hero h1 {
+        font-weight: 700;
+    }
+
+    .hero p {
+        opacity: 0.9;
+    }
+
+    .feature-card {
+        border: none;
+        border-radius: 1rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon {
+        font-size: 2.5rem;
+    }
+
+    .how-it-works li {
+        padding: 0.75rem 0;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero {
+            padding: 3rem 1.5rem;
+        }
+        .hero h1 {
+            font-size: 2.2rem;
+        }
+        .icon {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container mt-4">
+
+    <!-- Hero -->
+    <div class="hero text-center shadow-sm">
+        <h1 class="display-5 mb-3">Air Quality Prediction</h1>
+        <p class="lead mb-4">
+            Predict AQI levels using machine learning and real pollutant data.
+        </p>
+
+        {% if current_user.is_authenticated %}
+            <a class="btn btn-light btn-lg px-4" href="{{ url_for('predict') }}">
+                Start Prediction
+            </a>
+        {% else %}
+            <a class="btn btn-light btn-lg px-4" href="{{ url_for('login') }}">
+                Login to Continue
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Features -->
+    <div class="row text-center mt-5">
+        <div class="col-md-4">
+            <div class="card feature-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="icon mb-3">📈</div>
+                    <h5 class="card-title">Data-Driven</h5>
+                    <p class="card-text">
+                        Trained on historical pollutant measurements for accurate AQI classification.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mt-3 mt-md-0">
+            <div class="card feature-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="icon mb-3">🌲</div>
+                    <h5 class="card-title">ML Powered</h5>
+                    <p class="card-text">
+                        Uses a Random Forest model optimized for real-world imbalance.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mt-3 mt-md-0">
+            <div class="card feature-card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="icon mb-3">⚡</div>
+                    <h5 class="card-title">Instant Results</h5>
+                    <p class="card-text">
+                        Enter values and receive predictions with confidence scores.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="row mt-5">
+        <div class="col-md-10 mx-auto">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="text-center mb-4">How It Works</h4>
+                    <ol class="how-it-works">
+                        <li>Input pollutant concentration values.</li>
+                        <li>The ML model evaluates the data.</li>
+                        <li>An AQI category and confidence are returned.</li>
+                        <li>Use insights to understand air quality impact.</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center text-muted mt-5 mb-3">
+        <small>
+            Educational tool. Predictions are based on historical data and statistical modeling.
+        </small>
+    </div>
+
+</div>
+{% endblock %}

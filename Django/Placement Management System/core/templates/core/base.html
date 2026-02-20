@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PlacementPro | Professional Placement Management{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'core/css/style.css' %}">
+</head>
+
+<body>
+
+    <header>
+        <a href="{% url 'home' %}" style="text-decoration: none;">
+            <div class="logo">
+                PlacementPro
+            </div>
+        </a>
+        <nav>
+            {% if user.is_authenticated %}
+            {% if user.role == 'student' %}
+            <a href="{% url 'student_dashboard' %}">Dashboard</a>
+            <a href="{% url 'logout' %}" class="nav-btn">Logout</a>
+            {% elif user.role == 'admin' %}
+            <a href="{% url 'admin_dashboard' %}">Dashboard</a>
+            <a href="{% url 'logout' %}" class="nav-btn">Logout</a>
+            {% elif user.role == 'company' %}
+            <a href="{% url 'company_dashboard' %}">Dashboard</a>
+            <a href="{% url 'logout' %}" class="nav-btn">Logout</a>
+            {% endif %}
+            {% else %}
+            <a href="{% url 'userlogin' %}">Login</a>
+            <a href="{% url 'student_register' %}" class="nav-btn">Get Started</a>
+            {% endif %}
+        </nav>
+    </header>
+
+    {% block layout %}{% endblock %}
+
+    {% if messages %}
+    <div style="position: fixed; bottom: 2rem; right: 2rem; z-index: 2000; width: 320px;">
+        {% for message in messages %}
+        <div class="glass-card"
+            style="padding: 1rem; margin-top: 0.5rem; border-radius: 12px; background: rgba(15, 23, 42, 0.9);">
+            <p
+                style="margin:0; font-size: 0.9rem; color: {% if message.tags == 'error' %}var(--accent){% else %}var(--secondary){% endif %};">
+                {{ message }}
+            </p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</body>
+
+</html>

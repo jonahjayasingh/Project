@@ -1,0 +1,222 @@
+{% extends "base.html" %}
+
+{% block title %}Lab Dashboard - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold">Laboratory Dashboard</h2>
+            <p class="text-muted">Manage your daily appointments and test reports</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'lab_reviews' %}" class="btn btn-outline-warning">
+                <i class="fas fa-star me-1"></i> Reviews
+            </a>
+            <a href="{% url 'manage_staff' %}" class="btn btn-outline-info">
+                <i class="fas fa-users-cog me-1"></i> Staff
+            </a>
+            <a href="{% url 'manage_packages' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-box me-1"></i> Packages
+            </a>
+            <a href="{% url 'lab_operations_config' %}" class="btn btn-outline-dark">
+                <i class="fas fa-cogs me-1"></i> Config
+            </a>
+            <a href="{% url 'manage_lab_tests' %}" class="btn btn-outline-primary">
+                <i class="fas fa-microscope me-1"></i> Tests
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="col-md-3 mb-4">
+        <div class="card p-3 border-0 shadow-sm rounded-4 bg-primary text-white">
+            <h6 class="opacity-75">Total Bookings</h6>
+            <h3 class="fw-bold">{{ total_bookings }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card p-3 border-0 shadow-sm rounded-4 bg-warning text-dark">
+            <h6 class="opacity-75">Pending Tasks</h6>
+            <h3 class="fw-bold">{{ pending_tasks }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card p-3 border-0 shadow-sm rounded-4 bg-success text-white">
+            <h6 class="opacity-75">Completed Today</h6>
+            <h3 class="fw-bold">{{ completed_today }}</h3>
+        </div>
+    </div>
+    <div class="col-md-3 mb-4">
+        <div class="card p-3 border-0 shadow-sm rounded-4 bg-info text-white">
+            <h6 class="opacity-75">Today's Schedule</h6>
+            <h3 class="fw-bold">{{ today_appointments.count }}</h3>
+        </div>
+    </div>
+
+    <!-- Bookings Table -->
+    <div class="col-12 mt-4">
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4">Incoming & Active Bookings</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Ref ID</th>
+                            <th>Test / Slot</th>
+                            <th>Payment Status</th>
+                            <th>Process Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold text-primary">#{{ booking.id }}</div>
+                                <div class="small">
+                                    <a href="https://wa.me/{{ booking.patient.whatsapp_number }}" target="_blank"
+                                        class="text-decoration-none text-success">
+                                        <i class="fab fa-whatsapp me-1"></i>{{ booking.patient.whatsapp_number }}
+                                    </a>
+                                </div>
+                                <span class="badge bg-light text-dark small">{{ booking.test_name|truncatechars:15}}</span>
+                            </td>
+                            <td>
+                                <div class="fw-bold">{{ booking.test_name }}</div>
+                                <small class="text-muted">{{ booking.booking_date }} | {{ booking.time_slot|time:"h:iA"}}</small>
+                            </td>
+                            <td>
+                                {% if booking.payment_status == 'Verified' %}
+                                <span class="badge bg-success rounded-pill">Verified</span>
+                                {% elif booking.payment_status == 'Pending Verification' and booking.payment_proof %}
+                                <button type="button" class="btn btn-sm btn-info rounded-pill" data-bs-toggle="modal"
+                                    data-bs-target="#paymentModal{{ booking.id }}">
+                                    Review Proof
+                                </button>
+                                {% elif booking.payment_status == 'Rejected' %}
+                                <span class="badge bg-danger rounded-pill">Rejected</span>
+                                {% else %}
+                                <span class="badge bg-secondary rounded-pill">Awaiting Proof</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <form action="{% url 'update_booking_status' booking.id %}" method="POST"
+                                    class="d-flex gap-2">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm"
+                                        onchange="this.form.submit()" {% if booking.status == 'Cancelled' or booking.status == 'Completed' %}disabled{% endif %}>
+                                        {% for code, label in booking.STATUS_CHOICES %}
+                                        <option value="{{ code }}" {% if booking.status == code %}selected{% endif %}>{{label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm btn-outline-info" data-bs-toggle="modal"
+                                        data-bs-target="#assignModal{{ booking.id }}" title="Assign Staff">
+                                        <i class="fas fa-user-tag"></i>
+                                    </button>
+                                    <a href="{% url 'upload_report' booking.id %}"
+                                        class="btn btn-sm btn-outline-primary" title="Upload Report">
+                                        <i class="fas fa-file-upload"></i>
+                                    </a>
+                                    {% if booking.report_file %}
+                                    <a href="{% url 'report_history' booking.id %}"
+                                        class="btn btn-sm btn-outline-secondary" title="Report History">
+                                        <i class="fas fa-history"></i>
+                                    </a>
+                                    {% endif %}
+                                    {% if booking.status != 'Cancelled' and booking.status != 'Completed' %}
+                                    <a href="{% url 'mark_no_show' booking.id %}" class="btn btn-sm btn-outline-danger"
+                                        title="Mark No-Show" onclick="return confirm('Mark as No-Show?')">
+                                        <i class="fas fa-user-slash"></i>
+                                    </a>
+                                    {% endif %}
+                                    <a href="{% url 'booking_receipt' booking.id %}" class="btn btn-sm btn-outline-dark"
+                                        title="Show Receipt">
+                                        <i class="fas fa-receipt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <!-- Assign Staff Modal -->
+                        <div class="modal fade" id="assignModal{{ booking.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content border-0 rounded-4">
+                                    <div class="modal-header">
+                                        <h5 class="fw-bold">Assign Staff & Notes - #{{ booking.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <form action="{% url 'assign_technician' booking.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold">Select Technician</label>
+                                                <select name="technician" class="form-select">
+                                                    <option value="">-- Unassigned --</option>
+                                                    {% for tech in user.lab_profile.technicians.all %}
+                                                    <option value="{{ tech.id }}" {% if booking.technician == tech %}selected{% endif %}>{{ tech.name }} ({{ tech.specialization}})</option>
+                                                    {% endfor %}
+                                                </select>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label small fw-bold">Internal Notes</label>
+                                                <textarea name="internal_notes" class="form-control" rows="3"
+                                                    placeholder="Notes for staff only...">{{ booking.internal_notes }}</textarea>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="submit" class="btn btn-primary rounded-pill px-4">Save
+                                                Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Payment Review Modal -->
+                        {% if booking.payment_proof %}
+                        <div class="modal fade" id="paymentModal{{ booking.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Verify Payment - Ref #{{ booking.id }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body text-center">
+                                        <img src="{{ booking.payment_proof.url }}" class="img-fluid rounded mb-3"
+                                            style="max-height: 400px;">
+                                        <form action="{% url 'verify_payment' booking.id %}" method="POST">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <input type="text" name="reason" class="form-control form-control-sm"
+                                                    placeholder="Rejection reason (if any)">
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <button type="submit" name="action" value="verify"
+                                                    class="btn btn-success w-100">Verify & Confirm</button>
+                                                <button type="submit" name="action" value="reject"
+                                                    class="btn btn-danger w-100">Reject</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No bookings found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="bi bi-person-plus"></i> {{ title }}</h2>
+                <a href="{% url 'members:member_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to List
+                </a>
+            </div>
+
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-person"></i> Personal Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.first_name.id_for_label }}" class="form-label fw-semibold">
+                                    First Name <span class="text-danger">*</span>
+                                </label>
+                                {{ user_form.first_name }}
+                                {% if user_form.first_name.errors %}
+                                <div class="text-danger mt-1">{{ user_form.first_name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.last_name.id_for_label }}" class="form-label fw-semibold">
+                                    Last Name <span class="text-danger">*</span>
+                                </label>
+                                {{ user_form.last_name }}
+                                {% if user_form.last_name.errors %}
+                                <div class="text-danger mt-1">{{ user_form.last_name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            {% if not member %}
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.username.id_for_label }}" class="form-label fw-semibold">
+                                    Username <span class="text-danger">*</span>
+                                </label>
+                                {{ user_form.username }}
+                                {% if user_form.username.errors %}
+                                <div class="text-danger mt-1">{{ user_form.username.errors }}</div>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.email.id_for_label }}" class="form-label fw-semibold">
+                                    Email <span class="text-danger">*</span>
+                                </label>
+                                {{ user_form.email }}
+                                {% if user_form.email.errors %}
+                                <div class="text-danger mt-1">{{ user_form.email.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.phone_number.id_for_label }}" class="form-label fw-semibold">
+                                    Phone Number <span class="text-danger">*</span>
+                                </label>
+                                {{ user_form.phone_number }}
+                                {% if user_form.phone_number.errors %}
+                                <div class="text-danger mt-1">{{ user_form.phone_number.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.date_of_birth.id_for_label }}" class="form-label fw-semibold">
+                                    Date of Birth
+                                </label>
+                                {{ user_form.date_of_birth }}
+                                {% if user_form.date_of_birth.errors %}
+                                <div class="text-danger mt-1">{{ user_form.date_of_birth.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.gender.id_for_label }}" class="form-label fw-semibold">
+                                    Gender
+                                </label>
+                                {{ user_form.gender }}
+                                {% if user_form.gender.errors %}
+                                <div class="text-danger mt-1">{{ user_form.gender.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ user_form.address.id_for_label }}" class="form-label fw-semibold">
+                                    Address
+                                </label>
+                                {{ user_form.address }}
+                                {% if user_form.address.errors %}
+                                <div class="text-danger mt-1">{{ user_form.address.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.profile_photo.id_for_label }}" class="form-label fw-semibold">
+                                    Profile Photo
+                                </label>
+                                {{ user_form.profile_photo }}
+                                {% if user_form.profile_photo.errors %}
+                                <div class="text-danger mt-1">{{ user_form.profile_photo.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {% if not member %}
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-key"></i> Account Security</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.password1.id_for_label }}" class="form-label fw-semibold">
+                                    Password <span class="text-danger">*</span>
+                                </label>
+                                {{ user_form.password1 }}
+                                {% if user_form.password1.errors %}
+                                <div class="text-danger mt-1">{{ user_form.password1.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ user_form.password2.id_for_label }}" class="form-label fw-semibold">
+                                    Confirm Password <span class="text-danger">*</span>
+                                </label>
+                                {{ user_form.password2 }}
+                                {% if user_form.password2.errors %}
+                                <div class="text-danger mt-1">{{ user_form.password2.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="card mb-4">
+                    <div class="card-header bg-white">
+                        <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Health & Fitness Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.emergency_contact_name.id_for_label }}"
+                                    class="form-label fw-semibold">
+                                    Emergency Contact Name <span class="text-danger">*</span>
+                                </label>
+                                {{ profile_form.emergency_contact_name }}
+                                {% if profile_form.emergency_contact_name.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.emergency_contact_name.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.emergency_contact_phone.id_for_label }}"
+                                    class="form-label fw-semibold">
+                                    Emergency Contact Phone <span class="text-danger">*</span>
+                                </label>
+                                {{ profile_form.emergency_contact_phone }}
+                                {% if profile_form.emergency_contact_phone.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.emergency_contact_phone.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ profile_form.blood_group.id_for_label }}" class="form-label fw-semibold">
+                                    Blood Group
+                                </label>
+                                {{ profile_form.blood_group }}
+                                {% if profile_form.blood_group.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.blood_group.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ profile_form.height.id_for_label }}" class="form-label fw-semibold">
+                                    Height (cm)
+                                </label>
+                                {{ profile_form.height }}
+                                {% if profile_form.height.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.height.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-4 mb-3">
+                                <label for="{{ profile_form.weight.id_for_label }}" class="form-label fw-semibold">
+                                    Weight (kg)
+                                </label>
+                                {{ profile_form.weight }}
+                                {% if profile_form.weight.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.weight.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ profile_form.medical_notes.id_for_label }}"
+                                    class="form-label fw-semibold">
+                                    Medical Notes
+                                </label>
+                                {{ profile_form.medical_notes }}
+                                <small class="text-muted">Any medical conditions, allergies, or health concerns</small>
+                                {% if profile_form.medical_notes.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.medical_notes.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ profile_form.fitness_goal.id_for_label }}"
+                                    class="form-label fw-semibold">
+                                    Fitness Goals
+                                </label>
+                                {{ profile_form.fitness_goal }}
+                                {% if profile_form.fitness_goal.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.fitness_goal.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ profile_form.status.id_for_label }}" class="form-label fw-semibold">
+                                    Status
+                                </label>
+                                {{ profile_form.status }}
+                                {% if profile_form.status.errors %}
+                                <div class="text-danger mt-1">{{ profile_form.status.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-4">
+                    <a href="{% url 'members:member_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Save Member
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="hero-section text-center py-5 mb-5 rounded-4 shadow-lg"
+    style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80'); background-size: cover; background-position: center; color: white; min-height: 400px; display: flex; flex-direction: column; justify-content: center;">
+    <h1 class="display-3 fw-bold mb-3">Feed the Need</h1>
+    <p class="lead mb-4 px-3">Connecting generous donors with NGOs and volunteers to eliminate food waste and fight
+        hunger.</p>
+    <div class="d-flex justify-content-center gap-3">
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg px-5 rounded-pill shadow">Join Now</a>
+        <a href="{% url 'login' %}" class="btn btn-outline-light btn-lg px-5 rounded-pill">Sign In</a>
+    </div>
+</div>
+
+<div class="row text-center mb-5">
+    <div class="col-md-4">
+        <div class="card h-100 p-4 rounded-4 shadow-sm hover-up">
+            <div class="display-4 text-primary mb-3">🍎</div>
+            <h3 class="fw-bold">Donors</h3>
+            <p>Every small contribution makes a huge difference. Donate surplus food easily.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-4 rounded-4 shadow-sm hover-up">
+            <div class="display-4 text-success mb-3">🤝</div>
+            <h3 class="fw-bold">NGOs</h3>
+            <p>Direct reach to food sources to feed communities in need efficiently.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-4 rounded-4 shadow-sm hover-up">
+            <div class="display-4 text-warning mb-3">🚚</div>
+            <h3 class="fw-bold">Volunteers</h3>
+            <p>The bridge between surplus and hunger. Help with pickup and delivery.</p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-up:hover {
+        transform: translateY(-10px);
+        transition: transform 0.3s ease;
+    }
+
+    .hero-section {
+        overflow: hidden;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Intelligence Profile - ServiceFinder{% endblock %}
+
+{% block extra_css %}
+<style>
+    .config-card {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 32px;
+        box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.1);
+    }
+
+    .loc-btn {
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .loc-btn:hover {
+        transform: translateY(-3px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5 mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="config-card p-4 p-md-5">
+                <div class="text-center mb-5">
+                    <span class="badge bg-primary-soft text-primary rounded-pill px-3 py-2 mb-3 fw-bold">LOCATION
+                        INTELLIGENCE</span>
+                    <h2 class="fw-800 display-6">Update Your Presence</h2>
+                    <p class="text-muted">Set your location to find the nearest elite professionals.</p>
+                </div>
+
+                <form method="post" id="profileForm">
+                    {% csrf_token %}
+                    <div class="mb-4">
+                        <label class="form-label small fw-800 text-uppercase text-muted">Area/City Name</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-end-0"><i
+                                    class="bi bi-geo-alt text-primary"></i></span>
+                            <input type="text" name="location_name" id="location_name"
+                                class="form-control border-start-0 py-3" value="{{ user.profile.location_name }}"
+                                placeholder="e.g. Nagercoil, Kanniyakumari" required>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-5">
+                        <div class="col-6">
+                            <label class="form-label small fw-800 text-uppercase text-muted">Latitude</label>
+                            <input type="text" name="latitude" id="latitude" class="form-control py-2 bg-light border-0"
+                                value="{{ user.profile.latitude|default:'' }}" readonly>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label small fw-800 text-uppercase text-muted">Longitude</label>
+                            <input type="text" name="longitude" id="longitude"
+                                class="form-control py-2 bg-light border-0"
+                                value="{{ user.profile.longitude|default:'' }}" readonly>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-3">
+                        <button type="button" onclick="detectLocation()"
+                            class="btn btn-accent btn-lg rounded-pill fw-bold loc-btn py-3">
+                            <i class="bi bi-crosshair me-2"></i> Detect My Location
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold py-3">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function detectLocation() {
+        const btn = event.currentTarget;
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Detecting...';
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    document.getElementById('latitude').value = position.coords.latitude.toFixed(6);
+                    document.getElementById('longitude').value = position.coords.longitude.toFixed(6);
+                    btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> Location Detected';
+                    btn.classList.replace('btn-accent', 'btn-success');
+                },
+                (error) => {
+                    let msg = "Location Error: ";
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED: msg += "Permission Denied. Please enable GPS."; break;
+                        case error.POSITION_UNAVAILABLE: msg += "Location unavailable."; break;
+                        case error.TIMEOUT: msg += "Request timed out."; break;
+                        default: msg += error.message;
+                    }
+                    alert(msg);
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                },
+                { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+        } else {
+            alert("Geolocation is not supported by this browser.");
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,170 @@
+{% extends 'base.html' %} {% block content %}
+<div class="d-flex justify-content-between align-items-center mb-5">
+  <div>
+    <h1 class="fw-bold mb-1">
+      Skill <span class="text-gradient">Domains</span>
+    </h1>
+    <p class="text-muted small mb-0">
+      Choose a learning domain managed by your mentor.
+    </p>
+  </div>
+  <span
+    class="badge bg-light text-primary border border-primary border-opacity-25 px-3 py-2 fw-bold"
+  >
+    <i class="fas fa-cubes me-1"></i> {{ domains.count }} Active Tracks
+  </span>
+</div>
+
+<div class="row g-4">
+  {% for domain in domains %}
+  <div class="col-md-6 col-lg-4">
+    <div
+      class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden domain-card"
+    >
+      <!-- Top color bar -->
+      <div
+        style="
+          height: 5px;
+          background: linear-gradient(90deg, #4f46e5, #7c3aed);
+        "
+      ></div>
+      <div class="p-4 d-flex flex-column h-100">
+        <div class="d-flex align-items-center gap-3 mb-3">
+          <div class="bg-primary bg-opacity-10 text-primary p-3 rounded-3">
+            <i class="fas fa-code fa-lg"></i>
+          </div>
+          <h5 class="fw-bold mb-0 text-dark">{{ domain.name }}</h5>
+        </div>
+        <p
+          class="text-muted small mb-4"
+          style="
+            flex-grow: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+          "
+        >
+          {{ domain.description }}
+        </p>
+
+        <!-- Stats row -->
+        <div class="d-flex gap-3 mb-4">
+          <div
+            class="text-center flex-fill p-2 rounded-3"
+            style="background: #f8fafc; border: 1px solid #e2e8f0"
+          >
+            <p class="fw-bold text-dark mb-0 small">
+              {{ domain.resources.count }}
+            </p>
+            <p class="text-muted mb-0" style="font-size: 0.72rem">Resources</p>
+          </div>
+          <div
+            class="text-center flex-fill p-2 rounded-3"
+            style="background: #f8fafc; border: 1px solid #e2e8f0"
+          >
+            <p class="fw-bold text-dark mb-0 small">
+              {{ domain.assignments.count }}
+            </p>
+            <p class="text-muted mb-0" style="font-size: 0.72rem">
+              Assignments
+            </p>
+          </div>
+          <div
+            class="text-center flex-fill p-2 rounded-3"
+            style="background: #f8fafc; border: 1px solid #e2e8f0"
+          >
+            <p class="fw-bold text-dark mb-0 small">
+              {{ domain.quizzes.count }}
+            </p>
+            <p class="text-muted mb-0" style="font-size: 0.72rem">Quizzes</p>
+          </div>
+        </div>
+
+        <!-- Mentor & CTA -->
+        <div
+          class="d-flex justify-content-between align-items-center border-top pt-3"
+        >
+          <div class="d-flex align-items-center gap-2">
+            <div
+              class="bg-secondary bg-opacity-10 text-secondary rounded-circle d-flex align-items-center justify-content-center fw-bold"
+              style="width: 30px; height: 30px; font-size: 0.75rem"
+            >
+              {{ domain.created_by.username|first|upper }}
+            </div>
+            <span class="small fw-semibold text-muted"
+              >{{ domain.created_by.username }}</span
+            >
+          </div>
+
+          <div class="d-flex gap-2">
+            {% if request.user.student_profile.preferred_domain == domain %}
+            <span
+              class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 d-flex align-items-center px-3"
+            >
+              <i class="fas fa-check-circle me-1"></i> My Track
+            </span>
+            <a
+              href="{% url 'domain_detail' domain.id %}"
+              class="btn btn-primary btn-sm px-4 shadow-sm"
+            >
+              Enter
+            </a>
+            {% else %}
+            <a
+              href="{% url 'domain_detail' domain.id %}"
+              class="btn btn-outline-primary btn-sm px-4"
+            >
+              Explore
+            </a>
+            {% if not request.user.student_profile.preferred_domain %}
+            <form
+              action="{% url 'student_profile' %}"
+              method="post"
+              class="d-inline"
+            >
+              {% csrf_token %}
+              <input
+                type="hidden"
+                name="preferred_domain"
+                value="{{ domain.id }}"
+              />
+              <button
+                type="submit"
+                class="btn btn-light border btn-sm"
+                title="Set as Primary Track"
+              >
+                <i class="fas fa-plus"></i>
+              </button>
+            </form>
+            {% endif %} {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <div class="card border-0 shadow-sm rounded-4 py-5 text-center">
+      <i class="fas fa-cubes fa-3x opacity-25 text-muted mb-3"></i>
+      <h5 class="text-muted">No domains available yet.</h5>
+      <p class="text-muted small">
+        Ask your mentor to create domains for your learning path.
+      </p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<style>
+  .domain-card {
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+  .domain-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 16px 40px rgba(79, 70, 229, 0.1) !important;
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Products - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="margin-bottom: 2rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Discover Products</h1>
+    <p style="color: var(--text-medium); font-size: 1.125rem;">
+        {{ products|length }} amazing products available
+    </p>
+</div>
+
+<!-- Enhanced Filters -->
+<div class="card mb-4" style="border: none;">
+    <div class="card-body" style="padding: 1.5rem;">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label"
+                    style="font-weight: 600;  color: var(--text-dark); margin-bottom: 0.5rem;">Category</label>
+                <select name="category" class="form-select"
+                    style="border-radius: var(--radius-lg); border: 2px solid var(--border-color);"
+                    onchange="this.form.submit()">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.slug }}" {% if current_category==category.slug %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="col-md-5">
+                <label class="form-label"
+                    style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Search</label>
+                <input type="text" name="q" class="form-control"
+                    style="border-radius: var(--radius-lg); border: 2px solid var(--border-color); padding: 0.75rem 1rem;"
+                    placeholder="Search for products..." value="{{ search_query or '' }}">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Min
+                    Price</label>
+                <input type="number" name="min_price" class="form-control" step="0.01" min="0"
+                    style="border-radius: var(--radius-lg); border: 2px solid var(--border-color); padding: 0.75rem 1rem;"
+                    placeholder="₹0" value="{{ min_price if min_price is not none else '' }}">
+            </div>
+
+            <div class="col-md-2">
+                <label class="form-label" style="font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem;">Max
+                    Price</label>
+                <input type="number" name="max_price" class="form-control" step="0.01" min="0"
+                    style="border-radius: var(--radius-lg); border: 2px solid var(--border-color); padding: 0.75rem 1rem;"
+                    placeholder="Any" value="{{ max_price if max_price is not none else '' }}">
+            </div>
+
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">🔍 Search & Filter</button>
+                {% if current_category or search_query or min_price or max_price %}
+                <a href="{{ url_for('product.list_products') }}" class="btn btn-secondary ms-2">✕ Clear Filters</a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Products Grid -->
+<div class="product-grid">
+    {% for product in products %}
+    <div class="card product-card fade-in">
+        <a href="{{ url_for('product.product_detail', product_id=product.id) }}"
+            style="text-decoration: none; color: inherit;">
+            {% if product.get_primary_image() %}
+            <img src="{{ url_for('static', filename='uploads/' + product.get_primary_image()) }}"
+                alt="{{ product.name }}" class="product-image">
+            {% else %}
+            <div class="product-image flex-center"
+                style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 3rem;">
+                📦
+            </div>
+            {% endif %}
+
+            {% if product.quantity > 0 %}
+            <span class="product-badge">{{ product.quantity }} in stock</span>
+            {% else %}
+            <span class="product-badge" style="background: var(--error-color);">Out of Stock</span>
+            {% endif %}
+
+            <div class="product-info">
+                <h3 class="product-title">{{ product.name }}</h3>
+                {% if product.category %}
+                <span class="badge badge-info" style="margin-bottom: 0.5rem;">{{ product.category.name }}</span>
+                {% endif %}
+                <div class="product-price">₹{{ "%.2f"|format(product.price) }}</div>
+                <p class="product-description">{{ product.description or 'No description available' }}</p>
+                <a href="{{ url_for('product.product_detail', product_id=product.id) }}" class="btn btn-primary"
+                    style="width: 100%;">View Details</a>
+            </div>
+        </a>
+    </div>
+    {% else %}
+    <div class="empty-state" style="grid-column: 1 / -1; padding: 4rem 2rem;">
+        <div
+            style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #dbeafe, #c7d2fe); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+            🔍
+        </div>
+        <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">No Products Found</h3>
+        <p style="color: var(--text-medium); margin-bottom: 2rem;">Try adjusting your filters or search query.</p>
+        <a href="{{ url_for('product.list_products') }}" class="btn btn-primary">View All Products</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

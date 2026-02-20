@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+
+{% block title %}Client Dashboard{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="text-white">
+            <i class="bi bi-speedometer2"></i> Client Dashboard
+        </h1>
+        <p class="text-white-50">Manage your events, bookings, and guests</p>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-calendar-event display-4 text-primary"></i>
+                <h3 class="mt-3">{{ events_count }}</h3>
+                <p class="text-muted">My Events</p>
+                <a href="{% url 'events:event_list' %}" class="btn btn-outline-primary btn-sm">
+                    View Events
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-bookmark-check display-4 text-success"></i>
+                <h3 class="mt-3">{{ bookings_count }}</h3>
+                <p class="text-muted">Vendor Bookings</p>
+                <a href="{% url 'bookings:booking_list' %}" class="btn btn-outline-success btn-sm">
+                    View Bookings
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-people display-4 text-info"></i>
+                <h3 class="mt-3">{{ guests_count }}</h3>
+                <p class="text-muted">Total Guests</p>
+                <a href="{% url 'guests:guest_list' %}" class="btn btn-outline-info btn-sm">
+                    View Guests
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-calendar-check"></i> Recent Events</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_events %}
+                <div class="list-group list-group-flush">
+                    {% for event in recent_events %}
+                    <a href="{% url 'events:event_detail' event.pk %}" class="list-group-item list-group-item-action">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ event.name }}</h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> {{ event.date }}
+                                    | <i class="bi bi-geo-alt"></i> {{ event.venue }}
+                                </small>
+                            </div>
+                            <span class="badge bg-primary">Rs. {{ event.budget }}</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-3">No events yet. Create your first event!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-list-check"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'events:event_create' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-plus-circle text-success"></i> Create New Event
+                    </a>
+                    <a href="{% url 'bookings:booking_create' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-bookmark-plus text-primary"></i> Book a Vendor
+                    </a>
+                    <a href="{% url 'guests:guest_create' %}" class="list-group-item list-group-item-action">
+                        <i class="bi bi-person-plus text-info"></i> Add Guest
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-white">
+                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Account Info</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Role:</strong> <span class="badge bg-success">CLIENT</span></p>
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p class="mb-0"><strong>Email:</strong> {{ user.email }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

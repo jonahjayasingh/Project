@@ -1,0 +1,299 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Student Database | PlacementPro{% endblock %}
+
+{% block layout %}
+<main style="display: block;">
+    <div style="width: 100%; max-width: 1400px;">
+        <!-- Header -->
+        <div style="margin-bottom: 2.5rem;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 0.75rem; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h1
+                        style="font-size: 2.5rem; font-weight: 800; color: var(--text-primary); margin: 0; letter-spacing: -0.5px;">
+                        Students
+                    </h1>
+                </div>
+                <div
+                    style="padding: 0.875rem 1.5rem; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow-sm);">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%;"></div>
+                        <div>
+                            <div
+                                style="font-size: 0.75rem; color: var(--text-secondary); font-weight: 500; margin-bottom: 0.125rem;">
+                                Total Registered
+                            </div>
+                            <div
+                                style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); line-height: 1;">
+                                {{ students|length }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p style="color: var(--text-secondary); margin: 0; font-size: 1rem; max-width: 600px;">
+                Manage student registrations and approve access to the placement system
+            </p>
+        </div>
+
+        <!-- Search and Filter -->
+        <div
+            style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm);">
+            <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 1rem; align-items: end;">
+                <!-- Search -->
+                <div>
+                    <label
+                        style="display: block; margin-bottom: 0.5rem; color: var(--text-primary); font-size: 0.875rem; font-weight: 600;">
+                        Search Students
+                    </label>
+                    <div style="position: relative;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)"
+                            stroke-width="2"
+                            style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search by name or register number..."
+                            style="width: 100%; padding: 0.75rem 1rem 0.75rem 3rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-family: inherit; font-size: 0.9375rem; transition: all 0.2s;"
+                            onkeyup="filterTable()">
+                    </div>
+                </div>
+
+                <!-- Department Filter -->
+                <div>
+                    <label
+                        style="display: block; margin-bottom: 0.5rem; color: var(--text-primary); font-size: 0.875rem; font-weight: 600;">
+                        Department
+                    </label>
+                    <select id="departmentFilter" onchange="filterTable()"
+                        style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-family: inherit; font-size: 0.9375rem; transition: all 0.2s; cursor: pointer;">
+                        <option value="">All Departments</option>
+                        {% for student in students %}
+                        <option value="{{ student.department }}">{{ student.department }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Year Filter -->
+                <div>
+                    <label
+                        style="display: block; margin-bottom: 0.5rem; color: var(--text-primary); font-size: 0.875rem; font-weight: 600;">
+                        Year
+                    </label>
+                    <select id="yearFilter" onchange="filterTable()"
+                        style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-family: inherit; font-size: 0.9375rem; transition: all 0.2s; cursor: pointer;">
+                        <option value="">All Years</option>
+                        <option value="1">Year 1</option>
+                        <option value="2">Year 2</option>
+                        <option value="3">Year 3</option>
+                        <option value="4">Year 4</option>
+                    </select>
+                </div>
+
+                <!-- Status Filter -->
+                <div>
+                    <label
+                        style="display: block; margin-bottom: 0.5rem; color: var(--text-primary); font-size: 0.875rem; font-weight: 600;">
+                        Status
+                    </label>
+                    <select id="statusFilter" onchange="filterTable()"
+                        style="width: 100%; padding: 0.75rem 1rem; background: var(--bg-main); border: 1px solid var(--border); border-radius: 8px; color: var(--text-primary); font-family: inherit; font-size: 0.9375rem; transition: all 0.2s; cursor: pointer;">
+                        <option value="">All Status</option>
+                        <option value="approved">Approved</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Results Count -->
+            <div id="resultsCount"
+                style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border); color: var(--text-secondary); font-size: 0.875rem; font-weight: 500;">
+                Showing <span id="visibleCount">{{ students|length }}</span> of {{ students|length }} students
+            </div>
+        </div>
+
+        <!-- Students Table -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 28%;">Student</th>
+                        <th style="width: 18%;">Register Number</th>
+                        <th style="width: 20%;">Department</th>
+                        <th style="width: 12%;">Year</th>
+                        <th style="width: 12%;">Status</th>
+                        <th style="width: 10%;">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr style="transition: all 0.2s;">
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.875rem;">
+                                <div
+                                    style="width: 44px; height: 44px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 0.9375rem; font-weight: 700; color: white; flex-shrink: 0; box-shadow: var(--shadow-sm);">
+                                    {{ student.user.username.0|upper }}
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.125rem; font-size: 0.9375rem;">
+                                        {{ student.user.username }}
+                                    </div>
+                                    <div style="font-size: 0.8125rem; color: var(--text-secondary); font-weight: 500;">
+                                        Student
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span
+                                style="font-family: 'Courier New', monospace; font-weight: 700; color: var(--text-primary); font-size: 0.9375rem;">
+                                {{ student.register_number }}
+                            </span>
+                        </td>
+                        <td>
+                            <span style="color: var(--text-primary); font-weight: 600; font-size: 0.9375rem;">
+                                {{ student.department }}
+                            </span>
+                        </td>
+                        <td>
+                            <span
+                                style="padding: 0.375rem 0.875rem; background: var(--bg-secondary); border-radius: 6px; color: var(--text-primary); font-size: 0.8125rem; font-weight: 700; display: inline-block;">
+                                Year {{ student.year_of_study }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if student.is_approved %}
+                            <span
+                                style="padding: 0.375rem 0.875rem; background: rgba(16, 185, 129, 0.1); border-radius: 6px; color: var(--success); font-size: 0.8125rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.375rem;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="3">
+                                    <polyline points="20 6 9 17 4 12"></polyline>
+                                </svg>
+                                Approved
+                            </span>
+                            {% else %}
+                            <span
+                                style="padding: 0.375rem 0.875rem; background: rgba(245, 158, 11, 0.1); border-radius: 6px; color: var(--warning); font-size: 0.8125rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.375rem;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"></circle>
+                                </svg>
+                                Pending
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'approve_student' student.id %}"
+                                style="padding: 0.5rem 1rem; background: {% if student.is_approved %}rgba(239, 68, 68, 0.1){% else %}rgba(16, 185, 129, 0.1){% endif %}; border: 1.5px solid {% if student.is_approved %}var(--danger){% else %}var(--success){% endif %}; border-radius: 6px; color: {% if student.is_approved %}var(--danger){% else %}var(--success){% endif %}; text-decoration: none; font-weight: 700; font-size: 0.8125rem; transition: all 0.2s; display: inline-block; white-space: nowrap;"
+                                onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='var(--shadow-sm)'"
+                                onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                                {% if student.is_approved %}Revoke{% else %}Approve{% endif %}
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; padding: 5rem 2rem;">
+                            <div style="display: flex; flex-direction: column; align-items: center; gap: 1.25rem;">
+                                <div
+                                    style="width: 80px; height: 80px; background: var(--bg-secondary); border-radius: 16px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border);">
+                                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none"
+                                        stroke="var(--text-tertiary)" stroke-width="2">
+                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                        <circle cx="9" cy="7" r="4"></circle>
+                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <div
+                                        style="font-weight: 700; color: var(--text-primary); margin-bottom: 0.375rem; font-size: 1.25rem;">
+                                        No Students Yet
+                                    </div>
+                                    <div style="color: var(--text-secondary); font-size: 0.9375rem;">
+                                        Students will appear here once they register for the placement system
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    function filterTable() {
+        // Get filter values
+        const searchInput = document.getElementById('searchInput').value.toLowerCase();
+        const departmentFilter = document.getElementById('departmentFilter').value.toLowerCase();
+        const yearFilter = document.getElementById('yearFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value.toLowerCase();
+
+        // Get table and rows
+        const table = document.querySelector('table tbody');
+        const rows = table.getElementsByTagName('tr');
+
+        let visibleCount = 0;
+
+        // Loop through all table rows
+        for (let i = 0; i < rows.length; i++) {
+            const row = rows[i];
+
+            // Skip empty state row
+            if (row.cells.length === 1) continue;
+
+            // Get cell values
+            const studentName = row.cells[0].textContent.toLowerCase();
+            const registerNumber = row.cells[1].textContent.toLowerCase();
+            const department = row.cells[2].textContent.toLowerCase();
+            const year = row.cells[3].textContent.toLowerCase();
+            const status = row.cells[4].textContent.toLowerCase();
+
+            // Check if row matches all filters
+            const matchesSearch = studentName.includes(searchInput) || registerNumber.includes(searchInput);
+            const matchesDepartment = !departmentFilter || department.includes(departmentFilter);
+            const matchesYear = !yearFilter || year.includes('year ' + yearFilter);
+            const matchesStatus = !statusFilter || status.includes(statusFilter);
+
+            // Show or hide row
+            if (matchesSearch && matchesDepartment && matchesYear && matchesStatus) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        }
+
+        // Update results count
+        document.getElementById('visibleCount').textContent = visibleCount;
+    }
+
+    // Remove duplicate options from department filter
+    window.addEventListener('DOMContentLoaded', function () {
+        const departmentFilter = document.getElementById('departmentFilter');
+        const uniqueDepartments = new Set();
+        const options = Array.from(departmentFilter.options);
+
+        options.forEach(option => {
+            if (option.value && uniqueDepartments.has(option.value)) {
+                option.remove();
+            } else if (option.value) {
+                uniqueDepartments.add(option.value);
+            }
+        });
+    });
+</script>
+
+<style>
+    @media (max-width: 1024px) {
+        .table-container {
+            overflow-x: auto;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,21 @@
+=== Placement Management System - User Credentials ===
+
+Role: Admin
+Username: admin
+Password: 1
+--------------------------------------------------
+
+Role: Student
+Username: student
+Password: 1
+--------------------------------------------------
+
+Role: Company
+Username: company
+Password: 1
+--------------------------------------------------
+
+
+a,a
+
+b,b

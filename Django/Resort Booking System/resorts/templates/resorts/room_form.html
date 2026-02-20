@@ -1,0 +1,159 @@
+{% extends 'resorts/base.html' %}
+{% block title %}{{ title }} | Paradise Architecture{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animate-in">
+    <div class="col-xl-7 col-lg-9">
+        <!-- Back Navigation -->
+        <div class="mb-5">
+            <a href="{% if user.role == 'admin' %}{% url 'admin_dashboard' %}{% else %}{% url 'owner_dashboard' %}{% endif %}"
+                class="btn btn-link text-decoration-none text-muted fw-800 smallest text-uppercase tracking-widest p-0">
+                <i class="bi bi-arrow-left-circle me-2 fs-5 align-middle"></i>Return to Hub
+            </a>
+        </div>
+
+        <div class="card border-0 shadow-premium overflow-hidden"
+            style="border-radius: 48px; background: var(--bg-card);">
+            <div class="row g-0">
+                <!-- Visual Side Accent -->
+                <div class="col-md-1 bg-primary d-none d-md-block" style="opacity: 0.1;"></div>
+
+                <div class="col-md-11 p-5 p-md-5">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="icon-box bg-primary-subtle text-primary"
+                            style="width: 60px; height: 60px; border-radius: 20px;">
+                            <i class="bi bi-door-open fs-2"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-primary fw-800 text-uppercase tracking-widest mb-1 Smallest">SUITE
+                                CONFIGURATION</h6>
+                            <h1 class="fw-800 mb-0">{{ title }}</h1>
+                        </div>
+                    </div>
+
+                    {% if resort %}
+                    <div class="glass-panel p-4 mb-5 d-flex align-items-center gap-3"
+                        style="border-radius: 24px; background: #f8fafc;">
+                        <div class="bg-white p-2 rounded-3 shadow-sm">
+                            <i class="bi bi-building text-primary"></i>
+                        </div>
+                        <p class="text-muted mb-0 fw-600">Assigned to: <span class="text-dark fw-800">{{ resort.name
+                                }}</span></p>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" enctype="multipart/form-data" class="needs-validation">
+                        {% csrf_token %}
+
+                        <div class="row g-4">
+                            {% for field in form %}
+                            <div
+                                class="{% if field.name == 'room_type' or field.name == 'ar_model' %}col-12{% else %}col-md-6{% endif %} mb-3">
+                                <label
+                                    class="smallest text-muted fw-800 text-uppercase tracking-widest mb-2 d-block ms-1">
+                                    {{ field.label }}
+                                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                                </label>
+
+                                <div class="position-relative">
+                                    {{ field }}
+
+                                    {% if field.name == 'price' %}
+                                    <div
+                                        class="position-absolute end-0 top-50 translate-middle-y me-4 text-muted fw-800 smallest">
+                                        INR</div>
+                                    {% endif %}
+                                </div>
+
+                                {% if field.help_text %}
+                                <div class="smallest text-muted mt-2 opacity-75 ms-1">{{ field.help_text }}</div>
+                                {% endif %}
+
+                                {% if field.errors %}
+                                <div class="text-danger smallest fw-800 mt-2 ms-1 animate-in">
+                                    {% for error in field.errors %}
+                                    <i class="bi bi-exclamation-triangle-fill me-1"></i>{{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mt-5 pt-4 border-top">
+                            <div class="row g-3">
+                                <div class="col-md-8">
+                                    <button type="submit" class="btn btn-primary btn-lg w-100 py-3 shadow-premium"
+                                        style="border-radius: 20px;">
+                                        <i class="bi bi-shield-check-fill me-2"></i>COMMIT CHANGES
+                                    </button>
+                                </div>
+                                <div class="col-md-4">
+                                    <a href="{% if user.role == 'admin' %}{% url 'admin_dashboard' %}{% else %}{% url 'owner_dashboard' %}{% endif %}"
+                                        class="btn btn-outline-light text-dark border-2 w-100 py-3"
+                                        style="border-radius: 20px; font-weight: 700;">
+                                        ABORT
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Directive -->
+        <div class="text-center mt-4 opacity-50">
+            <p class="smallest fw-800 text-uppercase tracking-widest">
+                <i class="bi bi-lock-fill me-1"></i> Authentication Layer: SECURE | IP LOGGED
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control,
+    .form-select {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background-color: #ffffff;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: var(--primary) !important;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        transform: translateY(-2px);
+    }
+
+    .form-control::placeholder {
+        color: #94a3b8;
+        font-weight: 500;
+        opacity: 0.5;
+    }
+
+    .icon-box {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    input[type="file"]::file-selector-button {
+        background: var(--primary-light);
+        color: white;
+        border: none;
+        padding: 5px 15px;
+        border-radius: 10px;
+        margin-right: 15px;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.3s;
+    }
+
+    input[type="file"]:hover::file-selector-button {
+        background: var(--primary);
+    }
+</style>
+{% endblock %}

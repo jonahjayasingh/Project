@@ -1,0 +1,89 @@
+.addcourse-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+  max-width: 520px;
+  background: #ffffff;
+}
+
+.addcourse-form h2 {
+  margin-bottom: 6px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #222;
+  text-align: center;
+}
+
+.addcourse-form div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.addcourse-form label {
+  font-size: 15px;
+  font-weight: 600;
+  color: #222;
+}
+
+.addcourse-form input[type="text"],
+.addcourse-form input[type="number"],
+.addcourse-form input[type="file"],
+.addcourse-form textarea,
+.addcourse-form select {
+  padding: 10px 12px;
+  height: 40px;
+  border: 1px solid #d5d5d5;
+  border-radius: 6px;
+  font-size: 15px;
+  outline: none;
+  transition: border 0.25s, box-shadow 0.25s;
+}
+
+.addcourse-form input[type="text"]:focus,
+.addcourse-form input[type="number"]:focus,
+.addcourse-form textarea:focus,
+.addcourse-form select:focus {
+  border-color: #8b2eff;
+  box-shadow: 0 0 0 2px rgba(139, 46, 255, 0.25);
+}
+
+.addcourse-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+/* Submit button */
+.addcourse-form input[type="submit"] {
+  flex: 1;
+  background: linear-gradient(135deg, #ff4b97, #8b2eff);
+  color: #fff;
+  font-size: 16px;
+  padding: 12px;
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  transition: opacity 0.25s;
+}
+
+.addcourse-form input[type="submit"]:hover {
+  opacity: 0.85;
+}
+
+/* Close button — reversed gradient */
+.close-btn {
+  flex: 1;
+  background: linear-gradient(135deg, #8b2eff, #ff4b97);
+  color: #fff;
+  font-size: 16px;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  cursor: pointer;
+  transition: opacity 0.25s;
+}
+
+.close-btn:hover {
+  opacity: 0.85;
+}

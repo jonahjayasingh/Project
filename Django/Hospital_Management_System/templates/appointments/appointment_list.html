@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block title %}Appointments - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-check"></i> Appointments</h2>
+    <a href="{% url 'appointments:appointment_create' %}" class="btn btn-primary">
+        <i class="bi bi-calendar-plus"></i> Book New Appointment
+    </a>
+</div>
+
+<!-- Search and Filter -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Search..."
+                    value="{{ search_query }}">
+            </div>
+            <div class="col-md-2">
+                <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-control">
+                    <option value="">All Status</option>
+                    <option value="scheduled" {% if status_filter=='scheduled' %}selected{% endif %}>Scheduled</option>
+                    <option value="confirmed" {% if status_filter=='confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="completed" {% if status_filter=='completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if status_filter=='cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'appointments:appointment_list' %}" class="btn btn-secondary w-100">
+                    <i class="bi bi-x-circle"></i> Clear
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Appointments Table -->
+<div class="card">
+    <div class="card-body">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Appointment ID</th>
+                        <th>Date & Time</th>
+                        <th>Patient</th>
+                        <th>Doctor</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for appointment in page_obj %}
+                    <tr>
+                        <td><strong>{{ appointment.appointment_id }}</strong></td>
+                        <td>
+                            {{ appointment.appointment_date }}<br>
+                            <small>{{ appointment.appointment_time|time:"h:i A" }}</small>
+                        </td>
+                        <td>{{ appointment.patient.user.get_full_name }}</td>
+                        <td>Dr. {{ appointment.doctor.user.get_full_name }}</td>
+                        <td>{{ appointment.reason|truncatewords:5 }}</td>
+                        <td>
+                            {% if appointment.status == 'scheduled' %}
+                            <span class="badge bg-warning">Scheduled</span>
+                            {% elif appointment.status == 'confirmed' %}
+                            <span class="badge bg-info">Confirmed</span>
+                            {% elif appointment.status == 'completed' %}
+                            <span class="badge bg-success">Completed</span>
+                            {% else %}
+                            <span class="badge bg-danger">Cancelled</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'appointments:appointment_detail' appointment.pk %}"
+                                class="btn btn-sm btn-info" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'appointments:appointment_update' appointment.pk %}"
+                                class="btn btn-sm btn-warning" title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            {% if appointment.status != 'cancelled' %}
+                            <a href="{% url 'appointments:appointment_cancel' appointment.pk %}"
+                                class="btn btn-sm btn-danger" title="Cancel">
+                                <i class="bi bi-x-circle"></i>
+                            </a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link"
+                        href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item"><a
+                        class="page-link"
+                        href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">{{
+                        num }}</a></li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if date_filter %}&date={{ date_filter }}{% endif %}">Next</a>
+                    </li>
+                    {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+        {% else %}
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> No appointments found.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

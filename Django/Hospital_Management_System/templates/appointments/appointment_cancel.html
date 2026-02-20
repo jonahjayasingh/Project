@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Cancel Appointment - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5><i class="bi bi-exclamation-triangle"></i> Cancel Appointment</h5>
+            </div>
+            <div class="card-body">
+                <p>Are you sure you want to cancel this appointment?</p>
+                <div class="alert alert-info">
+                    <strong>Appointment ID:</strong> {{ appointment.appointment_id }}<br>
+                    <strong>Patient:</strong> {{ appointment.patient.user.get_full_name }}<br>
+                    <strong>Doctor:</strong> Dr. {{ appointment.doctor.user.get_full_name }}<br>
+                    <strong>Date & Time:</strong> {{ appointment.appointment_date }} at {{
+                    appointment.appointment_time|time:"h:i A" }}
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="cancellation_reason" class="form-label">Cancellation Reason:</label>
+                        <textarea name="cancellation_reason" id="cancellation_reason" class="form-control" rows="3"
+                            required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Yes, Cancel Appointment
+                    </button>
+                    <a href="{% url 'appointments:appointment_detail' appointment.pk %}" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Go Back
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

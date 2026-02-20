@@ -1,0 +1,27 @@
+{% extends 'base.html' %} {% block content %}
+<h1 class="fw-bold mb-5">
+  Placement <span class="text-gradient">Guidance</span>
+</h1>
+<div class="row g-4">
+  {% for res in resources %}
+  <div class="col-md-6">
+    <div class="card p-4">
+      <span class="badge bg-primary mb-3" style="width: fit-content"
+        >{{ res.domain.name }}</span
+      >
+      <h4 class="fw-bold">{{ res.title }}</h4>
+      {% if res.company_name %}
+      <p class="fw-bold text-info">Target: {{ res.company_name }}</p>
+      {% endif %}
+      <p class="text-muted">{{ res.description }}</p>
+      <a
+        href="{{ res.link }}"
+        target="_blank"
+        class="btn btn-outline-light mt-3"
+        >Access Resource</a
+      >
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

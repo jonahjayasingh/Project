@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Dashboard - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold">Welcome, {{ profile.full_name }}</h2>
+            <p class="text-muted">Manage your bookings and view reports</p>
+        </div>
+        <a href="{% url 'book_test' %}" class="btn btn-primary d-flex align-items-center gap-2 shadow-sm">
+            <i class="fas fa-calendar-plus"></i> Book a New Test
+        </a>
+    </div>
+
+    <!-- Sidebar Info -->
+    <div class="col-lg-4">
+        <div class="card p-4 mb-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4">Patient Profile</h5>
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-envelope text-primary me-3" style="width: 20px;"></i>
+                    <div>
+                        <div class="small text-muted">Email</div>
+                        <div>{{ profile.user.email }}</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fab fa-whatsapp text-success me-3" style="width: 20px;"></i>
+                    <div>
+                        <div class="small text-muted">WhatsApp</div>
+                        <div>{{ profile.whatsapp_number }}</div>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-venus-mars text-primary me-3" style="width: 20px;"></i>
+                    <div>
+                        <div class="small text-muted">Gender & Age</div>
+                        <div>{{ profile.gender }}, {{ profile.age }} years</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 mb-4 border-0 shadow-sm rounded-4 bg-primary text-white">
+            <h5 class="fw-bold mb-3">Health Reminder</h5>
+            <p class="small mb-0 opacity-75">Stay hydrated and follow fasting instructions if provided for your specific
+                tests.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-lg-8">
+        <!-- Upcoming Appointments -->
+        <div class="card p-4 mb-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4"><i class="fas fa-clock text-warning me-2"></i>Upcoming Appointments</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Test / Lab</th>
+                            <th>Schedule</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in upcoming %}
+                        <tr>
+                            <td>
+                                <div class="fw-bold">{{ booking.test_name }}</div>
+                                <small class="text-muted">{{ booking.lab.lab_name }}</small>
+                            </td>
+                            <td>
+                                <div>{{ booking.booking_date }}</div>
+                                <small class="text-muted">{{ booking.time_slot|time:"h:i A" }}</small>
+                            </td>
+                            <td>
+                                <span
+                                    class="badge {% if booking.status == 'Confirmed' %}bg-success{% else %}bg-warning text-dark{% endif %} rounded-pill">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if booking.payment_status == 'Verified' %}
+                                <span class="badge bg-success rounded-pill">Verified</span>
+                                {% elif booking.payment_status == 'Rejected' %}
+                                <a href="{% url 'upload_payment_proof' booking.id %}"
+                                    class="btn btn-sm btn-danger rounded-pill">Rejected - Retake</a>
+                                {% elif booking.payment_proof %}
+                                <span class="badge bg-info rounded-pill">Pending</span>
+                                {% else %}
+                                <a href="{% url 'upload_payment_proof' booking.id %}"
+                                    class="btn btn-sm btn-outline-primary rounded-pill">Upload Proof</a>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    {% if booking.payment_status != 'Verified' %}
+                                    <form action="{% url 'cancel_booking' booking.id %}" method="POST"
+                                        onsubmit="return confirm('Are you sure you want to cancel?')">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0"><i
+                                                class="fas fa-times"></i> Cancel</button>
+                                    </form>
+                                    <a href="{% url 'reschedule_booking' booking.id %}"
+                                        class="btn btn-sm btn-link text-primary p-0"><i class="fas fa-calendar-alt"></i>
+                                        Reschedule</a>
+                                    {% else %}
+                                    <span class="text-muted small">Confirmed</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">No upcoming appointments</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Past Bookings & Reports -->
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4"><i class="fas fa-history text-primary me-2"></i>History & Reports</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Test Name</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Report</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in history %}
+                        <tr>
+                            <td class="fw-bold">{{ booking.test_name }}</td>
+                            <td>{{ booking.booking_date }}</td>
+                            <td>
+                                <span
+                                    class="badge {% if booking.status == 'Completed' %}bg-success{% elif booking.status == 'Cancelled' %}bg-secondary{% else %}bg-info{% endif %} rounded-pill">
+                                    {{ booking.status }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex flex-column gap-1">
+                                    {% if booking.report_file %}
+                                    <a href="{% url 'secure_report_serve' booking.id %}"
+                                        class="btn btn-sm btn-outline-primary" target="_blank">
+                                        <i class="fas fa-file-pdf"></i> View Report
+                                    </a>
+                                    <a href="{% url 'report_history' booking.id %}"
+                                        class="small text-decoration-none">Revision History</a>
+                                    {% else %}
+                                    <span class="text-muted small">Not Available</span>
+                                    {% endif %}
+
+                                    {% if booking.status == 'Completed' or booking.status == 'Confirmed' %}
+                                    {% if not booking.review %}
+                                    <a href="{% url 'submit_review' booking.id %}"
+                                        class="btn btn-sm btn-link text-warning p-0 text-start">
+                                        <i class="fa-solid fa-star"></i> Review Lab
+                                    </a>
+                                    {% endif %}
+                                    {% endif %}
+                                    <a href="{% url 'booking_receipt' booking.id %}"
+                                        class="small text-decoration-none text-muted mt-1">
+                                        <i class="fas fa-receipt me-1"></i> View Receipt
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">No history record</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

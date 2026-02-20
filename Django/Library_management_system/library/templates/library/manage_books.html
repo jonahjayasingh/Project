@@ -1,0 +1,233 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Manage Books{% endblock %}
+
+{% block extra_css %}
+<style>
+    .page-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .table-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+    }
+
+    .book-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .book-icon-sm {
+        font-size: 2rem;
+    }
+
+    .book-details h4 {
+        font-weight: 700;
+        color: var(--dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .book-details p {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        margin: 0;
+    }
+
+    /* === Status redesign === */
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
+
+    .status-available {
+        background: rgba(40, 167, 69, 0.15);
+        color: var(--success);
+    }
+
+    .status-out {
+        background: rgba(220, 53, 69, 0.15);
+        color: var(--danger);
+    }
+
+    .status-dot {
+        width: 0.45rem;
+        height: 0.45rem;
+        border-radius: 50%;
+        background: currentColor;
+    }
+
+    /* === Actions redesign (content only) === */
+    .action-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.7rem;
+        border-radius: 999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .action-pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+
+    .action-edit {
+        background: rgba(13, 110, 253, 0.15);
+        color: var(--primary);
+    }
+
+    .action-delete {
+        background: rgba(220, 53, 69, 0.15);
+        color: var(--danger);
+    }
+
+    .action-icon {
+        font-size: 0.8rem;
+        line-height: 1;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-actions">
+    <h1>Manage Books 📚</h1>
+    <div class="action-buttons">
+        <a href="{% url 'add_book' %}" class="btn btn-primary">
+            ➕ Add New Book
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <form method="get" class="search-bar">
+        <input type="text" name="search" placeholder="🔍 Search by title, author, or ISBN..."
+            value="{{ search_query }}">
+        <button type="submit" class="btn btn-primary">Search</button>
+        {% if search_query %}
+        <a href="{% url 'manage_books' %}" class="btn btn-secondary">Clear</a>
+        {% endif %}
+    </form>
+
+    {% if books %}
+    <div style="margin-bottom: 1rem; color: var(--text-light); font-weight: 500;">
+        Showing {{ books|length }} book{{ books|length|pluralize }}
+        {% if search_query %}matching "{{ search_query }}"{% endif %}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Book Details</th>
+                <th>Category</th>
+                <th>ISBN</th>
+                <th>Copies</th>
+                <th>Available</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>
+                    <div class="book-info">
+                        <span class="book-icon-sm">📖</span>
+                        <div class="book-details">
+                            <h4>{{ book.title }}</h4>
+                            <p>by {{ book.author }}</p>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="badge badge-primary">{{ book.get_category_display }}</span>
+                </td>
+                <td style="font-family: monospace; font-weight: 600;">{{ book.isbn }}</td>
+                <td>
+                    <span style="font-weight: 700; font-size: 1.1rem;">{{ book.total_copies }}</span>
+                </td>
+                <td>
+                    <span style="font-weight: 700; font-size: 1.1rem; color: var(--success);">
+                        {{ book.available_copies }}
+                    </span>
+                </td>
+                <td>
+                    {% if book.available_copies > 0 %}
+                        <span class="status-pill status-available">
+                            <span class="status-dot"></span>
+                            AVAILABLE
+                        </span>
+                    {% else %}
+                        <span class="status-pill status-out">
+                            <span class="status-dot"></span>
+                            OUT OF STOCK
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="table-actions">
+                        <a href="{% url 'edit_book' book.id %}"
+                           class="action-pill action-edit">
+                            <span class="action-icon">✏️</span>
+                            EDIT
+                        </a>
+                        <a href="{% url 'delete_book' book.id %}"
+                           class="action-pill action-delete">
+                            <span class="action-icon">🗑️</span>
+                            DELETE
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>
+            {% if search_query %}
+                No books found matching "{{ search_query }}".
+            {% else %}
+                No books in the library yet.
+            {% endif %}
+        </p>
+        {% if search_query %}
+        <p style="margin-top: 1.5rem;">
+            <a href="{% url 'manage_books' %}" class="btn btn-secondary">View All Books</a>
+        </p>
+        {% else %}
+        <p style="margin-top: 1.5rem;">
+            <a href="{% url 'add_book' %}" class="btn btn-primary">Add Your First Book</a>
+        </p>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

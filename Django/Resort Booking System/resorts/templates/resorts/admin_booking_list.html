@@ -1,0 +1,449 @@
+{% extends 'resorts/base.html' %}
+{% block content %}
+<!-- Premium Executive Header -->
+<div class="row align-items-center mb-5 animate-in">
+    <div class="col-md-7">
+        <h6 class="text-primary fw-bold text-uppercase tracking-widest mb-3">ADMINISTRATION</h6>
+        <h1 class="display-3 fw-bold mb-0">Reservation <span class="gradient-text">Register</span></h1>
+        <p class="text-muted fs-5 mt-2">Comprehensive lifecycle management of global guest stays.</p>
+    </div>
+    <div class="col-md-5 text-md-end mt-4 mt-md-0">
+        <div class="glass-panel p-2 d-inline-flex gap-2" style="border-radius: 20px;">
+            <a href="{% url 'admin_booking_list' %}"
+                class="btn {% if not status_filter %}btn-primary shadow-premium{% else %}btn-light{% endif %} px-4 py-2"
+                style="border-radius: 14px; font-weight: 600;">
+                All Records
+            </a>
+            <a href="{% url 'admin_booking_list' %}?status=Pending"
+                class="btn {% if status_filter == 'Pending' %}btn-primary shadow-premium{% else %}btn-light{% endif %} px-4 py-2"
+                style="border-radius: 14px; font-weight: 600;">
+                Pending
+            </a>
+            <a href="{% url 'admin_booking_list' %}?status=Confirmed"
+                class="btn {% if status_filter == 'Confirmed' %}btn-primary shadow-premium{% else %}btn-light{% endif %} px-4 py-2"
+                style="border-radius: 14px; font-weight: 600;">
+                Confirmed
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Analytics Summary -->
+<div class="row g-4 mb-5 animate-in" style="animation-delay: 0.1s;">
+    <div class="col-md-12">
+        <div class="card border-0 p-4 shadow-premium" style="border-radius: 32px; background: var(--bg-card);">
+            <div class="row align-items-center g-4">
+                <div class="col-md-4">
+                    <div class="input-group premium-search">
+                        <span class="input-group-text bg-transparent border-0"><i
+                                class="bi bi-search text-primary"></i></span>
+                        <input type="text" class="form-control border-0 bg-transparent fw-500"
+                            placeholder="Search elite guests or IDs...">
+                    </div>
+                </div>
+                <div class="col-md-8 text-md-end d-flex gap-3 justify-content-md-end">
+                    <div
+                        class="badge bg-primary-subtle text-primary px-4 py-3 rounded-4 border-0 d-flex align-items-center">
+                        <i class="bi bi-layers-half me-2 fs-5"></i>
+                        <span class="smallest fw-bold text-uppercase tracking-widest">{{ bookings|length }} ACTIVE
+                            RECORDS</span>
+                    </div>
+                    <div
+                        class="badge bg-warning-subtle text-warning px-4 py-3 rounded-4 border-0 d-flex align-items-center">
+                        <i class="bi bi-hourglass-top me-2 fs-5"></i>
+                        <span class="smallest fw-bold text-uppercase tracking-widest">{{ pending_bookings }} AWAITING
+                            REVIEW</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card border-0 shadow-premium animate-in"
+    style="border-radius: 40px; animation-delay: 0.2s; background: var(--bg-card);">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 custom-executive-table">
+                <thead>
+                    <tr class="border-bottom">
+                        <th class="ps-5 py-4 smallest text-muted text-uppercase tracking-widest fw-800">Booking Ref</th>
+                        <th class="py-4 smallest text-muted text-uppercase tracking-widest fw-800">Guest Identity</th>
+                        <th class="py-4 smallest text-muted text-uppercase tracking-widest fw-800">Property Node</th>
+                        <th class="py-4 smallest text-muted text-uppercase tracking-widest fw-800">Timeline</th>
+                        <th class="py-4 smallest text-muted text-uppercase tracking-widest fw-800 text-center">Lifecycle
+                        </th>
+                        <th class="pe-5 py-4 smallest text-muted text-uppercase tracking-widest fw-800 text-end">Command
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for booking in bookings %}
+                    <tr class="booking-entry border-bottom-light">
+                        <td class="ps-5 py-4">
+                            <span class="fw-800 font-monospace text-dark fs-5">#{{ booking.id }}</span>
+                            <div class="smallest text-muted text-uppercase mt-1 fw-bold opacity-50">
+                                {{booking.booking_date|date:"d M, Y" }}</div>
+                        </td>
+                        <td class="py-4">
+                            <div class="d-flex align-items-center gap-3">
+                                <div class="bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm"
+                                    style="width: 48px; height: 48px; border-radius: 16px; font-size: 1.1rem;">
+                                    {{ booking.user.username|make_list|first|upper }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold text-dark fs-6">{{ booking.user.username }}</div>
+                                    <div class="smallest text-muted fw-500">{{ booking.user.email }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            {% with first_room=booking.booked_rooms.first %}
+                            <div class="fw-bold text-primary mb-1">{{ first_room.room.resort.name }}</div>
+                            {% endwith %}
+                            <div class="smallest text-muted fw-bold text-uppercase opacity-75">
+                                {{ booking.booked_rooms.count }} Accommodations Allocated
+                            </div>
+                        </td>
+                        <td class="py-4">
+                            <div class="fw-bold text-dark">{{ booking.check_in|date:"M d" }} — {{ booking.check_out|date:"M d, Y" }}</div>
+                            <div class="smallest text-primary fw-800 text-uppercase tracking-widest mt-1">
+                                {{ booking.check_out|timeuntil:booking.check_in }} EXPEDITION
+                            </div>
+                        </td>
+                        <td class="py-4 text-center">
+                            <span
+                                class="badge-premium {% if booking.status == 'Pending' %}bp-pending{% elif booking.status == 'Confirmed' %}bp-confirmed{% elif booking.status == 'Cancelled' %}bp-cancelled{% elif booking.status == 'Checked-In' %}bp-active{% else %}bp-completed{% endif %}">
+                                {{ booking.status }}
+                            </span>
+                        </td>
+                        <td class="pe-5 py-4 text-end">
+                            <div class="d-flex justify-content-end gap-2">
+                                {% if booking.status == 'Pending' %}
+                                <a href="{% url 'change_booking_status' booking.id 'Confirmed' %}"
+                                    class="btn-command btn-c-success" title="Approve Reservation">
+                                    <i class="bi bi-check2-all"></i>
+                                </a>
+                                <a href="{% url 'change_booking_status' booking.id 'Cancelled' %}"
+                                    class="btn-command btn-c-danger" title="Reject Reservation">
+                                    <i class="bi bi-x-lg"></i>
+                                </a>
+                                {% elif booking.status == 'Confirmed' %}
+                                <button type="button" class="btn-command btn-c-primary" data-bs-toggle="modal"
+                                    data-bs-target="#checkInModal" data-booking-id="{{ booking.id }}"
+                                    data-guest="{{ booking.user.username }}" title="Digital Verification">
+                                    <i class="bi bi-qr-code-scan"></i>
+                                </button>
+                                {% elif booking.status == 'Checked-In' %}
+                                <a href="{% url 'change_booking_status' booking.id 'Completed' %}"
+                                    class="btn-command btn-c-info" title="Finalize Stay">
+                                    <i class="bi bi-flag-fill"></i>
+                                </a>
+                                {% endif %}
+
+                                <div class="dropdown">
+                                    <button class="btn-command btn-c-light" data-bs-toggle="dropdown">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-premium border-0 p-2"
+                                        style="border-radius: 18px; min-width: 200px;">
+                                        <li><a class="dropdown-item py-2 px-3 rounded-3" href="#"><i
+                                                    class="bi bi-file-earmark-text me-3"></i>View Dossier</a></li>
+                                        <li>
+                                            <hr class="dropdown-divider opacity-50">
+                                        </li>
+                                        <li><a class="dropdown-item py-2 px-3 rounded-3 text-danger"
+                                                href="{% url 'cancel_booking' booking.id %}"
+                                                onclick="return confirm('CRITICAL: Permanent record deletion requested. Proceed?')">
+                                                <i class="bi bi-trash3 me-3"></i>Purge Record</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <div class="mb-4 opacity-10">
+                                <i class="bi bi-calendar-x display-1"></i>
+                            </div>
+                            <h3 class="fw-bold text-muted">No reservations identified.</h3>
+                            <p class="text-muted smallest text-uppercase tracking-widest mt-2">The portfolio is
+                                currently inactive.</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Executive Check-In Modal -->
+<div class="modal fade" id="checkInModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-premium" style="border-radius: 40px; background: var(--bg-card);">
+            <div class="modal-body p-5">
+                <div class="text-center mb-5">
+                    <div class="bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-4 shadow-sm"
+                        style="width: 80px; height: 80px; border-radius: 28px;">
+                        <i class="bi bi-shield-lock-fill display-5"></i>
+                    </div>
+                    <h2 class="fw-bold mb-2">Digital Verification</h2>
+                    <p class="text-muted fw-500 mb-0">Record Node: #<span id="modal-booking-id-text"
+                            class="text-primary fw-800">0</span></p>
+                    <p class="smallest text-muted text-uppercase tracking-widest fw-bold mt-1">Identity: <span
+                            id="modal-guest-name">GUEST</span></p>
+                </div>
+
+                <ul class="nav nav-pills nav-fill mb-5 bg-light p-2" style="border-radius: 20px;">
+                    <li class="nav-item">
+                        <button class="nav-link active py-3 smallest fw-800 text-uppercase tracking-widest"
+                            data-bs-toggle="pill" data-bs-target="#otp-pane">
+                            <i class="bi bi-hash me-2 fs-5"></i>Access Code
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link py-3 smallest fw-800 text-uppercase tracking-widest"
+                            data-bs-toggle="pill" data-bs-target="#qr-pane">
+                            <i class="bi bi-qr-code me-2 fs-5"></i>Biometric Scan
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="otp-pane">
+                        <form action="{% url 'check_in_verification' %}" method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="booking_id" class="modal-booking-id-input">
+                            <div class="mb-5">
+                                <label
+                                    class="smallest text-primary fw-800 text-uppercase tracking-widest mb-3 d-block text-center">6-Digit
+                                    Access Pass</label>
+                                <input type="text" name="otp"
+                                    class="form-control bg-light border-0 text-center fw-800 display-6"
+                                    placeholder="------" maxlength="6" required
+                                    style="border-radius: 20px; height: 100px; letter-spacing: 12px; color: var(--primary);">
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary btn-lg py-4 shadow-premium"
+                                    style="border-radius: 20px; font-weight: 800; font-size: 1.2rem;">
+                                    AUTHENTICATE GUEST
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="tab-pane fade" id="qr-pane">
+                        <div class="qr-preview-box mb-4 position-relative">
+                            <div id="qr-reader"></div>
+                            <div class="scan-beam"></div>
+                        </div>
+                        <form action="{% url 'check_in_verification' %}" method="POST" id="qr-verify-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="booking_id" class="modal-booking-id-input">
+                            <input type="hidden" name="otp" id="qr-captured-otp">
+                            <button type="button" class="btn btn-outline-primary w-100 py-3 mb-3 fw-bold"
+                                style="border-radius: 16px;" onclick="simulateQRScan()">
+                                <i class="bi bi-cpu me-2"></i>Simulate Digital Scan
+                            </button>
+                            <p class="smallest text-muted text-center fw-500">Initializing secure optical channel...</p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .tracking-widest {
+        letter-spacing: 0.15em;
+    }
+
+    .fw-800 {
+        font-weight: 800;
+    }
+
+    .custom-executive-table thead th {
+        background: transparent !important;
+        border: none;
+    }
+
+    .booking-entry {
+        transition: all 0.3s ease;
+    }
+
+    .booking-entry:hover {
+        background: rgba(99, 102, 241, 0.02) !important;
+    }
+
+    .badge-premium {
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .bp-pending {
+        background: #fff7ed;
+        color: #ea580c;
+    }
+
+    .bp-confirmed {
+        background: #f0fdf4;
+        color: #16a34a;
+    }
+
+    .bp-active {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .bp-cancelled {
+        background: #fef2f2;
+        color: #dc2626;
+    }
+
+    .bp-completed {
+        background: #f8fafc;
+        color: #64748b;
+    }
+
+    .btn-command {
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 14px;
+        transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        border: none;
+        font-size: 1.2rem;
+    }
+
+    .btn-command:hover {
+        transform: translateY(-3px) scale(1.05);
+    }
+
+    .btn-c-success {
+        background: #dcfce7;
+        color: #16a34a;
+    }
+
+    .btn-c-danger {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .btn-c-primary {
+        background: #e0e7ff;
+        color: #4f46e5;
+    }
+
+    .btn-c-info {
+        background: #e0f2fe;
+        color: #0284c7;
+    }
+
+    .btn-c-light {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .qr-preview-box {
+        background: #000;
+        border-radius: 32px;
+        overflow: hidden;
+        min-height: 250px;
+    }
+
+    #qr-reader {
+        width: 100%;
+    }
+
+    .scan-beam {
+        position: absolute;
+        width: 100%;
+        height: 4px;
+        background: var(--primary);
+        top: 0;
+        left: 0;
+        z-index: 10;
+        box-shadow: 0 0 20px var(--primary);
+        animation: scanline 2.5s ease-in-out infinite;
+    }
+
+    @keyframes scanline {
+
+        0%,
+        100% {
+            top: 0;
+        }
+
+        50% {
+            top: calc(100% - 4px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/html5-qrcode"></script>
+<script>
+    let html5QrCode;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const checkInModal = document.getElementById('checkInModal');
+        if (checkInModal) {
+            checkInModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+                const bookingId = button.getAttribute('data-booking-id');
+                const guestName = button.getAttribute('data-guest');
+
+                checkInModal.querySelectorAll('.modal-booking-id-input').forEach(input => {
+                    input.value = bookingId;
+                });
+                document.getElementById('modal-booking-id-text').textContent = bookingId;
+                document.getElementById('modal-guest-name').textContent = guestName;
+            });
+
+            checkInModal.addEventListener('hidden.bs.modal', function () {
+                stopScanner();
+            });
+        }
+
+        const qrTab = document.querySelector('button[data-bs-target="#qr-pane"]');
+        const otpTab = document.querySelector('button[data-bs-target="#otp-pane"]');
+
+        qrTab.addEventListener('shown.bs.tab', function () { startScanner(); });
+        otpTab.addEventListener('shown.bs.tab', function () { stopScanner(); });
+    });
+
+    function startScanner() {
+        if (!html5QrCode) html5QrCode = new Html5Qrcode("qr-reader");
+        const config = { fps: 15, qrbox: { width: 250, height: 250 } };
+        html5QrCode.start({ facingMode: "environment" }, config, (decodedText) => {
+            const parts = decodedText.split('OTP-');
+            if (parts.length > 1) {
+                document.getElementById('qr-captured-otp').value = parts[1];
+                stopScanner();
+                document.getElementById('qr-verify-form').submit();
+            }
+        }).catch(err => console.error("Optical hardware initialization failed", err));
+    }
+
+    function stopScanner() {
+        if (html5QrCode && html5QrCode.isScanning) {
+            html5QrCode.stop().catch(err => console.warn("Resource release failed", err));
+        }
+    }
+
+    function simulateQRScan() {
+        document.getElementById('qr-captured-otp').value = "123456";
+        document.getElementById('qr-verify-form').submit();
+    }
+</script>
+{% endblock %}

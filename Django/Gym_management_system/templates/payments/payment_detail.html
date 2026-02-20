@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment {{ payment.invoice_number }} - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="bi bi-receipt"></i> Payment Details</h5>
+                    <a href="{% url 'payments:payment_list' %}" class="btn btn-sm btn-outline-secondary">
+                        <i class="bi bi-arrow-left"></i> Back
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h3>{{ payment.invoice_number }}</h3>
+                            <p class="text-muted">{{ payment.payment_date|date:"F d, Y g:i A" }}</p>
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <h2 class="text-primary">₹{{ payment.amount }}</h2>
+                            {% if payment.status == 'completed' %}
+                            <span class="badge bg-success">Paid</span>
+                            {% elif payment.status == 'pending' %}
+                            <span class="badge bg-warning">Pending</span>
+                            {% elif payment.status == 'refunded' %}
+                            <span class="badge bg-secondary">Refunded</span>
+                            {% else %}
+                            <span class="badge bg-danger">Failed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Member Information</h6>
+                            <p><strong>Name:</strong> {{ payment.member.user.get_full_name }}</p>
+                            <p><strong>Email:</strong> {{ payment.member.user.email }}</p>
+                            <p><strong>Phone:</strong> {{ payment.member.user.phone_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Payment Information</h6>
+                            <p><strong>Type:</strong> {{ payment.get_payment_type_display }}</p>
+                            <p><strong>Method:</strong> {{ payment.get_payment_method_display }}</p>
+                            {% if payment.transaction_id %}
+                            <p><strong>Transaction ID:</strong> {{ payment.transaction_id }}</p>
+                            {% endif %}
+                            {% if payment.received_by %}
+                            <p><strong>Received By:</strong> {{ payment.received_by.get_full_name }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    {% if payment.description %}
+                    <hr>
+                    <h6>Description</h6>
+                    <p class="text-muted">{{ payment.description }}</p>
+                    {% endif %}
+
+                    <hr>
+
+                    <div class="d-flex gap-2">
+                        {% if payment.status == 'pending' %}
+                        <a href="{% url 'payments:payment_edit' payment.pk %}" class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> Edit Payment
+                        </a>
+                        {% endif %}
+                        {% if payment.status == 'completed' %}
+                        <a href="{% url 'payments:payment_refund' payment.pk %}" class="btn btn-warning">
+                            <i class="bi bi-arrow-counterclockwise"></i> Process Refund
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

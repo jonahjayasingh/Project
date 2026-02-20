@@ -1,0 +1,203 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Admin Dashboard | PlacementPro{% endblock %}
+
+{% block layout %}
+<main style="padding: 2rem;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
+                Admin Dashboard
+            </h1>
+            <p style="color: var(--text-secondary);">Manage and monitor placement activities</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div
+                        style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div
+                            style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">
+                            Total Students</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ student_count }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div
+                        style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div
+                            style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">
+                            Companies</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--secondary);">{{ company_count }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div
+                        style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), var(--success)); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <div
+                            style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">
+                            Placements</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--success);">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <!-- Quick Actions -->
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm);">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.5rem;">
+                    Quick Actions</h2>
+
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <a href="{% url 'students_list' %}"
+                        style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border); text-decoration: none; transition: all 0.2s; display: block;"
+                        onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'"
+                        onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                        <div
+                            style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                        </div>
+                        <h3
+                            style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                            Manage Students</h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">View and approve
+                            student registrations</p>
+                    </a>
+
+                    <a href="{% url 'companies_list' %}"
+                        style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border); text-decoration: none; transition: all 0.2s; display: block;"
+                        onmouseover="this.style.borderColor='var(--secondary)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='var(--shadow-md)'"
+                        onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'; this.style.boxShadow='none'">
+                        <div
+                            style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                            </svg>
+                        </div>
+                        <h3
+                            style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                            Manage Companies</h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">View and approve
+                            company registrations</p>
+                    </a>
+
+                    <div
+                        style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border);">
+                        <div
+                            style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--success)); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                                <polyline points="14 2 14 8 20 8"></polyline>
+                                <line x1="16" y1="13" x2="8" y2="13"></line>
+                                <line x1="16" y1="17" x2="8" y2="17"></line>
+                            </svg>
+                        </div>
+                        <h3
+                            style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                            Job Postings</h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">Manage job
+                            opportunities</p>
+                    </div>
+
+                    <div
+                        style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border);">
+                        <div
+                            style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--warning), var(--danger)); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10"></line>
+                                <line x1="12" y1="20" x2="12" y2="4"></line>
+                                <line x1="6" y1="20" x2="6" y2="14"></line>
+                            </svg>
+                        </div>
+                        <h3
+                            style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                            Reports</h3>
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">Generate placement
+                            reports</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Overview -->
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm);">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.5rem;">
+                    System Overview</h2>
+
+                <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                    <div
+                        style="padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--primary);">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">
+                            Registered Students</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ student_count}}
+                        </div>
+                    </div>
+
+                    <div
+                        style="padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--secondary);">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Active
+                            Companies</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">{{ company_count}}</div>
+                    </div>
+
+                    <div
+                        style="padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--success);">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Pending
+                            Approvals</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">0</div>
+                    </div>
+
+                    <div
+                        style="padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border-left: 3px solid var(--warning);">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Total
+                            Placements</div>
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary);">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

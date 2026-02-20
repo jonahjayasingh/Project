@@ -1,0 +1,56 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row min-vh-75 align-items-center">
+  <div class="col-lg-7">
+    <h1 class="display-3 fw-bold mb-4" style="color: var(--text-main)">
+      Unlock Your <span class="text-gradient">Potential</span>
+    </h1>
+    <p class="lead text-muted mb-5">
+      Neo-Compass is a professional platform designed to bridge the gap between
+      learning and industry leadership through personalized mentoring.
+    </p>
+    <div class="d-flex gap-3">
+      <a
+        href="{% url 'register' %}"
+        class="btn btn-primary btn-lg px-4 shadow-sm"
+        >Get Started</a
+      >
+      <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4"
+        >Sign In</a
+      >
+    </div>
+  </div>
+  <div class="col-lg-5 d-none d-lg-block">
+    <div class="p-3 bg-white rounded-4 shadow-sm border">
+      <img
+        src="https://cdni.iconscout.com/illustration/premium/thumb/skill-development-illustration-download-in-svg-png-gif-file-formats--growth-personal-and-professional-learning-learning-new-skills-pack-people-illustrations-5210940.png"
+        alt="Hero"
+        class="img-fluid"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mt-5">
+  <div class="col-md-4 text-center">
+    <div class="p-4 bg-white rounded-4 shadow-sm h-100 border">
+      <i class="fas fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
+      <h5 class="fw-bold">Mentorship</h5>
+      <p class="small text-muted mb-0">Learn directly from industry experts.</p>
+    </div>
+  </div>
+  <div class="col-md-4 text-center">
+    <div class="p-4 bg-white rounded-4 shadow-sm h-100 border">
+      <i class="fas fa-gamepad fa-2x text-success mb-3"></i>
+      <h5 class="fw-bold">Gamification</h5>
+      <p class="small text-muted mb-0">Earn points and reach new levels.</p>
+    </div>
+  </div>
+  <div class="col-md-4 text-center">
+    <div class="p-4 bg-white rounded-4 shadow-sm h-100 border">
+      <i class="fas fa-user-graduate fa-2x text-info mb-3"></i>
+      <h5 class="fw-bold">Alumni</h5>
+      <p class="small text-muted mb-0">Connect with our global network.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

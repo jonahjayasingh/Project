@@ -1,0 +1,823 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block style %}
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+.registration-container {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.registration-card {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 600px;
+    padding: 2.5rem;
+    transition: transform 0.3s ease;
+}
+
+.registration-card:hover {
+    transform: translateY(-5px);
+}
+
+.header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.header h3 {
+    color: #6a11cb;
+    font-weight: 700;
+    font-size: 1.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.header p {
+    color: #6b7280;
+}
+
+.step-indicator {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+    gap: 10px;
+}
+
+.step {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #64748b;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.step.active {
+    background-color: #6a11cb;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(106, 17, 203, 0.2);
+}
+
+.step.completed {
+    background-color: #10b981;
+    color: white;
+}
+
+.form-step {
+    display: none;
+}
+
+.form-step.active {
+    display: block;
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.step-title {
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: #374151;
+}
+
+.user-type-card {
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    cursor: pointer;
+    pointer-events: auto;
+    transition: all 0.3s ease;
+    margin-bottom: 1rem;
+}
+
+.user-type-card:hover {
+    border-color: #6a11cb;
+    transform: translateY(-3px);
+    box-shadow: 0 4px 12px rgba(106, 17, 203, 0.15);
+}
+
+.user-type-card.selected {
+    border-color: #6a11cb;
+    background-color: rgba(106, 17, 203, 0.05);
+}
+
+.user-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    color: #6a11cb;
+}
+
+.user-type-card h5 {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.user-type-card p {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.field-group {
+    margin-bottom: 1.5rem;
+}
+
+.field-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.field-label.required::after {
+    content: ' *';
+    color: #ef4444;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9375rem;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #6a11cb;
+    box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+}
+
+.form-control.error {
+    border-color: #ef4444;
+}
+
+.form-control.success {
+    border-color: #10b981;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #6b7280;
+    transition: color 0.3s ease;
+}
+
+.password-toggle:hover {
+    color: #6a11cb;
+}
+
+.field-help {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+.field-error {
+    font-size: 0.75rem;
+    color: #ef4444;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.field-error.show {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+
+.button-group {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2rem;
+    gap: 1rem;
+}
+
+.btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.9375rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-secondary {
+    background: white;
+    color: #6b7280;
+    border: 2px solid #e2e8f0;
+}
+
+.btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #5b0db4 0%, #1f63d8 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 7px 14px rgba(106, 17, 203, 0.3);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: #6b7280;
+}
+
+.login-link a {
+    color: #6a11cb;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.login-link a:hover {
+    color: #5b0db4;
+}
+
+.alert {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert-success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+}
+
+.alert-error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.password-strength {
+    margin-top: 0.5rem;
+}
+
+.strength-meter {
+    height: 4px;
+    background-color: #e2e8f0;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 0.25rem;
+}
+
+.strength-meter-fill {
+    height: 100%;
+    transition: all 0.3s ease;
+    width: 0%;
+}
+
+.strength-meter-fill.weak {
+    width: 33%;
+    background-color: #ef4444;
+}
+
+.strength-meter-fill.medium {
+    width: 66%;
+    background-color: #f59e0b;
+}
+
+.strength-meter-fill.strong {
+    width: 100%;
+    background-color: #10b981;
+}
+
+.strength-text {
+    font-size: 0.75rem;
+}
+
+.strength-text.weak {
+    color: #ef4444;
+}
+
+.strength-text.medium {
+    color: #f59e0b;
+}
+
+.strength-text.strong {
+    color: #10b981;
+}
+
+.student-fields-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.student-fields-grid .field-group {
+    margin-bottom: 1rem;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+@media (max-width: 768px) {
+    .student-fields-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .full-width {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 640px) {
+    .registration-card {
+        padding: 1.5rem;
+        max-width: 100%;
+    }
+    
+    .button-group {
+        flex-direction: column;
+    }
+    
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .student-fields-grid {
+        grid-template-columns: 1fr;
+        gap: 0.5rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block main %}
+<div class="registration-container">
+    <div class="registration-card">
+        <div class="header">
+            <h3>Create Account</h3>
+            <p>Join our platform today</p>
+        </div>
+        
+        <div class="step-indicator">
+            <div class="step active" data-step="1">1</div>
+            <div class="step" data-step="2">2</div>
+            <div class="step" data-step="3">3</div>
+        </div>
+        
+        <form id="registrationForm" method="POST" action="{% url 'coordinator:userregister' %}" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <!-- Step 1: User Type -->
+            <div class="form-step active" data-step="1">
+                <h4 class="step-title">Select Account Type</h4>
+                
+                <div class="user-type-card" data-type="student">
+                    <div class="user-icon">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <h5>Student</h5>
+                    <p>Access courses, assignments, and resources</p>
+                </div>
+                
+                <div class="user-type-card" data-type="coordinator">
+                    <div class="user-icon">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                    </div>
+                    <h5>Coordinator</h5>
+                    <p>Manage courses, students, and activities</p>
+                </div>
+                
+                <input type="hidden" id="userType" name="user_type" required>
+                
+                <div class="button-group">
+                    <div></div>
+                    <button type="button" class="btn btn-primary" id="step1Next">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 2: Basic Info -->
+            <div class="form-step" data-step="2">
+                <h4 class="step-title">Basic Information</h4>
+                
+                <div class="field-group">
+                    <label for="username" class="field-label required">Username</label>
+                    <input type="text" id="username" name="username" class="form-control" 
+                           placeholder="Enter your username" required aria-describedby="usernameError">
+                    <p class="field-help">150 characters or fewer. Letters, digits and @/./+/-/_ only.</p>
+                    <p class="field-error" id="usernameError">Please enter a valid username.</p>
+                </div>
+                
+                <div class="field-group">
+                    <label for="email" class="field-label required">Email</label>
+                    <input type="email" id="email" name="email" class="form-control" 
+                           placeholder="Enter your email" required aria-describedby="emailError">
+                    <p class="field-error" id="emailError">Please enter a valid email address.</p>
+                </div>
+                
+                <div class="field-group">
+                    <label for="password" class="field-label required">Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" class="form-control" 
+                               placeholder="Enter password" required minlength="8" aria-describedby="passwordError">
+                        <span class="password-toggle" onclick="togglePassword('password')">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    <div class="password-strength">
+                        <div class="strength-meter">
+                            <div class="strength-meter-fill" id="strengthMeter"></div>
+                        </div>
+                        <p class="strength-text" id="strengthText"></p>
+                    </div>
+                    <p class="field-error" id="passwordError">Password must be at least 8 characters long.</p>
+                </div>
+                
+                <div class="field-group">
+                    <label for="confirmPassword" class="field-label required">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="confirmPassword" name="confirm_password" class="form-control" 
+                               placeholder="Confirm password" required minlength="8" aria-describedby="confirmPasswordError">
+                        <span class="password-toggle" onclick="togglePassword('confirmPassword')">
+                            <i class="fas fa-eye"></i>
+                        </span>
+                    </div>
+                    <p class="field-error" id="confirmPasswordError">Passwords do not match.</p>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" id="step2Back">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button type="button" class="btn btn-primary" id="step2Next">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Step 3: Additional Info -->
+            <div class="form-step" data-step="3">
+                <h4 class="step-title">Additional Information</h4>
+                
+                <div id="studentFields" class="hidden">
+                    <div class="student-fields-grid">
+                        <div class="field-group">
+                            <label for="admissionNumber" class="field-label">Admission Number</label>
+                            <input type="text" id="admissionNumber" name="admission_no" class="form-control" 
+                                   placeholder="Enter admission number">
+                        </div>
+                        
+                        <div class="field-group">
+                            <label for="registerNumber" class="field-label">Register Number</label>
+                            <input type="text" id="registerNumber" name="registration_no" class="form-control" 
+                                   placeholder="Enter register number">
+                        </div>
+                        
+                        <div class="field-group">
+                            <label for="branch" class="field-label">Branch</label>
+                            <select id="branch" name="branch" class="form-control">
+                                <option value="">Select branch</option>
+                                <option value="CSE">Computer Science</option>
+                                <option value="ECE">Electronics</option>
+                                <option value="ME">Mechanical</option>
+                                <option value="CE">Civil</option>
+                            </select>
+                        </div>
+                        
+                        <div class="field-group">
+                            <label for="year" class="field-label">Year</label>
+                            <select id="year" name="year" class="form-control">
+                                <option value="">Select year</option>
+                                <option value="1">First Year</option>
+                                <option value="2">Second Year</option>
+                                <option value="3">Third Year</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="dobField" class="field-group hidden">
+                    <label for="dateOfBirth" class="field-label">Date of Birth</label>
+                    <input type="date" id="dateOfBirth" name="date_of_birth" class="form-control">
+                </div>
+                
+                <div id="addressField" class="field-group hidden">
+                    <label for="address" class="field-label">Address</label>
+                    <textarea id="address" name="address" rows="3" class="form-control" 
+                              placeholder="Enter your address"></textarea>
+                </div>
+                <div id="phoneNumberField" class="field-group hidden">
+                    <label for="phoneNumber" class="field-label">Phone Number</label>
+                    <input type="tel" id="phoneNumber" name="phone_number" class="form-control" 
+                           placeholder="Enter phone number">
+                </div>
+                
+                <div id="profilePictureField" class="field-group hidden">
+                    <label for="profilePicture" class="field-label">Profile Picture</label>
+                    <input type="file" id="profilePicture" name="profile_picture" class="form-control" 
+                           accept="image/*">
+                    <p class="field-help">Upload a profile picture (optional)</p>
+                </div>
+                
+                <div class="button-group">
+                    <button type="button" class="btn btn-secondary" id="step3Back">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        Register <i class="fas fa-user-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="login-link">
+            Already have an account? <a href="{% url 'coordinator:userlogin' %}">Login here</a>
+        </div>
+    </div>
+</div>
+
+{% if messages %}
+  {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show position-fixed top-0 start-50 translate-middle-x mt-3" role="alert" style="z-index: 1050; min-width: 300px;">
+      <div class="d-flex align-items-center">
+        {% if message.tags == 'success' %}
+          <i class="fas fa-check-circle me-2"></i>
+        {% elif message.tags == 'error' %}
+          <i class="fas fa-exclamation-circle me-2"></i>
+        {% endif %}
+        <span>{{ message }}</span>
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  {% endfor %}
+{% endif %}
+
+{% endblock %}
+
+
+{% block scripts %}
+<script>
+    let currentStep = 1;
+    let selectedUserType = null;
+
+    // Update additional fields based on user type
+    window.updateFieldsVisibility = (type) => {
+        const studentFields = document.getElementById('studentFields');
+        const dobField = document.getElementById('dobField');
+        const addressField = document.getElementById('addressField');
+        const profilePictureField = document.getElementById('profilePictureField');
+        const phoneNumberField = document.getElementById('phoneNumberField');
+
+        studentFields.classList.add('hidden');
+        dobField.classList.add('hidden');
+        addressField.classList.add('hidden');
+        profilePictureField.classList.add('hidden');
+        phoneNumberField.classList.add('hidden');
+
+        if (type === 'student') {
+            studentFields.classList.remove('hidden');
+            dobField.classList.remove('hidden');
+            addressField.classList.remove('hidden');
+            profilePictureField.classList.remove('hidden');
+            phoneNumberField.classList.remove('hidden');
+        } else if (type === 'coordinator') {
+            dobField.classList.remove('hidden');
+            addressField.classList.remove('hidden');
+            profilePictureField.classList.remove('hidden');
+            phoneNumberField.classList.remove('hidden');
+        }
+    };
+
+    // User type selection
+    document.querySelectorAll('.user-type-card').forEach(card => {
+        card.addEventListener('click', () => {
+            document.querySelectorAll('.user-type-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedUserType = card.getAttribute('data-type');
+            document.getElementById('userType').value = selectedUserType;
+            updateFieldsVisibility(selectedUserType);
+        });
+    });
+
+    // Step navigation
+    const goToStep = (step) => {
+        document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.step').forEach(s => {
+            const stepNum = parseInt(s.getAttribute('data-step'));
+            s.classList.remove('active', 'completed');
+            if (stepNum < step) {
+                s.classList.add('completed');
+                s.innerHTML = '<i class="fas fa-check"></i>';
+            } else {
+                s.textContent = stepNum;
+            }
+        });
+        document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+        document.querySelector(`.step[data-step="${step}"]`).classList.add('active');
+        currentStep = step;
+    };
+
+    // Step 1 navigation
+    document.getElementById('step1Next').addEventListener('click', () => {
+        if (!selectedUserType) {
+            alert('Please select a user type');
+            return;
+        }
+        goToStep(2);
+    });
+
+    // Step 2 navigation
+    document.getElementById('step2Back').addEventListener('click', () => goToStep(1));
+    document.getElementById('step2Next').addEventListener('click', () => {
+        if (validateUsername() && validateEmail() && validatePassword() && validateConfirmPassword()) {
+            goToStep(3);
+        }
+    });
+
+    // Step 3 navigation
+    document.getElementById('step3Back').addEventListener('click', () => goToStep(2));
+
+    // Toggle password visibility
+    const togglePassword = (id) => {
+        const input = document.getElementById(id);
+        const icon = input.parentElement.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
+        }
+    };
+    window.togglePassword = togglePassword;
+
+    // Password strength checker
+    document.getElementById('password').addEventListener('input', function () {
+        const password = this.value;
+        const meter = document.getElementById('strengthMeter');
+        const text = document.getElementById('strengthText');
+
+        let strength = 0;
+        if (password.length >= 8) strength++;
+        if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+        if (password.match(/[0-9]/)) strength++;
+        if (password.match(/[^a-zA-Z0-9]/)) strength++;
+
+        meter.className = 'strength-meter-fill';
+        text.className = 'strength-text';
+
+        if (strength <= 1) {
+            meter.classList.add('weak');
+            text.classList.add('weak');
+            text.textContent = 'Weak';
+        } else if (strength <= 3) {
+            meter.classList.add('medium');
+            text.classList.add('medium');
+            text.textContent = 'Medium';
+        } else {
+            meter.classList.add('strong');
+            text.classList.add('strong');
+            text.textContent = 'Strong';
+        }
+    });
+
+    // Validation functions
+    function validateUsername() {
+        const username = document.getElementById('username');
+        const error = document.getElementById('usernameError');
+        const regex = /^[\w.@+-]{3,150}$/;
+        if (!username.value || !regex.test(username.value)) {
+            username.classList.add('error');
+            username.classList.remove('success');
+            error.classList.add('show');
+            return false;
+        }
+        username.classList.remove('error');
+        username.classList.add('success');
+        error.classList.remove('show');
+        return true;
+    }
+
+    function validateEmail() {
+        const email = document.getElementById('email');
+        const error = document.getElementById('emailError');
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!regex.test(email.value)) {
+            email.classList.add('error');
+            email.classList.remove('success');
+            error.classList.add('show');
+            return false;
+        }
+        email.classList.remove('error');
+        email.classList.add('success');
+        error.classList.remove('show');
+        return true;
+    }
+
+    function validatePassword() {
+        const password = document.getElementById('password');
+        const error = document.getElementById('passwordError');
+        if (password.value.length < 8) {
+            password.classList.add('error');
+            password.classList.remove('success');
+            error.classList.add('show');
+            return false;
+        }
+        password.classList.remove('error');
+        password.classList.add('success');
+        error.classList.remove('show');
+        return true;
+    }
+
+    function validateConfirmPassword() {
+        const password = document.getElementById('password');
+        const confirm = document.getElementById('confirmPassword');
+        const error = document.getElementById('confirmPasswordError');
+        if (password.value !== confirm.value) {
+            confirm.classList.add('error');
+            confirm.classList.remove('success');
+            error.classList.add('show');
+            return false;
+        }
+        confirm.classList.remove('error');
+        confirm.classList.add('success');
+        error.classList.remove('show');
+        return true;
+    }
+
+    // Real-time validation
+    document.getElementById('username').addEventListener('blur', validateUsername);
+    document.getElementById('email').addEventListener('blur', validateEmail);
+    document.getElementById('password').addEventListener('blur', validatePassword);
+    document.getElementById('confirmPassword').addEventListener('blur', validateConfirmPassword);
+    document.getElementById('confirmPassword').addEventListener('input', validateConfirmPassword);
+
+    // Auto-hide alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', () => {
+        const alerts = document.querySelectorAll('.alert');
+        alerts.forEach(alert => {
+            setTimeout(() => {
+                if (typeof bootstrap !== 'undefined') {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    bsAlert.close();
+                }
+            }, 5000);
+        });
+    });
+</script>
+{% endblock %}

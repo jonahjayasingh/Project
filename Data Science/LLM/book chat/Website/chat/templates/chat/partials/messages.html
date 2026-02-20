@@ -1,0 +1,25 @@
+{% for message in current_conversation.messages.all %}
+<div class="message-row {% if message.role == 'user' %}user{% else %}assistant{% endif %}">
+    <div class="msg-avatar {% if message.role == 'user' %}ua-gradient{% else %}ai-gradient{% endif %}">
+        {% if message.role == 'user' %}
+        <i class="fas fa-fingerprint"></i>
+        {% else %}
+        <i class="fas fa-atom"></i>
+        {% endif %}
+    </div>
+    <div class="msg-content">
+        <div class="msg-header">
+            {% if message.role == 'user' %}
+            <span class="msg-name">Operator</span>
+            <span class="msg-role-badge role-user">CMD</span>
+            {% else %}
+            <span class="msg-name">Neural Core</span>
+            <span class="msg-role-badge role-ai">GEN</span>
+            {% endif %}
+        </div>
+        <div class="msg-text">
+            {{ message.content|linebreaks }}
+        </div>
+    </div>
+</div>
+{% endfor %}

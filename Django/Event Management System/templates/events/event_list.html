@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}My Events{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="text-white">
+            <i class="bi bi-calendar-event"></i> My Events
+        </h1>
+    </div>
+    <div class="col-auto">
+        <a href="{% url 'events:event_create' %}" class="btn btn-light">
+            <i class="bi bi-plus-circle"></i> Create Event
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        {% if events %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Event Name</th>
+                        <th>Date</th>
+                        <th>Venue</th>
+                        <th>Expected Guests</th>
+                        <th>Budget</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>
+                            <strong>{{ event.name }}</strong>
+                        </td>
+                        <td>
+                            <i class="bi bi-calendar"></i> {{ event.date }}
+                        </td>
+                        <td>
+                            <i class="bi bi-geo-alt"></i> {{ event.venue }}
+                        </td>
+                        <td>
+                            <i class="bi bi-people"></i> {{ event.expected_guests }}
+                        </td>
+                        <td>
+                            <span class="badge bg-success">Rs. {{ event.budget }}</span>
+                        </td>
+                        <td>
+                            <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-sm btn-info" title="View">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'events:event_update' event.pk %}" class="btn btn-sm btn-warning"
+                                title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-sm btn-danger"
+                                title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-calendar-x display-1 text-muted"></i>
+            <h4 class="mt-3">No Events Yet</h4>
+            <p class="text-muted">Create your first event to get started!</p>
+            <a href="{% url 'events:event_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create Event
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

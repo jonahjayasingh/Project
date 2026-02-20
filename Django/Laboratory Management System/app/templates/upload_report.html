@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Report - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 border-0 shadow-lg rounded-4">
+            <h4 class="fw-bold mb-4">Patient Report: {{ booking.patient.full_name }}</h4>
+            <div class="mb-4">
+                <span class="badge bg-light text-dark p-2 border">Test: {{ booking.test_name }}</span>
+                <span class="badge bg-light text-dark p-2 border">Slot: {{ booking.booking_date }} | {{
+                    booking.time_slot|time:"h:i A" }}</span>
+            </div>
+
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select Report File</label>
+                    {{ form.report_file }}
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Remarks/Conclusions</label>
+                    {{ form.report_remarks }}
+                </div>
+                <div class="mb-4 form-check form-switch">
+                    {{ form.is_report_final }}
+                    <label class="form-check-label fw-bold">Mark as Final & Complete Booking</label>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 py-2">Save Report</button>
+                    <a href="{% url 'lab_dashboard' %}" class="btn btn-outline-secondary w-100 py-2">Discard Changes</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

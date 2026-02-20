@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+
+{% block title %}Doctor Dashboard - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-badge"></i> Doctor Dashboard</h2>
+    <span class="text-muted">Dr. {{ user.get_full_name }}</span>
+</div>
+
+<!-- Doctor Info Card -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <h4>{{ doctor.specialization }}</h4>
+                        <p class="mb-1"><i class="bi bi-building"></i> {{ doctor.department.name }}</p>
+                        <p class="mb-1"><i class="bi bi-award"></i> {{ doctor.experience_years }} years experience</p>
+                        <p class="mb-0"><i class="bi bi-calendar"></i> Available: {{ doctor.available_days }}</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <h2>{{ today_appointments.count }}</h2>
+                        <p>Appointments Today</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Today's Appointments -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-check"></i> Today's Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if today_appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in today_appointments %}
+                            <tr>
+                                <td>{{ appointment.appointment_time|time:"h:i A" }}</td>
+                                <td>{{ appointment.patient.user.get_full_name }}</td>
+                                <td>{{ appointment.reason|truncatewords:5 }}</td>
+                                <td>
+                                    <span class="badge bg-{{ appointment.status|yesno:'success,warning,danger' }}">
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/admin/appointments/appointment/{{ appointment.id }}/change/"
+                                        class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No appointments scheduled for today.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Patients -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-people"></i> Recent Patients</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_patients %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Patient ID</th>
+                                <th>Name</th>
+                                <th>Blood Group</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for patient in recent_patients %}
+                            <tr>
+                                <td>{{ patient.patient_id }}</td>
+                                <td>{{ patient.user.get_full_name }}</td>
+                                <td>{{ patient.blood_group|default:"N/A" }}</td>
+                                <td>
+                                    <span class="badge bg-{{ patient.status|yesno:'success,secondary,danger' }}">
+                                        {{ patient.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="/admin/patients/patient/{{ patient.id }}/change/"
+                                        class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No recent patients.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Upcoming Appointments -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar3"></i> Upcoming Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_appointments %}
+                {% for appointment in upcoming_appointments %}
+                <div class="card mb-2">
+                    <div class="card-body p-3">
+                        <h6 class="mb-1">{{ appointment.patient.user.get_full_name }}</h6>
+                        <p class="mb-1 text-muted small">
+                            <i class="bi bi-calendar"></i> {{ appointment.appointment_date }}<br>
+                            <i class="bi bi-clock"></i> {{ appointment.appointment_time|time:"h:i A" }}
+                        </p>
+                        <span class="badge bg-primary">{{ appointment.get_status_display }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No upcoming appointments.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="/admin/medical_records/medicalrecord/add/" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-file-medical"></i> Add Medical Record
+                </a>
+                <a href="/admin/pharmacy/prescription/add/" class="btn btn-success w-100 mb-2">
+                    <i class="bi bi-prescription"></i> Create Prescription
+                </a>
+                <a href="/admin/appointments/appointment/" class="btn btn-info w-100">
+                    <i class="bi bi-calendar-check"></i> View All Appointments
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

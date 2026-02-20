@@ -1,0 +1,92 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7 col-md-9">
+    <nav class="mb-4" aria-label="breadcrumb">
+      <ol class="breadcrumb small">
+        <li class="breadcrumb-item">
+          <a
+            href="{% url 'student_dashboard' %}"
+            class="text-primary text-decoration-none"
+            >Dashboard</a
+          >
+        </li>
+        <li class="breadcrumb-item active text-muted">Edit Profile</li>
+      </ol>
+    </nav>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div
+        class="px-4 py-4 d-flex align-items-center gap-3"
+        style="background: linear-gradient(135deg, #4f46e5, #7c3aed)"
+      >
+        <div class="bg-white bg-opacity-20 p-3 rounded-3">
+          <i class="fas fa-user-edit fa-lg text-white"></i>
+        </div>
+        <div>
+          <h5 class="text-white fw-bold mb-0">Edit Profile</h5>
+          <p class="text-white opacity-75 small mb-0">
+            Keep your information up to date.
+          </p>
+        </div>
+      </div>
+      <div class="p-4 p-md-5">
+        <form method="post">
+          {% csrf_token %} {% for field in form %}
+          <div class="mb-4">
+            <label class="form-label small fw-semibold text-secondary"
+              >{{ field.label }}</label
+            >
+            {{ field }} {% if field.help_text %}
+            <div class="form-text text-muted small mt-1">
+              {{ field.help_text|safe }}
+            </div>
+            {% endif %} {% if field.errors %}
+            <div class="text-danger small mt-1">
+              <i class="fas fa-exclamation-circle me-1"></i>{{
+              field.errors|striptags }}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          <div class="d-flex gap-3 pt-2">
+            <button
+              type="submit"
+              class="btn btn-primary flex-grow-1 py-2 fw-semibold shadow-sm"
+            >
+              <i class="fas fa-save me-2"></i> Save Changes
+            </button>
+            <a
+              href="{% url 'student_dashboard' %}"
+              class="btn btn-light border px-4 py-2 text-muted"
+              >Cancel</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .form-control,
+  .form-select {
+    border: 1.5px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+    background: #f8fafc !important;
+    padding: 0.75rem 1rem !important;
+    font-size: 0.95rem;
+    color: #1e293b !important;
+    transition: all 0.2s;
+  }
+  .form-control:focus,
+  .form-select:focus {
+    border-color: #4f46e5 !important;
+    background: white !important;
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.08) !important;
+  }
+  textarea.form-control {
+    min-height: 110px;
+    resize: vertical;
+  }
+</style>
+{% endblock %}

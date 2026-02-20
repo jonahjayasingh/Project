@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Member Memberships - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1><i class="bi bi-card-checklist"></i> Member Memberships</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{% url 'memberships:membership_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Assign Membership
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-search"></i> Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Memberships Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Member</th>
+                            <th>Plan</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Status</th>
+                            <th>Payment Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for membership in page_obj %}
+                        <tr>
+                            <td>
+                                <strong>{{ membership.member.user.get_full_name }}</strong><br>
+                                <small class="text-muted">{{ membership.member.user.email }}</small>
+                            </td>
+                            <td>{{ membership.plan.name }}</td>
+                            <td>{{ membership.start_date|date:"M d, Y" }}</td>
+                            <td>{{ membership.end_date|date:"M d, Y" }}</td>
+                            <td>
+                                {% if membership.status == 'active' %}
+                                <span class="badge bg-success">Active</span>
+                                {% elif membership.status == 'expired' %}
+                                <span class="badge bg-danger">Expired</span>
+                                {% elif membership.status == 'frozen' %}
+                                <span class="badge bg-warning">Frozen</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ membership.get_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if membership.payment_status == 'paid' %}
+                                <span class="badge bg-success">Paid</span>
+                                {% elif membership.payment_status == 'pending' %}
+                                <span class="badge bg-warning">Pending</span>
+                                {% else %}
+                                <span class="badge bg-danger">Overdue</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% url 'memberships:membership_edit' membership.pk %}"
+                                        class="btn btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    {% if membership.status == 'active' %}
+                                    <a href="{% url 'memberships:membership_freeze' membership.pk %}"
+                                        class="btn btn-outline-warning" title="Freeze">
+                                        <i class="bi bi-pause-circle"></i>
+                                    </a>
+                                    {% elif membership.status == 'frozen' %}
+                                    <a href="{% url 'memberships:membership_unfreeze' membership.pk %}"
+                                        class="btn btn-outline-success" title="Unfreeze">
+                                        <i class="bi bi-play-circle"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No memberships found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

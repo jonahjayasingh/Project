@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block title %}Patient Registration - Lab Secure{% endblock %}
+
+{% block content %}
+<div class="auth-card card shadow-lg">
+    <div class="text-center mb-4">
+        <h2 class="fw-bold">Create Account</h2>
+        <p class="text-muted">Register as a new patient</p>
+    </div>
+
+    <form method="POST" id="registrationForm" class="needs-validation" novalidate>
+        {% csrf_token %}
+
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username }}
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Full Name</label>
+            {{ form.full_name }}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Email Address</label>
+                {{ form.email }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">WhatsApp Number</label>
+                {{ form.whatsapp_number }}
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Address</label>
+            {{ form.address }}
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Age</label>
+                {{ form.age }}
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Gender</label>
+                {{ form.gender }}
+            </div>
+        </div>
+
+        <div class="mb-3 position-relative">
+            <label class="form-label">Password</label>
+            {{ form.password }}
+            <i class="fas fa-eye password-toggle" id="togglePasswordBtn"
+                onclick="togglePassword('password-field', 'togglePasswordBtn')"></i>
+        </div>
+
+        <div class="mb-4 position-relative">
+            <label class="form-label">Confirm Password</label>
+            {{ form.confirm_password }}
+            <i class="fas fa-eye password-toggle" id="toggleConfirmPasswordBtn"
+                onclick="togglePassword('confirm-password-field', 'toggleConfirmPasswordBtn')"></i>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <p class="mb-0 small"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</p>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mb-3">Register Patient</button>
+
+        <div class="text-center">
+            <p class="small text-muted mb-0">Already have an account? <a href="{% url 'patient_login' %}"
+                    class="text-primary text-decoration-none fw-600">Login here</a></p>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Client-side validation example
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault()
+                        event.stopPropagation()
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+    })()
+</script>
+{% endblock %}

@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Assign Volunteer{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm rounded-4 border-0">
+                <div class="card-header bg-success text-white p-4">
+                    <h4 class="mb-0"><i class="bi bi-person-plus"></i> Assign Volunteer</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <h5><i class="bi bi-info-circle"></i> Donation Details:</h5>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Food Type:</strong> {{ donation.food_type }}</p>
+                                <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+                                <p><strong>Pickup Time:</strong> {{ donation.pickup_time|date:"M d, Y h:i A" }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Donor:</strong> {{ donation.donor.username }}</p>
+                                <p><strong>Status:</strong> <span class="badge bg-warning">{{ donation.status }}</span>
+                                </p>
+                                {% if donation.address %}
+                                <p class="mb-0"><strong>Pickup Address:</strong> {{ donation.address }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <h5 class="mb-3"><i class="bi bi-people"></i> Available Volunteers (Sorted by Distance)</h5>
+
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="list-group mb-4">
+                            {% for item in volunteers_with_distance %}
+                            <label
+                                class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                style="cursor: pointer;">
+                                <div class="form-check d-flex align-items-center w-100">
+                                    <input class="form-check-input me-3" type="radio" name="volunteer"
+                                        value="{{ item.volunteer.id }}" id="volunteer_{{ item.volunteer.id }}" required>
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <strong>{{ item.volunteer.username }}</strong>
+                                                {% if item.volunteer.email %}
+                                                <br><small class="text-muted"><i class="bi bi-envelope"></i> {{ item.volunteer.email }}</small>
+                                                {% endif %}
+                                                {% if item.volunteer.phone_number %}
+                                                <br><small class="text-muted"><i class="bi bi-telephone"></i> {{item.volunteer.phone_number }}</small>
+                                                {% endif %}
+                                            </div>
+                                            <div class="text-end">
+                                                {% if item.distance %}
+                                                {% if item.distance <= 15 %} <span class="badge bg-success fs-6">
+                                                    <i class="bi bi-geo-alt"></i> {{ item.distance }} km
+                                                    </span>
+                                                    {% else %}
+                                                    <span class="badge bg-warning fs-6">
+                                                        <i class="bi bi-geo-alt"></i> {{ item.distance }} km
+                                                    </span>
+                                                    <br><small class="text-muted">(Beyond 15km limit)</small>
+                                                    {% endif %}
+                                                    {% elif item.has_location %}
+                                                    <span class="badge bg-secondary">
+                                                        <i class="bi bi-question-circle"></i> Distance N/A
+                                                    </span>
+                                                    {% else %}
+                                                    <span class="badge bg-danger">
+                                                        <i class="bi bi-exclamation-triangle"></i> No Location Set
+                                                    </span>
+                                                    {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </label>
+                            {% empty %}
+                            <div class="alert alert-warning">
+                                <i class="bi bi-exclamation-triangle"></i> No approved volunteers available.
+                            </div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="alert alert-light">
+                            <small>
+                                <i class="bi bi-info-circle"></i> <strong>Note:</strong> Volunteers are sorted by
+                                distance from the pickup location.
+                                Volunteers within 15 km are shown with a green badge. Those beyond 15 km may have
+                                difficulty picking up the donation.
+                            </small>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-success flex-fill">
+                                <i class="bi bi-check-circle"></i> Assign Selected Volunteer
+                            </button>
+                            <a href="{% url 'ngo_dashboard' %}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .list-group-item:hover {
+        background-color: #f8f9fa;
+    }
+
+    .form-check-input:checked~div {
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

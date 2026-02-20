@@ -1,0 +1,128 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Edit Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .form-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-header h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card card">
+    <div class="form-header">
+        <div class="form-header-icon">✏️</div>
+        <h1>Edit Book</h1>
+        <p>Update book information</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="title">Book Title *</label>
+            <input type="text" id="title" name="title" required value="{{ book.title }}">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="author">Author *</label>
+                <input type="text" id="author" name="author" required value="{{ book.author }}">
+            </div>
+
+            <div class="form-group">
+                <label for="isbn">ISBN *</label>
+                <input type="text" id="isbn" name="isbn" required value="{{ book.isbn }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category *</label>
+            <select id="category" name="category" required>
+                <option value="fiction" {% if book.category=='fiction' %}selected{% endif %}>Fiction</option>
+                <option value="non_fiction" {% if book.category=='non_fiction' %}selected{% endif %}>Non-Fiction
+                </option>
+                <option value="science" {% if book.category=='science' %}selected{% endif %}>Science</option>
+                <option value="technology" {% if book.category=='technology' %}selected{% endif %}>Technology</option>
+                <option value="history" {% if book.category=='history' %}selected{% endif %}>History</option>
+                <option value="biography" {% if book.category=='biography' %}selected{% endif %}>Biography</option>
+                <option value="children" {% if book.category=='children' %}selected{% endif %}>Children</option>
+                <option value="reference" {% if book.category=='reference' %}selected{% endif %}>Reference</option>
+                <option value="other" {% if book.category=='other' %}selected{% endif %}>Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="total_copies">Total Copies *</label>
+            <input type="number" id="total_copies" name="total_copies" required min="1" value="{{ book.total_copies }}">
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-light);">
+                Currently available: <strong>{{ book.available_copies }}</strong> copies
+            </p>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description (Optional)</label>
+            <textarea id="description" name="description" rows="4">{{ book.description }}</textarea>
+        </div>
+
+        <div
+            style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%); border-radius: 0.75rem; padding: 1.25rem; margin-top: 1.5rem; border: 1px solid rgba(99, 102, 241, 0.1);">
+            <p style="margin: 0; color: var(--text-light); font-size: 0.9rem;">
+                <strong style="color: var(--dark);">Added:</strong> {{ book.created_at|date:"M d, Y" }}<br>
+                <strong style="color: var(--dark);">Currently Borrowed:</strong> {{
+                book.total_copies|add:"-"|add:book.available_copies }} copies
+            </p>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'manage_books' %}" class="btn btn-secondary">
+                ← Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                ✓ Save Changes
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

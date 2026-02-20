@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4">
+    <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold">System Administration</h2>
+            <p class="text-muted">Global oversight of laboratories and users</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'system_settings' %}" class="btn btn-outline-primary shadow-sm">
+                <i class="fas fa-cogs me-2"></i> Settings
+            </a>
+            <a href="{% url 'admin_user_management' %}" class="btn btn-primary shadow-sm">
+                <i class="fas fa-users-cog me-2"></i> User Management
+            </a>
+            <a href="{% url 'admin_activity_logs' %}" class="btn btn-outline-info shadow-sm">
+                <i class="fas fa-list-alt me-2"></i> Activity Logs
+            </a>
+            <a href="{% url 'export_analytics' %}" class="btn btn-success shadow-sm">
+                <i class="fas fa-download me-2"></i> Export Data
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm rounded-4 bg-white">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-user-injured text-primary"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Patients</div>
+                        <div class="fw-bold h4 mb-0">{{ total_patients }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm rounded-4 bg-white">
+                <div class="d-flex align-items-center">
+                    <div class="bg-success bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-flask text-success"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Labs</div>
+                        <div class="fw-bold h4 mb-0">{{ total_labs }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm rounded-4 bg-white">
+                <div class="d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-user-clock text-warning"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Pending Labs</div>
+                        <div class="fw-bold h4 mb-0">{{ pending_labs }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card p-3 border-0 shadow-sm rounded-4 bg-white">
+                <div class="d-flex align-items-center">
+                    <div class="bg-info bg-opacity-10 p-3 rounded-circle me-3">
+                        <i class="fas fa-clipboard-check text-info"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted small">Total Bookings</div>
+                        <div class="fw-bold h4 mb-0">{{ total_bookings }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Analytics Row -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="card p-4 border-0 shadow-sm rounded-4 h-100">
+                <h5 class="fw-bold mb-4">Most Popular Tests</h5>
+                <ul class="list-group list-group-flush">
+                    {% for test in popular_tests %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        {{ test.test_name }}
+                        <span class="badge bg-primary rounded-pill">{{ test.count }}</span>
+                    </li>
+                    {% empty %}
+                    <li class="list-group-item text-muted">No data available</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card p-4 border-0 shadow-sm rounded-4 h-100">
+                <h5 class="fw-bold mb-4">Top Laboratories</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Lab Name</th>
+                                <th>Bookings</th>
+                                <th>Rating</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for lab in lab_performance %}
+                            <tr>
+                                <td>{{ lab.lab_name }}</td>
+                                <td>{{ lab.booking_count }}</td>
+                                <td>
+                                    <span class="text-warning small">
+                                        <i class="fas fa-star"></i> {{ lab.avg_rating|default:0|floatformat:1 }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center">No data</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activities & Lab Approvals -->
+    <div class="col-lg-8 mb-4">
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4">Recent System Activities</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Activity</th>
+                            <th>Status</th>
+                            <th>Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in recent_activities %}
+                        <tr>
+                            <td>
+                                <strong>{{ activity.patient.full_name }}</strong> booked <strong>{{ activity.test_name
+                                    }}</strong> at <strong>{{activity.lab.lab_name }}</strong>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">{{ activity.status }}</span>
+                            </td>
+                            <td class="small text-muted">{{ activity.created_at|timesince }} ago</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="3" class="text-center py-3 text-muted">No recent activities</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 mb-4">
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <h5 class="fw-bold mb-4">Lab Approvals</h5>
+            <div class="list-group list-group-flush">
+                {% for lab in labs %}
+                {% if not lab.is_approved %}
+                <div class="list-group-item px-0 py-3 border-0">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fw-bold">{{ lab.lab_name }}</div>
+                            <small class="text-muted d-block">Lic: {{ lab.license_number }}</small>
+                            <small class="text-muted">{{ lab.created_at|date }}</small>
+                        </div>
+                        <a href="{% url 'approve_lab' lab.id %}"
+                            class="btn btn-sm btn-success rounded-pill px-3">Approve</a>
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+                {% if pending_labs == 0 %}
+                <p class="text-muted small text-center py-3">All labs are currently approved.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

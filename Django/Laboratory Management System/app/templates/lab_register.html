@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}Lab Registration - Lab Secure{% endblock %}
+
+{% block content %}
+<div class="auth-card card shadow-lg">
+    <div class="text-center mb-4">
+        <div class="mb-3 text-primary">
+            <i class="fas fa-flask fa-4x"></i>
+        </div>
+        <h2 class="fw-bold">Laboratory Registration</h2>
+        <p class="text-muted">Register your lab to start managing tests</p>
+    </div>
+
+    <form method="POST" class="needs-validation" novalidate>
+        {% csrf_token %}
+        <div class="mb-3">
+            <label class="form-label">Laboratory Name</label>
+            {{ form.lab_name }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">License Number</label>
+            {{ form.license_number }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Username</label>
+            {{ form.username }}
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email Address</label>
+            {{ form.email }}
+        </div>
+        <div class="mb-3 position-relative">
+            <label class="form-label">Password</label>
+            {{ form.password }}
+            <i class="fas fa-eye password-toggle" id="togglePasswordBtn"
+                onclick="togglePassword('password-field_lab', 'togglePasswordBtn')"></i>
+        </div>
+        <div class="mb-4 position-relative">
+            <label class="form-label">Confirm Password</label>
+            {{ form.confirm_password }}
+            <i class="fas fa-eye password-toggle" id="toggleConfirmPasswordBtn"
+                onclick="togglePassword('confirm-password-field_lab', 'toggleConfirmPasswordBtn')"></i>
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+            <p class="mb-0 small"><i class="fas fa-exclamation-circle me-1"></i>{{ error }}</p>
+            {% endfor %}
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <button type="submit" class="btn btn-success w-100 py-2 mb-3">Register Laboratory</button>
+
+        <div class="text-center">
+            <p class="small text-muted mb-0">Already registered? <a href="{% url 'lab_login' %}"
+                    class="text-success text-decoration-none fw-600">Login here</a></p>
+        </div>
+    </form>
+</div>
+{% endblock %}

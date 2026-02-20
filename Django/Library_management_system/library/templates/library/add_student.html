@@ -1,0 +1,109 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Add Student{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .form-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-header h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card card">
+    <div class="form-header">
+        <div class="form-header-icon">👤</div>
+        <h1>Add New Student</h1>
+        <p>Register a new student to the library system</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="name">Full Name *</label>
+                <input type="text" id="name" name="name" required placeholder="Enter student's full name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input type="email" id="email" name="email" required placeholder="student@example.com">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="department">Department *</label>
+                <input type="text" id="department" name="department" required placeholder="e.g., Computer Science">
+            </div>
+
+            <div class="form-group">
+                <label for="class_name">Class *</label>
+                <input type="text" id="class_name" name="class_name" required placeholder="e.g., CS-101">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="username">Username *</label>
+                <input type="text" id="username" name="username" required placeholder="Choose a username">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password *</label>
+                <input type="password" id="password" name="password" required placeholder="Create a password">
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'manage_students' %}" class="btn btn-secondary">
+                ← Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                ✓ Add Student
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Reject Request{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    .request-info {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
+        border-radius: 1.5rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        border: 2px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card card">
+    <h1 style="text-align: center; margin-bottom: 2rem; color: var(--danger);">❌ Reject Request</h1>
+
+    <div class="request-info">
+        <h3 style="margin-bottom: 1rem;">Request Details</h3>
+        <p><strong>Student:</strong> {{ borrow_request.student.name }} ({{ borrow_request.student.student_number }})</p>
+        <p><strong>Book:</strong> {{ borrow_request.book.title }} by {{ borrow_request.book.author }}</p>
+        <p><strong>Requested:</strong> {{ borrow_request.request_date|date:"M d, Y" }}</p>
+        <p><strong>Days Needed:</strong> {{ borrow_request.requested_days }} days</p>
+        {% if borrow_request.notes %}
+        <p><strong>Student Notes:</strong> {{ borrow_request.notes }}</p>
+        {% endif %}
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="admin_notes">Reason for Rejection (Optional)</label>
+            <textarea id="admin_notes" name="admin_notes" rows="4"
+                placeholder="Explain why this request is being rejected..."></textarea>
+        </div>
+
+        <div
+            style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 0.75rem; padding: 1.25rem; margin: 1.5rem 0; border-left: 4px solid var(--warning);">
+            <p style="margin: 0; color: #92400e; font-weight: 600;">
+                <strong>⚠️ Warning:</strong> This action cannot be undone. The student will be notified that their
+                request has been rejected.
+            </p>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'pending_requests' %}" class="btn btn-secondary">
+                ← Cancel
+            </a>
+            <button type="submit" class="btn btn-danger">
+                ✕ Reject Request
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

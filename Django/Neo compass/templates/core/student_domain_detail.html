@@ -1,0 +1,130 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ domain.name }} Workspace - Neo-Compass{% endblock %}
+{% block content %}
+<!-- Header & Navigation -->
+<div class="row animate-up">
+    <div class="col-12 mb-4">
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb bg-white px-3 py-2 rounded-pill shadow-sm border small d-inline-flex">
+                <li class="breadcrumb-item"><a href="{% url 'student_domains' %}"
+                        class="text-decoration-none text-muted">Ecosystem</a></li>
+                <li class="breadcrumb-item active fw-bold text-primary" aria-current="page">{{ domain.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="card border-0 shadow-sm overflow-hidden" style="border-radius: 2rem;">
+            <div class="card-body p-4 p-md-5 bg-white d-flex align-items-center">
+                <div class="bg-primary bg-opacity-10 text-primary rounded-4 d-flex align-items-center justify-content-center me-4"
+                    style="width: 80px; height: 80px;">
+                    <i
+                        class="bi bi-{% if domain.name == 'Coding' %}terminal{% elif domain.name == 'Designing' %}palette{% elif domain.name == 'Networking' %}diagram-3{% else %}mortarboard{% endif %} display-6"></i>
+                </div>
+                <div>
+                    <h1 class="display-6 fw-bold mb-1">{{ domain.name }} Classroom</h1>
+                    <p class="text-muted mb-0 lead small">{{ domain.description }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 animate-up" style="animation-delay: 0.1s;">
+    <!-- Resources Section -->
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100 bg-white" style="border-radius: 1.5rem;">
+            <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Curated Learning Materials</h5>
+                <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-3">{{ resources.count }}
+                    Modules</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    {% for resource in resources %}
+                    <div
+                        class="list-group-item px-4 py-4 d-flex align-items-center border-0 hover-bg-light transition-all">
+                        <div class="bg-danger bg-opacity-10 text-danger rounded-3 p-3 me-3 d-flex align-items-center justify-content-center"
+                            style="width: 50px; height: 50px;">
+                            <i class="bi bi-youtube fs-4"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-0 text-dark">{{ resource.title }}</h6>
+                            <span class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Video
+                                Lecture</span>
+                        </div>
+                        <a href="{{ resource.youtube_link }}" target="_blank"
+                            class="btn btn-sm btn-outline-danger px-3 py-2 fw-bold rounded-pill">
+                            <i class="bi bi-play-circle-fill me-1"></i>Watch
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-5">
+                        <i class="bi bi-journal-x fs-1 opacity-10 d-block mb-3"></i>
+                        <p class="text-muted small">No materials have been uploaded for this domain.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments Section -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100 bg-white" style="border-radius: 1.5rem;">
+            <div class="card-header bg-white border-0 py-4 px-4">
+                <h5 class="fw-bold mb-0">Milestone Tasks</h5>
+            </div>
+            <div class="card-body p-4 pt-0">
+                <div class="vstack gap-3">
+                    {% for assignment in assignments %}
+                    <div
+                        class="p-4 rounded-4 border position-relative overflow-hidden transition-all {% if assignment.id in completed_assignments %}bg-success bg-opacity-5 border-success border-opacity-25{% else %}bg-light border-light{% endif %}">
+                        <div class="d-flex justify-content-between align-items-start position-relative z-1">
+                            <div class="me-3">
+                                <h6
+                                    class="fw-bold mb-1 {% if assignment.id in completed_assignments %}text-success{% endif %}">
+                                    {{ assignment.title }}</h6>
+                                <p class="small text-muted mb-3">{{ assignment.description }}</p>
+
+                                {% if assignment.id in completed_assignments %}
+                                <div class="badge bg-success bg-opacity-75 px-3 py-2 rounded-pill small fw-bold">
+                                    <i class="bi bi-check-circle-fill me-1"></i>Task Finalized
+                                </div>
+                                {% else %}
+                                <a href="{% url 'mark_assignment_complete' assignment.id %}"
+                                    class="btn btn-sm btn-primary px-4 py-2 fw-bold rounded-pill shadow-sm">
+                                    Mark as Complete
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if assignment.id in completed_assignments %}
+                        <i class="bi bi-check2 text-success position-absolute end-0 bottom-0 mb-n2 me-n2 opacity-10"
+                            style="font-size: 5rem;"></i>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <div class="text-center py-4">
+                        <p class="text-muted small">Stay tuned for new assignments.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-bg-light:hover {
+        background-color: #f8fafc !important;
+    }
+
+    .transition-all {
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item+.breadcrumb-item::before {
+        content: "›";
+        font-weight: bold;
+    }
+</style>
+{% endblock %}

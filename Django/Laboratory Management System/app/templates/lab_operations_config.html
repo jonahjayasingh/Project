@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Operational Settings - LMS Lab{% endblock %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-md-8 mb-4">
+        <h2 class="fw-bold">Operational Settings</h2>
+        <p class="text-muted">Manage your lab's capacity, location, and status</p>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card p-4 border-0 shadow-sm rounded-4">
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary">Lab Profile & Location</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-12">
+                        <label class="form-label small fw-bold">Lab Bio / Description</label>
+                        <textarea name="bio" class="form-control" rows="3">{{ lab.bio }}</textarea>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">City</label>
+                        <input type="text" name="city" class="form-control" value="{{ lab.city }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Area</label>
+                        <input type="text" name="area" class="form-control" value="{{ lab.area }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Pincode</label>
+                        <input type="text" name="pincode" class="form-control" value="{{ lab.pincode }}">
+                    </div>
+                </div>
+
+                <h5 class="fw-bold mb-4 border-bottom pb-2 text-primary">Payment & Capacity</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold">Payment QR Code</label>
+                        <input type="file" name="payment_qr_code" class="form-control mb-2" accept="image/*">
+                        {% if lab.payment_qr_code %}
+                        <div class="mt-2">
+                            <label class="small text-muted d-block mb-1">Current QR Code:</label>
+                            <img src="{{ lab.payment_qr_code.url }}" class="rounded shadow-sm"
+                                style="max-height: 150px;">
+                        </div>
+                        {% else %}
+                        <div class="form-text">Upload a QR code for patients to scan for payment.</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Daily Booking Capacity</label>
+                            <input type="number" name="daily_capacity" class="form-control"
+                                value="{{ lab.daily_capacity }}">
+                            <div class="form-text">Maximum bookings allowed per day.</div>
+                        </div>
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" name="is_emergency_closed"
+                                id="emergencySwitch" {% if lab.is_emergency_closed %}checked{% endif %}>
+                            <label class="form-check-label fw-bold text-danger ms-2" for="emergencySwitch">Emergency
+                                Closure Mode</label>
+                        </div>
+                        <div class="form-text text-danger small">Enabling this will block all new bookings immediately.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary px-5 rounded-pill fw-bold">Update Operations</button>
+                    <a href="{% url 'lab_dashboard' %}" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

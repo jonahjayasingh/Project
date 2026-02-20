@@ -1,0 +1,156 @@
+{% extends 'services/base.html' %}
+
+{% block title %}Search Results - ServiceFinder{% endblock %}
+
+{% block extra_css %}
+<style>
+    .provider-card {
+        transition: all 0.3s ease;
+        border: 1px solid #f1f5f9;
+    }
+
+    .provider-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
+    }
+
+    .emergency-banner {
+        background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+        color: white;
+        border-radius: 20px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+    {% if request.GET.emergency == 'on' %}
+    <div class="emergency-banner animate-up">
+        <div class="row align-items-center">
+            <div class="col-md-1 text-center mb-3 mb-md-0">
+                <i class="bi bi-lightning-charge-fill display-4"></i>
+            </div>
+            <div class="col-md-8">
+                <h2 class="fw-bold">Emergency Mode Active</h2>
+                <p class="mb-0 opacity-90">We are showing only professionals who are currently available and have a 95%+
+                    responsiveness rate.</p>
+            </div>
+            <div class="col-md-3 text-md-end">
+                <a href="?q={{ query }}" class="btn btn-outline-light rounded-pill px-4">Turn Off</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <!-- Filters -->
+        <div class="col-lg-3">
+            <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top" style="top: 100px;">
+                <h5 class="fw-bold mb-4">Refine Search</h5>
+                <form method="get">
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Region</label>
+                        <select name="location" class="form-select border-light bg-light">
+                            <option value="">All Regions</option>
+                            {% for loc in locations %}
+                            <option value="{{ loc }}" {% if location == loc %}selected{% endif %}>{{ loc }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-uppercase text-muted">Service Category</label>
+                        {% for cat in categories %}
+                        <div class="form-check small">
+                            <input class="form-check-input" type="checkbox" name="category" value="{{ cat.id }}"
+                                id="cat{{ cat.id }}" {% if cat.id|stringformat:"i" in active_cat_ids %}checked{% endif%}>
+                            <label class="form-check-label" for="cat{{ cat.id }}">{{ cat.name }} </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Apply</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="fw-bold mb-0">
+                    Found {{ providers|length }} Experts
+                </h3>
+            </div>
+
+            {% if ai_recommendation %}
+            <div class="card border-0 bg-primary bg-opacity-10 rounded-4 p-4 mb-4 border-start border-primary border-5">
+                <div class="d-flex align-items-start">
+                    <i class="bi bi-robot fs-2 text-primary me-3 mt-1"></i>
+                    <div>
+                        <h6 class="fw-bold text-primary mb-1">AI Advice</h6>
+                        <p class="mb-0 text-dark">{{ ai_recommendation }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% for p in providers %}
+            <div class="card provider-card rounded-4 p-4 mb-4 border-0 shadow-sm">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center mb-3 mb-md-0">
+                        {% if p.profile_image %}
+                        <img src="{{ p.profile_image.url }}" class="rounded-circle" width="80" height="80">
+                        {% else %}
+                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto"
+                            style="width: 80px; height: 80px;">
+                            <i class="bi bi-person text-secondary fs-1"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-7">
+                        <div class="d-flex align-items-center mb-1">
+                            <h4 class="fw-bold mb-0 me-3">{{ p.name }}</h4>
+                            {% if p.rating >= 4.8 %}
+                            <span class="badge bg-warning text-dark rounded-pill py-1 px-3"><i
+                                    class="bi bi-patch-check-fill me-1"></i> PRO</span>
+                            {% endif %}
+                        </div>
+                        <div class="text-warning mb-2 small">
+                            <i class="bi bi-star-fill"></i> <strong>{{ p.rating }}</strong>
+                            <span class="text-muted ms-2">({{ p.jobs_completed }} jobs)</span>
+                            <span class="text-muted mx-2">|</span>
+                            <span class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ p.location }}</span>
+                        </div>
+                        <p class="text-muted small mb-3 line-clamp-2">{{ p.bio }}</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% for badge in p.badges %}
+                            <span
+                                class="badge bg-light text-success border border-success border-opacity-25 rounded-pill px-2 py-1 small">{{badge }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="col-md-3 text-md-end">
+                        <div class="mb-3">
+                            <span class="text-muted small">Starting at</span>
+                            <h3 class="fw-bold text-primary mb-0">₹{{ p.price_per_hour }}<span
+                                    class="fs-6 fw-normal">/hr</span></h3>
+                        </div>
+                        <a href="{% url 'provider_detail' p.id %}" class="btn btn-primary rounded-pill px-4 w-100">View
+                            Details</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="text-center py-5 bg-white rounded-5 shadow-sm">
+                <i class="bi bi-search display-1 text-muted opacity-25 mb-4"></i>
+                <h4 class="fw-bold">No providers found</h4>
+                <p class="text-muted">Try adjusting your filters or location.</p>
+                <a href="{% url 'home' %}" class="btn btn-outline-primary rounded-pill px-4 mt-3">Back to Home</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

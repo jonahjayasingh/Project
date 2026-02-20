@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">📦 My Orders</h1>
+    <p style="color: var(--text-medium); font-size: 1.125rem;">Track and manage your purchases</p>
+</div>
+
+{% if orders %}
+<!-- Order Stats -->
+<div class="card mb-4"
+    style="border: none; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));">
+    <div class="card-body">
+        <div class="row text-center">
+            <div class="col-md-4 col-6 mb-3 mb-md-0">
+                <div
+                    style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                    {{ orders|length }}</div>
+                <div
+                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                    Total Orders</div>
+            </div>
+            <div class="col-md-4 col-6 mb-3 mb-md-0">
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--info-color);">
+                    {{ orders|selectattr('status.value', 'in', ['pending', 'processing', 'shipped'])|list|length }}
+                </div>
+                <div
+                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                    In Progress</div>
+            </div>
+            <div class="col-md-4 col-6">
+                <div style="font-size: 2.5rem; font-weight: 800; color: var(--success-color);">
+                    {{ orders|selectattr('status.value', 'equalto', 'delivered')|list|length }}
+                </div>
+                <div
+                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
+                    Delivered</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Grid -->
+<div class="product-grid" style="grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 1.5rem;">
+    {% for order in orders %}
+    <div class="card fade-in" style="border: none; display: flex; flex-direction: column;">
+        <!-- Card Header -->
+        <div
+            style="background: linear-gradient(135deg, {% if order.status.value == 'delivered' %}#d1fae5{% elif order.status.value in ['pending', 'processing'] %}#dbeafe{% elif order.status.value == 'shipped' %}#fef3c7{% else %}#fee2e2{% endif %}, white); padding: 1.5rem; border-bottom: 1px solid var(--border-color);">
+            <div class="flex-between" style="margin-bottom: 0.5rem;">
+                <div>
+                    <h3 style="font-size: 1.25rem; margin: 0 0 0.25rem 0; color: var(--text-dark);">Order #{{ order.id
+                        }}</h3>
+                    <div style="color: var(--text-medium); font-size: 0.875rem;">
+                        {{ order.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                    </div>
+                </div>
+
+                <!-- Status Badge -->
+                <div>
+                    {% if order.status.value == 'pending' %}
+                    <span class="badge badge-warning" style="font-size: 0.875rem; padding: 0.5rem 1rem;">⏳
+                        Pending</span>
+                    {% elif order.status.value == 'processing' %}
+                    <span class="badge badge-info" style="font-size: 0.875rem; padding: 0.5rem 1rem;">⚙️
+                        Processing</span>
+                    {% elif order.status.value == 'shipped' %}
+                    <span class="badge badge-primary" style="font-size: 0.875rem; padding: 0.5rem 1rem;">🚚
+                        Shipped</span>
+                    {% elif order.status.value == 'delivered' %}
+                    <span class="badge badge-success" style="font-size: 0.875rem; padding: 0.5rem 1rem;">✅
+                        Delivered</span>
+                    {% else %}
+                    <span class="badge badge-error" style="font-size: 0.875rem; padding: 0.5rem 1rem;">❌ {{
+                        order.status.value|title }}</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Body -->
+        <div class="card-body" style="padding: 1.5rem; flex: 1;">
+            <div style="margin-bottom: 1.5rem;">
+                <div
+                    style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                    Items</div>
+                <div style="color: var(--text-dark); font-size: 1rem;">
+                    <strong>{{ order.items|length }}</strong> item{% if order.items|length != 1 %}s{% endif %}
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <div
+                    style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+                    Shipping Address</div>
+                <div style="color: var(--text-medium); font-size: 0.875rem; line-height: 1.6;">
+                    {{ order.shipping_address }}
+                </div>
+            </div>
+
+            <!-- Total Amount -->
+            <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                <div class="flex-between">
+                    <span style="color: var(--text-medium); font-size: 0.875rem;">Total Amount</span>
+                    <strong style="font-size: 1.5rem; color: var(--primary-color);">₹{{
+                        "%.2f"|format(order.total_amount) }}</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card Footer -->
+        <div style="padding: 1rem; background: var(--bg-light); border-top: 2px solid var(--border-color);">
+            <a href="{{ url_for('customer.order_detail', order_id=order.id) }}" class="btn btn-primary"
+                style="width: 100%;">
+                📋 View Order Details
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% else %}
+<!-- Empty State -->
+<div class="empty-state" style="padding: 4rem 2rem;">
+    <div
+        style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #dbeafe, #c7d2fe); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+        📦
+    </div>
+    <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">No Orders Yet</h3>
+    <p style="color: var(--text-medium); margin-bottom: 2rem;">Start shopping to see your orders here!</p>
+    <a href="{{ url_for('product.list_products') }}" class="btn btn-primary btn-lg">🛍️ Browse Products</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Book a Test - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 border-0 shadow-lg rounded-4">
+            <div class="text-center mb-4">
+                <div class="mb-3 text-primary">
+                    <i class="fas fa-calendar-check fa-4x"></i>
+                </div>
+                <h2 class="fw-bold">Schedule Your Test</h2>
+                <p class="text-muted">Choose a lab and your preferred time slot</p>
+            </div>
+
+            <form method="POST" id="bookingForm" data-tests-url="{% url 'ajax_load_tests' %}"
+                data-packages-url="{% url 'ajax_load_packages' %}" class="needs-validation" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">1. Select Laboratory</label>
+                    {{ form.lab }}
+                </div>
+
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <label class="form-label fw-bold mb-0">2. Select Your Service</label>
+                        <div class="btn-group btn-group-sm rounded-pill overflow-hidden shadow-sm" role="group">
+                            <input type="radio" class="btn-check" name="booking_mode" id="modeTests" autocomplete="off"
+                                checked>
+                            <label class="btn btn-outline-primary" for="modeTests">Single Test</label>
+
+                            <input type="radio" class="btn-check" name="booking_mode" id="modePackages"
+                                autocomplete="off">
+                            <label class="btn btn-outline-primary" for="modePackages">Combo Offer</label>
+                        </div>
+                    </div>
+
+                    <div id="test-selection-box">
+                        {{ form.lab_test }}
+                        <div id="test-info" class="form-text text-primary mt-2 fw-bold" style="display:none;"></div>
+                    </div>
+
+                    <div id="package-selection-box" style="display:none;">
+                        {{ form.package }}
+                        <div id="package-info" class="form-text text-success mt-2 fw-bold" style="display:none;"></div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small">3. Date</label>
+                        {{ form.booking_date }}
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <label class="form-label fw-bold small">4. Time Slot</label>
+                        {{ form.time_slot }}
+                    </div>
+                </div>
+
+                <div class="alert alert-info border-0 shadow-sm p-3 mb-4 rounded-4" id="price-summary"
+                    style="display:none;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small fw-bold">Estimated Total:</span>
+                        <span id="display-price" class="h5 fw-bold mb-0 text-primary">₹0</span>
+                    </div>
+                </div>
+
+                {% if form.errors %}
+                <div class="alert alert-danger p-2 small mb-4 rounded-3 text-center">
+                    <i class="fas fa-exclamation-circle me-1"></i> Please check the required fields.
+                </div>
+                {% endif %}
+
+                <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-lg">
+                    Confirm Appointment Request
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    function updatePrice() {
+        let price = 0;
+        if ($("#modeTests").is(":checked")) {
+            price = $("#test-select").find('option:selected').data('price') || 0;
+        } else {
+            price = $("#package-select").find('option:selected').data('price') || 0;
+        }
+
+        if (price > 0) {
+            $("#display-price").text("₹" + price);
+            $("#price-summary").fadeIn();
+        } else {
+            $("#price-summary").hide();
+        }
+    }
+
+    $("#lab-select").change(function () {
+        const testsUrl = $("#bookingForm").attr("data-tests-url");
+        const packagesUrl = $("#bookingForm").attr("data-packages-url");
+        const labId = $(this).val();
+
+        if (!labId) {
+            $("#test-select").html('<option value="">---------</option>');
+            $("#package-select").html('<option value="">---------</option>');
+            return;
+        }
+
+        // Load Tests
+        $.ajax({
+            url: testsUrl,
+            data: { 'lab': labId },
+            success: function (data) {
+                $("#test-select").html(data);
+                updatePrice();
+            }
+        });
+
+        // Load Packages
+        $.ajax({
+            url: packagesUrl,
+            data: { 'lab': labId },
+            success: function (data) {
+                $("#package-select").html(data);
+                updatePrice();
+            }
+        });
+    });
+
+    $('input[name="booking_mode"]').change(function () {
+        if (this.id === 'modeTests') {
+            $("#test-selection-box").show();
+            $("#package-selection-box").hide();
+            $("#package-select").val(""); // Clear package selection
+        } else {
+            $("#test-selection-box").hide();
+            $("#package-selection-box").show();
+            $("#test-select").val(""); // Clear test selection
+        }
+        updatePrice();
+    });
+
+    $("#test-select, #package-select").change(function () {
+        updatePrice();
+    });
+</script>
+<style>
+    .form-select,
+    .form-control {
+        border-radius: 12px !important;
+        padding: 0.75rem 1rem !important;
+        border: 1px solid #dee2e6 !important;
+        transition: all 0.2s;
+    }
+
+    .form-select:focus,
+    .form-control:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 0.25rem rgba(37, 99, 235, 0.1) !important;
+    }
+</style>
+{% endblock %}

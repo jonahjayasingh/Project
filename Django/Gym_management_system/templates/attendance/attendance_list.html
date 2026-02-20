@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1><i class="bi bi-clock-history"></i> Attendance Records</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{% url 'attendance:check_in' %}" class="btn btn-primary">
+                <i class="bi bi-box-arrow-in-right"></i> Check In Member
+            </a>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-4">
+                    <input type="text" name="search" class="form-control" placeholder="Search by member name..."
+                        value="{{ search_query }}">
+                </div>
+                <div class="col-md-3">
+                    <input type="date" name="date" class="form-control" value="{{ date_filter }}">
+                </div>
+                <div class="col-md-3">
+                    <select name="type" class="form-select">
+                        <option value="">All Types</option>
+                        {% for value, label in type_choices %}
+                        <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-secondary w-100">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Attendance Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Member</th>
+                            <th>Date</th>
+                            <th>Check-In</th>
+                            <th>Check-Out</th>
+                            <th>Duration</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for attendance in page_obj %}
+                        <tr>
+                            <td>
+                                <strong>{{ attendance.member.user.get_full_name }}</strong><br>
+                                <small class="text-muted">{{ attendance.member.user.email }}</small>
+                            </td>
+                            <td>{{ attendance.date|date:"M d, Y" }}</td>
+                            <td>{{ attendance.check_in_time|time:"g:i A" }}</td>
+                            <td>
+                                {% if attendance.check_out_time %}
+                                {{ attendance.check_out_time|time:"g:i A" }}
+                                {% else %}
+                                <span class="badge bg-warning">In Progress</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if attendance.duration %}
+                                <span class="badge bg-info">{{ attendance.duration }}h</span>
+                                {% else %}
+                                —
+                                {% endif %}
+                            </td>
+                            <td><span class="badge bg-secondary">{{ attendance.get_attendance_type_display }}</span>
+                            </td>
+                            <td>
+                                {% if not attendance.check_out_time %}
+                                <a href="{% url 'attendance:check_out' attendance.pk %}"
+                                    class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-box-arrow-right"></i> Check Out
+                                </a>
+                                {% else %}
+                                <a href="{% url 'attendance:attendance_detail' attendance.pk %}"
+                                    class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-eye"></i> View
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-4">
+                                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                                <p class="mt-2">No attendance records found</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="card-footer">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+                    </li>
+                    {% endif %}
+                    <li class="page-item active">
+                        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+                    </li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,229 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Company Dashboard | PlacementPro{% endblock %}
+
+{% block layout %}
+<main style="padding: 2rem; display: block;">
+    <div style="max-width: 1400px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-primary);">
+                Company Dashboard
+            </h1>
+            <p style="color: var(--text-secondary);">Welcome, {{ user.username }}! Manage your recruitment activities
+            </p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div
+                        style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <line x1="16" y1="13" x2="8" y2="13"></line>
+                            <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                    </div>
+                    <div>
+                        <div
+                            style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">
+                            Job Postings</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div
+                        style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <div
+                            style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">
+                            Applications</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--secondary);">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div
+                        style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent), var(--success)); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                    </div>
+                    <div>
+                        <div
+                            style="color: var(--text-secondary); font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">
+                            Hired</div>
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--success);">0</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Grid -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <!-- Job Postings -->
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                    <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin: 0;">Active Job
+                        Postings</h2>
+                    <button
+                        style="padding: 0.5rem 1rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer; transition: all 0.2s;"
+                        onmouseover="this.style.background='var(--primary-dark)'"
+                        onmouseout="this.style.background='var(--primary)'">
+                        + New Job
+                    </button>
+                </div>
+
+                <div
+                    style="text-align: center; padding: 3rem 2rem; background: var(--bg-secondary); border-radius: 10px;">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)"
+                        stroke-width="2" style="margin: 0 auto 1rem;">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <p style="color: var(--text-secondary); margin: 0 0 1rem 0;">No active job postings</p>
+                    <button
+                        style="padding: 0.625rem 1.25rem; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 0.875rem; cursor: pointer;"
+                        onmouseover="this.style.background='var(--primary-dark)'"
+                        onmouseout="this.style.background='var(--primary)'">
+                        Create Your First Job Posting
+                    </button>
+                </div>
+            </div>
+
+            <!-- Company Profile -->
+            <div
+                style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm);">
+                <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.5rem;">
+                    Company Profile</h2>
+
+                <div style="text-align: center; margin-bottom: 1.5rem;">
+                    <div
+                        style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 2rem; font-weight: 700; color: white;">
+                        {{ user.username.0|upper }}
+                    </div>
+                    <h3
+                        style="font-size: 1.125rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+                        {{ user.username }}</h3>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary);">Company Account</p>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 8px;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Account
+                            Status</div>
+                        <div
+                            style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.25rem 0.75rem; background: rgba(16, 185, 129, 0.1); color: var(--success); border-radius: 50px; font-size: 0.875rem; font-weight: 600;">
+                            <span
+                                style="width: 6px; height: 6px; background: var(--success); border-radius: 50%; display: inline-block;"></span>
+                            Active
+                        </div>
+                    </div>
+
+                    <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 8px;">
+                        <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Member
+                            Since</div>
+                        <div style="font-size: 1rem; font-weight: 600; color: var(--text-primary);">{{user.date_joined|date:"M Y" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Applications -->
+        <div
+            style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm); margin-top: 1.5rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.5rem;">Recent
+                Applications</h2>
+
+            <div style="text-align: center; padding: 3rem 2rem; background: var(--bg-secondary); border-radius: 10px;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-tertiary)"
+                    stroke-width="2" style="margin: 0 auto 1rem;">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                <p style="color: var(--text-secondary); margin: 0;">No applications received yet</p>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div
+            style="background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; box-shadow: var(--shadow-sm); margin-top: 1.5rem;">
+            <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.5rem;">Quick
+                Actions</h2>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.borderColor='var(--primary)'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+                    <div
+                        style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                        Post a Job</h3>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">Create a new job posting
+                    </p>
+                </div>
+
+                <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.borderColor='var(--secondary)'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+                    <div
+                        style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                        Browse Candidates</h3>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">Search student profiles</p>
+                </div>
+
+                <div style="padding: 1.5rem; background: var(--bg-secondary); border-radius: 10px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s;"
+                    onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-2px)'"
+                    onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)'">
+                    <div
+                        style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--accent), var(--success)); border-radius: 8px; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
+                            </path>
+                            <polyline points="22,6 12,13 2,6"></polyline>
+                        </svg>
+                    </div>
+                    <h3 style="font-size: 1rem; font-weight: 600; color: var(--text-primary); margin-bottom: 0.5rem;">
+                        Messages</h3>
+                    <p style="font-size: 0.875rem; color: var(--text-secondary); margin: 0;">View communications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

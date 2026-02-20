@@ -1,0 +1,117 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Add Book{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .form-header-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-header h1 {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+        color: var(--text-light);
+        font-size: 1.1rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: flex-end;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-card card">
+    <div class="form-header">
+        <div class="form-header-icon">📖</div>
+        <h1>Add New Book</h1>
+        <p>Add a new book to the library collection</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="title">Book Title *</label>
+            <input type="text" id="title" name="title" required placeholder="Enter book title">
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="author">Author *</label>
+                <input type="text" id="author" name="author" required placeholder="Author name">
+            </div>
+
+            <div class="form-group">
+                <label for="isbn">ISBN *</label>
+                <input type="text" id="isbn" name="isbn" required placeholder="ISBN number">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category *</label>
+            <select id="category" name="category" required>
+                <option value="fiction">Fiction</option>
+                <option value="non_fiction">Non-Fiction</option>
+                <option value="science">Science</option>
+                <option value="technology">Technology</option>
+                <option value="history">History</option>
+                <option value="biography">Biography</option>
+                <option value="children">Children</option>
+                <option value="reference">Reference</option>
+                <option value="other" selected>Other</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="total_copies">Total Copies *</label>
+            <input type="number" id="total_copies" name="total_copies" required min="1" value="1"
+                placeholder="Number of copies">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description (Optional)</label>
+            <textarea id="description" name="description" rows="4"
+                placeholder="Brief description of the book"></textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{% url 'manage_books' %}" class="btn btn-secondary">
+                ← Cancel
+            </a>
+            <button type="submit" class="btn btn-primary">
+                ✓ Add Book
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

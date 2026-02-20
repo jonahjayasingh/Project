@@ -1,0 +1,444 @@
+{% extends 'base.html' %}
+
+{% block title %}Volunteer Dashboard{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --volunteer-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --glass-bg: rgba(255, 255, 255, 0.9);
+        --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    .dashboard-header {
+        background: var(--volunteer-gradient);
+        color: white;
+        padding: 3rem 2rem;
+        border-radius: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .dashboard-header::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -10%;
+        width: 300px;
+        height: 300px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        pointer-events: none;
+    }
+
+    .location-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 1.5rem;
+        padding: 1.5rem;
+        margin-top: -2.5rem;
+        margin-bottom: 3rem;
+        box-shadow: var(--card-shadow);
+        z-index: 10;
+        position: relative;
+    }
+
+    .nav-pills-custom {
+        display: inline-flex;
+        background: #f1f5f9;
+        padding: 0.5rem;
+        border-radius: 1.25rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .nav-pills-custom .nav-link {
+        border-radius: 1rem;
+        padding: 0.75rem 1.5rem;
+        color: #64748b;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+    .nav-pills-custom .nav-link.active {
+        background: white;
+        color: #2563eb;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-pills-custom .nav-link:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.5);
+        color: #2563eb;
+    }
+
+    .donation-card {
+        border: none;
+        border-radius: 1.5rem;
+        background: white;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+    }
+
+    .donation-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .donation-card .card-body {
+        padding: 2rem;
+    }
+
+    .food-type-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50rem;
+        font-weight: 700;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .distance-badge {
+        background: #ecfdf5;
+        color: #065f46;
+        padding: 0.5rem 1rem;
+        border-radius: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .address-box {
+        background: #f8fafc;
+        border-radius: 1rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .grid-spec {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .spec-item {
+        background: #f1f5f9;
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+    }
+
+    .spec-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        color: #64748b;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .spec-value {
+        font-weight: 700;
+        color: #1e293b;
+    }
+
+    .btn-action {
+        padding: 0.9rem 1.5rem;
+        border-radius: 1rem;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-action:hover {
+        transform: scale(1.02);
+    }
+
+    .btn-pickup {
+        background: var(--volunteer-gradient);
+        color: white;
+    }
+
+    .btn-deliver {
+        background: var(--success-gradient);
+        color: white;
+    }
+
+    .btn-details {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .user-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .avatar-circle {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #475569;
+        font-weight: 700;
+        font-size: 0.8rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 5rem 2rem;
+    }
+
+    .empty-icon {
+        font-size: 5rem;
+        background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin-bottom: 1.5rem;
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .fade-in-up {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+</style>
+
+<div class="dashboard-header fade-in-up">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="display-4 fw-900 mb-2">Volunteer Portal</h1>
+            <p class="opacity-75 lead mb-0">Track and fulfill your assigned food recovery missions.</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'update_location' %}"
+                class="btn btn-light btn-lg rounded-pill px-4 fw-bold text-primary shadow-sm">
+                <i class="bi bi-geo-alt-fill"></i> Location Settings
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="location-card fade-in-up" style="animation-delay: 0.1s;">
+    {% if user.address %}
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <div class="avatar-circle bg-blue-100 text-blue-600" style="width: 48px; height: 48px; font-size: 1.5rem;">
+                <i class="bi bi-geo-alt"></i>
+            </div>
+            <div>
+                <h6 class="mb-1 fw-800">Operational Radius</h6>
+                <p class="text-muted mb-0 small">{{ user.address }}</p>
+                {% if user.latitude and user.longitude %}
+                <small class="text-secondary opacity-75">GPS Active: {{ user.latitude }}, {{ user.longitude }}</small>
+                {% endif %}
+            </div>
+        </div>
+        <a href="{% url 'update_location' %}" class="btn btn-outline-primary rounded-pill px-4">
+            <i class="bi bi-pencil-square"></i> Change
+        </a>
+    </div>
+    {% else %}
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center gap-3">
+            <div class="avatar-circle bg-yellow-100 text-yellow-600"
+                style="width: 48px; height: 48px; font-size: 1.5rem;">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+            <div>
+                <h6 class="mb-1 fw-800 text-warning">Location Required</h6>
+                <p class="text-muted mb-0 small">Please set your location to help NGOs assign nearby donations (15km
+                    range).</p>
+            </div>
+        </div>
+        <a href="{% url 'update_location' %}" class="btn btn-warning rounded-pill px-4 fw-bold shadow-sm">
+            <i class="bi bi-geo-alt-fill"></i> Set Now
+        </a>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-pills-custom fade-in-up" id="volunteerDashboardTabs" role="tablist" style="animation-delay: 0.2s;">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="assigned-tab" data-bs-toggle="tab" data-bs-target="#assigned" type="button"
+            role="tab">
+            <i class="bi bi-truck me-2"></i> Active Missions
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="completed-tab" data-bs-toggle="tab" data-bs-target="#completed" type="button"
+            role="tab">
+            <i class="bi bi-journal-check me-2"></i> Fulfillment History
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="volunteerDashboardTabsContent">
+    <!-- Active Missions Tab -->
+    <div class="tab-pane fade show active" id="assigned" role="tabpanel">
+        <div class="row g-4">
+            {% for item in donations_with_distance %}
+            <div class="col-md-6 fade-in-up">
+                <div class="card donation-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <h4 class="food-type-title">{{ item.donation.food_type }}</h4>
+                                <span class="badge 
+                                    {% if item.donation.status == 'Accepted' %}bg-blue-100 text-blue-700
+                                    {% elif item.donation.status == 'Picked' %}bg-indigo-100 text-indigo-700
+                                    {% endif %} stat-badge">
+                                    {{ item.donation.status }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="user-pill">
+                            <div class="avatar-circle">{{ item.donation.donor.username|make_list|first|upper }}</div>
+                            <div>
+                                <small class="text-muted d-block">Donor</small>
+                                <span class="fw-bold">{{ item.donation.donor.username }}</span>
+                            </div>
+                        </div>
+                        <div class="user-pill">
+                            <div class="avatar-circle bg-success-subtle text-success">{{item.donation.assigned_ngo.username|make_list|first|upper }}</div>
+                            <div>
+                                <small class="text-muted d-block">Coordinating NGO</small>
+                                <span class="fw-bold">{{ item.donation.assigned_ngo.username }}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid-spec">
+                            <div class="spec-item">
+                                <div class="spec-label">Payload</div>
+                                <div class="spec-value">{{ item.donation.quantity }}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Window</div>
+                                <div class="spec-value text-danger">{{ item.donation.pickup_time|date:"M d, h:i A" }}
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if item.distance %}
+                        <div class="distance-badge">
+                            <i class="bi bi-lightning-charge-fill"></i>
+                            Mission Distance: {{ item.distance }} km
+                        </div>
+                        {% endif %}
+
+                        <div class="address-box">
+                            <div class="spec-label"><i class="bi bi-geo-alt-fill"></i> Pickup Location</div>
+                            <div class="small fw-bold text-dark">{{ item.donation.address }}</div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            {% if item.donation.status == 'Accepted' %}
+                            <a href="{% url 'mark_picked' item.donation.id %}"
+                                class="btn btn-action btn-pickup flex-fill">
+                                <i class="bi bi-box-seam"></i> Mark Picked
+                            </a>
+                            {% elif item.donation.status == 'Picked' %}
+                            <a href="{% url 'mark_delivered' item.donation.id %}"
+                                class="btn btn-action btn-deliver flex-fill">
+                                <i class="bi bi-check-circle-fill"></i> Mark Delivered
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'donation_detail' item.donation.id %}" class="btn btn-action btn-details">
+                                <i class="bi bi-arrow-right-circle"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 empty-state fade-in-up">
+                <i class="bi bi-emoji-smile empty-icon"></i>
+                <h3 class="fw-bold">Standby Mode</h3>
+                <p class="text-muted">No active missions assigned to you yet. You'll be notified when an NGO needs your
+                    help!</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Fulfillment History Tab -->
+    <div class="tab-pane fade" id="completed" role="tabpanel">
+        <div class="row g-4">
+            {% for donation in completed_donations %}
+            <div class="col-md-6 fade-in-up">
+                <div class="card donation-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-4">
+                            <div>
+                                <h4 class="food-type-title text-muted">{{ donation.food_type }}</h4>
+                                <span class="badge bg-green-100 text-green-700 stat-badge">
+                                    <i class="bi bi-check-all"></i> Fulfilled
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="grid-spec">
+                            <div class="spec-item">
+                                <div class="spec-label">Fulfillment Date</div>
+                                <div class="spec-value">{{ donation.updated_at|date:"M d, Y" }}</div>
+                            </div>
+                            <div class="spec-item">
+                                <div class="spec-label">Impact</div>
+                                <div class="spec-value">{{ donation.quantity }} Delivered</div>
+                            </div>
+                        </div>
+
+                        <a href="{% url 'donation_detail' donation.id %}" class="btn btn-action btn-details w-100">
+                            <i class="bi bi-journal-text me-2"></i> Mission Debrief
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 empty-state fade-in-up">
+                <i class="bi bi-award-fill empty-icon"></i>
+                <h3 class="fw-bold">Ready to Start?</h3>
+                <p class="text-muted">Complete your first delivery to see your impact history here.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

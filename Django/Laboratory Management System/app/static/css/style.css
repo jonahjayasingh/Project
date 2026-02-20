@@ -1,0 +1,78 @@
+/* Laboratory Management System - Custom Styles */
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    --accent-color: #3b82f6;
+    --bg-color: #f8fafc;
+    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background-color: var(--bg-color);
+}
+
+.navbar {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.auth-card {
+    border: none;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+}
+
+.btn-primary {
+    border-radius: 10px;
+}
+
+.form-control,
+.form-select {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+}
+
+.form-control:focus {
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+/* Dashboard Enhancements */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.avatar-sm {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+}
+
+.fw-600 {
+    font-weight: 600;
+}
+
+.badge {
+    font-weight: 500;
+}
+
+.bg-success-subtle {
+    background-color: #e6f6ed !important;
+    color: #198754 !important;
+}
+
+.bg-warning-subtle {
+    background-color: #fff9e6 !important;
+    color: #997404 !important;
+}
+
+.bg-danger-subtle {
+    background-color: #fde8e8 !important;
+    color: #c81e1e !important;
+}
+
+.bg-primary-subtle {
+    background-color: #e1effe !important;
+    color: #1c64f2 !important;
+}

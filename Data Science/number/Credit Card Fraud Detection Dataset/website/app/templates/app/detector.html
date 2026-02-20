@@ -1,0 +1,94 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; width: 100%;">
+    <div class="premium-card" style="width: 100%; max-width: 650px;">
+        <div class="card-header">
+            <h2 class="card-title">Analysis Center</h2>
+            <p class="card-subtitle">AI-powered vetting for insecure transactions</p>
+        </div>
+
+        <form method="POST" action="{% url 'predict' %}" id="prediction-form">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label class="form-label" for="name">Account Identity</label>
+                <select name="name" id="name" class="input-ctrl select-ctrl" required>
+                    <option value="" disabled {% if not name %}selected{% endif %}>Select account owner</option>
+                    {% for n in names %}
+                    <option value="{{ n }}" {% if name == n %}selected{% endif %}>{{ n|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="category">Analysis Category</label>
+                <select name="category" id="category" class="input-ctrl select-ctrl" required>
+                    <option value="" disabled {% if not category %}selected{% endif %}>Select transaction type</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 3rem;">
+                <label class="form-label" for="amount">Transaction Volume (Rs.)</label>
+                <div style="position: relative;">
+                    <span
+                        style="position: absolute; left: 1.25rem; top: 50%; translate: 0 -50%; color: var(--text-dim); font-weight: 600;">₹</span>
+                    <input type="number" step="0.01" name="amount" id="amount" class="input-ctrl" placeholder="0.00"
+                        required value="{{ amount|default:'' }}" style="padding-left: 2.5rem;">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-glow"
+                style="width: 100%; font-size: 1.1rem; height: 3.5rem; justify-content: center;">
+                INITIATE SECURITY SCAN
+            </button>
+        </form>
+
+        {% if prediction %}
+        <div class="result-box {% if prediction == 'Fraudulent' %}result-danger{% else %}result-success{% endif %}">
+            <div class="result-status {% if prediction == 'Fraudulent' %}status-fraud{% else %}status-legit{% endif %}">
+                {% if prediction == 'Fraudulent' %}
+                <span>🚨</span> SECURE ALERT: FRAUD DETECTED
+                {% else %}
+                <span>✅</span> TRANSACTION VERIFIED
+                {% endif %}
+            </div>
+            <div class="result-info">
+                The neural network has processed this entry.
+                <br>
+                <strong style="color: var(--text-main);">{{ name|title }}</strong> |
+                <span style="color: var(--primary);">Rs. {{ amount }}</span> |
+                {{ category|title }}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    // Add subtle loading state to button on submit
+    document.getElementById('prediction-form').onsubmit = function () {
+        const btn = this.querySelector('button');
+        btn.innerHTML = '<span style="animation: pulse 1s infinite;">🛰️ SCANNING NETWORK...</span>';
+        btn.style.opacity = '0.8';
+        btn.style.pointerEvents = 'none';
+    };
+</script>
+
+<style>
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.5;
+        }
+    }
+</style>
+{% endblock %}

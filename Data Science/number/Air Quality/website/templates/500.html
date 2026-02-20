@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Server Error{% endblock %}
+
+{% block style %}
+<style>
+    .error-container {
+        text-align: center;
+        padding: 6rem 2rem;
+    }
+    .error-code {
+        font-size: 8rem;
+        font-weight: 700;
+        color: #dc3545;
+        line-height: 1;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="error-container">
+        <div class="error-code">500</div>
+        <h1 class="mb-4">Internal Server Error</h1>
+        <p class="lead mb-4">
+            Something went wrong on our end. Please try again later.
+        </p>
+        <a href="{{ url_for('home') }}" class="btn btn-primary btn-lg me-3">
+            <i class="bi bi-house me-2"></i>Go Home
+        </a>
+        <a href="javascript:location.reload()" class="btn btn-outline-primary btn-lg">
+            <i class="bi bi-arrow-clockwise me-2"></i>Reload Page
+        </a>
+    </div>
+</div>
+{% endblock %}

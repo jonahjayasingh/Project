@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Profile - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header">
+                <h4><i class="bi bi-person-circle"></i> My Profile</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3 text-center">
+                        {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" class="img-fluid rounded-circle" alt="Profile Picture"
+                            style="max-width: 150px;">
+                        {% else %}
+                        <i class="bi bi-person-circle text-muted" style="font-size: 150px;"></i>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-9">
+                        <h3>{{ user.get_full_name }}</h3>
+                        <p class="text-muted">
+                            <i class="bi bi-envelope"></i> {{ user.email }}<br>
+                            <i class="bi bi-telephone"></i> {{ user.phone|default:"Not provided" }}<br>
+                            <i class="bi bi-shield-check"></i> Role: <span class="badge bg-primary">{{
+                                user.get_role_display }}</span>
+                        </p>
+                    </div>
+                </div>
+
+                <hr>
+
+                <h5 class="mb-3">Update Profile</h5>
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form|crispy }}
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Save Changes
+                    </button>
+                    <a href="{% url 'dashboard:home' %}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,667 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="shortcut icon" href="{% static 'icon.png' %}" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Details - {{ job.title }}</title>
+    <link rel="stylesheet" href="{% static 'css/flatpickr.min.css' %}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="{% static 'js/browser@4.js' %}"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 700;
+        }
+
+        .bg-gradient-header {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+        
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        .animate-pulse-slow { animation: pulse 2s infinite; }
+        .animate-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            background-size: 200px 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .icon-container {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+        }
+        
+        .stat-card:hover .icon-container {
+            transform: rotate(10deg) scale(1.1);
+        }
+        
+        .number-counter {
+            font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', monospace;
+        }
+        
+        .job-detail-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .detail-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        
+        .detail-item:hover {
+            background-color: rgba(236, 72, 153, 0.05);
+        }
+        
+        .detail-icon {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 0.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .responsibility-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .responsibility-list li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: flex-start;
+        }
+        
+        .responsibility-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .responsibility-list li::before {
+            content: '•';
+            color: #ec4899;
+            font-weight: bold;
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+        
+        .applicant-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        .applicant-table thead th {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+            color: white;
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+        }
+        
+        .applicant-table thead th:first-child {
+            border-top-left-radius: 12px;
+        }
+        
+        .applicant-table thead th:last-child {
+            border-top-right-radius: 12px;
+        }
+        
+        .applicant-table tbody tr:nth-child(even) {
+            background-color: rgba(236, 72, 153, 0.05);
+        }
+        
+        .applicant-table tbody tr:hover {
+            background-color: rgba(236, 72, 153, 0.1);
+        }
+        
+        .applicant-table td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .resume-link {
+            color: #3b82f6;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        
+        .resume-link:hover {
+            color: #1d4ed8;
+            transform: translateX(2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+            color: white;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-secondary:hover {
+            background: #3b82f6;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .status-new {
+            background: rgba(72, 187, 120, 0.1);
+            color: #10b981;
+        }
+        
+        .status-review {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+        }
+        
+        .status-rejected {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        
+        .urgency-badge {
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .deadline-close {
+            animation: pulse 2s infinite;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-bottom: 0.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6, #3b82f6);
+            border-radius: 3px;
+        }
+        
+        .pill {
+            display: inline-block;
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tab-container {
+            display: flex;
+            border-bottom: 1px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid #3b82f6;
+            color: #3b82f6;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        /* Modal styles */
+        .modal {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+        
+        .modal-content {
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal.active .modal-content {
+            transform: translateY(0);
+        }
+
+        /* Fixed back button positioning */
+        .back-button-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gradient-header shadow-lg mb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex justify-between h-16 items-center">
+            <div class="flex items-center space-x-2">
+              <a href="{% url 'app:dashboard' %}" class="text-white font-extrabold text-xl mobile-text-sm">Admin Dashboard</a>
+            </div>
+           <a href="{% url 'app:logout' %}" 
+               class="glass-effect hover:bg-white/30 text-white font-semibold py-2 px-4 rounded-full shadow-lg transition-all duration-300 backdrop-blur-sm text-sm sm:text-base btn-bounce">
+              <span class="hidden sm:inline">Logout</span>
+              <span class="sm:hidden">
+                  <img src="{% static 'power-off-svgrepo-com.svg' %}" alt="" style="width: 20px; height: 20px;">
+              </span>
+            </a>
+          </div>
+        </div>
+    </nav>
+    
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Back Button - Fixed positioning -->
+        <div class="back-button-container mb-8">
+            <a href="{% url 'app:website_details' %}" class="inline-flex items-center space-x-2 sm:space-x-3 bg-white/80 backdrop-blur-sm hover:bg-white text-gray-700 hover:text-gray-900 font-medium py-2 px-4 sm:py-3 sm:px-6 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5 sm:hover:-translate-y-1 group">
+
+
+              <span class="text-sm sm:text-base font-semibold">Back</span>
+            </a>
+        </div>
+        
+        <!-- Header -->
+        <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-8 animate-fade-in">
+            <div class="flex-1">
+                <h1 class="gradient-text text-3xl md:text-4xl font-bold mb-2">{{ job.title }}</h1>
+            </div>
+            
+            <div class="mt-4 lg:mt-0 flex gap-3">
+            
+        <a href="{% url 'app:export_applicants'  job.id %}" class="btn-primary inline-flex items-center">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            Export Applicants
+        </a>
+
+            </div>
+        </div>
+
+        
+        <!-- Tabs -->
+        <div class="tab-container">
+            <div class="tab active" onclick="switchTab('job-details')">Job Details</div>
+            <div class="tab" onclick="switchTab('applicants')">Applicants ({{ applicants|length }})</div>
+        </div>
+        
+        <!-- Job Details Tab -->
+        <div id="job-details" class="tab-content active animate-fade-in">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Job Description -->
+                <div class="lg:col-span-2">
+                    <div class="job-detail-card">
+                        <h2 class="section-title">Job Description</h2>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-700 leading-relaxed">{{ job.description }}</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Key Responsibilities -->
+                    <div class="job-detail-card">
+                        <h2 class="section-title">Key Responsibilities</h2>
+                        <ul class="responsibility-list">
+                            {% for responsibility in job.key_responsibilities %}
+                            <li class="text-gray-700">{{ responsibility }}</li>
+                            {% empty %}
+                            <li class="text-gray-500">No specific responsibilities listed.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Job Information Sidebar -->
+                <div class="space-y-6">
+                    <!-- Job Overview -->
+                    <div class="job-detail-card">
+                        <h2 class="section-title">Job Overview</h2>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2-2v2m8 0V6a2 2 0 012 2v6a2 2 0 01-2 2H8a2 2 0 01-2-2V8a2 2 0 012-2V6"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Job Type</h3>
+                                <p class="text-gray-600">{{ job.job_type }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Experience Level</h3>
+                                <p class="text-gray-600">{{ job.experience }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Location</h3>
+                                <p class="text-gray-600">{{ job.location }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Application Deadline</h3>
+                                <p class="text-gray-600">{{ job.application_Deadline|date:"F d, Y" }}</p>
+                                {% if job.is_deadline_close %}
+                                <p class="text-sm text-red-500 mt-1">Only {{ days_until_deadline }} days left!</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    
+                </div>
+            </div>
+        </div>
+        
+        <!-- Applicants Tab -->
+        <div id="applicants" class="tab-content animate-fade-in">
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden mt-8 animate-fade-in">
+                <div class="overflow-x-auto">
+                    <table class="applicant-table w-full">
+                        <thead>
+                            <tr>
+                                <th class="rounded-tl-2xl">Name</th>
+                                <th>Contact</th>
+                                <th>Experience</th>
+                                <th>Current Company</th>
+                                <th class="rounded-tr-2xl">Resume</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for applicant in applicants %}
+                            <tr>
+                                <td>
+                                    <div class="flex items-center">
+                                      
+                                        <div>
+                                            <div class="font-medium text-gray-900">{{ applicant.first_name }} {{ applicant.last_name }}</div>
+                                            {% comment %} <div class="text-sm text-gray-500">Applied {{ applicant.application_date|date:"M d, Y" }}</div> {% endcomment %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="text-gray-900">Email: {{ applicant.email }}</div>
+                                    <div class="text-sm text-gray-900">Phone :{{ applicant.phone }}</div>
+                                </td>
+                                <td class="text-gray-700">{{ applicant.experience }}</td>
+                                <td class="text-gray-700">{{ applicant.current_company|default:"Not specified" }}</td>
+                              
+                                <td>
+                                    {% if applicant.resume %}
+                                    <a href="{{ applicant.resume.url }}" target="_blank" class="resume-link">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                        View
+                                    </a>
+                                    {% else %}
+                                    <span class="text-gray-400 text-sm">Not provided</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center py-12 text-gray-500">
+                                    <svg class="w-16 h-16 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p class="text-lg">No applicants yet</p>
+                                    <p class="text-sm mt-1">Applicants will appear here when they apply for this position.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Modal -->
+    <div id="filterModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 opacity-0 invisible">
+        <div class="modal-content bg-white rounded-2xl w-full max-w-md mx-4 overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-indigo-600 p-6 text-white">
+                <h3 class="text-xl font-bold">Filter Applicants</h3>
+                <p class="text-sm opacity-80">Select filters for applicants</p>
+            </div>
+            
+            <div class="p-6">
+                <form id="filterForm" method="get">
+                    <div class="mb-4">
+                        <label for="position" class="block text-sm font-medium text-gray-700 mb-2">Position</label>
+                        <select id="position" name="position" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">All Positions</option>
+                            {% for position in positions %}
+                            <option value="{{ position.id }}">{{ position.title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                        <select id="status" name="status" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                            <option value="">All Statuses</option>
+                            <option value="new">New</option>
+                            <option value="review">In Review</option>
+                            <option value="rejected">Screened</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <label for="dateRange" class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
+                        <input type="text" id="dateRange" name="dateRange" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Select date range">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <button type="button" onclick="closeModal()" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition duration-300">
+                            Cancel
+                        </button>
+                        <button type="submit" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition duration-300">
+                            Apply Filters
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/flatpickr.js' %}"></script>
+    <script>
+        // Modal functions
+        function openModal() {
+            document.getElementById('filterModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('filterModal').classList.remove('active');
+        }
+        
+        // Close modal when clicking outside
+        document.getElementById('filterModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+        
+        // Tab switching functionality
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+        
+        // Initialize date range picker
+        flatpickr("#dateRange", {
+            mode: "range",
+            dateFormat: "Y-m-d",
+            maxDate: "today"
+        });
+        
+        // Add some sample animation to stats cards on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const stats = document.querySelectorAll('.stat-card');
+            stats.forEach((stat, index) => {
+                stat.style.animationDelay = `${index * 0.1}s`;
+            });
+        });
+    </script>
+</body>
+</html>

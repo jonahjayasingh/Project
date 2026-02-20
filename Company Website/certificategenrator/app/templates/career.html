@@ -1,0 +1,1270 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Careers - Alric Infotech Pvt Ltd</title>
+    <link rel="shortcut icon" href="{% static 'logo.png' %}" type="image/x-icon">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        :root {
+            --primary: #9d4edd; /* Purple */
+            --secondary: #ff006e; /* Pink */
+            --dark: #240046; /* Dark Purple */
+            --light: #fdf2f8; /* Light Pink */
+            --gray: #64748b;
+            --success: #10b981;
+            --whatsapp: #25D366;
+        }
+        body {
+            color: var(--dark);
+            line-height: 1.6;
+            background: linear-gradient(135deg, #fdf2f8 0%, #f3e5f5 100%);
+            {% comment %} padding-top: 80px; {% endcomment %}
+        }
+        .container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 12px 28px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(157, 78, 221, 0.2);
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: linear-gradient(45deg, #7b2cbf, #d90466);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(157, 78, 221, 0.3);
+        }
+        .section {
+            padding: 80px 0;
+        }
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            font-size: 2.5rem;
+            position: relative;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .section-title:after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 5px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            margin: 15px auto;
+            border-radius: 10px;
+        }
+
+        /* Header Styles */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+        .header-container {
+            display: flex;
+            height:80px;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+        .logo img {
+            transition: transform 0.3s ease;
+            max-width: 100px;
+            height: auto;
+        }
+        .logo:hover img {
+            transform: scale(1.05);
+        }
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        nav ul li {
+            margin-left: 20px;
+            position: relative;
+        }
+        nav ul li a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 8px 0;
+            position: relative;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        nav ul li a i {
+            font-size: 0.8rem;
+            transition: transform 0.3s ease;
+        }
+        nav ul li a:hover i {
+            transform: translateY(-2px);
+        }
+        nav ul li a:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            transition: width 0.3s ease;
+            border-radius: 10px;
+        }
+        nav ul li a:hover {
+            color: var(--primary);
+        }
+        nav ul li a:hover:after {
+            width: 100%;
+        }
+        .nav-cta {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white !important;
+            padding: 8px 20px !important;
+            border-radius: 25px;
+            margin-left: 15px !important;
+        }
+        .nav-cta:after {
+            display: none;
+        }
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3);
+        }
+        .dropdown:hover .dropdown-menu {
+            display: block;
+        }
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            padding: 10px 0;
+            min-width: 200px;
+            z-index: 1000;
+            display: none;
+        }
+        .dropdown-menu li {
+            margin: 0;
+        }
+        .dropdown-menu a {
+            padding: 10px 20px !important;
+            display: block;
+            width: 100%;
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--dark);
+            cursor: pointer;
+            margin-left: auto;
+            width: 40px;
+            height: 40px;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        /* Careers Hero Section */
+        .careers-hero {
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.9), rgba(255, 0, 110, 0.9)), url('{% static "sbg.jpeg" %}') no-repeat center center/cover;
+            height: 60vh;
+            color: white;
+            display: flex;
+            margin-top: 80px;
+            align-items: center;
+            text-align: center;
+            border-radius: 0 0 50px 50px;
+            margin-bottom: 50px;
+        }
+        .careers-hero-content {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .careers-hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        .careers-hero-content p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+
+        /* Why Join Us Section */
+        .why-join {
+            background: white;
+            border-radius: 50px;
+            padding: 80px 0;
+        }
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+        }
+        .benefit-card {
+            background: var(--light);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(157, 78, 221, 0.08);
+        }
+        .benefit-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(157, 78, 221, 0.15);
+        }
+        .benefit-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), rgba(255, 0, 110, 0.1));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+        }
+        .benefit-icon i {
+            font-size: 2.5rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .benefit-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        .benefit-card p {
+            color: var(--gray);
+        }
+
+        /* Open Positions Section */
+        .open-positions {
+            background: linear-gradient(to bottom, #ffffff, #fdf2f8);
+            border-radius: 50px;
+            padding: 80px 0;
+        }
+        .positions-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .position-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(157, 78, 221, 0.08);
+            transition: all 0.3s ease;
+            border-left: 5px solid var(--primary);
+        }
+        .position-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(157, 78, 221, 0.15);
+        }
+        .position-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .position-title h3 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 5px;
+        }
+        .position-meta {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        .position-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        .position-meta i {
+            color: var(--primary);
+        }
+        .position-details {
+            margin-bottom: 25px;
+        }
+        .position-details p {
+            color: var(--gray);
+            margin-bottom: 15px;
+        }
+        .position-requirements {
+            margin-bottom: 25px;
+        }
+        .position-requirements h4 {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        .position-requirements ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        .position-requirements li {
+            padding: 8px 0;
+            color: var(--gray);
+            position: relative;
+            padding-left: 25px;
+        }
+        .position-requirements li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 600px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        .modal-close:hover {
+            color: var(--secondary);
+        }
+        .modal-title {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.1);
+        }
+        .form-row {
+            display: flex;
+            gap: 20px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .submit-btn {
+            width: 100%;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            padding: 15px;
+        }
+
+        /* Application Process Section */
+        .application-process {
+            background: white;
+            border-radius: 50px;
+            padding: 80px 0;
+            margin: 0 auto;
+        }
+        .process-steps {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 60px;
+        }
+        .process-step {
+            flex: 1;
+            min-width: 200px;
+            text-align: center;
+            position: relative;
+        }
+        .step-number {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin: 0 auto 20px;
+        }
+        .step-title {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        .step-description {
+            color: var(--gray);
+        }
+
+        /* CTA Section */
+        .careers-cta {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            text-align: center;
+            border-radius: 50px;
+            padding: 80px 0;
+            margin-top: 30px;
+        }
+        .careers-cta h2 {
+            font-size: 2.8rem;
+            margin-bottom: 20px;
+        }
+        .careers-cta p {
+            font-size: 1.3rem;
+            max-width: 700px;
+            margin: 0 auto 40px;
+            opacity: 0.9;
+        }
+
+        /* WhatsApp Floating Button */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+        }
+        .whatsapp-button {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: var(--whatsapp);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            box-shadow: 0 5px 20px rgba(37, 211, 102, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+        .whatsapp-button:hover {
+            transform: scale(1.1);
+            background: #128C7E;
+        }
+
+        /* Chat Widget */
+        .chat-widget {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        .chat-button {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 5px 20px rgba(157, 78, 221, 0.4);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .chat-button:hover {
+            transform: scale(1.1);
+            background: linear-gradient(45deg, #7b2cbf, #d90466);
+        }
+        .chat-options {
+            position: absolute;
+            bottom: 70px;
+            right: 0;
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            width: 200px;
+        }
+        .chat-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .chat-option:hover {
+            background: #f1f5f9;
+            transform: translateX(-5px);
+        }
+        .chat-option i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+            width: 25px;
+            text-align: center;
+        }
+        .whatsapp-option i {
+            color: var(--whatsapp);
+        }
+        .phone-option i {
+            color: var(--primary);
+        }
+        .email-option i {
+            color: var(--secondary);
+        }
+        .chat-widget:hover .chat-options {
+            display: flex;
+        }
+
+        /* Footer */
+        footer {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 80px 0 30px;
+            border-radius: 50px 50px 0 0;
+            margin-top: 80px;
+        }
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+        .footer-column h3 {
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            color: white;
+        }
+        .footer-links {
+            list-style: none;
+        }
+        .footer-links li {
+            margin-bottom: 12px;
+        }
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        .footer-links a:hover {
+            color: white;
+            transform: translateX(5px);
+        }
+        .footer-links a i {
+            margin-right: 10px;
+            font-size: 0.9rem;
+        }
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .social-links a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 45px;
+            height: 45px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .social-links a:hover {
+            background: white;
+            color: var(--primary);
+            transform: translateY(-5px);
+        }
+        .map-container {
+            margin-top: 20px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+        .map-container iframe {
+            width: 100%;
+            height: 250px;
+            border: none;
+        }
+        .copyright {
+            text-align: center;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        .cert-logo {
+            width: 100%;
+            padding: auto;
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .cert-logo img {
+            max-width: 100px;
+            height: auto;
+        }
+
+        /* Messages Container */
+        .messages-container {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            z-index: 9999;
+            width: 90%;
+            max-width: 500px;
+        }
+        .message {
+            padding: 0.75rem;
+            color: #db2777;
+            background-color: #fdf2f8;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            text-align: center;
+            border: 1px solid #fce7f3;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 991px) {
+            .careers-hero-content h1 {
+                font-size: 3rem;
+            }
+            .section-title {
+                font-size: 2.2rem;
+            }
+            .footer-content {
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            }
+            nav ul {
+                position: fixed;
+                top: 80px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 80px);
+                background: white;
+                flex-direction: column;
+                align-items: center;
+                justify-content: flex-start;
+                padding-top: 50px;
+                transition: left 0.3s ease;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+                z-index: 999;
+            }
+            
+            nav ul.active {
+                left: 0;
+            }
+            
+            nav ul li {
+                margin: 15px 0;
+                width: 80%;
+                text-align: center;
+            }
+            
+            nav ul li a {
+                justify-content: center;
+                font-size: 16px;
+                padding: 12px 0;
+            }
+            .mobile-menu-btn {
+        display: block;
+        margin-left: auto;
+    }
+            .nav-cta {
+                margin-left: 0 !important;
+                margin-top: 20px;
+            }
+            .dropdown-menu {
+                position: static;
+                background: none;
+                backdrop-filter: none;
+                box-shadow: none;
+                width: 100%;
+                border-radius: 0;
+                padding: 0;
+                min-width: 0;
+                z-index: auto;
+                display: none;
+            }
+        }
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+            }
+            .header-container {
+                padding: 12px 20px;
+            }
+            .careers-hero {
+                height: auto;
+                padding: 100px 0;
+            }
+            .careers-hero-content h1 {
+                font-size: 2.5rem;
+            }
+            .section {
+                padding: 60px 0;
+            }
+            .chat-widget {
+                bottom: 20px;
+                right: 20px;
+            }
+            .whatsapp-float {
+                bottom: 20px;
+                left: 20px;
+            }
+            .process-steps {
+                flex-direction: column;
+                align-items: center;
+            }
+            .process-step {
+                max-width: 400px;
+                margin-bottom: 30px;
+            }
+            .map-container iframe {
+                height: 200px;
+            }
+            .position-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .position-meta {
+                margin-top: 15px;
+            }
+            nav ul {
+                top: 70px;
+                height: calc(100vh - 70px);
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .modal-content {
+                padding: 30px 20px;
+            }
+            .careers-cta h2 {
+                font-size: 2.2rem;
+            }
+            .careers-cta p {
+                font-size: 1.1rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .careers-hero-content h1 {
+                font-size: 2rem;
+            }
+            .careers-hero-content p {
+                font-size: 1rem;
+            }
+            .section-title {
+                font-size: 1.8rem;
+            }
+            .benefit-card {
+                padding: 30px 20px;
+            }
+            .position-card {
+                padding: 20px;
+            }
+            .cert-logo {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% if messages %}
+    <div class="messages-container">
+        {% for message in messages %}
+        <div class="message">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %} 
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <a href="{% url 'app:home' %}" class="logo">
+                <img src="{% static 'logo.png' %}" alt="Alric" width="100px">
+            </a>
+            <button class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'app:home' %}"><i class="fas fa-home"></i> Home</a></li>
+                    <li><a href="{% url 'app:home' %}#about"><i class="fas fa-info-circle"></i> About</a></li>
+                    <li><a href="{% url 'app:services' %}"><i class="fas fa-cogs"></i> Services</a></li>
+                    <li><a href="{% url 'app:services' %}#projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
+                    <li class="dropdown">
+                        <a href="{% url 'app:home' %}#courses"><i class="fas fa-laptop-code"></i> Internship Training & Placements</a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{% url 'app:home' %}#courses"><i class="fas fa-graduation-cap"></i> Internship Training</a></li>
+                            <li><a href="{% url 'app:home' %}#testimonials"><i class="fas fa-user-tie"></i> Placements</a></li>
+                            <li><a href="{% url 'app:verify_certificate' %}"><i class="fas fa-certificate"></i> Verify Certificate</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="{% url 'app:home' %}#gallery"><i class="fas fa-images"></i> Gallery</a></li>
+                    <li><a href="{% url 'app:careers' %}" class="nav-active"><i class="fas fa-user-graduate"></i> Careers</a></li>
+                    <li><a href="{% url 'app:home' %}#contact" class="nav-cta"><i class="fas fa-phone-alt"></i> Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Careers Hero Section -->
+    <section class="careers-hero">
+        <div class="container">
+            <div class="careers-hero-content">
+                <h1>Build Your Career With Us</h1>
+                <p>Join our team of innovators and help shape the future of technology</p>
+                <a href="#open-positions" class="btn">View Open Positions</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Join Us Section -->
+    <section class="why-join">
+        <div class="container">
+            <h2 class="section-title">Why Join Alric Infotech?</h2>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>Innovative Projects</h3>
+                    <p>Work on cutting-edge technologies and challenging projects that make a real impact.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Continuous Learning</h3>
+                    <p>Access to training programs, workshops, and certifications to enhance your skills.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Collaborative Culture</h3>
+                    <p>Join a supportive team that values collaboration, creativity, and diverse perspectives.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Career Growth</h3>
+                    <p>Clear career progression paths and opportunities for advancement within the company.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <h3>Work-Life Balance</h3>
+                    <p>Flexible work arrangements and policies that support your personal and professional life.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <h3>Competitive Benefits</h3>
+                    <p>Comprehensive health insurance, retirement plans, and performance-based bonuses.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Open Positions Section -->
+    <section class="open-positions" id="open-positions">
+        <div class="container">
+            <h2 class="section-title">Open Positions</h2>
+            <div class="positions-container">
+                {% for career in careers %}
+                <div class="position-card">
+                    <div class="position-header">
+                        <div class="position-title">
+                            <h3>{{career.title}}</h3>
+                            <div class="position-meta">
+                                <span><i class="fas fa-map-marker-alt"></i>{{career.location}}</span>
+                                <span><i class="fas fa-briefcase"></i>{{career.job_type}}</span>
+                                <span><i class="fas fa-clock"></i> {{career.experience}}</span>
+                            </div>
+                        </div>
+                        <button class="btn apply-btn" data-job="{{career.title}}" data-id="{{career.id}}">Apply Now</button>
+                    </div>
+                    <div class="position-details">
+                        <p>{{career.description}}</p>
+                    </div>
+                    <div class="position-requirements">
+                        <h4>Key Responsibilities:</h4>
+                        <ul>
+                            {% for point in career.key_responsibilities %}
+                            <li>{{point}}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+
+    <!-- Application Modal -->
+    <div class="modal" id="applicationModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2 class="modal-title">Apply for <span id="jobTitle">Position</span></h2>
+            <form id="applicationForm" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="id" id="jobid">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="first_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="last_name" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" name="phone" id="phone" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="experience">Years of Experience</label>
+                    <input type="number" name="experience" id="experience" class="form-control" min="0" max="50" required>
+                </div>
+                <div class="form-group">
+                    <label for="currentCompany">Current Company (Optional)</label>
+                    <input type="text" name="current_company" id="currentCompany" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="resume">Upload Resume</label>
+                    <input type="file" id="resume" name="resume" class="form-control" accept=".pdf,.doc,.docx" required>
+                    <small>Accepted formats: PDF, DOC, DOCX (Max: 5MB)</small>
+                </div>
+                <div class="form-group">
+                    <label for="coverLetter">Cover Letter (Optional)</label>
+                    <textarea id="coverLetter" name="cover_letter" class="form-control" rows="4" placeholder="Tell us why you're interested in this position..."></textarea>
+                </div>
+                <button type="submit" class="btn submit-btn">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Application Process Section -->
+    <section class="application-process">
+        <div class="container">
+            <h2 class="section-title">Our Hiring Process</h2>
+            <div class="process-steps">
+                <div class="process-step">
+                    <div class="step-number">1</div>
+                    <h3 class="step-title">Application Review</h3>
+                    <p class="step-description">We carefully review each application to find the best match for our team.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">2</div>
+                    <h3 class="step-title">Initial Screening</h3>
+                    <p class="step-description">A quick phone call to discuss your background and career goals.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">3</div>
+                    <h3 class="step-title">Technical Assessment</h3>
+                    <p class="step-description">A skills-based assessment relevant to the position you're applying for.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">4</div>
+                    <h3 class="step-title">Team Interviews</h3>
+                    <p class="step-description">Meet with team members and managers to assess cultural fit.</p>
+                </div>
+                <div class="process-step">
+                    <div class="step-number">5</div>
+                    <h3 class="step-title">Offer</h3>
+                    <p class="step-description">Receive an offer and welcome to the Alric Infotech family!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="careers-cta">
+        <div class="container">
+            <h2>Ready to Join Our Team?</h2>
+            <p>If you don't see a position that matches your skills, we'd still love to hear from you. Send us your resume!</p>
+            <a href="mailto:careers@alric.com" class="btn">Send Your Resume</a>
+        </div>
+    </section>
+
+    <!-- WhatsApp Floating Button -->
+    <div class="whatsapp-float">
+        <a href="https://wa.me/91{{ contact.phone1 }}?text=Hi,%20I'm%20interested%20in%20career%20opportunities%20at%20Alric%20Infotech" class="whatsapp-button" target="_blank">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Chat Widget -->
+    <div class="chat-widget">
+        <div class="chat-button">
+            <i class="fas fa-comment-dots"></i>
+        </div>
+        <div class="chat-options">
+            <a href="https://wa.me/91{{ contact.phone1 }}?text=Hi,%20I%20have%20a%20question%20about%20career%20opportunities%20at%20Alric%20Infotech" class="chat-option whatsapp-option" target="_blank">
+                <i class="fab fa-whatsapp"></i>
+                WhatsApp Chat
+            </a>
+            <a href="tel:+91{{contact.phone1}}" class="chat-option phone-option">
+                <i class="fas fa-phone"></i>
+                Call Now
+            </a>
+            <a href="mailto:careers@alric.com" class="chat-option email-option">
+                <i class="far fa-envelope"></i>
+                Email Us
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer id="contact">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Alric Infotech Pvt Ltd</h3>
+                    <p>Advancing tech skills through high-quality, accessible education.</p>
+                    <div class="social-links">
+                        <a href="{{contact.facebook}}" target="_blank"><i class="fab fa-facebook-f"></i></a>
+                        <a href="{{contact.twitter}}" target="_blank"><i class="fab fa-twitter"></i></a>
+                        <a href="{{contact.linkedin}}" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="{{contact.instagram}}" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="{{contact.youtube}}&sub_confirmation=1" target="_blank"><i class="fab fa-youtube"></i></a>
+                    </div>
+                    <div class="cert-logo">
+                        <img src="{% static 'iso.png' %}" alt="ISO Certified" width="100px">
+                        <img src="{% static 'qva.png' %}" alt="Quality Verified" width="100px">
+                        <img src="{% static 'gaafs-removebg.png' %}" alt="GAAFS Certified" width="100px">
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h3>Quick Links</h3>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'app:home' %}"><i class="fas fa-chevron-right"></i> Home</a></li>
+                        <li><a href="{% url 'app:home' %}#about"><i class="fas fa-chevron-right"></i> About</a></li>
+                        <li><a href="{% url 'app:services' %}#services"><i class="fas fa-chevron-right"></i> Services</a></li>
+                        <li><a href="{% url 'app:home' %}#courses"><i class="fas fa-chevron-right"></i> Internship Training & Placement</a></li>
+                        <li><a href="{% url 'app:home' %}#gallery"><i class="fas fa-chevron-right"></i> Gallery</a></li>
+                        <li><a href="{% url 'app:services' %}#projects"><i class="fas fa-chevron-right"></i> Projects</a></li>
+                        <li><a href="{% url 'app:careers' %}"><i class="fas fa-chevron-right"></i> Careers</a></li>
+                        <li><a href="{% url 'app:verify_certificate' %}"><i class="fas fa-chevron-right"></i> Verify Certificate</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact Us</h3>
+                    <ul class="footer-links">
+                        <li><a href="#"><i class="fas fa-map-marker-alt"></i>{{contact.address}}</a></li>
+                        <li><a href="tel:+91{{contact.phone1}}"><i class="fas fa-phone"></i> +91 {{contact.phone1}}</a></li>
+                        <li><a href="tel:+91{{contact.phone2}}"><i class="fas fa-phone"></i> +91 {{contact.phone2}}</a></li>
+                        <li><a href="mailto:{{contact.email}}"><i class="far fa-envelope"></i> {{contact.email}}</a></li>
+                    </ul>
+                    <div class="map-container">
+                        {{contact.map_embed_url | safe}}
+                    </div>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2023 Alric Infotech Pvt Ltd. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const navMenu = document.querySelector('nav ul');
+            const body = document.body;
+
+            mobileMenuBtn.addEventListener('click', function() {
+                navMenu.classList.toggle('active');
+                mobileMenuBtn.innerHTML = navMenu.classList.contains('active') ?
+                    '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+                
+                // Prevent body scroll when menu is open
+                if (navMenu.classList.contains('active')) {
+                    body.style.overflow = 'hidden';
+                } else {
+                    body.style.overflow = 'auto';
+                }
+            });
+
+            // Close menu when clicking on a link
+            const navLinks = document.querySelectorAll('nav ul li a');
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    navMenu.classList.remove('active');
+                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    body.style.overflow = 'auto';
+                });
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(event) {
+                if (!event.target.closest('nav') && !event.target.closest('.mobile-menu-btn')) {
+                    navMenu.classList.remove('active');
+                    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                    body.style.overflow = 'auto';
+                }
+            });
+
+            // Application Modal Functionality
+            const modal = document.getElementById('applicationModal');
+            const modalClose = document.getElementById('modalClose');
+            const applyButtons = document.querySelectorAll('.apply-btn');
+            const jobTitleSpan = document.getElementById('jobTitle');
+            const jobIdInput = document.getElementById("jobid");
+            const applicationForm = document.getElementById('applicationForm');
+
+            // Open modal when Apply button is clicked
+            applyButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const jobTitle = this.getAttribute('data-job');
+                    const jobId = this.getAttribute("data-id");
+                    jobTitleSpan.textContent = jobTitle;
+                    jobIdInput.value = jobId;
+                    modal.style.display = 'flex';
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+
+            // Close modal when X is clicked
+            modalClose.addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+
+            // Close modal when clicking outside the modal content
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+
+            // Auto-hide messages after 5 seconds
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                setTimeout(() => {
+                    message.style.display = 'none';
+                }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

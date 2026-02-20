@@ -1,0 +1,35 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; width: 100%;">
+    <div class="premium-card" style="width: 100%; max-width: 500px;">
+        <div class="card-header">
+            <h2 class="card-title">Access Terminal</h2>
+            <p class="card-subtitle">Verify credentials to bypass security gate</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <input type="{{ field.field.widget.input_type }}" name="{{ field.name }}" id="{{ field.id_for_label }}"
+                    class="input-ctrl" placeholder="Enter {{ field.label|lower }}" required>
+                {% if field.errors %}
+                <div class="errorlist">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-glow"
+                style="width: 100%; font-size: 1.1rem; height: 3.5rem; justify-content: center; margin-top: 1rem;">
+                AUTHORIZE SESSION
+            </button>
+        </form>
+
+        <div class="form-footer">
+            Unauthorized user? <a href="{% url 'register' %}" style="color: var(--primary);">Generate account</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}TruthLens AI - Register{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2 style="text-align: center; margin-bottom: 2rem;">Create Account</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% for field in form %}
+        <div style="margin-bottom: 1rem;">
+            <label for="{{ field.id_for_label }}"
+                style="display: block; margin-bottom: 0.5rem; color: var(--text-muted);">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+            <div style="color: var(--danger); font-size: 0.8rem; margin-top: 0.25rem;">
+                {{ field.errors }}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="submit-btn" style="margin-top: 1rem;">Register</button>
+    </form>
+    <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted);">
+        Already have an account? <a href="{% url 'login' %}" style="color: var(--primary); text-decoration: none;">Login
+            here</a>
+    </p>
+</div>
+{% endblock %}

@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Trainer Dashboard - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    {% if no_profile %}
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="alert alert-warning">
+                <h4><i class="bi bi-exclamation-triangle"></i> No Trainer Profile</h4>
+                <p>Your account doesn't have a trainer profile yet. Please contact the gym administrator.</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4"><i class="bi bi-person-workspace"></i> Trainer Dashboard</h1>
+        </div>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Assigned Members</p>
+                            <h2 class="mb-0 fw-bold">{{ assigned_members|length }}</h2>
+                        </div>
+                        <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Scheduled Classes</p>
+                            <h2 class="mb-0 fw-bold">{{ scheduled_classes|length }}</h2>
+                        </div>
+                        <div class="stat-icon bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-calendar3"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <p class="text-muted mb-1">Today's Classes</p>
+                            <h2 class="mb-0 fw-bold">{{ today_classes|length }}</h2>
+                        </div>
+                        <div class="stat-icon bg-info bg-opacity-10 text-info">
+                            <i class="bi bi-clock-fill"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trainer Info -->
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-person-badge"></i> Trainer Info</h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        {% if trainer.user.profile_photo %}
+                        <img src="{{ trainer.user.profile_photo.url }}" class="rounded-circle" width="100" height="100"
+                            alt="Profile">
+                        {% else %}
+                        <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center"
+                            style="width: 100px; height: 100px; font-size: 3rem;">
+                            <i class="bi bi-person"></i>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <h5 class="text-center mb-3">{{ trainer.user.get_full_name }}</h5>
+                    <hr>
+                    <p class="mb-2"><strong>Specialization:</strong> {{ trainer.get_specialization_display }}</p>
+                    <p class="mb-2"><strong>Experience:</strong> {{ trainer.experience_years }} years</p>
+                    <p class="mb-2"><strong>Status:</strong>
+                        {% if trainer.is_available %}
+                        <span class="badge bg-success">Available</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Unavailable</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Today's Classes -->
+        <div class="col-md-8 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-day"></i> Today's Classes</h5>
+                </div>
+                <div class="card-body">
+                    {% if today_classes %}
+                    <div class="list-group list-group-flush">
+                        {% for schedule in today_classes %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ schedule.fitness_class.name }}</h6>
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock"></i> {{ schedule.start_time|time:"g:i A" }}
+                                        {% if schedule.room_location %}
+                                        | <i class="bi bi-geo-alt"></i> {{ schedule.room_location }}
+                                        {% endif %}
+                                    </small><br>
+                                    <small class="text-muted">
+                                        <i class="bi bi-people"></i> 
+                                        {{ schedule.get_current_bookings_count }}/
+                                        {{ schedule.fitness_class.capacity }} booked
+                                    </small>
+                                </div>
+                                <span class="badge bg-primary">{{ schedule.fitness_class.get_difficulty_level_display}}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No classes scheduled for today</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Schedule and Assigned Members -->
+    <div class="row">
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-calendar-week"></i> Weekly Schedule</h5>
+                </div>
+                <div class="card-body">
+                    {% if scheduled_classes %}
+                    <div class="list-group list-group-flush">
+                        {% for schedule in scheduled_classes %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="mb-1">{{ schedule.fitness_class.name }}</h6>
+                                    <small class="text-muted">
+                                        {{ schedule.get_day_of_week_display }} at {{ schedule.start_time|time:"g:i A" }}
+                                    </small>
+                                </div>
+                                {% if schedule.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No classes scheduled</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-person-lines-fill"></i> Assigned Members</h5>
+                </div>
+                <div class="card-body">
+                    {% if assigned_members %}
+                    <div class="list-group list-group-flush">
+                        {% for assignment in assigned_members %}
+                        <div class="list-group-item px-0">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-1">{{ assignment.member.user.get_full_name }}</h6>
+                                    <small class="text-muted">
+                                        {{ assignment.sessions_per_week }} sessions/week
+                                        | Since {{ assignment.start_date|date:"M Y" }}
+                                    </small>
+                                </div>
+                                <span class="badge bg-success">Active</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted text-center py-3">No members assigned</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

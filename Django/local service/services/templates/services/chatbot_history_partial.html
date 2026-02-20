@@ -1,0 +1,7 @@
+{% for chat in history reversed %}
+<div class="chat-bubble bubble-user">{{ chat.message }}</div>
+<div class="chat-bubble bubble-ai">{{ chat.response|safe }}</div>
+{% endfor %}
+<script>
+    if (typeof scrollChat === 'function') scrollChat();
+</script>

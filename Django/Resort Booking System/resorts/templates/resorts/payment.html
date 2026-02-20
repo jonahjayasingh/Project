@@ -1,0 +1,76 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Complete Payment | Paradise Resorts{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center animate-in">
+    <div class="col-lg-6">
+        <div class="card border-0 p-5 shadow-premium text-center"
+            style="border-radius: 40px; background: var(--bg-card);">
+            <div class="mb-4">
+                <i class="bi bi-credit-card-2-front text-primary display-1"></i>
+            </div>
+
+            <h2 class="fw-800 mb-2">Secure Payment</h2>
+            <p class="text-muted fs-5 mb-5">Complete your transaction to secure your resort.</p>
+
+            <div class="glass-panel p-4 mb-5" style="border-radius: 20px; background: #f8fafc;">
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold text-muted">Booking Reference</span>
+                    <span class="fw-800 text-dark">#{{ booking.id }}</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span class="fw-bold text-muted">Total Amount</span>
+                    <span class="fw-800 text-primary">₹ {{ booking.total_price }}</span>
+                </div>
+            </div>
+
+            {% if is_mock %}
+            <div class="alert alert-warning mb-5" style="border-radius: 20px;">
+                <i class="bi bi-info-circle me-2"></i><strong>Development Mode:</strong> Razorpay keys are unconfigured
+                or invalid.
+            </div>
+            <form action="{% url 'payment_success' %}" method="POST" id="mock-payment-form">
+                {% csrf_token %}
+                <input type="hidden" name="razorpay_order_id" value="{{ payment.id }}">
+                <input type="hidden" name="razorpay_payment_id" value="pay_mock_{{ booking.id }}">
+                <input type="hidden" name="razorpay_signature" value="sig_mock_{{ booking.id }}">
+                <button type="submit" class="btn btn-warning btn-lg w-100 py-3 shadow-premium"
+                    style="border-radius: 18px; font-weight: 800; font-size: 1.1rem;">
+                    <i class="bi bi-play-circle me-2"></i>SIMULATE SUCCESSFUL PAYMENT
+                </button>
+            </form>
+            {% else %}
+            <button id="rzp-button1" class="btn btn-primary btn-lg w-100 py-3 shadow-premium"
+                style="border-radius: 18px; font-weight: 800; font-size: 1.1rem;">
+                <i class="bi bi-lock-fill me-2"></i>PAY ₹ {{ booking.total_price }}
+            </button>
+            {% endif %}
+
+            <p class="text-muted smallest mt-3 mb-0 fw-bold text-uppercase tracking-wider">
+                <i class="bi bi-shield-check me-1"></i> 256-BIT ENCRYPTED CONNECTION
+            </p>
+        </div>
+    </div>
+</div>
+
+{% if not is_mock %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    var options = {
+        "key": "{{ api_key }}",
+        "amount": "{{ payment.amount }}",
+        "currency": "INR",
+        "name": "Paradise Resorts",
+        "description": "Booking Payment for #{{ booking.id }}",
+        "order_id": "{{ payment.id }}",
+        "callback_url": window.location.origin + "{% url 'payment_success' %}",
+        "theme": { "color": "#6366f1" }
+    };
+    var rzp1 = new Razorpay(options);
+    document.getElementById('rzp-button1').onclick = function (e) {
+        rzp1.open();
+        e.preventDefault();
+    }
+</script>
+{% endif %}
+{% endblock %}

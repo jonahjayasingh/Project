@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %}Predict AQI{% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background: #f4f6f9;
+    }
+
+    .prediction-container {
+        max-width: 1100px;
+        margin: 3rem auto;
+    }
+
+    .card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    .section-title {
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: #0d6efd;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .unit {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-left: 0.25rem;
+    }
+
+    .pollutant-card {
+        background: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid #0d6efd;
+    }
+
+    .btn-predict {
+        padding: 0.9rem 3rem;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: 2rem;
+    }
+
+    .header-box {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .header-box h2 {
+        font-weight: 800;
+    }
+
+    .header-box p {
+        color: #6c757d;
+        max-width: 600px;
+        margin: 0.5rem auto 0;
+    }
+
+    .info-card {
+        background: linear-gradient(135deg, #e9f2ff, #ffffff);
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container prediction-container">
+
+    <div class="header-box">
+        <h2>AQI Prediction</h2>
+        <p>
+            Enter pollutant concentrations to estimate the Air Quality Index category
+        </p>
+    </div>
+
+    <div class="card">
+        <div class="card-body p-4">
+
+            <form method="POST" action="" novalidate>
+                {{ form.hidden_tag() }}
+
+                <div class="row">
+                    <!-- LEFT COLUMN -->
+                    <div class="col-lg-6">
+
+                        <div class="pollutant-card">
+                            <div class="section-title">Particulate Matter</div>
+
+                            <div class="mb-3">
+                                {{ form.pm25.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.pm25(class="form-control", placeholder="e.g. 45.2") }}
+                                {% for error in form.pm25.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.pm10.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.pm10(class="form-control", placeholder="e.g. 85.7") }}
+                                {% for error in form.pm10.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="pollutant-card">
+                            <div class="section-title">Nitrogen Compounds</div>
+
+                            <div class="mb-3">
+                                {{ form.no.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.no(class="form-control", placeholder="e.g. 12.5") }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.no2.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.no2(class="form-control", placeholder="e.g. 28.3") }}
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- RIGHT COLUMN -->
+                    <div class="col-lg-6">
+
+                        <div class="pollutant-card">
+                            <div class="section-title">Gaseous Pollutants</div>
+
+                            <div class="mb-3">
+                                {{ form.nh3.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.nh3(class="form-control", placeholder="e.g. 5.2") }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.co.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.co(class="form-control", placeholder="e.g. 1.2") }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.so2.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.so2(class="form-control", placeholder="e.g. 15.8") }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.o3.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.o3(class="form-control", placeholder="e.g. 42.5") }}
+                            </div>
+                        </div>
+
+                        <div class="pollutant-card">
+                            <div class="section-title">Volatile Organic Compounds</div>
+
+                            <div class="mb-3">
+                                {{ form.benzene.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.benzene(class="form-control", placeholder="e.g. 2.1") }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.toluene.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.toluene(class="form-control", placeholder="e.g. 3.8") }}
+                            </div>
+
+                            <div class="mb-3">
+                                {{ form.xylene.label(class="form-label") }}
+                                <span class="unit">μg/m³</span>
+                                {{ form.xylene(class="form-control", placeholder="e.g. 1.5") }}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary btn-predict">
+                        Predict AQI
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="card info-card mt-4">
+        <div class="card-body">
+            <h6 class="fw-bold mb-2">About the Inputs</h6>
+            <p class="mb-0 small text-muted">
+                All concentrations are measured in micrograms per cubic meter (μg/m³).
+                Typical urban ranges: PM2.5 (10–200), PM10 (20–300), NO₂ (10–100), O₃ (20–200).
+            </p>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,6 @@
+<option value="">---------</option>
+{% for package in packages %}
+<option value="{{ package.id }}" data-price="{{ package.final_price }}">
+    {{ package.package_name }} (₹{{ package.final_price }}) - {{ package.discount_percentage }}% Off
+</option>
+{% endfor %}

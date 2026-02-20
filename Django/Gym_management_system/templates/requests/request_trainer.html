@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - GymMS{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white py-4">
+                    <h2 class="mb-0 text-center">
+                        <i class="bi bi-person-workspace me-2"></i>
+                        Request Personal Trainer
+                    </h2>
+                </div>
+                <div class="card-body p-4">
+                    {% if preferred_trainer %}
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle me-2"></i>Preferred Trainer:</h5>
+                        <p class="mb-0">
+                            <strong>{{ preferred_trainer.user.get_full_name }}</strong> -
+                            {{ preferred_trainer.get_specialization_display }}
+                            ({{ preferred_trainer.experience_years }} years experience)
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Trainer Preferences -->
+                        <h4 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-sliders me-2"></i>Trainer Preferences
+                        </h4>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Preferred Specialization *</label>
+                                {{ form.preferred_specialization }}
+                                {% if form.preferred_specialization.errors %}
+                                <div class="text-danger small">{{ form.preferred_specialization.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Preferred Trainer (Optional)</label>
+                                {{ form.preferred_trainer }}
+                                <small class="form-text text-muted">Leave blank to let us assign the best match</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Sessions Per Week *</label>
+                                {{ form.sessions_per_week }}
+                                {% if form.sessions_per_week.errors %}
+                                <div class="text-danger small">{{ form.sessions_per_week.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Preferred Time *</label>
+                                {{ form.preferred_time }}
+                                {% if form.preferred_time.errors %}
+                                <div class="text-danger small">{{ form.preferred_time.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Goals & Notes -->
+                        <h4 class="border-bottom pb-2 mb-3">
+                            <i class="bi bi-bullseye me-2"></i>Your Goals
+                        </h4>
+                        <div class="mb-4">
+                            <label class="form-label">Fitness Goals *</label>
+                            {{ form.fitness_goals }}
+                            <small class="form-text text-muted">What do you want to achieve with personal
+                                training?</small>
+                            {% if form.fitness_goals.errors %}
+                            <div class="text-danger small">{{ form.fitness_goals.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Additional Notes (Optional)</label>
+                            {{ form.additional_notes }}
+                            <small class="form-text text-muted">Any specific requirements or preferences</small>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'requests:trainers_list' %}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Back to Trainers
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-send me-2"></i>Submit Request
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,87 @@
+{% extends 'library/base.html' %}
+
+{% block title %}Pending Requests{% endblock %}
+
+{% block content %}
+<h1>Pending Book Requests 📋</h1>
+
+<div class="card">
+    {% if requests %}
+    <div style="margin-bottom: 1.5rem; color: var(--text-light); font-weight: 500;">
+        {{ requests|length }} pending request{{ requests|length|pluralize }}
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Book</th>
+                <th>Requested</th>
+                <th>Days Needed</th>
+                <th>Notes</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for req in requests %}
+            <tr>
+                <td>
+                    <div style="font-weight: 700;">{{ req.student.name }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">{{ req.student.student_number }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">{{ req.student.department }}</div>
+                </td>
+                <td>
+                    <div style="font-weight: 700;">{{ req.book.title }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">by {{ req.book.author }}</div>
+                    <span class="badge badge-primary" style="font-size: 0.75rem; margin-top: 0.25rem;">{{req.book.get_category_display }}</span>
+                </td>
+                <td>
+                    <div style="font-weight: 600;">{{ req.request_date|date:"M d, Y" }}</div>
+                    <div style="font-size: 0.85rem; color: var(--text-light);">{{ req.request_date|date:"h:i A" }}</div>
+                </td>
+                <td>
+                    <span style="font-weight: 700; font-size: 1.1rem; color: var(--primary);">{{ req.requested_days}}</span> days
+                </td>
+                <td>
+                    {% if req.notes %}
+                    <div style="max-width: 200px; font-size: 0.9rem; color: var(--text-light);">
+                        {{ req.notes|truncatewords:15 }}
+                    </div>
+                    {% else %}
+                    <span style="color: var(--text-lighter); font-style: italic;">No notes</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'approve_request' req.id %}" class="btn btn-success"
+                            style="padding: 0.5rem 1rem; font-size: 0.875rem;"
+                            onclick="return confirm('Approve this request?')">
+                            ✓ Approve
+                        </a>
+                        <a href="{% url 'reject_request' req.id %}" class="btn btn-danger"
+                            style="padding: 0.5rem 1rem; font-size: 0.875rem;">
+                            ✕ Reject
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">
+        <p>No pending requests at the moment.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% if requests %}
+<div class="card"
+    style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border-left: 4px solid var(--primary);">
+    <p style="margin: 0; color: #1e40af; font-weight: 600;">
+        <strong>ℹ️ Workflow:</strong> After approving a request, the student will be notified. When they come to collect
+        the book, use the "Approved Requests" section in the dashboard to hand over the book and set the return date.
+    </p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,153 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            Int             @id @default(autoincrement())
+  name          String          @unique
+  email         String          @unique
+  password      String
+  role          Role            @default(user)
+  created       DateTime        @default(now())
+  updated       DateTime        @updatedAt
+  contact       Contact?
+  courses       Courses[]
+  gallery       Gallery[]
+  jobPost       JobPost[]
+  placement     Placement[]
+  portfolio     Portfolio[]
+  project       Project[]
+  projectDomain ProjectDomain[]
+  services      Services[]
+}
+
+model Courses {
+  id                Int        @id @default(autoincrement())
+  course_name       String
+  description       String
+  duration          String
+  Price             String
+  course_difficulty Difficulty @default(Beginner)
+  image             String
+  userId            Int
+  user              User       @relation(fields: [userId], references: [id])
+}
+
+model Gallery {
+  id     Int    @id @default(autoincrement())
+  title  String
+  image  String
+  userId Int
+  user   User   @relation(fields: [userId], references: [id])
+}
+
+model Placement {
+  id        Int    @id @default(autoincrement())
+  name      String
+  job_title String
+  company   String
+  image     String
+  userId    Int
+  user      User   @relation(fields: [userId], references: [id])
+}
+
+model Services {
+  id          Int    @id @default(autoincrement())
+  name        String
+  description String
+  key_points  Json
+  userId      Int
+  user        User   @relation(fields: [userId], references: [id])
+}
+
+model ProjectDomain {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String
+  image       String
+  userId      Int
+  project     Project[]
+  user        User      @relation(fields: [userId], references: [id])
+}
+
+model Project {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String
+  domainid    Int
+  userId      Int
+  user        User          @relation(fields: [userId], references: [id])
+  domain      ProjectDomain @relation(fields: [domainid], references: [id])
+}
+
+model Portfolio {
+  id          Int     @id @default(autoincrement())
+  title       String
+  description String
+  category    String
+  tech_used   Json?
+  image       String?
+  userId      Int
+  user        User    @relation(fields: [userId], references: [id])
+}
+
+model JobPost {
+  id              Int             @id @default(autoincrement())
+  title           String
+  location        String
+  job_type        String
+  experience      String
+  description     String
+  responsibilites Json
+  userId          Int
+  jobApplicants   JobApplicants[]
+  user            User            @relation(fields: [userId], references: [id])
+}
+
+model JobApplicants {
+  id              Int     @id @default(autoincrement())
+  first_name      String
+  last_name       String
+  email           String
+  phone           String
+  experience      Int
+  current_company String?
+  resume          String
+  cover_letter    String?
+  jobPostId       Int
+  jobPost         JobPost @relation(fields: [jobPostId], references: [id], onDelete: Cascade)
+}
+
+model Contact {
+  id             Int    @id @default(autoincrement())
+  phone1         String
+  phone2         String
+  email          String
+  map            String
+  address        String
+  instagram_link String
+  facebook_link  String
+  X_link         String
+  linkedin_link  String
+  youtube_link   String
+  userId         Int    @unique
+  user           User   @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  user
+  admin
+  student
+  staff
+}
+
+enum Difficulty {
+  Beginner
+  Intermediate
+  Advanced
+}

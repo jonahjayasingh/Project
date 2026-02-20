@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ action }} Category - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">{{ action }} Category</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Category Name <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name"
+                                value="{{ category.name if category else '' }}" required
+                                placeholder="e.g., Electronics, Clothing, Books">
+                            <div class="form-text">
+                                A URL-friendly slug will be automatically generated from the name.
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="4"
+                                placeholder="Optional description for this category">{{ category.description if category else '' }}</textarea>
+                            <div class="form-text">
+                                Provide a brief description of what products belong in this category.
+                            </div>
+                        </div>
+
+                        {% if category %}
+                        <div class="mb-3">
+                            <label class="form-label">Current Slug</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                                <input type="text" class="form-control" value="{{ category.slug }}" readonly>
+                            </div>
+                            <div class="form-text">
+                                The slug will be updated based on the new name.
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> {{ action }} Category
+                            </button>
+                            <a href="{{ url_for('admin.manage_categories') }}" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            {% if category %}
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title">Category Information</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li><strong>ID:</strong> {{ category.id }}</li>
+                        <li><strong>Created:</strong> {{ category.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</li>
+                        <li><strong>Products:</strong> {{ category.products.count() }} product(s)</li>
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

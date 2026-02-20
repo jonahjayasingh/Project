@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% block title %}Receptionist Dashboard - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person-workspace"></i> Receptionist Dashboard</h2>
+    <span class="text-muted">{{ user.get_full_name }}</span>
+</div>
+
+<div class="row">
+    <!-- Today's Appointments -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-check"></i> Today's Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if today_appointments %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Patient</th>
+                                <th>Doctor</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for appointment in today_appointments %}
+                            <tr>
+                                <td>{{ appointment.appointment_time|time:"h:i A" }}</td>
+                                <td>{{ appointment.patient.user.get_full_name }}</td>
+                                <td>Dr. {{ appointment.doctor.user.get_full_name }}</td>
+                                <td>
+                                    <span class="badge bg-{{ appointment.status|yesno:'success,warning,danger' }}">
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No appointments for today.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Admissions -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-hospital"></i> Active Admissions</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_admissions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Admission ID</th>
+                                <th>Patient</th>
+                                <th>Room/Bed</th>
+                                <th>Admission Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for admission in recent_admissions %}
+                            <tr>
+                                <td>{{ admission.admission_id }}</td>
+                                <td>{{ admission.patient.user.get_full_name }}</td>
+                                <td>{{ admission.bed.room.room_number }} / {{ admission.bed.bed_number }}</td>
+                                <td>{{ admission.admission_date|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No active admissions.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Beds -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-door-open"></i> Available Beds</h5>
+            </div>
+            <div class="card-body">
+                {% if available_beds %}
+                {% for bed in available_beds %}
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <strong>{{ bed.room.room_number }}</strong> - {{ bed.bed_number }}<br>
+                        <small class="text-muted">{{ bed.room.get_room_type_display }}</small>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> No beds available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5><i class="bi bi-lightning"></i> Quick Actions</h5>
+            </div>
+            <div class="card-body">
+                <a href="/admin/appointments/appointment/add/" class="btn btn-primary w-100 mb-2">
+                    <i class="bi bi-calendar-plus"></i> Book Appointment
+                </a>
+                <a href="/admin/patients/patient/add/" class="btn btn-success w-100 mb-2">
+                    <i class="bi bi-person-plus"></i> Register Patient
+                </a>
+                <a href="/admin/rooms/admission/add/" class="btn btn-warning w-100">
+                    <i class="bi bi-hospital"></i> Admit Patient
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

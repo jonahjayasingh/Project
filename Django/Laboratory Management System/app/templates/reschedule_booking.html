@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Reschedule Booking - LMS{% endblock %}
+
+{% block content %}
+<div class="row pt-4 justify-content-center">
+    <div class="col-md-6">
+        <div class="card p-4 border-0 shadow-lg rounded-4">
+            <h3 class="fw-bold mb-4">Reschedule Your Appointment</h3>
+            <p class="text-muted">Current Slot: {{ booking.booking_date }} | {{ booking.time_slot|time:"h:i A" }}</p>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Select New Date</label>
+                    {{ form.booking_date }}
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Select New Time Slot</label>
+                    {{ form.time_slot }}
+                </div>
+
+                <!-- Hidden fields to keep lab and test same -->
+                <div style="display:none;">
+                    {{ form.lab }}
+                    {{ form.lab_test }}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary w-100 py-2">Confirm New Schedule</button>
+                    <a href="{% url 'patient_dashboard' %}" class="btn btn-outline-secondary w-100 py-2">Back</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

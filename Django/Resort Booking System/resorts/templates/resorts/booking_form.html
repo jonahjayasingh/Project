@@ -1,0 +1,1029 @@
+{% extends 'resorts/base.html' %}
+{% load static %}
+
+{% block title %}Secure Reservation | {{ resort.name }} | Paradise Resorts{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --booking-primary: var(--primary);
+        --booking-primary-dark: var(--primary-dark);
+        --booking-surface: var(--bg-card);
+        --booking-bg: var(--bg-main);
+        --booking-card-shadow: var(--card-shadow);
+        --booking-elevated-shadow: var(--premium-shadow);
+    }
+
+    body {
+        background: var(--booking-bg);
+    }
+
+    .booking-wrapper {
+        min-height: calc(100vh - 80px);
+        padding: 3rem 0;
+        position: relative;
+    }
+
+    /* Decorative Elements */
+    .booking-pattern {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" opacity="0.03"><path d="M20 20 L80 20 L80 80 L20 80 Z" fill="none" stroke="%236366f1" stroke-width="1"/><circle cx="50" cy="50" r="5" fill="%236366f1"/></svg>');
+        background-size: 60px 60px;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .container {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Stepper */
+    .stepper-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 30px;
+        margin-bottom: 3rem;
+        background: rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        padding: 1.5rem 2.5rem;
+        border-radius: 60px;
+        box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        opacity: 0.4;
+        transition: all 0.3s ease;
+    }
+
+    .step-indicator.active {
+        opacity: 1;
+    }
+
+    .step-number {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        background: white;
+        border: 2px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 1rem;
+        color: #64748b;
+        transition: all 0.3s ease;
+    }
+
+    .step-indicator.active .step-number {
+        background: var(--booking-primary);
+        border-color: var(--booking-primary);
+        color: white;
+        box-shadow: 0 10px 20px -8px var(--booking-primary);
+    }
+
+    .step-label {
+        font-weight: 700;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #1e293b;
+    }
+
+    .stepper-arrow {
+        color: #94a3b8;
+        font-size: 1.2rem;
+    }
+
+    /* Main Card */
+    .booking-main-card {
+        background: white;
+        border-radius: 48px;
+        box-shadow: var(--booking-card-shadow);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        backdrop-filter: blur(10px);
+        margin-bottom: 2rem;
+        transition: all 0.3s ease;
+    }
+
+    .booking-main-card:hover {
+        box-shadow: var(--booking-elevated-shadow);
+    }
+
+    /* Hero Strip */
+    .booking-hero-strip {
+        background: linear-gradient(145deg, #1e293b, #0f172a);
+        padding: 3.5rem;
+        color: white;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .booking-hero-strip::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .booking-hero-strip h1 {
+        font-family: 'Playfair Display', serif;
+        font-size: 3.2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+
+    .hero-badge {
+        background: rgba(99, 102, 241, 0.2);
+        backdrop-filter: blur(10px);
+        padding: 0.5rem 1.5rem;
+        border-radius: 40px;
+        display: inline-block;
+        margin-bottom: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Availability Bar */
+    .availability-bar {
+        background: white;
+        margin: -30px 3rem 0;
+        border-radius: 32px;
+        padding: 2rem;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #f1f5f9;
+        position: relative;
+        z-index: 10;
+    }
+
+    .cinematic-field-label {
+        font-size: 0.7rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        color: var(--booking-primary);
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .cinematic-input-booking {
+        background: #f8fafc !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 16px !important;
+        padding: 1rem 1.25rem !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease !important;
+        color: #1e293b !important;
+    }
+
+    .cinematic-input-booking:focus {
+        background: white !important;
+        border-color: var(--booking-primary) !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+        transform: translateY(-2px);
+    }
+
+    .btn-probe {
+        background: linear-gradient(135deg, var(--booking-primary), var(--booking-primary-dark));
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 16px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px -8px var(--booking-primary);
+        width: 100%;
+    }
+
+    .btn-probe:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 30px -10px var(--booking-primary);
+        color: white;
+    }
+
+    .btn-probe:active {
+        transform: translateY(0);
+    }
+
+    /* Room Grid */
+    .room-grid-container {
+        padding: 3rem 3rem 2rem;
+    }
+
+    .premium-room-card {
+        background: white;
+        border: 2px solid #f1f5f9;
+        border-radius: 32px;
+        padding: 2rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .premium-room-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--booking-primary), #818cf8);
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .premium-room-card:hover {
+        border-color: var(--booking-primary);
+        transform: translateY(-8px);
+        box-shadow: 0 30px 60px -20px rgba(99, 102, 241, 0.3);
+    }
+
+    .premium-room-card:hover::before {
+        opacity: 1;
+    }
+
+    .room-icon {
+        width: 60px;
+        height: 60px;
+        background: #eef2ff;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        color: var(--booking-primary);
+        margin-bottom: 1.5rem;
+    }
+
+    .inventory-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 800;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+    }
+
+    .inventory-badge.success {
+        background: #e6f7e6;
+        color: #0a7e0a;
+    }
+
+    .inventory-badge.warning {
+        background: #fff4e6;
+        color: #b45b0a;
+    }
+
+    .room-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: #1e293b;
+    }
+
+    .room-description {
+        color: #64748b;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+    }
+
+    .room-price {
+        font-size: 2rem;
+        font-weight: 800;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+    }
+
+    .price-period {
+        font-size: 0.9rem;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .room-capacity {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+        margin-bottom: 1.5rem;
+    }
+
+    .room-qty-input {
+        background: #f8fafc !important;
+        border: 2px solid #e2e8f0 !important;
+        border-radius: 14px !important;
+        padding: 0.75rem !important;
+        font-weight: 700 !important;
+        text-align: center;
+        transition: all 0.3s ease !important;
+    }
+
+    .room-qty-input:focus {
+        background: white !important;
+        border-color: var(--booking-primary) !important;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+    }
+
+    .room-qty-input:disabled {
+        background: #f1f5f9 !important;
+        border-color: #e2e8f0 !important;
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .ar-peek-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8fafc;
+        border: 2px solid #e2e8f0;
+        color: var(--booking-primary);
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .ar-peek-btn:hover {
+        background: var(--booking-primary);
+        color: white;
+        border-color: var(--booking-primary);
+        transform: scale(1.05);
+    }
+
+    /* Empty State */
+    .empty-state {
+        padding: 4rem 2rem;
+        text-align: center;
+        background: #f8fafc;
+        border-radius: 32px;
+        margin: 2rem;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #cbd5e1;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #64748b;
+    }
+
+    /* Summary Dock */
+    .summary-dock {
+        position: sticky;
+        bottom: 30px;
+        background: #1e293b;
+        border-radius: 40px;
+        padding: 1.5rem 2.5rem;
+        margin: 0 1rem 2rem;
+        box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        animation: slideUp 0.5s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .summary-label {
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: #94a3b8;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        margin-bottom: 0.25rem;
+    }
+
+    .summary-value {
+        font-size: 1.8rem;
+        font-weight: 800;
+        color: white;
+        line-height: 1.2;
+    }
+
+    .summary-value small {
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: #64748b;
+    }
+
+    .btn-confirm {
+        background: white;
+        color: #1e293b;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 30px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-confirm:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.3);
+        background: var(--booking-primary);
+        color: white;
+    }
+
+    .btn-confirm:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+        background: #94a3b8;
+    }
+
+    .validation-msg {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    /* AR Modal */
+    .ar-modal-content {
+        background: #000;
+    }
+
+    .ar-modal-header {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        padding: 2rem;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+        z-index: 10;
+        border: none;
+    }
+
+    .ar-modal-header h2 {
+        color: white;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .ar-modal-header p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+    }
+
+    .ar-btn {
+        position: absolute;
+        bottom: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--booking-primary);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        box-shadow: 0 20px 40px -10px var(--booking-primary);
+        z-index: 10;
+        transition: all 0.3s ease;
+    }
+
+    .ar-btn:hover {
+        transform: translateX(-50%) translateY(-3px);
+        box-shadow: 0 30px 50px -10px var(--booking-primary);
+    }
+
+    /* Animations */
+    .animate-in {
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 0.6s ease forwards;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .stepper-container {
+            flex-direction: column;
+            gap: 15px;
+            padding: 1.5rem;
+        }
+
+        .stepper-arrow {
+            transform: rotate(90deg);
+        }
+
+        .booking-hero-strip h1 {
+            font-size: 2.2rem;
+        }
+
+        .availability-bar {
+            margin: -30px 1rem 0;
+            padding: 1.5rem;
+        }
+
+        .room-grid-container {
+            padding: 2rem 1rem;
+        }
+
+        .summary-dock {
+            padding: 1.5rem;
+        }
+
+        .summary-value {
+            font-size: 1.4rem;
+        }
+
+        .btn-confirm {
+            width: 100%;
+            margin-top: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .step-indicator {
+            width: 100%;
+            justify-content: space-between;
+        }
+
+        .step-label {
+            font-size: 0.75rem;
+        }
+
+        .booking-hero-strip {
+            padding: 2rem 1rem;
+        }
+
+        .booking-hero-strip h1 {
+            font-size: 1.8rem;
+        }
+
+        .inventory-badge {
+            font-size: 0.6rem;
+            padding: 0.4rem 0.8rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="booking-wrapper">
+    <div class="booking-pattern"></div>
+
+    <div class="container">
+        <!-- Stepper Navigation -->
+        <div class="stepper-container animate-in" style="animation-delay: 0.1s;">
+            <div class="step-indicator active">
+                <div class="step-number">01</div>
+                <div class="step-label">Select Dates</div>
+            </div>
+            <i class="bi bi-chevron-right stepper-arrow"></i>
+            <div class="step-indicator {% if available_rooms %}active{% endif %}">
+                <div class="step-number">02</div>
+                <div class="step-label">Choose Suite</div>
+            </div>
+            <i class="bi bi-chevron-right stepper-arrow"></i>
+            <div class="step-indicator">
+                <div class="step-number">03</div>
+                <div class="step-label">Confirm Booking</div>
+            </div>
+        </div>
+
+        <!-- Main Booking Card -->
+        <div class="booking-main-card animate-in" style="animation-delay: 0.2s;">
+            <!-- Hero Section -->
+            <div class="booking-hero-strip">
+                <div class="hero-badge">
+                    <i class="bi bi-shield-lock me-2"></i>
+                    <span class="smallest fw-800 text-uppercase tracking-widest">Secure Booking Portal</span>
+                </div>
+                <h1>{{ resort.name }}</h1>
+                <p class="opacity-75 fs-5 mb-0">
+                    <i class="bi bi-geo-alt me-2"></i>{{ resort.location }}
+                </p>
+            </div>
+
+            <!-- Availability Form -->
+            <div class="availability-bar">
+                <form method="POST" id="availability-form">
+                    {% csrf_token %}
+                    <div class="row g-4">
+                        <div class="col-md-3">
+                            <label class="cinematic-field-label">
+                                <i class="bi bi-calendar-check me-2"></i>Check In
+                            </label>
+                            <div class="position-relative">
+                                <input type="date" name="check_in" class="form-control cinematic-input-booking"
+                                    value="{{ form.check_in.value|date:'Y-m-d'|default:'' }}"
+                                    min="{{ today|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="cinematic-field-label">
+                                <i class="bi bi-calendar-x me-2"></i>Check Out
+                            </label>
+                            <div class="position-relative">
+                                <input type="date" name="check_out" class="form-control cinematic-input-booking"
+                                    value="{{ form.check_out.value|date:'Y-m-d'|default:'' }}"
+                                    min="{{ tomorrow|date:'Y-m-d' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="cinematic-field-label">
+                                <i class="bi bi-people me-2"></i>Guests
+                            </label>
+                            <div class="position-relative">
+                                <input type="number" name="guests_count" class="form-control cinematic-input-booking"
+                                    min="1" max="10" value="{{ form.guests_count.value|default:'2' }}" required>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="cinematic-field-label">&nbsp;</label>
+                            <button type="submit" name="check_availability" class="btn-probe">
+                                <i class="bi bi-search me-2"></i>CHECK AVAILABILITY
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Available Rooms Section -->
+            {% if available_rooms %}
+            <div class="room-grid-container">
+                <form method="POST" id="booking-request-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="check_in" value="{{ check_in|date:'Y-m-d' }}">
+                    <input type="hidden" name="check_out" value="{{ check_out|date:'Y-m-d' }}">
+                    <input type="hidden" name="guests_count" value="{{ guests_count }}">
+
+                    <div class="row g-4">
+                        {% for item in available_rooms %}
+                        <div class="col-lg-4 col-md-6">
+                            <div class="premium-room-card">
+                                <!-- Room Icon -->
+                                <div class="room-icon">
+                                    <i class="bi bi-door-open"></i>
+                                </div>
+
+                                <!-- Header -->
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <h3 class="room-title">{{ item.room.room_type }}</h3>
+                                    <span
+                                        class="inventory-badge {% if item.available > 2 %}success{% else %}warning{% endif %}">
+                                        <i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i>
+                                        {{ item.available }} Available
+                                    </span>
+                                </div>
+
+                                <!-- Description -->
+                                <p class="room-description">
+                                    {{ item.room.description|default:"Experience luxury and comfort in our carefully
+                                    curated spaces."|truncatechars:100 }}
+                                </p>
+
+                                <!-- Price & Capacity -->
+                                <div class="mb-4">
+                                    <div class="room-price">
+                                        ₹ {{ item.room.price }}
+                                        <span class="price-period">/ night</span>
+                                    </div>
+                                    <div class="room-capacity">
+                                        <i class="bi bi-people-fill"></i>
+                                        <span>Sleeps {{ item.room.capacity }} guests</span>
+                                    </div>
+                                </div>
+
+                                <!-- Action Section -->
+                                <div class="mt-auto">
+                                    <div class="border-top pt-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="flex-grow-1">
+                                                <label
+                                                    class="smallest fw-800 text-muted text-uppercase tracking-widest mb-2 d-block">
+                                                    Select Rooms
+                                                </label>
+                                                <input type="number" name="room_qty_{{ item.room.id }}"
+                                                    class="form-control room-qty-input" value="0" min="0"
+                                                    max="{{ item.available }}" data-capacity="{{ item.room.capacity }}"
+                                                    data-price="{{ item.room.price }}" data-room-id="{{ item.room.id }}"
+                                                    {% if item.available==0 %}disabled{% endif %}>
+                                            </div>
+                                            {% if item.room.ar_model %}
+                                            <div class="mt-4">
+                                                <button type="button" class="ar-peek-btn" data-bs-toggle="modal"
+                                                    data-bs-target="#arRoomModal"
+                                                    data-room-name="{{ item.room.room_type }}"
+                                                    data-room-price="{{ item.room.price }}"
+                                                    data-room-capacity="{{ item.room.capacity }}"
+                                                    data-ar-model="{{ item.room.ar_model.url }}" title="View in 3D">
+                                                    <i class="bi bi-box-seam"></i>
+                                                </button>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </form>
+            </div>
+
+            {% elif request.method == 'POST' and 'check_availability' in request.POST %}
+            <!-- Empty State - No Rooms Available -->
+            <div class="empty-state">
+                <i class="bi bi-calendar-x"></i>
+                <h3>No Rooms Available</h3>
+                <p class="text-muted mb-4">We couldn't find any available rooms for your selected dates.</p>
+                <button onclick="document.getElementById('availability-form').scrollIntoView({behavior: 'smooth'})"
+                    class="btn btn-primary px-5 py-3 rounded-4 fw-800">
+                    <i class="bi bi-calendar-range me-2"></i>
+                    TRY DIFFERENT DATES
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Booking Summary Dock -->
+        {% if available_rooms %}
+        <div class="summary-dock animate-in" style="animation-delay: 0.4s;">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <div class="summary-label">Total Guests</div>
+                    <div class="summary-value">
+                        <span id="current-capacity">0</span> <small>/ {{ guests_count }}</small>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="summary-label">Nights Stay</div>
+                    <div class="summary-value" id="nights-count">
+                        {{ nights|default:"1" }} <small>nights</small>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="summary-label">Total Amount</div>
+                    <div class="summary-value">
+                        ₹ <span id="total-price-display">0</span>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <span id="validation-msg" class="validation-msg d-none">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        Capacity Error
+                    </span>
+                </div>
+                <div class="col-md-12 col-lg-12 mt-3 mt-lg-0">
+                    <div class="d-flex justify-content-end">
+                        <button type="submit" form="booking-request-form" id="confirm-booking-btn"
+                            name="confirm_booking" class="btn-confirm" disabled>
+                            <i class="bi bi-shield-check me-2"></i>
+                            Confirm Booking
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- AR/3D Modal -->
+<div class="modal fade" id="arRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content ar-modal-content">
+            <div class="ar-modal-header">
+                <h2 id="ar-room-title">Suite Preview</h2>
+                <p id="ar-room-details">
+                    <i class="bi bi-people me-2"></i>
+                    <span id="ar-room-capacity">0</span> Guests •
+                    ₹ <span id="ar-room-price">0</span>/night
+                </p>
+                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-4"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <model-viewer id="room-viewer" src="" ar ar-modes="webxr scene-viewer quick-look" camera-controls
+                    auto-rotate shadow-intensity="1.5" exposure="1.2" environment-image="neutral"
+                    style="width: 100%; height: 100vh; background: #000;">
+                    <button slot="ar-button" class="ar-btn">
+                        <i class="bi bi-camera-fill me-2"></i>
+                        VIEW IN YOUR SPACE
+                    </button>
+                </model-viewer>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.3.0/model-viewer.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Get DOM elements
+        const qtyInputs = document.querySelectorAll('.room-qty-input');
+        const currentCapDisplay = document.getElementById('current-capacity');
+        const totalPriceDisplay = document.getElementById('total-price-display');
+        const confirmBtn = document.getElementById('confirm-booking-btn');
+        const validationMsg = document.getElementById('validation-msg');
+        const requiredGuests = parseInt('{{ guests_count|default:0 }}');
+        const nights = parseInt('{{ nights|default:1 }}');
+
+        // Summary Update Function
+        function updateSummary() {
+            let totalCapacity = 0;
+            let totalPrice = 0;
+
+            qtyInputs.forEach(input => {
+                const qty = parseInt(input.value) || 0;
+                const roomCapacity = parseInt(input.dataset.capacity) || 0;
+                const roomPrice = parseFloat(input.dataset.price) || 0;
+
+                totalCapacity += qty * roomCapacity;
+                totalPrice += qty * roomPrice;
+            });
+
+            // Update displays
+            if (currentCapDisplay) {
+                currentCapDisplay.innerText = totalCapacity;
+            }
+
+            const totalStayPrice = totalPrice * nights;
+            if (totalPriceDisplay) {
+                totalPriceDisplay.innerText = totalStayPrice.toLocaleString('en-IN');
+            }
+
+            // Validate and update button state
+            if (confirmBtn && validationMsg) {
+                if (totalCapacity >= requiredGuests && totalCapacity > 0) {
+                    confirmBtn.disabled = false;
+                    validationMsg.classList.add('d-none');
+                    if (currentCapDisplay) currentCapDisplay.style.color = '#22c55e';
+                } else {
+                    confirmBtn.disabled = true;
+                    if (totalCapacity > 0 && totalCapacity < requiredGuests) {
+                        validationMsg.classList.remove('d-none');
+                    } else {
+                        validationMsg.classList.add('d-none');
+                    }
+                    if (currentCapDisplay) currentCapDisplay.style.color = '';
+                }
+            }
+        }
+
+        // Add event listeners to quantity inputs
+        qtyInputs.forEach(input => {
+            input.addEventListener('input', updateSummary);
+            input.addEventListener('change', function () {
+                // Ensure value is within bounds
+                const min = parseInt(this.min) || 0;
+                const max = parseInt(this.max) || 0;
+                let value = parseInt(this.value) || 0;
+
+                if (value < min) this.value = min;
+                if (value > max) this.value = max;
+
+                updateSummary();
+            });
+        });
+
+        // Initial update
+        if (qtyInputs.length > 0) {
+            updateSummary();
+        }
+
+        // AR Modal Handler
+        const arModal = document.getElementById('arRoomModal');
+        if (arModal) {
+            arModal.addEventListener('show.bs.modal', function (event) {
+                const button = event.relatedTarget;
+
+                // Get data from button
+                const roomName = button.getAttribute('data-room-name');
+                const roomPrice = button.getAttribute('data-room-price');
+                const roomCapacity = button.getAttribute('data-room-capacity');
+                const arModelUrl = button.getAttribute('data-ar-model');
+
+                // Update modal content
+                arModal.querySelector('#ar-room-title').textContent = roomName;
+                arModal.querySelector('#ar-room-price').textContent = roomPrice;
+                arModal.querySelector('#ar-room-capacity').textContent = roomCapacity;
+
+                // Update model viewer
+                const viewer = document.getElementById('room-viewer');
+                if (viewer && arModelUrl) {
+                    if (arModelUrl.toLowerCase().endsWith('.usdz')) {
+                        viewer.iosSrc = arModelUrl;
+                        viewer.src = '';
+                    } else {
+                        viewer.src = arModelUrl;
+                        viewer.iosSrc = '';
+                    }
+                }
+            });
+        }
+
+        // Form validation before submit
+        const bookingForm = document.getElementById('booking-request-form');
+        if (bookingForm) {
+            bookingForm.addEventListener('submit', function (e) {
+                let hasSelection = false;
+                qtyInputs.forEach(input => {
+                    if (parseInt(input.value) > 0) hasSelection = true;
+                });
+
+                if (!hasSelection) {
+                    e.preventDefault();
+                    alert('Please select at least one room to continue.');
+                }
+            });
+        }
+
+        // Set min dates for date inputs
+        const today = new Date().toISOString().split('T')[0];
+        const checkInInput = document.querySelector('input[name="check_in"]');
+        const checkOutInput = document.querySelector('input[name="check_out"]');
+
+        if (checkInInput) {
+            checkInInput.min = today;
+
+            // Update check-out min date when check-in changes
+            checkInInput.addEventListener('change', function () {
+                if (checkOutInput) {
+                    const nextDay = new Date(this.value);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    checkOutInput.min = nextDay.toISOString().split('T')[0];
+
+                    if (checkOutInput.value && checkOutInput.value <= this.value) {
+                        checkOutInput.value = nextDay.toISOString().split('T')[0];
+                    }
+                }
+            });
+        }
+
+        if (checkOutInput) {
+            checkOutInput.min = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,223 @@
+{% extends 'resorts/base.html' %}
+{% block title %}Executive Analytics Dashboard | Paradise Resorts{% endblock %}
+
+{% block content %}
+<div class="row align-items-center mb-5 animate-in">
+    <div class="col-md-8">
+        <h6 class="text-primary fw-bold text-uppercase mb-3" style="letter-spacing: 0.1em;">EXECUTIVE DASHBOARD</h6>
+        <h1 class="display-3 fw-bold mb-0">Analytics <span class="gradient-text">Command</span></h1>
+        <p class="text-muted fs-5 mt-2">Comprehensive diagnostic insights into portfolio performance.</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-4 mt-md-0">
+        <button class="btn btn-primary px-5 py-3 shadow-premium" style="border-radius: 18px; font-weight: 700;"
+            onclick="window.print()">
+            <i class="bi bi-file-earmark-pdf-fill me-2"></i>GENERATE DOSSIER
+        </button>
+    </div>
+</div>
+
+<!-- Elite KPI Suite -->
+<div class="row g-4 mb-5 animate-in" style="animation-delay: 0.1s;">
+    <div class="col-md-3">
+        <div class="card border-0 p-4 h-100 shadow-premium"
+            style="border-radius: 32px; background: linear-gradient(135deg, var(--primary), var(--primary-dark));">
+            <div class="smallest text-uppercase fw-bold text-white opacity-75 mb-1" style="letter-spacing: 0.1em;">TOTAL
+                VOLUME</div>
+            <div class="display-4 fw-800 text-white mb-0">{{ total_bookings }}</div>
+            <div class="mt-auto pt-3">
+                <div class="smallest text-white opacity-50 fw-bold">LIFETIME RESERVATIONS</div>
+            </div>
+            <i class="bi bi-collection-fill position-absolute text-white opacity-10"
+                style="right: 20px; bottom: 10px; font-size: 5rem;"></i>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 p-4 h-100 shadow-premium" style="border-radius: 32px; background: var(--bg-card);">
+            <div class="smallest text-uppercase fw-800 text-primary mb-1" style="letter-spacing: 0.1em;">ACTIVE PIPELINE
+            </div>
+            <div class="display-4 fw-800 text-dark mb-0 gradient-text">{{ active_bookings }}</div>
+            <div class="mt-auto pt-3 d-flex align-items-center">
+                <span
+                    class="badge bg-success-subtle text-success border-0 px-2 py-1 smallest fw-800 me-2">CONFIRMED</span>
+                <span class="smallest text-muted fw-bold">STAYS IN PROGRESS</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 p-4 h-100 shadow-premium" style="border-radius: 32px; background: var(--bg-card);">
+            <div class="smallest text-uppercase fw-800 text-primary mb-1" style="letter-spacing: 0.1em;">PRIME
+                DESTINATION</div>
+            <div class="h3 fw-800 text-dark mb-1 mt-2">{{ most_booked_resort.name|default:"N/A"|upper }}</div>
+            <div class="mt-auto pt-2">
+                <div class="smallest text-muted fw-bold text-uppercase tracking-wider">
+                    <i class="bi bi-award-fill text-warning me-1"></i>MAXIMUM ENGAGEMENT
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 p-4 h-100 shadow-premium" style="border-radius: 32px; background: var(--bg-card);">
+            <div class="smallest text-uppercase fw-800 text-primary mb-1" style="letter-spacing: 0.1em;">YIELD
+                CONFIDENCE</div>
+            <div class="display-4 fw-800 text-dark mb-0">94.8%</div>
+            <div class="mt-auto pt-3">
+                <div class="smallest text-success fw-bold text-uppercase">
+                    <i class="bi bi-graph-up-arrow me-1"></i>ABOVE BENCHMARK
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 animate-in" style="animation-delay: 0.2s;">
+    <!-- Performance Velocity Chart -->
+    <div class="col-lg-8">
+        <div class="card border-0 p-5 h-100 shadow-premium" style="border-radius: 40px; background: var(--bg-card);">
+            <div class="d-flex justify-content-between align-items-start mb-5">
+                <div>
+                    <h4 class="fw-800 mb-1">Booking Velocity</h4>
+                    <p class="smallest text-muted text-uppercase fw-bold" style="letter-spacing: 0.1em;">Operational
+                        load — Last 7 Business Days</p>
+                </div>
+                <span class="badge bg-light text-primary px-3 py-2 border-0 fw-800 smallest"
+                    style="border-radius: 10px;">HISTORICAL DATA</span>
+            </div>
+
+            <div class="d-flex align-items-end justify-content-between chart-stage pt-5">
+                {% for trend in trends %}
+                <div class="velocity-column text-center">
+                    <div class="column-stage">
+                        <div class="velocity-bar shadow-premium"
+                            style="--bar-height: {{ trend.count|add:30 }}px; height: var(--bar-height);">
+                            <span class="velocity-popover">{{ trend.count }}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="fw-800 text-dark text-uppercase smallest">{{ trend.day|date:"D" }}</div>
+                        <div class="smallest text-muted fw-bold opacity-50">{{ trend.day|date:"M d" }}</div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="w-100 text-center py-5">
+                    <i class="bi bi-database-exclamation display-1 text-muted opacity-25"></i>
+                    <p class="mt-3 text-muted fw-bold">No velocity metrics available for this cycle.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Lifecycle Distribution -->
+    <div class="col-lg-4">
+        <div class="card border-0 p-5 h-100 shadow-premium" style="border-radius: 40px; background: var(--bg-card);">
+            <h4 class="fw-800 mb-4">Lifecycle Audit</h4>
+            <div class="composition-list mb-5">
+                {% for status in bookings_by_status %}
+                <div
+                    class="composition-item d-flex justify-content-between align-items-center py-3 border-bottom-light">
+                    <div class="d-flex align-items-center">
+                        {% if status.status == 'Confirmed' %}
+                        <div class="lifecycle-dot me-3 bg-success shadow-sm"></div>
+                        {% elif status.status == 'Pending' %}
+                        <div class="lifecycle-dot me-3 bg-warning shadow-sm"></div>
+                        {% elif status.status == 'Cancelled' %}
+                        <div class="lifecycle-dot me-3 bg-danger shadow-sm"></div>
+                        {% else %}
+                        <div class="lifecycle-dot me-3 bg-primary shadow-sm"></div>
+                        {% endif %}
+                        <span class="fw-bold text-dark text-uppercase smallest" style="letter-spacing: 0.05em;">{{ status.status }}</span>
+                    </div>
+                    <span class="fw-800 text-primary fs-5">{{ status.count }}</span>
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="mt-auto p-4"
+                style="border-radius: 24px; background: rgba(99, 102, 241, 0.05); border: 1px dashed var(--primary);">
+                <p class="smallest text-primary fw-800 text-uppercase mb-2">Architectural Directive</p>
+                <p class="smallest text-muted fw-500 mb-0 line-height-base">Maintain operational efficiency by
+                    prioritizing 'Pending' records. Aim for sub-12 hour resolution cycles to ensure elite guest
+                    satisfaction.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fw-800 {
+        font-weight: 800;
+    }
+
+    .line-height-base {
+        line-height: 1.6;
+    }
+
+    .chart-stage {
+        height: 350px;
+        border-bottom: 2px solid #f1f5f9;
+    }
+
+    .velocity-column {
+        flex: 1;
+        padding: 0 15px;
+    }
+
+    .column-stage {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+    }
+
+    .velocity-bar {
+        width: 100%;
+        max-width: 45px;
+        background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+        border-radius: 12px 12px 6px 6px;
+        position: relative;
+        min-height: 40px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+    }
+
+    .velocity-bar:hover {
+        transform: scaleY(1.05) scaleX(1.05);
+        filter: brightness(1.2);
+    }
+
+    .velocity-popover {
+        position: absolute;
+        top: -35px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: 900;
+        color: var(--primary);
+        font-size: 0.9rem;
+    }
+
+    .lifecycle-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+    }
+
+    .border-bottom-light {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    @media print {
+        .btn-primary {
+            display: none;
+        }
+
+        .shadow-premium {
+            box-shadow: none !important;
+        }
+
+        .card {
+            border: 1px solid #eee !important;
+        }
+    }
+</style>
+{% endblock %}

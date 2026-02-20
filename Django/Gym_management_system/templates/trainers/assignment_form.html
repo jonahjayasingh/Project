@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-person-plus-fill"></i> {{ title }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.trainer.id_for_label }}" class="form-label fw-semibold">
+                                    Trainer <span class="text-danger">*</span>
+                                </label>
+                                {{ form.trainer }}
+                                {% if form.trainer.errors %}
+                                <div class="text-danger mt-1">{{ form.trainer.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.member.id_for_label }}" class="form-label fw-semibold">
+                                    Member <span class="text-danger">*</span>
+                                </label>
+                                {{ form.member }}
+                                {% if form.member.errors %}
+                                <div class="text-danger mt-1">{{ form.member.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label fw-semibold">
+                                    Start Date <span class="text-danger">*</span>
+                                </label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                <div class="text-danger mt-1">{{ form.start_date.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label fw-semibold">
+                                    End Date
+                                </label>
+                                {{ form.end_date }}
+                                <small class="text-muted">Leave blank for ongoing assignment</small>
+                                {% if form.end_date.errors %}
+                                <div class="text-danger mt-1">{{ form.end_date.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.status.id_for_label }}" class="form-label fw-semibold">
+                                    Status <span class="text-danger">*</span>
+                                </label>
+                                {{ form.status }}
+                                {% if form.status.errors %}
+                                <div class="text-danger mt-1">{{ form.status.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.sessions_per_week.id_for_label }}" class="form-label fw-semibold">
+                                    Sessions per Week <span class="text-danger">*</span>
+                                </label>
+                                {{ form.sessions_per_week }}
+                                {% if form.sessions_per_week.errors %}
+                                <div class="text-danger mt-1">{{ form.sessions_per_week.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label for="{{ form.notes.id_for_label }}" class="form-label fw-semibold">
+                                    Notes
+                                </label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                <div class="text-danger mt-1">{{ form.notes.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% if assignment %}{% url 'trainers:trainer_detail' assignment.trainer.pk %}{% else %}{% url 'trainers:trainer_list' %}{% endif %}"
+                                class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle"></i> Save Assignment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

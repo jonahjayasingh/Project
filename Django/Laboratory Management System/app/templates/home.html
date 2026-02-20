@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Welcome - Lab Secure{% endblock %}
+
+{% block content %}
+<div class="hero-section text-center py-5 mb-5 position-relative overflow-hidden rounded-5 shadow-lg"
+    style="background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); min-height: 500px; display: flex; align-items: center;">
+    <!-- Abstract Shapes for Luxury Feel -->
+    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25"
+        style="background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');"></div>
+    <div class="position-absolute top-0 start-0 w-100 h-100"
+        style="background: radial-gradient(circle at 20% 30%, rgba(37, 99, 235, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 70%, rgba(37, 99, 235, 0.1) 0%, transparent 50%);">
+    </div>
+
+    <div class="container position-relative z-1 text-white">
+        <div class="mb-4">
+            <span
+                class="badge bg-primary bg-opacity-20 text-primary border border-primary px-4 py-2 rounded-pill fw-bold text-uppercase tracking-wider">
+                <i class="fas fa-shield-alt me-2"></i> Trusted by 500+ Labs Nationwide
+            </span>
+        </div>
+        <h1 class="display-3 fw-bold mb-4">Precision Diagnostics<br><span class="text-primary">Secured by
+                Intelligence</span></h1>
+        <p class="lead mb-5 mx-auto opacity-75" style="max-width: 700px;">
+            The executive standard in laboratory management. Seamlessly bridging the gap between clinical excellence and
+            sophisticated patient care with end-to-end encryption.
+        </p>
+        <div class="d-flex gap-3 justify-content-center">
+            <a href="{% url 'lab_discovery' %}" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg">
+                Find a Laboratory <i class="fas fa-chevron-right ms-2 small"></i>
+            </a>
+            <a href="{% url 'static_page' 'about-us' %}"
+                class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold">
+                Learn More
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    <div class="col-md-4">
+        <div class="card h-100 p-5 border-0 shadow-sm rounded-5 hover-lift">
+            <div class="bg-primary bg-opacity-10 p-4 rounded-4 d-inline-block mb-4">
+                <i class="fas fa-dna fa-2x text-primary"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Smart Discovery</h4>
+            <p class="text-muted mb-0">Discover top-tier diagnostic centers with real-time capacity monitoring and
+                verified patient reputation scores.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-5 border-0 shadow-sm rounded-5 hover-lift">
+            <div class="bg-success bg-opacity-10 p-4 rounded-4 d-inline-block mb-4">
+                <i class="fas fa-file-invoice-dollar fa-2x text-success"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Elite Packages</h4>
+            <p class="text-muted mb-0">Hand-curated health checkup bundles offering premium diagnostic accuracy with
+                transparent, executive pricing models.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 p-5 border-0 shadow-sm rounded-5 hover-lift">
+            <div class="bg-info bg-opacity-10 p-4 rounded-4 d-inline-block mb-4">
+                <i class="fas fa-history fa-2x text-info"></i>
+            </div>
+            <h4 class="fw-bold mb-3">Versioned Analytics</h4>
+            <p class="text-muted mb-0">Track your health progress with full revision history of medical reports,
+                ensuring clinical continuity and deep insights.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 pt-5 border-top">
+    <div class="col-lg-8 mx-auto text-center">
+        <h2 class="fw-bold mb-4">Empowering Healthcare Freedom</h2>
+        <div class="d-flex flex-wrap justify-content-center gap-4 mt-4">
+            <a href="{% url 'static_page' 'faq' %}"
+                class="text-decoration-none text-muted fw-bold hover-primary">FAQ</a>
+            <span class="text-muted opacity-25">|</span>
+            <a href="{% url 'contact_us' %}" class="text-decoration-none text-muted fw-bold hover-primary">Support</a>
+            <span class="text-muted opacity-25">|</span>
+            <a href="{% url 'static_page' 'privacy-policy' %}"
+                class="text-decoration-none text-muted fw-bold hover-primary">Privacy Shield</a>
+            <span class="text-muted opacity-25">|</span>
+            <a href="{% url 'lab_register' %}" class="text-decoration-none text-primary fw-bold">Partner with Us</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-lift {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .hover-lift:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    }
+
+    .hover-primary:hover {
+        color: var(--primary-color) !important;
+    }
+
+    .tracking-wider {
+        letter-spacing: 0.1em;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,247 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="shortcut icon" href="{% static 'icon.png' %}" type="image/x-icon">
+    <meta charset="UTF-8">
+    <title>Account Report</title>
+    <link type="text/css" rel="stylesheet" href="{% static 'css/tailwind.css' %}"></link>
+</head>
+<style>
+    .gradient-text {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      font-weight: 700;
+    }
+
+    .bg-gradient-header {
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    }
+
+    .gradient-button {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+      transition: all 0.3s ease;
+    }
+
+    .gradient-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3);
+    }
+
+    .back-button {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      transition: all 0.3s ease;
+    }
+
+    .back-button:hover {
+      transform: translateX(-2px);
+      box-shadow: 0 5px 15px rgba(139, 92, 246, 0.3);
+    }
+
+    .table-wrapper {
+      background: rgba(255, 255, 255, 0.98);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    }
+
+    .data-card {
+      background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(139, 92, 246, 0.1));
+      border: 1px solid rgba(236, 72, 153, 0.2);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      backdrop-filter: blur(5px);
+    }
+
+    .no-data-card {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(245, 101, 101, 0.1));
+      border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 16px;
+      padding: 3rem;
+      text-align: center;
+    }
+
+    /* Enhanced table styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    th {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      font-weight: 600;
+      padding: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+      color: #1f2937;
+      text-align: left;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      transition: background-color 0.2s ease;
+    }
+
+    tr:hover td {
+      background-color: #f8fafc;
+    }
+
+    tr:nth-child(even) td {
+      background-color: #fafbfc;
+    }
+
+    /* Animation for loading state */
+    .loading-pulse {
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .fade-in {
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .icon-bounce {
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+</style>
+
+<body class="bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gradient-header shadow-xl sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    </div>
+                    <a href="{% url 'app:dashboard' %}" class="text-white font-extrabold text-lg sm:text-xl">Admin Dashboard</a>
+                </div>
+                <a href="{% url 'app:logout' %}" 
+                   class="glass-effect hover:bg-white/30 text-white font-semibold py-2 px-4 rounded-full shadow-lg transition-all duration-300 backdrop-blur-sm text-sm sm:text-base btn-bounce">
+                    <span class="hidden sm:inline">Logout</span>
+                    <span class="sm:hidden">
+              <img src="{% static 'power-off-svgrepo-com.svg' %}" alt="" style="width: 20px; height: 20px;">
+
+
+          </span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Header Section -->
+        <div class="glass-card rounded-2xl p-6 mb-8 fade-in">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div class="flex items-center space-x-4">
+                    <button class="back-button text-white px-4 py-2 rounded-lg font-medium flex items-center space-x-2 hover:shadow-lg transition-all duration-300">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                        </svg>
+                        <a href="{% url 'app:dashboard' %}">Back</a>
+                    </button>
+                    <div>
+                        <h1 class="text-3xl font-bold gradient-text">{{title}}</h1>
+                    </div>
+                </div>
+                
+                {% if excel_file %}
+                <div class="flex items-center space-x-4">
+                    <div class="text-sm text-gray-500">
+                        <span class="inline-block w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                        Data Available
+                    </div>
+                    <a href="{% static excel_file %}"
+                       class="gradient-button text-white px-6 py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center space-x-2"
+                       download>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <span>Download Excel</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Report Content -->
+        {% if pivot_table %}
+            <div class="data-card fade-in">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        {% if title == "Payment Report" %}
+                            Payment Analysis
+                        {% else%}
+                            Transaction Analysis
+                        {% endif %}
+                    </h2>
+                    <div class="text-sm text-gray-500 bg-white/60 px-3 py-1 rounded-full">
+                        Report Generated: {{ "now"|date:"M d, Y H:i" }}
+                    </div>
+                </div>
+                
+                <div class="table-wrapper">
+                    <div class="overflow-x-auto">
+                        {{ pivot_table|safe }}
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <div class="no-data-card fade-in">
+                <div class="text-center">
+                    <div class="text-6xl mb-4 icon-bounce">📊</div>
+                    <h3 class="text-2xl font-semibold text-gray-700 mb-2">No Data Available</h3>
+                    <p class="text-gray-500 mb-6">We couldn't find any transaction data to display at this time.</p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                        <button class="gradient-button text-white px-6 py-3 rounded-lg font-medium hover:shadow-lg transition-all duration-300 flex items-center space-x-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            <span>Refresh Data</span>
+                        </button>
+                        <div class="text-sm text-gray-400">
+                            Last updated: {{ "now"|date:"M d, Y H:i" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        
+    </div>
+</body>
+</html>

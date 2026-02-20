@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+
+{% block title %}Patient Dashboard - Hospital Management System{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-person"></i> Patient Dashboard</h2>
+    <span class="text-muted">{{ user.get_full_name }}</span>
+</div>
+
+<!-- Patient Info Card -->
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Patient ID: {{ patient.patient_id }}</h5>
+                        <p class="mb-1"><i class="bi bi-droplet"></i> Blood Group: {{ patient.blood_group|default:"Not
+                            specified" }}</p>
+                        <p class="mb-0"><i class="bi bi-shield-check"></i> Status: {{ patient.get_status_display }}</p>
+                    </div>
+                    <div class="col-md-6 text-end">
+                        <h3>{{ upcoming_appointments.count }}</h3>
+                        <p>Upcoming Appointments</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Upcoming Appointments -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-calendar-check"></i> Upcoming Appointments</h5>
+            </div>
+            <div class="card-body">
+                {% if upcoming_appointments %}
+                {% for appointment in upcoming_appointments %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h6>Dr. {{ appointment.doctor.user.get_full_name }}</h6>
+                        <p class="mb-1 text-muted">
+                            <i class="bi bi-calendar"></i> {{ appointment.appointment_date }}<br>
+                            <i class="bi bi-clock"></i> {{ appointment.appointment_time|time:"h:i A" }}
+                        </p>
+                        <p class="mb-0"><strong>Reason:</strong> {{ appointment.reason }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No upcoming appointments.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Medical Records -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-file-medical"></i> Recent Medical Records</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_records %}
+                {% for record in recent_records %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h6>{{ record.record_id }}</h6>
+                        <p class="mb-1 text-muted">
+                            <i class="bi bi-person-badge"></i> Dr. {{ record.doctor.user.get_full_name }}<br>
+                            <i class="bi bi-calendar"></i> {{ record.created_at|date:"M d, Y" }}
+                        </p>
+                        <p class="mb-0"><strong>Diagnosis:</strong> {{ record.diagnosis|truncatewords:10 }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No medical records available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-3">
+    <!-- Recent Bills -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-receipt"></i> Recent Bills</h5>
+            </div>
+            <div class="card-body">
+                {% if recent_bills %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Bill ID</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for bill in recent_bills %}
+                            <tr>
+                                <td>{{ bill.bill_id }}</td>
+                                <td>₹{{ bill.total_amount }}</td>
+                                <td>
+                                    <span class="badge bg-{{ bill.payment_status|yesno:'success,warning,danger' }}">
+                                        {{ bill.get_payment_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ bill.created_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No bills available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Prescriptions -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5><i class="bi bi-prescription"></i> Active Prescriptions</h5>
+            </div>
+            <div class="card-body">
+                {% if active_prescriptions %}
+                {% for prescription in active_prescriptions %}
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h6>{{ prescription.prescription_id }}</h6>
+                        <p class="mb-1 text-muted">
+                            <i class="bi bi-person-badge"></i> Dr. {{ prescription.doctor.user.get_full_name }}<br>
+                            <i class="bi bi-calendar"></i> {{ prescription.prescription_date }}
+                        </p>
+                        <span class="badge bg-warning">Not Dispensed</span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i> No active prescriptions.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

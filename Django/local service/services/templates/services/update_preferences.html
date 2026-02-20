@@ -1,0 +1,120 @@
+{% extends 'services/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white p-4">
+                    <h2 class="mb-0"><i class="bi bi-sliders me-2"></i>Intelligence Preferences</h2>
+                    <p class="mb-0 opacity-75">Fine-tune how our AI recommends professionals to you.</p>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <form method="post">
+                        {% csrf_token %}
+
+                        <!-- Recommendation Bias -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-dark">What do you value most?</label>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check card-select p-3 border rounded-3 h-100">
+                                        <input class="form-check-input mt-1" type="radio" name="quality_priority"
+                                            id="quality_on" value="on" {% if profile.quality_priority %}checked{% endif %}>
+                                        <label class="form-check-label w-100 ms-2" for="quality_on">
+                                            <strong>Premium Quality</strong><br>
+                                            <span class="text-muted small">Prioritize high ratings and
+                                                experience.</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-check card-select p-3 border rounded-3 h-100">
+                                        <input class="form-check-input mt-1" type="radio" name="quality_priority"
+                                            id="quality_off" value="off" {% if not profile.quality_priority %}checked{% endif %}>
+                                        <label class="form-check-label w-100 ms-2" for="quality_off">
+                                            <strong>Cost Efficiency</strong><br>
+                                            <span class="text-muted small">Prioritize budget-friendly options.</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Budget Tolerance -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Budget Preference</label>
+                            <select name="budget_tolerance" class="form-select border-2">
+                                <option value="low" {% if profile.budget_tolerance == 'low' %}selected{% endif %}>Budget
+                                    Focused (Value first)</option>
+                                <option value="mid" {% if profile.budget_tolerance == 'mid' %}selected{% endif %}>Balanced
+                                    (Best value for money)</option>
+                                <option value="high" {% if profile.budget_tolerance == 'high' %}selected{% endif %}>
+                                    Premium (Quality is no bar)</option>
+                            </select>
+                        </div>
+
+                        <!-- Distance Tolerance -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold d-flex justify-content-between">
+                                Distance Tolerance
+                                <span id="distVal" class="text-primary">{{ profile.distance_tolerance_km }} km</span>
+                            </label>
+                            <input type="range" name="distance_tolerance" class="form-range" min="5" max="100" step="5"
+                                value="{{ profile.distance_tolerance_km }}"
+                                oninput="document.getElementById('distVal').innerText = this.value + ' km'">
+                            <div class="d-flex justify-content-between text-muted small">
+                                <span>5km</span>
+                                <span>100km</span>
+                            </div>
+                        </div>
+
+                        <!-- Favorite Categories -->
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Favorite Service Categories</label>
+                            <div class="row row-cols-2 row-cols-md-3 g-2">
+                                {% for category in categories %}
+                                <div class="col">
+                                    <div class="form-check small">
+                                        <input class="form-check-input" type="checkbox" name="favorite_categories"
+                                            value="{{ category.id }}" id="cat{{ category.id }}" {% if category in profile.favorite_categories.all %}checked{% endif %}>
+                                        <label class="form-check-label" for="cat{{ category.id }}">
+                                            {{ category.name }}
+                                        </label>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-pill p-3 fw-bold">
+                                Save My Intelligence Settings
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-link text-muted">Cancel and Return</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card-select {
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .card-select:hover {
+        border-color: var(--bs-primary) !important;
+        background: rgba(var(--bs-primary-rgb), 0.05);
+    }
+
+    .form-check-input:checked+.form-check-label {
+        color: var(--bs-primary);
+    }
+</style>
+{% endblock %}

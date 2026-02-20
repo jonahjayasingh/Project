@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Predict{% endblock %}
+
+{% block style %}
+body {
+    background-image: url("{% static 'bg.png' %}");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin: 0;
+    font-family: Arial, sans-serif;
+}
+
+/* PAGE WRAPPER */
+.predict-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* MAIN BOX */
+.predict-box {
+    width: 100%;
+    max-width: 520px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 40px;
+    margin-bottom: 50px;
+    border-radius: 12px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+/* TITLE */
+.predict-box h1 {
+    text-align: center;
+    margin-bottom: 25px;
+    font-size: 24px;
+}
+
+/* TEXTAREA */
+textarea {
+    width: 100%;
+    min-height: 140px;
+    padding: 14px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    resize: vertical;
+    line-height: 1.4;
+}
+
+/* BUTTON */
+input[type="submit"] {
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    font-size: 18px;
+    background-color: #1e88e5;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+input[type="submit"]:hover {
+    background-color: #1565c0;
+}
+
+/* RESULT BOX */
+.result {
+    margin-top: 25px;
+    padding: 16px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 16px;
+}
+{% endblock %}
+
+{% block content %}
+<div class="predict-wrapper">
+    <div class="predict-box">
+        <h1>Cyberbullying Prediction</h1>
+
+        <form method="post">
+            {% csrf_token %}
+            <textarea name="text" placeholder="Enter text to analyze..." required></textarea>
+            <input type="submit" value="Predict">
+        </form>
+
+        {% if prediction %}
+            <div class="result" id="result-box"
+                 style="
+                    background-color:
+                    {% if prediction == 'Cyberbullying' %}
+                        #fdecea
+                    {% else %}
+                        #e8f5e9
+                    {% endif %};
+                    color:
+                    {% if prediction == 'Cyberbullying' %}
+                        #c62828
+                    {% else %}
+                        #2e7d32
+                    {% endif %};
+                 ">
+                <strong>Prediction:</strong> {{ prediction }}
+            </div>
+        {% endif %}
+    </div>
+</div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const resultBox = document.getElementById("result-box");
+
+    if (resultBox) {
+        setTimeout(function () {
+            resultBox.style.display = "none";
+        }, 9000);
+    }
+});
+</script>
+
+{% endblock %}

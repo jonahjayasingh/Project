@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Check Out - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-4 text-center">
+                    <div class="mb-4">
+                        <i class="bi bi-box-arrow-right text-warning" style="font-size: 4rem;"></i>
+                    </div>
+                    <h2 class="mb-3">Confirm Check-Out</h2>
+                    <p class="text-muted mb-4">
+                        Are you sure you want to check out <strong>{{ attendance.member.user.get_full_name }}</strong>?
+                        <br>
+                        Check-in time: {{ attendance.check_in_time|date:"P" }}
+                    </p>
+
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                            <a href="{% url 'attendance:attendance_list' %}" class="btn btn-light px-4">Cancel</a>
+                            <button type="submit" class="btn btn-warning px-4 text-white">
+                                <i class="bi bi-check-circle me-2"></i>Confirm Check-Out
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - E-Commerce Platform{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">🔐 Admin Dashboard</h1>
+    <p style="color: var(--text-medium); font-size: 1.125rem;">Platform management and seller administration</p>
+</div>
+
+<!-- Stats -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_users }}</div>
+        <div class="stat-label">Total Users</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ total_sellers }}</div>
+        <div class="stat-label">Total Sellers</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ pending_sellers }}</div>
+        <div class="stat-label">Pending Approvals</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ active_sellers }}</div>
+        <div class="stat-label">Active Sellers</div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="flex gap-2 mb-4">
+    <a href="{{ url_for('admin.manage_sellers') }}" class="btn btn-primary">👥 Manage Sellers</a>
+    <a href="{{ url_for('admin.manage_sellers', status='pending') }}" class="btn btn-warning">⏳ Pending Approvals ({{
+        pending_sellers }})</a>
+</div>
+
+<!-- Recent Activity -->
+<div class="card">
+    <div class="card-header">
+        <h3 style="margin: 0;">Admin Controls</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <div style="padding: 1.5rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                    <h4>Seller Management</h4>
+                    <p style="color: var(--text-medium); margin-bottom: 1rem;">
+                        Approve, reject, or suspend seller applications
+                    </p>
+                    <a href="{{ url_for('admin.manage_sellers') }}" class="btn btn-primary">Manage Sellers</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <div style="padding: 1.5rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                    <h4>Category Management</h4>
+                    <p style="color: var(--text-medium); margin-bottom: 1rem;">
+                        Add, edit, or remove product categories
+                    </p>
+                    <a href="{{ url_for('admin.manage_categories') }}" class="btn btn-primary">Manage Categories</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <div style="padding: 1.5rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                    <h4>Platform Statistics</h4>
+                    <p style="color: var(--text-medium); margin-bottom: 0;">
+                        <strong>{{ total_users }}</strong> users registered<br>
+                        <strong>{{ active_sellers }}</strong> active sellers<br>
+                        <strong>{{ pending_sellers }}</strong> pending approvals
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

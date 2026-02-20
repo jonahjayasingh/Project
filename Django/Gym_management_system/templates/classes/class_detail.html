@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ fitness_class.name }} - Gym Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Version Marker: V4-BYPASS-FORMATTER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="bi bi-calendar-event"></i> {{ fitness_class.name }}</h2>
+        <div>
+            <a href="{% url 'classes:class_edit' fitness_class.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil"></i> Edit
+            </a>
+            <a href="{% url 'classes:class_list' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                {% if fitness_class.image %}
+                <img src="{{ fitness_class.image.url }}" class="card-img-top" alt="{{ fitness_class.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5>Class Details</h5>
+                    <p><strong>Difficulty:</strong> <span class="badge bg-info">{{ fitness_class.get_difficulty_level_display }}</span></p>
+                    <p><strong>Duration:</strong> {{ fitness_class.duration_minutes }} minutes</p>
+                    <p><strong>Capacity:</strong> {{ fitness_class.capacity }} people</p>
+                    <p><strong>Status:</strong>
+                        {% if fitness_class.is_active %}
+                        <span class="badge bg-success">Active</span>
+                        {% else %}
+                        <span class="badge bg-secondary">Inactive</span>
+                        {% endif %}
+                    </p>
+                    <hr>
+                    <p><strong>Description:</strong></p>
+                    <p class="text-muted">{{ fitness_class.description }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8 mb-4">
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Class Schedules</h5>
+                    <a href="{% url 'classes:schedule_create' fitness_class.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus"></i> Add Schedule
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% if schedules %}
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Day</th>
+                                    <th>Time</th>
+                                    <th>Trainer</th>
+                                    <th>Location</th>
+                                    <th>Slots</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for schedule in schedules %}
+                                <tr>
+                                    <td>{{ schedule.get_day_of_week_display }}</td>
+                                    <td>{{ schedule.start_time|time:"g:i A" }}</td>
+                                    <td>{{ schedule.trainer.user.get_full_name }}</td>
+                                    <td>{{ schedule.room_location|default:"—" }}</td>
+                                    <td>{{ schedule.get_available_slots }}/{{ fitness_class.capacity }}</td>
+                                    <td>
+                                        <a href="{% url 'classes:booking_create' %}?schedule={{ schedule.pk }}"
+                                            class="btn btn-sm btn-outline-success" title="Book Member">
+                                            <i class="bi bi-calendar-plus"></i>
+                                        </a>
+                                        <a href="{% url 'classes:schedule_edit' schedule.pk %}"
+                                            class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <a href="{% url 'classes:schedule_delete' schedule.pk %}"
+                                            class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No schedules added yet</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Bookings</h5>
+                </div>
+                <div class="card-body">
+                    {% if recent_bookings %}
+                    <div class="list-group list-group-flush">
+                        {% for booking in recent_bookings %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <strong>{{ booking.member.user.get_full_name }}</strong><br>
+                                    <small class="text-muted">
+                                        {{ booking.schedule.get_day_of_week_display }} at {{ booking.schedule.start_time|time:"g:i A" }}
+                                    </small>
+                                </div>
+                                <div>
+                                    {% if booking.status == 'confirmed' %}
+                                    <span class="badge bg-success">Confirmed</span>
+                                    {% elif booking.status == 'waitlist' %}
+                                    <span class="badge bg-warning">Waitlist</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">{{ booking.get_status_display }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No bookings yet</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

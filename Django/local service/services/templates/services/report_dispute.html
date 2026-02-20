@@ -1,0 +1,57 @@
+{% extends 'services/base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card border-0 shadow rounded-4">
+                <div class="card-header bg-danger text-white p-4">
+                    <h3 class="mb-0"><i class="bi bi-exclamation-octagon me-2"></i>Report a Service Issue</h3>
+                    <p class="mb-0 opacity-75">Tell us what went wrong with your booking.</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-secondary d-flex align-items-center mb-4">
+                        <i class="bi bi-info-circle me-3 fs-3"></i>
+                        <div>
+                            <strong>Booking Summary:</strong><br>
+                            {{ booking.provider.name }} | {{ booking.date }} | {{ booking.time_slot }}
+                        </div>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Type of Issue</label>
+                            <select name="issue_type" class="form-select form-select-lg" required>
+                                {% for val, label in issue_types %}
+                                <option value="{{ val }}">{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Description</label>
+                            <textarea name="description" class="form-control" rows="5"
+                                placeholder="Provide as much detail as possible..." required></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Evidence (Optional)</label>
+                            <input type="file" name="evidence" class="form-control" accept="image/*">
+                            <div class="form-text">Upload a photo to support your claim (e.g., poor work, damage).</div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg rounded-pill p-3">
+                                Submit Dispute for Review
+                            </button>
+                            <a href="{% url 'dashboard' %}" class="btn btn-link text-muted">Back to Dashboard</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

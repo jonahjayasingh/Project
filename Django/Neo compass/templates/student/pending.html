@@ -1,0 +1,109 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-9">
+    <div class="text-center mb-5">
+      <h1 class="display-6 fw-bold">
+        Account <span class="text-gradient">Verification</span>
+      </h1>
+      <p class="text-muted">
+        Your application is being processed. Once approved, you can select your
+        learning path.
+      </p>
+    </div>
+
+    {% if profile.approval_status == 'REJECTED' %}
+    <div
+      class="alert alert-danger px-4 py-3 mb-4 d-flex align-items-center rounded-4 shadow-sm border-0"
+    >
+      <i class="fas fa-times-circle fa-2x me-3"></i>
+      <div>
+        <h6 class="alert-heading fw-bold mb-1">Account Rejected</h6>
+        <p class="mb-0 small">
+          <strong>Note:</strong> {{ profile.approval_remark|default:"Your
+          account did not meet our verification criteria." }}
+        </p>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="card-body p-4 p-md-5">
+        <!-- New Simplified Account Timeline -->
+        <div class="d-flex justify-content-between mb-5 position-relative">
+          <div
+            class="position-absolute top-50 start-0 end-0 border-top translate-middle-y"
+            style="z-index: 1"
+          ></div>
+
+          <div class="text-center position-relative" style="z-index: 2">
+            <div
+              class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white mx-auto mb-2"
+              style="width: 44px; height: 44px"
+            >
+              <i class="fas fa-user-plus small"></i>
+            </div>
+            <span class="small fw-bold text-primary">Registered</span>
+          </div>
+
+          <div class="text-center position-relative" style="z-index: 2">
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 bg-light text-muted border border-2 border-primary border-opacity-25"
+              style="width: 44px; height: 44px; border-style: dashed !important"
+            >
+              <i class="fas fa-shield-alt small"></i>
+            </div>
+            <span class="small fw-bold text-muted">Verification</span>
+          </div>
+
+          <div class="text-center position-relative" style="z-index: 2">
+            <div
+              class="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2 bg-light text-muted border"
+              style="width: 44px; height: 44px"
+            >
+              <i class="fas fa-lock small"></i>
+            </div>
+            <span class="small fw-bold text-muted">Access Granted</span>
+          </div>
+        </div>
+
+        <div class="row g-4 align-items-center text-center">
+          <div class="col-md-6 border-end">
+            <p class="text-muted small fw-semibold mb-1">ACCOUNT STATUS</p>
+            <span
+              class="badge {% if profile.approval_status == 'PENDING' %}bg-warning text-dark {% elif profile.approval_status == 'REJECTED' %}bg-danger {% else %}bg-success{% endif %} px-3 py-2"
+            >
+              {{ profile.get_approval_status_display }}
+            </span>
+          </div>
+          <div class="col-md-6">
+            <p class="text-muted small fw-semibold mb-1">APPLICATION DATE</p>
+            <h6 class="fw-bold m-0 text-dark">
+              {{ profile.user.date_joined|date:"M d, Y" }}
+            </h6>
+          </div>
+        </div>
+
+        <hr class="my-5 opacity-10" />
+
+        <div class="text-center">
+          <p class="text-muted mb-4 small">
+            {% if profile.approval_status == 'REJECTED' %} Your account was not
+            approved by the HOD. Please reach out to support if you believe this
+            is an error. {% else %} The mentoring board is currently reviewing
+            your registration. You will gain access to domain selection as soon
+            as your account is verified. {% endif %}
+          </p>
+          <div class="d-flex gap-3 justify-content-center">
+            <a
+              href="{% url 'student_dashboard' %}"
+              class="btn btn-primary px-5 py-2 fw-bold rounded-3 shadow-sm"
+            >
+              <i class="fas fa-sync-alt me-2"></i> Refresh My Status
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

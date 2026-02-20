@@ -1,0 +1,53 @@
+{% extends 'app/base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; width: 100%;">
+    <div class="premium-card" style="width: 100%; max-width: 550px;">
+        <div class="card-header">
+            <h2 class="card-title">Network Onboarding</h2>
+            <p class="card-subtitle">Establish a new secure identification signature</p>
+        </div>
+
+        <form method="POST">
+            {% csrf_token %}
+            {% for field in form %}
+            <div class="form-group">
+                <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <input type="{{ field.field.widget.input_type|default:'text' }}" name="{{ field.name }}"
+                    id="{{ field.id_for_label }}" class="input-ctrl" placeholder="{{ field.label }}" required>
+                {% if field.help_text %}
+                <span class="helptext">{{ field.help_text }}</span>
+                {% endif %}
+                {% if field.errors %}
+                <div class="errorlist">{{ field.errors }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-glow"
+                style="width: 100%; font-size: 1.1rem; height: 3.5rem; justify-content: center; margin-top: 1rem;">
+                ESTABLISH CONNECTION
+            </button>
+        </form>
+
+        <div class="form-footer">
+            Existing operative? <a href="{% url 'login' %}" style="color: var(--primary);">Resume session</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Registration forms can be long, so adjust padding */
+    .premium-card {
+        padding: 3rem;
+    }
+
+    .helptext {
+        font-size: 0.75rem;
+        color: var(--text-dim);
+        margin-top: 0.5rem;
+        display: block;
+        line-height: 1.4;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,2669 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="shortcut icon" href="{% static 'icon.png' %}" type="image/x-icon">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="{% static "js/3.4.16.js" %}"></script>
+    <link href="{% static 'css/flowbite.min.css' %}" rel="stylesheet" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: '#fdf2f8',
+                100: '#fce7f3',
+                500: '#ec4899',
+                600: '#db2777',
+                700: '#be185d',
+              },
+              secondary: {
+                500: '#8b5cf6',
+                600: '#7c3aed',
+                700: '#6d28d9',
+              },
+              accent: {
+                500: '#3b82f6',
+                600: '#2563eb',
+                700: '#1d4ed8',
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="{% static 'css/tailwind.css' %}" />
+    <style>
+      .gradient-text {
+        background: linear-gradient(135deg, #ec4899, #8b5cf6, #3b82f6);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: 700;
+      }
+      .bg-gradient-header {
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 50%, #3b82f6 100%);
+      }
+      .bg-gradient-card {
+        background: linear-gradient(135deg, #fdf2f8 0%, #f3e8ff 100%);
+      }
+      .bg-gradient-button {
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        transition: all 0.3s ease;
+      }
+      .bg-gradient-button:hover {
+        background: linear-gradient(135deg, #db2777 0%, #7c3aed 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3);
+      }
+      .model-management-btn {
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        transition: all 0.3s ease;
+      }
+      .model-management-btn:hover {
+        background: linear-gradient(135deg, #2563eb 0%, #7c3aed 100%);
+        transform: translateY(-1px);
+      }
+      .modal-header-gradient {
+        background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+        color: white;
+      }
+      .model-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      .model-card {
+        border: none;
+        border-radius: 15px;
+        transition: all 0.3s ease;
+        background: white;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      }
+      .model-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      }
+      .action-buttons {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 2rem;
+      }
+      .action-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.3s ease;
+        min-height: 50px;
+      }
+      /* Toast notifications */
+
+      .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        /* Individual toast */
+        .toast {
+            padding: 12px 20px;
+            border-radius: 5px;
+            color: black;
+            min-width: 200px;
+            max-width: 300px;
+            opacity: 0.9;
+            animation: fadeout 5s forwards;
+            background-color: #17a2b8; /* Default info color */
+
+        }
+        @keyframes fadeout {
+    0% { opacity: 0.9; }
+    70% { opacity: 0.9; } /* Stay visible for most of the time */
+    100% { opacity: 0; }
+}
+
+        .toast-success { background-color: #28a745; }
+        .toast-error   { background-color: #dc3545; }
+        .toast-warning { background-color: #ffc107; color: black; }
+        .toast-info    { background-color: #17a2b8; }
+
+      /* Zoom image style */
+      td img.zoom-img {
+        cursor: pointer !important;
+        transition: transform 0.3s ease !important;
+        border-radius: 50%;
+        object-fit: cover;
+        width: 48px;
+        height: 48px;
+      }
+      td img.zoom-img:hover {
+        transform: scale(1.1);
+      }
+      /* Fullscreen overlay */
+      .fullscreen-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0,0,0,0.9);
+        justify-content: center;
+        align-items: center;
+        z-index: 99999;
+        cursor: zoom-out;
+      }
+      .fullscreen-overlay img {
+        max-width: 90%;
+        max-height: 90%;
+        box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        border-radius: 10px;
+        object-fit: contain;
+      }
+      .map-container {
+        margin-top: 20px;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+      .map-container iframe {
+        width: 100%;
+        height: 250px;
+        border: none;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50 min-h-screen">
+    <!-- Navigation -->
+    <nav class="bg-gradient-header shadow-lg sticky top-0 z-40">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between h-16 items-center">
+          <div class="flex items-center space-x-2">
+            <a href="{% url 'app:dashboard' %}" class="text-white font-extrabold text-lg sm:text-xl truncate">Admin Dashboard</a>
+          </div>
+          <a href="{% url 'app:logout' %}"
+           class="bg-white/20 hover:bg-white/30 text-white font-semibold py-2 px-4 rounded-full shadow-lg transition-all duration-300 backdrop-blur-sm text-sm sm:text-base">
+            <span class="hidden sm:inline">Logout</span>
+            <span class="sm:hidden">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </nav>
+    <main class="max-w-7xl mx-auto px-4 py-4 sm:py-6">
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <!-- Courses Button -->
+        <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('courseModal')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+          </svg>
+          <span>Add Courses</span>
+        </button>
+        <!-- Gallery Button -->
+        <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('galleryModal')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+          <span>Add Gallery</span>
+        </button>
+        <!-- Placements Button -->
+        <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('placementModal')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+          <span>Add Placements</span>
+        </button>
+        <!-- Services Button -->
+        <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('serviceModal')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+          </svg>
+          <span>Add Services</span>
+        </button>
+        <!-- Project Domains Button -->
+        <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('projectDomainModal')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2z"></path>
+          </svg>
+          <span>Project Domains</span>
+        </button>
+        <!-- Projects Button -->
+        <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('projectModal')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+          </svg>
+          <span>Add Projects</span>
+        </button>
+        {% if not contact %}
+        <!-- Contacts Button -->
+        <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('contactModal')">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+          </svg>
+          <span>Add Contacts</span>
+        </button>
+        {% endif %}
+         <button class="action-btn bg-gradient-button text-white shadow-lg hover:shadow-xl" onclick="openModal('careerModal')">
+<svg height="20px" width="20px" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512 512" xml:space="preserve" fill="#000000" stroke="#000000" stroke-width="0.00512"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <style type="text/css"> .st0{fill:#ffffff;} </style> <g> <path class="st0" d="M81.876,169.851v-68.266l67.776,43.851v55.916c0,0,0.351-0.157,0.942-0.416 c1.042,29.01,13.236,55.26,32.406,74.413c20.057,20.075,47.858,32.517,78.474,32.508c30.616,0.01,58.427-12.432,78.474-32.508 c19.179-19.153,31.373-45.403,32.407-74.413c0.599,0.259,0.95,0.416,0.95,0.416v-55.916l86.412-55.906L261.473,0L63.24,89.531 v80.32c-6.277,1.486-10.956,7.089-10.956,13.817v4.07H92.84v-4.07C92.84,176.94,88.151,171.337,81.876,169.851z M170.889,194.385 c22.282-5.345,58.454-8.464,90.584,14.02c32.13-22.484,68.312-19.365,90.593-14.02c0.018,0.831,0.055,1.66,0.055,2.491 c0,25.07-10.125,47.664-26.546,64.104c-16.438,16.42-39.033,26.546-64.102,26.554c-25.059-0.008-47.655-10.134-64.093-26.554 c-16.42-16.439-26.546-39.034-26.555-64.104C170.825,196.045,170.871,195.216,170.889,194.385z"></path> <path class="st0" d="M52.284,219.592c0,7.864,6.368,14.232,14.233,14.232h12.091c7.854,0,14.232-6.369,14.232-14.232v-23.38H52.284 V219.592z"></path> <path class="st0" d="M326.989,314.024c0,0-3.185,2.547-8.926,5.861l-56.589,95.761l-56.589-95.761 c-5.741-3.314-8.925-5.861-8.925-5.861c-51.209,22.586-72.29,76.812-72.29,119.732c0,42.929,0,78.244,0,78.244h275.619 c0,0,0-35.315,0-78.244C399.288,390.836,378.197,336.61,326.989,314.024z"></path> </g> </g></svg>
+  <span>Add Career</span>
+</button>
+
+      </div>
+      <!-- Model Management Section -->
+      <div class="mb-0">
+        <h2 class="text-2xl font-bold text-gray-800 mb-4 gradient-text">Website Content Management</h2>
+        <!-- Existing Data Tables -->
+        <div class="grid grid-row md:grid-row gap-6">
+          <!-- Courses Table -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+  <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+      <i class="fas fa-graduation-cap mr-2 text-blue-500"></i>
+      Courses
+    </h3>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm text-left text-gray-600">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50/80">
+        <tr class="border-b border-gray-200">
+          <th class="px-6 py-4 font-medium">Course Name</th>
+          <th class="px-6 py-4 font-medium">Description</th>
+          <th class="px-6 py-4 font-medium">Duration</th>
+          <th class="px-6 py-4 font-medium">Price</th>
+          <th class="px-6 py-4 font-medium">Difficulty</th>
+          <th class="px-6 py-4 font-medium">Thumbnail</th>
+          <th class="px-6 py-4 font-medium text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for course in courses %}
+        <tr class="bg-white hover:bg-blue-50/30 transition-colors duration-150">
+          <td class="px-6 py-4">
+            <div class="flex items-center">
+              <span class="font-medium text-gray-900">{{ course.course_name }}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 max-w-xs">
+            <p class="text-gray-700 line-clamp-2">{{ course.course_description|truncatewords:20 }}</p>
+          </td>
+          <td class="px-6 py-4">
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {{ course.course_duration }}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <span class="font-medium text-green-600">₹{{ course.course_price }}</span>
+          </td>
+          <td class="px-6 py-4">
+            {% if course.course_difficulty == "beginner" %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Beginner
+              </span>
+            {% elif course.course_difficulty == "intermediate" %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                Intermediate
+              </span>
+            {% elif course.course_difficulty == "advanced" %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                Advanced
+              </span>
+            {% else %}
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                {{ course.course_difficulty }}
+              </span>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4">
+            {% if course.course_thumbnail %}
+              <img src="{{ course.course_thumbnail.url }}" alt="{{ course.course_name }}"
+                   class="w-12 h-12 rounded-full object-cover border-2 border-gray-200 zoom-img cursor-pointer">
+            {% else %}
+              <div class="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                <i class="fas fa-image text-gray-400"></i>
+              </div>
+            {% endif %}
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex justify-end space-x-2">
+              <button onclick="openEditCourseModal({{ course.id }})"
+                      class="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                <i class="fas fa-edit mr-1.5 text-xs"></i>
+                Edit
+              </button>
+              <form action="{% url 'app:delete_website' %}" method="post" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="op" value="website_course_delete">
+                <input type="hidden" name="id" value="{{ course.id }}">
+                <button type="submit"
+                        class="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                        onclick="return confirm('Are you sure you want to delete this course?')">
+                  <i class="fas fa-trash mr-1.5 text-xs"></i>
+                  Delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="px-6 py-8 text-center">
+            <div class="flex flex-col items-center justify-center text-gray-400">
+              <i class="fas fa-graduation-cap text-3xl mb-2"></i>
+              <p class="text-sm">No courses added</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+          <!-- Gallery -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+              <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-images mr-2 text-blue-500"></i>
+                Gallery
+              </h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-gray-600">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50/80">
+                  <tr class="border-b border-gray-200">
+                    <th class="px-6 py-4 font-medium">Title</th>
+                    <th class="px-6 py-4 font-medium">Image</th>
+                    <th class="px-6 py-4 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  {% for gallery in gallery %}
+                  <tr class="bg-white transition-colors duration-150">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center">
+                        <span class="font-medium text-gray-900">{{ gallery.gallery_title }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <img src="{{ gallery.gallery_image.url }}" alt="{{ gallery.gallery_title }}"
+                            class="w-12 h-12 rounded-full zoom-img border-2 border-gray-200 object-cover">
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex justify-end space-x-2">
+                        <button onclick="openEditGalleryModal({{ gallery.id }})"
+                                class="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                          <i class="fas fa-edit mr-1.5 text-xs"></i>
+                          Edit
+                        </button>
+                        <form action="{% url 'app:delete_website' %}" method="post" class="inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="op" value="website_gallery_delete">
+                          <input type="hidden" name="id" value="{{ gallery.id }}">
+                          <button type="submit"
+                                  class="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                                  onclick="return confirm('Are you sure you want to delete this gallery item?')">
+                            <i class="fas fa-trash mr-1.5 text-xs"></i>
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="3" class="px-6 py-8 text-center">
+                      <div class="flex flex-col items-center justify-center text-gray-400">
+                        <i class="fas fa-images text-3xl mb-2"></i>
+                        <p class="text-sm">No gallery items Added</p>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Services Table -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+              <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-concierge-bell mr-2 text-blue-500"></i>
+                Services
+              </h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-gray-600">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50/80">
+                  <tr class="border-b border-gray-200">
+                    <th class="px-6 py-4 font-medium">Name</th>
+                    <th class="px-6 py-4 font-medium">Description</th>
+                    <th class="px-6 py-4 font-medium">Image</th>
+                    <th class="px-6 py-4 font-medium">Key Points</th>
+                    <th class="px-6 py-4 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  {% for service in services %}
+                  <tr class="bg-white hover:bg-blue-50/30 transition-colors duration-150">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center">
+                        <span class="font-medium text-gray-900">{{ service.name }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 max-w-xs">
+                      <p class="text-gray-700">{{ service.description }}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                      <img src="{{ service.image.url }}" alt="{{ service.name }}"
+                              class="w-12 h-12 rounded-full zoom-img border-2 border-gray-200 object-cover">
+                    </td>
+                    <td class="px-6 py-4 max-w-sm">
+                      {% if service.key_points %}
+                        <ul class="list-disc pl-5 space-y-1">
+                          {% for key_point in service.key_points %}
+                            <li class="text-gray-700 text-sm">{{ key_point }}</li>
+                          {% endfor %}
+                        </ul>
+                      {% else %}
+                        <span class="text-gray-400 text-sm flex items-center">
+                          <i class="fas fa-info-circle mr-1"></i>
+                          No key points
+                        </span>
+                      {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex justify-end space-x-2">
+                        <button onclick="openEditServiceModal({{ service.id }})"
+                                class="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                          <i class="fas fa-edit mr-1.5 text-xs"></i>
+                          Edit
+                        </button>
+                        <form action="{% url 'app:delete_website' %}" method="post" class="inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="op" value="website_service_delete">
+                          <input type="hidden" name="id" value="{{ service.id }}">
+                          <button type="submit"
+                                  class="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                                  onclick="return confirm('Are you sure you want to delete this service?')">
+                            <i class="fas fa-trash mr-1.5 text-xs"></i>
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5" class="px-6 py-8 text-center">
+                      <div class="flex flex-col items-center justify-center text-gray-400">
+                        <i class="fas fa-concierge-bell text-3xl mb-2"></i>
+                        <p class="text-sm">No services Added</p>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Projects domain -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+              <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-globe mr-2 text-blue-500"></i>
+                Projects Domain
+              </h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-gray-600">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50/80">
+                  <tr class="border-b border-gray-200">
+                    <th class="px-6 py-4 font-medium">Domain</th>
+                    <th class="px-6 py-4 font-medium">Description</th>
+                    <th class="px-6 py-4 font-medium">Image</th>
+                    <th class="px-6 py-4 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  {% for domain in domains %}
+                  <tr class="bg-white hover:bg-blue-50/30 transition-colors duration-150">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center">
+                        <span class="font-medium text-gray-900">{{ domain.name }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4 max-w-md">
+                      <p class="text-gray-700">{{ domain.description }}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                      <img src="{{ domain.image.url }}" alt="{{ domain.name }}"
+                           class="w-12 h-12 rounded-full zoom-img border-2 border-gray-200 object-cover">
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex justify-end space-x-2">
+                        <button onclick="openEditDomainModal({{ domain.id }})"
+                                class="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                          <i class="fas fa-edit mr-1.5 text-xs"></i>
+                          Edit
+                        </button>
+                        <form action="{% url 'app:delete_website' %}" method="post" class="inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="op" value="website_domain_delete">
+                          <input type="hidden" name="id" value="{{ domain.id }}">
+                          <button type="submit"
+                                  class="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                                  onclick="return confirm('Are you sure you want to delete this domain?')">
+                            <i class="fas fa-trash mr-1.5 text-xs"></i>
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="4" class="px-6 py-8 text-center">
+                      <div class="flex flex-col items-center justify-center text-gray-400">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p class="text-sm">No projects domain Added</p>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <!-- Projects Table -->
+          <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+              <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                <i class="fas fa-folder mr-2 text-blue-500"></i>
+                Projects
+              </h3>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm text-left text-gray-600">
+                <thead class="text-xs text-gray-700 uppercase bg-gray-50/80">
+                  <tr class="border-b border-gray-200">
+                    <th class="px-6 py-4 font-medium">Name</th>
+                    <th class="px-6 py-4 font-medium">Domain</th>
+                    <th class="px-6 py-4 font-medium">Description</th>
+                    <th class="px-6 py-4 font-medium text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  {% for project in projects %}
+                  <tr class="bg-white hover:bg-blue-50/30 transition-colors duration-150">
+                    <td class="px-6 py-4">
+                      <div class="flex items-center">
+                        <span class="font-medium text-gray-900">{{ project.name }}</span>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {{ project.domain.name }}
+                      </span>
+                    </td>
+                    <td class="px-6 py-4 max-w-md">
+                      <div class="description-container">
+                        <p class="text-gray-700">{{ project.description }}</p>
+                      </div>
+                    </td>
+                    <td class="px-6 py-4">
+                      <div class="flex justify-end space-x-2">
+                        <button onclick="openEditProjectModal({{ project.id }})"
+                                class="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                          <i class="fas fa-edit mr-1.5 text-xs"></i>
+                          Edit
+                        </button>
+                        <form action="{% url 'app:delete_website' %}" method="post" class="inline">
+                          {% csrf_token %}
+                          <input type="hidden" name="op" value="website_project_delete">
+                          <input type="hidden" name="id" value="{{ project.id }}">
+                          <button type="submit"
+                                  class="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                                  onclick="return confirm('Are you sure you want to delete this project?')">
+                            <i class="fas fa-trash mr-1.5 text-xs"></i>
+                            Delete
+                          </button>
+                        </form>
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="4" class="px-6 py-8 text-center">
+                      <div class="flex flex-col items-center justify-center text-gray-400">
+                        <i class="fas fa-inbox text-3xl mb-2"></i>
+                        <p class="text-sm">No projects Added</p>
+                      </div>
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+                 <!-- Careers Table -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200">
+  <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white">
+    <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+      <i class="fas fa-graduation-cap mr-2 text-blue-500"></i>
+      Careers
+    </h3>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm text-left text-gray-600">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-50/80">
+        <tr class="border-b border-gray-200">
+          <th class="px-6 py-4 font-medium">Title</th>
+          <th class="px-6 py-4 font-medium">Description</th>
+          <th class="px-6 py-4 font-medium">Location</th>
+          <th class="px-6 py-4 font-medium">Job Type</th>
+          <th class="px-6 py-4 font-medium">Experience</th>
+          <th class="px-6 py-4 font-medium">Application Deadline</th>
+          <th class="px-6 py-4 font-medium">Key Responsibilities</th>
+          <th class="px-6 py-4 font-medium text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-gray-100">
+        {% for career in careers %}
+        <tr class="bg-white hover:bg-blue-50/30 transition-colors duration-150">
+          <td class="px-6 py-4">
+            <div class="flex items-center">
+              <span class="font-medium text-gray-900">{{ career.title }}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 max-w-xs">
+            <p class="text-gray-700 line-clamp-2">{{ career.description | truncatewords:20 }}</p> 
+          </td>
+          <td class="px-6 py-4">
+            <span class="inline-flex items-center px-2.5 py-0.5  text-xs font-medium ">
+              {{ career.location }}
+            </span>
+          </td>
+          <td class="px-6 py-4">
+            <span class="font-medium ">{{ career.job_type }}</span>
+          </td>
+          <td class="px-6 py-4">
+            
+              <span class="inline-flex items-center px-2.5 py-0.5 text-xs font-mediumx">
+                {{ career.experience }}
+              </span>
+          </td>
+          <td class="px-6 py-4">
+            <span class="font-medium ">{{ career.application_Deadline | date:"F d, Y" }}</span>
+          </td>
+           <td class="px-6 py-4">
+            {% for responsibility in career.key_responsibilities %}
+            <li>{{ responsibility }}</li>
+            {% endfor %}
+          </td>
+         
+          <td class="px-6 py-4">
+            <div class="flex justify-end space-x-2">
+              <a href="{% url 'app:applicants' career.id %}" class="flex items-center px-3 py-1.5 text-sm bg-green-50 text-green-600 hover:bg-green-100 rounded-lg transition-colors duration-200">Applicant </a>
+
+              <button onclick="openEditCareerModal({{ career.id }})"
+                        class="flex items-center px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors duration-200">
+                <i class="fas fa-edit mr-1.5 text-xs"></i>
+                Edit
+              </button>
+
+              <form action="{% url 'app:delete_website' %}" method="post" class="inline">
+                {% csrf_token %}
+                <input type="hidden" name="op" value="website_career_delete">
+                <input type="hidden" name="id" value="{{ career.id }}">
+                <button type="submit"
+                        class="flex items-center px-3 py-1.5 text-sm bg-red-50 text-red-600 hover:bg-red-100 rounded-lg transition-colors duration-200"
+                        onclick="return confirm('Are you sure you want to delete this course?')">
+                  <i class="fas fa-trash mr-1.5 text-xs"></i>
+                  Delete
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="px-6 py-8 text-center">
+            <div class="flex flex-col items-center justify-center text-gray-400">
+              <i class="fas fa-graduation-cap text-3xl mb-2"></i>
+              <p class="text-sm">No Carrers Added</p>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+          {% if contact %}
+          <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
+            <div class="flex justify-between items-center mb-8">
+              <h1 class="text-2xl font-bold text-gray-800">Contact Details</h1>
+              <button onclick="openEditContactModal({{ contact.id }})"
+                      class="bg-blue-50 text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg font-medium transition-colors duration-200">
+                Edit Contact
+              </button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <!-- Left Column -->
+              <div class="space-y-4">
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p class="text-sm text-gray-500">Phone 1</p>
+                    <p class="font-medium text-gray-900">{{ contact.phone1 }}</p>
+                  </div>
+                </div>
+                {% if contact.phone2 %}
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p class="text-sm text-gray-500">Phone 2</p>
+                    <p class="font-medium text-gray-900">{{ contact.phone2 }}</p>
+                  </div>
+                </div>
+                {% endif %}
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p class="text-sm text-gray-500">Email</p>
+                    <p class="font-medium text-gray-900">{{ contact.email }}</p>
+                  </div>
+                </div>
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p class="text-sm text-gray-500">WhatsApp</p>
+                    <p class="font-medium text-gray-900">{{ contact.whatsapp }}</p>
+                  </div>
+                </div>
+              </div>
+              <!-- Right Column -->
+              <div class="space-y-4">
+                {% if contact.address %}
+                <div class="flex items-center p-4 bg-gray-50 rounded-lg">
+                  <div>
+                    <p class="text-sm text-gray-500">Address</p>
+                    <p class="font-medium text-gray-900">{{ contact.address }}</p>
+                  </div>
+                </div>
+                {% endif %}
+                <!-- Social Media Section -->
+                <div class="p-4 bg-gray-50 rounded-lg">
+                  <p class="text-sm text-gray-500 mb-3">Social Media</p>
+                  <div class="flex flex-wrap gap-2">
+                    {% if contact.linkedin %}
+                    <a href="{{ contact.linkedin }}" target="_blank"
+                      class="bg-blue-100 text-blue-700 hover:bg-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                      LinkedIn
+                    </a>
+                    {% endif %}
+                    {% if contact.twitter %}
+                    <a href="{{ contact.twitter }}" target="_blank"
+                      class="bg-blue-100 text-blue-500 hover:bg-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                      Twitter
+                    </a>
+                    {% endif %}
+                    {% if contact.facebook %}
+                    <a href="{{ contact.facebook }}" target="_blank"
+                      class="bg-blue-100 text-blue-600 hover:bg-blue-200 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                      Facebook
+                    </a>
+                    {% endif %}
+                    {% if contact.instagram %}
+                    <a href="{{ contact.instagram }}" target="_blank"
+                      class="bg-pink-100 text-pink-600 hover:bg-pink-200 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                      Instagram
+                    </a>
+                    {% endif %}
+                    {% if contact.youtube %}
+                    <a href="{{ contact.youtube }}" target="_blank"
+                      class="bg-red-100 text-red-600 hover:bg-red-200 px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">
+                      YouTube
+                    </a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% if contact.map_embed_url %}
+            <div class="mt-8 pt-6 border-t border-gray-200">
+              <div class="flex items-center mb-4">
+                <i class="fas fa-map text-blue-500 mr-2"></i>
+                <p class="font-medium text-gray-700">Location Map</p>
+              </div>
+              <div class="w-full map-container rounded-lg overflow-hidden border border-gray-200">
+                {{ contact.map_embed_url|safe }}
+              </div>
+            </div>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+    <!-- Fullscreen Overlay -->
+    <div class="fullscreen-overlay" id="fullscreen">
+      <img src="" alt="Fullscreen preview" id="fullscreen-img">
+    </div>
+
+      <!-- Modals for each model -->
+
+    <!-- Course Modal -->
+   <div id="courseModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('courseModal')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900" id="courseModalTitle">Add New Course</h3>
+          <button onclick="closeModal('courseModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="courseForm" enctype="multipart/form-data" method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_course_create">
+          {% comment %} <input type="hidden" name="course_id" id="course_id"> {% endcomment %}
+
+          <!-- Course Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Course Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="course_name"
+                   id="course_name"
+                   placeholder="Enter course name"
+                   required>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="course_description"
+                      id="course_description"
+                      rows="3"
+                      placeholder="Enter course description"
+                      required></textarea>
+          </div>
+
+          <!-- Duration -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="course_duration"
+                   id="course_duration"
+                   placeholder="e.g., 6 weeks, 3 months"
+                   required>
+          </div>
+           <!-- Price -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="course_price"
+                   id="course_price"
+                   placeholder="Enter course price"
+                   required>
+          </div>
+
+           <!-- Course Diffucult -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Course Difficulty</label>
+            <select class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    name="course_difficulty"
+                    id="course_difficulty"
+                    required>
+              <option value="">Select course difficulty</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+          </div>
+          <!-- Thumbnail Upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Thumbnail Image</label>
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="course_thumbnail"
+                     id="course_thumbnail"
+                     accept="image/*">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('courseModal')">
+            Cancel
+          </button>
+          <button type="submit" form="courseForm"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25">
+                Save Course
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Course edit Model -->
+  {% for course in courses %}
+    <div id="editCourseModal{{ course.id }}" class="hidden fixed inset-0 overflow-y-auto z-50">
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('editCourseModal{{ course.id }}')"></div>
+
+        <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+          <div class="px-6 py-4 border-b border-gray-100">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xl font-semibold text-gray-900">Edit Course</h3>
+              <button onclick="closeModal('editCourseModal{{ course.id }}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="px-6 py-4">
+            <form id="editCourseForm{{ course.id }}" enctype="multipart/form-data" method="post" class="space-y-4">
+              {% csrf_token %}
+              <input type="hidden" name="op" value="website_course_create">
+              <input type="hidden" name="id" value="{{ course.id }}">
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Course Name</label>
+                <input type="text"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="course_name"
+                       value="{{ course.course_name }}"
+                       required>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          name="course_description"
+                          rows="3"
+                          required>{{ course.course_description }}</textarea>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+                <input type="text"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="course_duration"
+                       value="{{ course.course_duration }}"
+                       required>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+                <input type="text"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="course_price"
+                       value="{{ course.course_price }}"
+                       required>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Course Difficulty</label>
+                <select class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                        name="course_difficulty"
+                        required>
+                  <option value="beginner" {% if course.course_difficulty == "beginner" %}selected{% endif %}>Beginner</option>
+                  <option value="intermediate" {% if course.course_difficulty == "intermediate" %}selected{% endif %}>Intermediate</option>
+                  <option value="advanced" {% if course.course_difficulty == "advanced" %}selected{% endif %}>Advanced</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Thumbnail Image</label>
+                <img src="{{ course.course_thumbnail.url }}" alt="Course Thumbnail" class="w-16 h-16 rounded-full zoom-img">
+                <div class="relative">
+                  <input type="file"
+                         class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                         name="course_thumbnail"
+                         accept="image/*">
+                </div>
+                <p class="text-sm text-gray-500 mt-1">Current: {{ course.course_thumbnail.name }}</p>
+              </div>
+            </form>
+          </div>
+
+          <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+            <div class="flex space-x-3 justify-end">
+              <button type="button"
+                      class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                      onclick="closeModal('editCourseModal{{ course.id }}')">
+                Cancel
+              </button>
+              <button type="submit" form="editCourseForm{{ course.id }}"
+                      class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25">
+                Update Course
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+
+    <!-- Gallery Modal -->
+ <div id="galleryModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('galleryModal')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Add Gallery Image</h3>
+          <button onclick="closeModal('galleryModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="galleryForm" enctype="multipart/form-data" method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_gallery_create" id="gallery_id">
+           <!-- Title -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="gallery_title"
+                   id="gallery_title"
+                   placeholder="e.g., Gallery Image 1"
+                   required>
+          </div>
+          <!-- Image Upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Gallery Image</label>
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="gallery_image"
+                     id="gallery_image"
+                     accept="image/*"
+                     required>
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('galleryModal')">
+            Cancel
+          </button>
+          <button type="submit"  form="galleryForm"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                  >
+            Save Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Gallery Edit Modal-->
+{% for gallery in gallery %}
+   <div id="editGalleryModal{{gallery.id}}" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('editGalleryModal{{gallery.id}}')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Edit Gallery Image</h3>
+          <button onclick="closeModal('editGalleryModal{{gallery.id}}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="galleryForm{{gallery.id}}" enctype="multipart/form-data" method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_gallery_create" id="gallery_id">
+          <input type="hidden" name="id" value="{{gallery.id}}">
+           <!-- Title -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="gallery_title"
+                   id="gallery_title"
+                   value="{{ gallery.gallery_title }}"
+                   placeholder="e.g., Gallery Image 1"
+                   required>
+          </div>
+          <!-- Image Upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Gallery Image</label>
+            <img src="{{ gallery.gallery_image.url }}" alt="" class="w-16 h-16 rounded-full zoom-img">
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="gallery_image"
+                     id="gallery_image"
+                     accept="image/*"
+                     >
+            </div>
+          </div>
+
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('editGalleryModal{{gallery.id}}')">
+            Cancel
+          </button>
+          <button type="submit"  form="galleryForm{{gallery.id}}"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                  >
+            Update Image
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+{% endfor %}
+
+    <!-- Placement Modal -->
+
+  <div id="placementModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('placementModal')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Add Placement</h3>
+          <button onclick="closeModal('placementModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4 max-h-[70vh] overflow-y-auto">
+        <form id="placementForm" enctype="multipart/form-data" method ='post' class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_placement_create"  id="placement_id">
+
+          <!-- Student Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="name"
+                   id="placement_name"
+                   placeholder="Enter student name"
+                   required>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="description"
+                      id="placement_description"
+                      rows="3"
+                      placeholder="Enter placement description"
+                      required></textarea>
+          </div>
+
+          <!-- Job Title -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="job_title"
+                   id="placement_job_title"
+                   placeholder="Enter job title"
+                   required>
+          </div>
+
+          <!-- Company -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="job_company"
+                   id="placement_job_company"
+                   placeholder="Enter company name"
+                   required>
+          </div>
+
+          <!-- Image Upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="image"
+                     id="placement_image"
+                     accept="image/*">
+            </div>
+          </div>
+
+
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('placementModal')">
+            Cancel
+          </button>
+          <button type="submit" form="placementForm"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                  >
+            Save Placement
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Placement Edit Modal -->
+  {% for placement in placements%}
+    <div id="editPlacementModal{{placement.id}}" class="hidden fixed inset-0 overflow-y-auto z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+      <!-- Backdrop -->
+      <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('editPlacementModal{{placement.id}}')"></div>
+
+      <!-- Modal Container -->
+      <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+        <!-- Header -->
+        <div class="px-6 py-4 border-b border-gray-100">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xl font-semibold text-gray-900">Edit Placement</h3>
+            <button onclick="closeModal('editPlacementModal{{placement.id}}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Form Content -->
+        <div class="px-6 py-4 max-h-[70vh] overflow-y-auto">
+          <form novalidate id="placementForm{{placement.id}}" enctype="multipart/form-data" method ='post' class="space-y-4">
+            {% csrf_token %}
+            <input type="hidden" name="op" value="website_placement_create"  id="placement_id">
+            <input type="hidden" name="id" value={{placement.id}}>
+
+            <!-- Student Name -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Student Name</label>
+              <input type="text"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    name="name"
+                    id="placement_name"
+                    value="{{placement.name}}"
+                    placeholder="Enter student name"
+                    required>
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+              <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                        name="description"
+                        id="placement_description"
+                        rows="3"
+                        placeholder="Enter placement description"
+
+                        required>{{placement.description}}</textarea>
+            </div>
+
+            <!-- Job Title -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+              <input type="text"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    name="job_title"
+                    id="placement_job_title"
+                    value="{{placement.job_title}}"
+                    placeholder="Enter job title"
+                    required>
+            </div>
+
+            <!-- Company -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Company</label>
+              <input type="text"
+                    class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    name="job_company"
+                    id="placement_job_company"
+                    placeholder="Enter company name"
+                    value="{{placement.job_company}}"
+                    required>
+            </div>
+
+            <!-- Image Upload -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+              <img src="{{placement.image.url}}" alt="{{placement.name}}" class="w-12 h-12 img-rounded zoom-img">
+              <div class="relative">
+                <input type="file"
+                      class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                      name="image"
+                      id="placement_image"
+                      accept="image/*">
+              </div>
+            </div>
+
+
+          </form>
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+          <div class="flex space-x-3 justify-end">
+            <button type="button"
+                    class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                    onclick="closeModal('editPlacementModal{{placement.id}}')">
+              Cancel
+            </button>
+            <button type="submit" form="placementForm{{placement.id}}"
+                    class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                    >
+              Update Placement
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+  {% endfor %}
+
+    <!-- Service Modal -->
+<div id="serviceModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('serviceModal')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Add Service</h3>
+          <button onclick="closeModal('serviceModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="serviceForm" enctype="multipart/form-data" method='post' class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_service_create" id="service_id">
+
+          <!-- Service Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Service Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="name"
+                   id="service_name"
+                   placeholder="Enter service name"
+                   required>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="description"
+                      id="service_description"
+                      rows="3"
+                      placeholder="Enter service description"
+                      required></textarea>
+          </div>
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">key points  </label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="key_points"
+                      id="service_key_points"
+                      rows="3"
+                      placeholder="Enter key points seprated with dot"
+                      required></textarea>
+          </div>
+          <!-- Image Upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="image"
+                     id="service_image"
+                     accept="image/*" required>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('serviceModal')">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                  form="serviceForm"
+                  >
+            Save Service
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% for service in services %}
+<div id="editServiceModal{{service.id}}" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('editServiceModal{{service.id}}')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Edit Service</h3>
+          <button onclick="closeModal('editServiceModal{{service.id}}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="serviceForm{{service.id}}" enctype="multipart/form-data" method='post' class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_service_create" id="service_id">
+          <input type="hidden" name="id" value="{{service.id}}">
+
+          <!-- Service Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Service Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="name"
+                   id="service_name"
+                   value="{{service.name}}"
+                   placeholder="Enter service name"
+                   required>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="description"
+                      id="service_description"
+                      rows="3"
+                      placeholder="Enter service description"
+                      required>{{service.description}}</textarea>
+          </div>
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">key points  </label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+          name="key_points"
+          id="service_key_points"
+          rows="3"
+          placeholder="Enter key points separated with dot"
+          required>{{ service.key_points|join:"." }}</textarea>
+
+          </div>
+          <!-- Image Upload -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+            <img src="{{service.image.url}}" alt="service image" class="w-16 h-16 rounded-full zoom-img">
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="image"
+                     id="service_image"
+                     accept="image/*">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('editServiceModal{{service.id}}')">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                  form="serviceForm{{service.id}}"
+                  >
+            Update Service
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+
+    <!-- Project Domain Modal -->
+<div id="projectDomainModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('projectDomainModal')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Add Project Domain</h3>
+          <button onclick="closeModal('projectDomainModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="projectDomainForm" method="post" class="space-y-4" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_domain_create" id="domain_id">
+
+          <!-- Domain Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Domain Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="domain_name"
+                   id="domain_name"
+                   placeholder="Enter domain name"
+                   required>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="domain_description"
+                      id="domain_description"
+                      rows="3"
+                      placeholder="Enter domain description"
+                      required></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="domain_image"
+                     id="domain_image"
+                     accept="image/*" required>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('projectDomainModal')">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                  form="projectDomainForm">
+            Save Domain
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% for domain in domains %}
+<div id="editDomainModal{{domain.id}}" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('editDomainModal{{domain.id}}')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-md mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Edit Project Domain</h3>
+          <button onclick="closeModal('editDomainModal{{domain.id}}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="projectDomainForm{{domain.id}}" method="post" class="space-y-4" enctype="multipart/form-data">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_domain_create" id="domain_id">
+          <input type="hidden" name="id" value="{{ domain.id }}" id="id">
+
+          <!-- Domain Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Domain Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="domain_name"
+                   id="domain_name"
+                   value="{{ domain.name }}"
+                   placeholder="Enter domain name"
+                   required>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="domain_description"
+                      id="domain_description"
+                      rows="3"
+                      placeholder="Enter domain description"
+                      required>{{ domain.description }}</textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Image</label>
+            <img src="{{ domain.image.url }}" alt="Domain Image" class="w-16 h-16 rounded-full zoom-img">
+            <div class="relative">
+              <input type="file"
+                     class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                     name="domain_image"
+                     id="domain_image"
+                     accept="image/*">
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('editDomainModal{{domain.id}}')">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25"
+                  form="projectDomainForm{{domain.id}}">
+            Update Domain
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<!-- Project Modal -->
+<div id="projectModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('projectModal')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Add Project</h3>
+          <button onclick="closeModal('projectModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4 max-h-[70vh] overflow-y-auto">
+        <form id="projectForm" method="post" enctype="multipart/form-data" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op"  value = "website_project_create" id="project_id">
+
+          <!-- Project Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="name"
+                   id="project_name"
+                   placeholder="Enter project name"
+                   required>
+          </div>
+
+          <!-- Domain Selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Domain</label>
+            <select class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    name="domain"
+                    id="project_domain"
+                    required>
+              <option value="">Select a Domain</option>
+              {% for domain in domains %}
+              <option value="{{ domain.id }}">{{ domain.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="description"
+                      id="project_description"
+                      rows="4"
+                      placeholder="Enter project description"
+                      required></textarea>
+          </div>
+
+
+
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('projectModal')">
+            Cancel
+          </button>
+          <button type="submit" form="projectForm"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25">
+            Save Project
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% for project in projects %}
+<div id="editProjectModal{{project.id}}" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('editProjectModal{{project.id}}')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900">Edit Project</h3>
+          <button onclick="closeModal('editProjectModal{{project.id}}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4 max-h-[70vh] overflow-y-auto">
+        <form id="projectForm{{project.id}}" method="post" enctype="multipart/form-data" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op"  value = "website_project_create" id="project_id">
+          <input type="hidden" name="id"  value = "{{ project.id }}" id="id">
+
+          <!-- Project Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Project Name</label>
+            <input type="text"
+                   class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                   name="name"
+                   id="project_name"
+                   placeholder="Enter project name"
+                   value="{{ project.name }}"
+                   required>
+          </div>
+
+          <!-- Domain Selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Domain</label>
+            <select class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                    name="domain"
+                    id="project_domain"
+                    required>
+              <option value="">Select a Domain</option>
+              {% for domain in domains %}
+              <option value="{{ domain.id }}" {% if domain.id == project.domain.id %}selected{% endif %}>{{ domain.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                      name="description"
+                      id="project_description"
+                      rows="4"
+                      placeholder="Enter project description"
+                      required>{{ project.description }}</textarea>
+          </div>
+
+
+
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('editProjectModal{{project.id}}')">
+            Cancel
+          </button>
+          <button type="submit" form="projectForm{{project.id}}"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25">
+            Update Project
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+
+<div id="contactModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity z-50" onclick="closeModal('contactModal')"></div>
+
+  <!-- Modal Container -->
+  <div class="fixed inset-0 flex items-center justify-center p-4 z-50">
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto transform transition-all max-h-[90vh] overflow-y-auto">
+      <!-- Header -->
+      <div class="px-4 sm:px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Contact Information</h3>
+          <button onclick="closeModal('contactModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-4 sm:px-6 py-4">
+        <form id="contactForm" method="POST" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_contact_create" id="contact_id">
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <!-- Left Column -->
+            <div class="space-y-4">
+              <!-- Phone Number -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input type="tel"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="phone1"
+                       id="contact_phone"
+                       placeholder="Enter phone number"
+                       required>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input type="tel"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="phone2"
+                       id="contact_phone"
+                       placeholder="Enter phone number"
+                       required>
+              </div>
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input type="email"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="email"
+                       id="contact_email"
+                       placeholder="Enter email address"
+                       required>
+              </div>
+
+              <!-- Address -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <textarea class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          name="address"
+                          id="contact_address"
+                          rows="3"
+                          placeholder="Enter full address"
+                          required></textarea>
+              </div>
+
+              <!-- Map Embed URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Map Embed URL (Optional)</label>
+                <input type="text"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="map_url"
+                       id="contact_map_url"
+                       placeholder="https://maps.google.com/embed?pb=...">
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-4">
+              <!-- LinkedIn URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="linkedin_url"
+                       id="contact_linkedin_url"
+                       placeholder="https://linkedin.com/in/username"
+                       required>
+              </div>
+
+              <!-- Facebook URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Facebook URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="facebook_url"
+                       id="contact_facebook_url"
+                       placeholder="https://facebook.com/username"
+                       required>
+              </div>
+
+              <!-- Twitter URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Twitter URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="twitter_url"
+                       id="contact_twitter_url"
+                       placeholder="https://twitter.com/username"
+                       required>
+              </div>
+              <!-- YouTube URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">YouTube URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="youtube_url"
+                       id="contact_youtube_url"
+                       placeholder="https://youtube.com/channel/UC..."
+                       required>
+              </div>
+
+              <!-- Instagram URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Instagram URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="instagram_url"
+                       id="contact_instagram_url"
+                       placeholder="https://instagram.com/username"
+                       required>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl sticky bottom-0 bg-white">
+        <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 justify-end">
+          <button type="button"
+                  class="px-4 sm:px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium order-2 sm:order-1"
+                  onclick="closeModal('contactModal')">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25 order-1 sm:order-2"
+                  form="contactForm">
+            Save Contact
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if contact %}
+<div id="editContactModal{{contact.id}}" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <!-- Backdrop -->
+  <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity z-50" onclick="closeModal('editContactModal{{contact.id}}')"></div>
+
+  <!-- Modal Container -->
+  <div class="fixed inset-0 flex items-center justify-center p-4 z-50">
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-auto transform transition-all max-h-[90vh] overflow-y-auto">
+      <!-- Header -->
+      <div class="px-4 sm:px-6 py-4 border-b border-gray-100 sticky top-0 bg-white z-10">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg sm:text-xl font-semibold text-gray-900">Edit Contact Information</h3>
+          <button onclick="closeModal('editContactModal{{contact.id}}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-4 sm:px-6 py-4">
+        <form id="contactForm{{contact.id}}" method="POST" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_contact_create" id="contact_id">
+          <input type="hidden" name="id" value="{{ contact.id }}" id="contact_id">
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+            <!-- Left Column -->
+            <div class="space-y-4">
+              <!-- Phone Number -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input type="tel"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="phone1"
+                       id="contact_phone"
+                       placeholder="Enter phone number"
+                       value="{{ contact.phone1 }}"
+                       required>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                <input type="tel"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="phone2"
+                       id="contact_phone"
+                       placeholder="Enter phone number"
+                       value="{{ contact.phone2 }}"
+                       required>
+              </div>
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <input type="email"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="email"
+                       id="contact_email"
+                       value="{{ contact.email }}"
+                       placeholder="Enter email address"
+                       required>
+              </div>
+
+              <!-- Address -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                <textarea class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          name="address"
+                          id="contact_address"
+                          rows="3"
+                          placeholder="Enter full address"
+                          required>{{ contact.address }}</textarea>
+              </div>
+
+              <!-- Map Embed URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Map Embed URL (Optional)</label>
+                <input type="text"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="map_url"
+                       id="contact_map_url"
+                       value="{{ contact.map_embed_url }}"
+                       placeholder="https://maps.google.com/embed?pb=...">
+              </div>
+            </div>
+
+            <!-- Right Column -->
+            <div class="space-y-4">
+              <!-- LinkedIn URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="linkedin_url"
+                       id="contact_linkedin_url"
+                       value="{{ contact.linkedin }}"
+                       placeholder="https://linkedin.com/in/username"
+                       required>
+              </div>
+
+              <!-- Facebook URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Facebook URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="facebook_url"
+                       id="contact_facebook_url"
+                       value="{{ contact.facebook }}"
+                       placeholder="https://facebook.com/username"
+                       required>
+              </div>
+
+              <!-- Twitter URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Twitter URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="twitter_url"
+                       id="contact_twitter_url"
+                       value="{{ contact.twitter }}"
+                       placeholder="https://twitter.com/username"
+                       required>
+              </div>
+
+              <!-- Instagram URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Instagram URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="instagram_url"
+                       id="contact_instagram_url"
+                       value="{{ contact.instagram }}"
+                       placeholder="https://instagram.com/username"
+                       required>
+              </div>
+              <!-- YouTube URL -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">YouTube URL</label>
+                <input type="url"
+                       class="w-full px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       name="youtube_url"
+                       id="contact_youtube_url"
+                       value="{{ contact.youtube }}"
+                       placeholder="https://youtube.com/channel/UC..."
+                       required>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-4 sm:px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl sticky bottom-0 bg-white">
+        <div class="flex flex-col sm:flex-row sm:space-x-3 space-y-3 sm:space-y-0 justify-end">
+          <button type="button"
+                  class="px-4 sm:px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium order-2 sm:order-1"
+                  onclick="closeModal('editContactModal{{contact.id}}')">
+            Cancel
+          </button>
+          <button type="submit"
+                  class="px-4 sm:px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25 order-1 sm:order-2"
+                  form="contactForm{{contact.id}}">
+            Update Contact
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+<div id="careerModal" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('careerModal')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900" id="careerModalTitle">Add New Career</h3>
+          <button onclick="closeModal('careerModal')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="careerForm" method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_career_create">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Column 1 -->
+            <div class="space-y-4">
+              <!-- Title -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                <input type="text"
+                       name="title"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Enter job title"
+                       required>
+              </div>
+
+              <!-- Location -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <input type="text"
+                       name="location"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Enter job location"
+                       required>
+              </div>
+
+              <!-- Job Type -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
+                <input type="text"
+                       name="job_type"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Full-time, Part-time, etc."
+                       required>
+              </div>
+
+              <!-- Experience -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Experience</label>
+                <input type="text"
+                       name="experience"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Required experience"
+                       required>
+              </div>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="space-y-4">
+              <!-- Description -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description"
+                          rows="3"
+                          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          placeholder="Enter job description"
+                          required></textarea>
+              </div>
+
+              <!-- Application Deadline -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
+                <input type="date"
+                       name="application_Deadline"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       required>
+              </div>
+
+              <!-- Key Responsibilities -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Key Responsibilities</label>
+                <textarea name="key_responsibilities"
+                          rows="3"
+                          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          placeholder='separate each responsibility with a dot'
+                          required></textarea>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('careerModal')">
+            Cancel
+          </button>
+          <button type="submit" form="careerForm"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25">
+            Save Career
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% for career in careers %}
+<div id="editCareerModal{{career.id}}" class="hidden fixed inset-0 overflow-y-auto z-50">
+  <div class="flex items-center justify-center min-h-screen p-4">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onclick="closeModal('editCareerModal{{career.id}}')"></div>
+
+    <!-- Modal Container -->
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl mx-auto transform transition-all">
+      <!-- Header -->
+      <div class="px-6 py-4 border-b border-gray-100">
+        <div class="flex items-center justify-between">
+          <h3 class="text-xl font-semibold text-gray-900" id="editCareerModal{{career.id}}Title">Add New Career</h3>
+          <button onclick="closeModal('editCareerModal{{career.id}}')" class="p-2 hover:bg-gray-100 rounded-lg transition-colors">
+            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Form Content -->
+      <div class="px-6 py-4">
+        <form id="careerForm{{career.id}}" method="post" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="op" value="website_career_create">
+          <input type="hidden" name="id" value="{{ career.id }}">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Column 1 -->
+            <div class="space-y-4">
+              <!-- Title -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Job Title</label>
+                <input type="text"
+                       name="title"
+                       value="{{ career.title }}"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Enter job title"
+                       required>
+              </div>
+
+              <!-- Location -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <input type="text"
+                       name="location"
+                       value="{{ career.location }}"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Enter job location"
+                       required>
+              </div>
+
+              <!-- Job Type -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Job Type</label>
+                <input type="text"
+                       name="job_type"
+                       value="{{ career.job_type }}"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Full-time, Part-time, etc."
+                       required>
+              </div>
+
+              <!-- Experience -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Experience</label>
+                <input type="text"
+                       name="experience"
+                       value="{{ career.experience }}"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       placeholder="Required experience"
+                       required>
+              </div>
+            </div>
+
+            <!-- Column 2 -->
+            <div class="space-y-4">
+              <!-- Description -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea name="description"
+                          rows="3"
+                          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          placeholder="Enter job description"
+                          required>{{ career.description }}</textarea>
+              </div>
+
+              <!-- Application Deadline -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Application Deadline</label>
+                <input type="date"
+                       name="application_Deadline"
+                       value="{{ career.application_Deadline | date:'Y-m-d' }}"
+                       class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                       required>
+              </div>
+
+              <!-- Key Responsibilities -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Key Responsibilities</label>
+                <textarea name="key_responsibilities"
+                          rows="3"
+                          
+                          class="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                          placeholder='separate each responsibility with a dot'
+                          required>{{ career.key_responsibilities | join:'.' }}</textarea>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Footer Actions -->
+      <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/50 rounded-b-2xl">
+        <div class="flex space-x-3 justify-end">
+          <button type="button"
+                  class="px-6 py-2.5 border border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 transition-colors font-medium"
+                  onclick="closeModal('editCareerModal{{career.id}}')">
+            Cancel
+          </button>
+          <button type="submit" form="careerForm{{career.id}}"
+                  class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl hover:from-blue-700 hover:to-blue-800 transition-all font-medium shadow-lg shadow-blue-500/25">
+            Save Career
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+    <!-- Toast Container -->
+<div class="toast-container">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="toast toast-{{ message.tags }}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+    <!-- JavaScript -->
+    <script src="{% static 'js/flowbite.min.js' %}"></script>
+    <script>
+      // Modal functions
+      function openModal(modalId) {
+        document.getElementById(modalId).classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+      function closeModal(modalId) {
+        document.getElementById(modalId).classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+        resetForm(modalId);
+      }
+      function resetForm(modalId) {
+        const form = document.querySelector(`#${modalId} form`);
+        if (form) {
+          form.reset();
+          const idField = form.querySelector('input[name="id"]');
+          if (idField) idField.value = '';
+        }
+      }
+      // Toast auto-hide functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const toasts = document.querySelectorAll('.toast');
+
+    toasts.forEach(toast => {
+        // Ensure toast has proper background color based on its class
+        const toastClass = Array.from(toast.classList).find(cls => cls.startsWith('toast-'));
+        if (!toastClass) {
+            // If no specific toast class, default to info style
+            toast.classList.add('toast-info');
+        }
+
+        // Set timeout to hide toast after 5 seconds (5000 milliseconds)
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transition = 'opacity 0.5s ease';
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 500); // Wait for fade out transition
+        }, 5000); // 5 seconds
+    });
+});
+      function openEditCourseModal(courseId) {
+        openModal('editCourseModal' + courseId);
+      }
+      function openEditGalleryModal(galleryId) {
+        openModal('editGalleryModal' + galleryId);
+      }
+      function openEditServiceModal(serviceId) {
+        openModal('editServiceModal' + serviceId);
+      }
+      function openEditPlacementModal(placementId) {
+        openModal('editPlacementModal' + placementId);
+      }
+      function openEditDomainModal(domainId) {
+        openModal('editDomainModal' + domainId);
+      }
+      function openEditProjectModal(projectId) {
+        openModal('editProjectModal' + projectId);
+      }
+      function openEditContactModal(contactId) {
+        openModal('editContactModal' + contactId);
+      }
+      function openEditCareerModal(careerId) {
+        openModal('editCareerModal' + careerId);
+      }
+      // Close modals when clicking backdrop
+      document.addEventListener('click', function(event) {
+        const modals = document.querySelectorAll('[id$="Modal"]');
+        modals.forEach(modal => {
+          if (event.target === modal.querySelector('.fixed.inset-0')) {
+            closeModal(modal.id);
+          }
+        });
+      });
+
+      // Fullscreen zoom functionality
+      const galleryImages = document.querySelectorAll('.zoom-img');
+      const fullscreen = document.getElementById('fullscreen');
+      const fullscreenImg = document.getElementById('fullscreen-img');
+
+      galleryImages.forEach(img => {
+        img.addEventListener('click', () => {
+          fullscreenImg.src = img.src;
+          fullscreen.style.display = 'flex';
+        });
+      });
+
+      fullscreen.addEventListener('click', () => {
+        fullscreen.style.display = 'none';
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') fullscreen.style.display = 'none';
+      });
+    </script>
+  </body>
+</html>

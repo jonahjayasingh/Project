@@ -1,0 +1,132 @@
+{% for conv in conversations %}
+<div class="conversation-wrapper" style="position: relative;">
+    <a href="{% url 'conversation_detail' conv.id %}"
+        class="conversation-item {% if current_conversation and conv.id == current_conversation.id %}active{% endif %}">
+        <i class="far fa-comment-dots"></i>
+        <span class="conv-title">{{ conv.title }}</span>
+    </a>
+
+    <div class="actions-group">
+        <!-- Standard Form for Rename -->
+        <form action="{% url 'rename_conversation' conv.id %}" method="post" style="margin: 0;"
+            onsubmit="return handleRename(this, '{{ conv.title|escapejs }}')">
+            {% csrf_token %}
+            <input type="hidden" name="title" value="">
+            <button type="submit" class="icon-btn edit-btn" title="Rename">
+                <i class="fas fa-pen"></i>
+            </button>
+        </form>
+
+        <!-- Standard Form for Delete -->
+        <form action="{% url 'delete_conversation' conv.id %}" method="post" style="margin: 0;"
+            onsubmit="return confirm('DELETE NEURAL SEQUENCE?')">
+            {% csrf_token %}
+            <button type="submit" class="icon-btn delete-btn" title="Delete">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </form>
+    </div>
+</div>
+{% empty %}
+<div style="padding: 2.5rem 2rem; text-align: center; opacity: 0.3;">
+    <i class="fas fa-wind" style="font-size: 2.5rem; margin-bottom: 1.5rem; display: block;"></i>
+    <div style="font-size: 0.75rem; letter-spacing: 2px; font-weight: 700;">VACUUM DETECTED</div>
+</div>
+{% endfor %}
+
+<script>
+    function handleRename(form, currentTitle) {
+        const newTitle = window.prompt("Rename this neural sequence:", currentTitle);
+        if (newTitle && newTitle.trim() !== "" && newTitle !== currentTitle) {
+            form.querySelector('input[name="title"]').value = newTitle;
+            return true;
+        }
+        return false;
+    }
+</script>
+
+<style>
+    .conversation-wrapper {
+        margin-bottom: 2px;
+        position: relative;
+    }
+
+    .conversation-item {
+        color: var(--text-secondary);
+        padding-right: 65px !important;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        text-decoration: none;
+        padding: 0.8rem 1rem;
+        border-radius: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .conversation-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: #fff;
+    }
+
+    .conversation-item.active {
+        background: linear-gradient(90deg, rgba(16, 163, 127, 0.1) 0%, transparent 100%);
+        color: #fff;
+        border-left: 2px solid var(--accent-primary);
+    }
+
+    .conversation-wrapper:hover .actions-group {
+        opacity: 1;
+    }
+
+    .actions-group {
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.2s ease;
+        z-index: 10;
+        pointer-events: all;
+    }
+
+    .icon-btn {
+        background: transparent;
+        border: none;
+        color: rgba(255, 255, 255, 0.3);
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.75rem;
+    }
+
+    .icon-btn:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .delete-btn:hover {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.15) !important;
+    }
+
+    .edit-btn:hover {
+        color: var(--accent-primary);
+        background: rgba(16, 163, 127, 0.15) !important;
+    }
+
+    .conv-title {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+</style>

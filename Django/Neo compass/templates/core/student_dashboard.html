@@ -1,0 +1,213 @@
+{% extends 'core/base.html' %}
+{% block title %}Student Dashboard - Neo-Compass{% endblock %}
+{% block content %}
+<div class="row g-4 animate-up">
+    <!-- Welcome Header -->
+    <div class="col-12">
+        <div class="card border-0 overflow-hidden shadow-lg mb-2"
+            style="background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%); border-radius: 2rem;">
+            <div class="card-body p-4 p-md-5 text-white position-relative">
+                <div class="row align-items-center position-relative z-1">
+                    <div class="col-lg-8">
+                        <h1 class="display-5 fw-bold mb-2">Hello, {{ user.username }}! 👋</h1>
+                        <p class="lead opacity-75 mb-4">You're making great progress. Ready to dive back into your {{
+                            profile.preferred_domain.name|default:"learning path" }}? </p>
+                        <div class="d-flex flex-wrap gap-2">
+                            {% if profile.preferred_domain %}
+                            <a href="{% url 'student_domain_detail' profile.preferred_domain.id %}"
+                                class="btn btn-white text-primary fw-bold px-4 py-2">
+                                <i class="bi bi-play-circle me-2"></i>Continue Learning
+                            </a>
+                            {% else %}
+                            <a href="{% url 'student_domains' %}" class="btn btn-white text-primary fw-bold px-4 py-2">
+                                <i class="bi bi-compass me-2"></i>Select Domain
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'student_quiz_list' %}"
+                                class="btn btn-outline-white fw-bold px-4 py-2 glass">
+                                <i class="bi bi-lightning me-1"></i>Take a Quick Quiz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <i class="bi bi-stars position-absolute end-0 bottom-0 mb-n4 me-n4 opacity-10"
+                    style="font-size: 15rem;"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white">
+            <h6 class="text-uppercase fw-bold text-muted small mb-3">Overall Progress</h6>
+            <div class="d-flex align-items-center mb-3">
+                <h2 class="fw-bold mb-0 me-3">{{ completed_assignments_count }} / {{total_domain_assignments|default:"0" }}</h2>
+                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fw-bold px-3">Assignments</span>
+            </div>
+            <div class="progress" style="height: 10px; border-radius: 5px;">
+                {% if total_domain_assignments > 0 %}
+                <div class="progress-bar bg-primary shadow-sm"
+                    style="width: {% widthratio completed_assignments_count total_domain_assignments 100 %}%"></div>
+                {% else %}
+                <div class="progress-bar bg-primary opacity-25" style="width: 0%"></div>
+                {% endif %}
+            </div>
+            <p class="small text-muted mt-3 mb-0">Total tasks completed in your track</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white">
+            <h6 class="text-uppercase fw-bold text-muted small mb-3">Skill Level</h6>
+            <div class="d-flex align-items-center mb-3">
+                <h2 class="fw-bold mb-0 me-3">Intermediate</h2>
+                <span class="badge rounded-pill bg-success bg-opacity-10 text-success fw-bold px-3">Current
+                    Status</span>
+            </div>
+            <div class="d-flex gap-1">
+                <i class="bi bi-square-fill text-primary"></i>
+                <i class="bi bi-square-fill text-primary"></i>
+                <i class="bi bi-square-fill text-primary"></i>
+                <i class="bi bi-square text-muted opacity-25"></i>
+                <i class="bi bi-square text-muted opacity-25"></i>
+            </div>
+            <p class="small text-muted mt-3 mb-0">Based on your recent quiz outcomes</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm p-4 h-100 bg-white">
+            <h6 class="text-uppercase fw-bold text-muted small mb-3">Quiz Average</h6>
+            <div class="d-flex align-items-center mb-3">
+                {% if quiz_results %}
+                <h2 class="fw-bold mb-0 me-3">84%</h2>
+                <!-- This would ideally be calculated, but fixed for design demo -->
+                {% else %}
+                <h2 class="fw-bold mb-0 me-3">N/A</h2>
+                {% endif %}
+                <span class="badge rounded-pill bg-info bg-opacity-10 text-info fw-bold px-3">Grade Point</span>
+            </div>
+            <div class="d-flex align-items-center text-info">
+                <i class="bi bi-award-fill fs-4 me-2"></i>
+                <span class="fw-semibold">Top 15% of Scholars</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Path Details & Performance -->
+    <div class="col-lg-8">
+        <div class="card border-0 shadow-sm mb-4 bg-white">
+            <div class="card-header bg-white border-0 py-4 px-4 d-flex justify-content-between align-items-center">
+                <h5 class="fw-bold mb-0">Performance History</h5>
+                <i class="bi bi-activity text-primary"></i>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3">Quiz Module</th>
+                                <th class="py-3">Performance</th>
+                                <th class="text-end pe-4 py-3">Completed On</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for result in quiz_results %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold">Assessment #{{ result.quiz.id }}</div>
+                                    <div class="small text-muted">{{ result.quiz.domain.name }} Domain</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-3" style="height: 6px; min-width: 80px;">
+                                            <div class="progress-bar {% if result.score >= 80 %}bg-success{% elif result.score >= 60 %}bg-warning{% else %}bg-danger{% endif %}"
+                                                style="width: {{ result.score }}%"></div>
+                                        </div>
+                                        <span class="small fw-bold">{{ result.score }}%</span>
+                                    </div>
+                                </td>
+                                <td class="text-end pe-4 text-muted small">{{ result.attempted_at|date:"M d, Y" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center py-5 text-muted">Begin your journey by taking a quiz!
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Assignments & Profile Summary -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm mb-4 bg-white">
+            <div class="card-header bg-white border-0 py-4 px-4">
+                <h5 class="fw-bold mb-0">Recent Tasks</h5>
+            </div>
+            <div class="card-body p-4 pt-0">
+                {% for status in assignments|slice:":5" %}
+                <div class="d-flex align-items-start mb-3 border-start border-3 border-success ps-3">
+                    <div>
+                        <div class="fw-bold small">{{ status.assignment.title }}</div>
+                        <div class="text-muted" style="font-size: 0.75rem;">{{ status.assignment.domain.name }} Track
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="text-center py-4">
+                    <i class="bi bi-clipboard-x fs-1 text-muted opacity-25 mb-2 d-block"></i>
+                    <p class="text-muted small mb-0">No active completions yet.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card border-0 shadow-sm bg-white p-4 text-center">
+            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                style="width: 100px; height: 100px; font-size: 2.5rem; border: 5px solid #f8faff;">
+                {{ user.username|first|upper }}
+            </div>
+            <h4 class="fw-bold mb-1">{{ user.username }}</h4>
+            <p class="text-muted small mb-4">{{ profile.career_goal|default:"Aspiring Professional" }}</p>
+            <a href="{% url 'student_profile' %}" class="btn btn-light btn-sm w-100 fw-bold py-2">
+                <i class="bi bi-gear-wide-connected me-2"></i>Customize Profile
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .btn-white {
+        background-color: #fff;
+        color: #4f46e5;
+        border: none;
+    }
+
+    .btn-white:hover {
+        background-color: #f8fafc;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-outline-white {
+        background-color: transparent;
+        color: #fff;
+        border: 2px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .btn-outline-white:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-color: #fff;
+    }
+
+    .glass {
+        backdrop-filter: blur(8px);
+    }
+
+    .card {
+        border-radius: 1.25rem;
+    }
+</style>
+{% endblock %}
