@@ -1,87 +1,55 @@
-{% extends 'base.html' %} 
-
-{% block extra_css %}
+{% extends 'base.html' %} {% block extra_css %}
 <style>
-  /* Advanced Color System & Design Tokens - MAXIMUM VISIBILITY EDITION */
   :root {
-    /* Core Colors - High Contrast & Vibrant */
-    --neo-primary: #2563eb;
-    --neo-primary-light: #3b82f6;
-    --neo-primary-dark: #1d4ed8;
-    --neo-indigo: #4f46e5;
-    --neo-violet: #7c3aed;
-    --neo-emerald: #059669;
-    --neo-emerald-light: #10b981;
-    --neo-amber: #d97706;
-    --neo-amber-light: #f59e0b;
-    --neo-rose: #dc2626;
-    --neo-rose-light: #ef4444;
-    --neo-purple: #9333ea;
-    --neo-pink: #db2777;
-    
-    /* Background & Surfaces */
-    --glass-bg: rgba(255, 255, 255, 0.95);
-    --glass-border: rgba(255, 255, 255, 0.8);
-    --card-bg: #ffffff;
-    --body-bg: #f0f5ff;
-    
-    /* Shadows & Effects */
-    --card-shadow: 0 20px 40px -15px rgba(37, 99, 235, 0.15);
-    --card-glow: 0 0 25px rgba(37, 99, 235, 0.2);
-    --hover-shadow: 0 30px 50px -20px rgba(37, 99, 235, 0.3);
-    
-    /* Text Colors - Maximum Contrast */
-    --text-primary: #0a0f1c;
-    --text-secondary: #1e293b;
-    --text-muted: #334155;
-    --text-light: #f8fafc;
-    
-    /* Gradient Definitions */
-    --gradient-primary: linear-gradient(135deg, #2563eb, #7c3aed);
-    --gradient-success: linear-gradient(135deg, #059669, #10b981);
-    --gradient-warning: linear-gradient(135deg, #d97706, #f59e0b);
-    --gradient-danger: linear-gradient(135deg, #dc2626, #ef4444);
-    --gradient-hero: linear-gradient(135deg, #0f172a, #1e1b4b, #312e81);
-    --gradient-community: linear-gradient(145deg, #667eea, #764ba2, #6b46c1);
-    --gradient-achievement: linear-gradient(135deg, #fbbf24, #f59e0b, #d97706);
-    --gradient-online: linear-gradient(135deg, #10b981, #059669, #047857);
+    --neo-primary: #4f46e5;
+    --neo-primary-light: #6366f1;
+    --neo-primary-dark: #3730a3;
+    --neo-emerald: #10b981;
+    --neo-amber: #f59e0b;
+    --neo-rose: #ef4444;
+    --neo-purple: #8b5cf6;
+
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --body-bg: #f8fafc;
+    --card-shadow:
+      0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --hover-shadow:
+      0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+
+    --gradient-primary: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    --gradient-hero: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
   }
 
-  /* Immersive Page Background - More Vibrant */
+  /* Utility Backgrounds */
+  .bg-soft-purple {
+    background: #f5f3ff;
+    color: #8b5cf6;
+  }
+  .text-purple {
+    color: #8b5cf6;
+  }
+  .no-caret::after {
+    display: none !important;
+  }
+
   body {
     background-color: var(--body-bg);
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.12) 0px, transparent 50%),
-      radial-gradient(at 100% 0%, rgba(124, 58, 237, 0.12) 0px, transparent 50%),
-      radial-gradient(at 50% 100%, rgba(5, 150, 105, 0.08) 0px, transparent 50%),
-      radial-gradient(at 80% 20%, rgba(219, 39, 119, 0.08) 0px, transparent 50%);
-    background-attachment: fixed;
-    color: var(--text-primary);
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-image:
+      radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+      radial-gradient(
+        at 100% 100%,
+        rgba(16, 185, 129, 0.05) 0px,
+        transparent 50%
+      );
+    color: #1e293b;
   }
 
-  /* Enhanced Typography */
-  h1, h2, h3, h4, h5, h6 {
-    color: var(--text-primary);
-    letter-spacing: -0.02em;
-  }
-
-  .display-1 {
-    font-size: 4.5rem;
-    font-weight: 900;
-    line-height: 1.1;
-    background: linear-gradient(135deg, #ffffff 0%, #e0e7ff 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    text-shadow: 0 2px 10px rgba(255, 255, 255, 0.3);
-  }
-
-  /* Enhanced Animations */
-  @keyframes slideUpCenter {
+  /* Animations */
+  @keyframes fadeInUp {
     from {
       opacity: 0;
-      transform: translateY(30px);
+      transform: translateY(20px);
     }
     to {
       opacity: 1;
@@ -89,1991 +57,536 @@
     }
   }
 
-  @keyframes floatSoft {
-    0%, 100% {
-      transform: translateY(0px);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
+  .reveal {
+    animation: fadeInUp 0.6s ease-out forwards;
   }
 
-  @keyframes pulse {
-    0%, 100% {
-      transform: scale(1);
-      box-shadow: 0 0 20px var(--neo-primary);
-    }
-    50% {
-      transform: scale(1.05);
-      box-shadow: 0 0 30px var(--neo-primary-light);
-    }
+  .delay-1 {
+    animation-delay: 0.1s;
+  }
+  .delay-2 {
+    animation-delay: 0.2s;
+  }
+  .delay-3 {
+    animation-delay: 0.3s;
   }
 
-  @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
-    }
-    100% {
-      background-position: 1000px 0;
-    }
-  }
-
-  @keyframes glowPulse {
-    0%, 100% {
-      opacity: 0.6;
-      transform: scale(1);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.2);
-    }
-  }
-
-  @keyframes slideInRight {
-    from {
-      opacity: 0;
-      transform: translateX(30px);
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-    }
-  }
-
-  @keyframes badgePop {
-    0% {
-      transform: scale(1);
-    }
-    50% {
-      transform: scale(1.1);
-    }
-    100% {
-      transform: scale(1);
-    }
-  }
-
-  /* Dashboard Hero - Maximum Impact */
-  .neo-hero-card {
+  /* Hero Section */
+  .hero-card {
     background: var(--gradient-hero);
-    border-radius: 40px;
-    padding: 60px;
+    border-radius: 24px;
+    padding: 48px;
     color: white;
     position: relative;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 30px 60px -15px rgba(37, 99, 235, 0.4);
+    box-shadow: 0 20px 40px -10px rgba(30, 27, 75, 0.3);
   }
 
-  .hero-glow-orb {
+  .hero-card::after {
+    content: "";
     position: absolute;
-    width: 700px;
-    height: 700px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.4) 0%, transparent 70%);
-    top: -250px;
-    right: -200px;
-    animation: pulse 8s ease-in-out infinite;
-    filter: blur(50px);
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(
+      circle,
+      rgba(99, 102, 241, 0.2) 0%,
+      transparent 70%
+    );
     pointer-events: none;
   }
 
-  /* Enhanced Stats Components */
-  .glass-stat-launcher {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    border: 2px solid white;
-    border-radius: 32px;
-    padding: 30px;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    box-shadow: var(--card-shadow);
-    color: var(--text-primary);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .glass-stat-launcher::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--gradient-primary);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .glass-stat-launcher:hover {
-    transform: translateY(-10px);
+  /* Stats Grid */
+  .stat-launcher {
     background: white;
-    box-shadow: var(--hover-shadow);
-    border-color: var(--neo-primary);
-  }
-
-  .glass-stat-launcher:hover::before {
-    opacity: 1;
-  }
-
-  .icon-sphere {
-    width: 70px;
-    height: 70px;
     border-radius: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.8rem;
-    margin-bottom: 20px;
-    background: white;
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.15);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    border: 2px solid transparent;
-  }
-
-  .glass-stat-launcher:hover .icon-sphere {
-    transform: scale(1.1) rotate(5deg);
-    border-color: var(--neo-primary);
-    box-shadow: 0 12px 25px rgba(37, 99, 235, 0.25);
-  }
-
-  /* Enhanced Action Cards */
-  .action-nexus-card {
-    background: white;
-    border-radius: 36px;
-    padding: 40px;
-    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    text-decoration: none !important;
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
-    display: block;
-    border: 2px solid #e2e8f0;
-    color: var(--text-primary);
-    box-shadow: var(--card-shadow);
-    position: relative;
-    overflow: hidden;
   }
 
-  .action-nexus-card::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: var(--gradient-primary);
-    opacity: 0;
-    transition: opacity 0.4s;
-    z-index: 0;
-    pointer-events: none;
-  }
-
-  .action-nexus-card:hover {
-    transform: translateY(-8px) scale(1.02);
+  .stat-launcher:hover {
+    transform: translateY(-5px);
     box-shadow: var(--hover-shadow);
-    border-color: var(--neo-primary);
+    border-color: var(--neo-primary-light);
   }
 
-  .action-nexus-card:hover .nexus-icon {
-    transform: scale(1.1) rotate(3deg);
-    background: var(--gradient-primary) !important;
-    color: white !important;
-  }
-
-  .action-nexus-card:hover h3,
-  .action-nexus-card:hover p {
-    color: var(--text-primary);
-  }
-
-  .nexus-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 24px;
+  .icon-box {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.2rem;
-    margin-bottom: 30px;
-    transition: all 0.4s;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border: 2px solid white;
-  }
-
-  /* ==================== */
-  /* ENHANCED COMMUNITY SIDEBAR */
-  /* ==================== */
-
-  .community-wrapper {
-    background: white;
-    border-radius: 40px;
-    padding: 25px;
-    border: 2px solid #e2e8f0;
-    box-shadow: var(--card-shadow);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .community-wrapper::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 8px;
-    background: var(--gradient-community);
-    z-index: 1;
-  }
-
-  /* Live Indicator */
-  .live-indicator {
-    background: var(--gradient-online);
-    padding: 8px 16px;
-    border-radius: 100px;
-    color: white;
-    font-weight: 800;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
-    animation: pulse 2s infinite;
-  }
-
-  .live-dot {
-    width: 8px;
-    height: 8px;
-    background: white;
-    border-radius: 50%;
-    display: inline-block;
-    animation: glowPulse 1.5s infinite;
-  }
-
-  /* Community Stats Cards */
-  .community-stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 25px;
-  }
-
-  .community-stat-card {
-    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-    border-radius: 24px;
-    padding: 20px 15px;
-    text-align: center;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .community-stat-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--gradient-primary);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .community-stat-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--neo-primary);
-    box-shadow: 0 15px 30px -10px rgba(37, 99, 235, 0.2);
-  }
-
-  .community-stat-card:hover::before {
-    opacity: 1;
-  }
-
-  .community-stat-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 16px;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 12px;
-    font-size: 1.4rem;
-    color: var(--neo-primary);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s;
-  }
-
-  .community-stat-card:hover .community-stat-icon {
-    transform: scale(1.1) rotate(5deg);
-    background: var(--gradient-primary);
-    color: white;
-  }
-
-  .community-stat-value {
-    font-size: 1.8rem;
-    font-weight: 900;
-    line-height: 1.2;
-    margin-bottom: 5px;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .community-stat-label {
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--text-muted);
-  }
-
-  /* Activity Feed */
-  .activity-feed {
-    margin-bottom: 25px;
-  }
-
-  .feed-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    padding: 0 5px;
-  }
-
-  .feed-title {
-    font-size: 1.1rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    background: var(--gradient-community);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .feed-badge {
-    background: var(--gradient-primary);
-    color: white;
-    padding: 4px 12px;
-    border-radius: 100px;
-    font-size: 0.7rem;
-    font-weight: 800;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-
-  .activity-item {
-    background: #f8fafc;
-    border-radius: 28px;
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-    animation: slideInRight 0.5s ease-out forwards;
-    opacity: 0;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .activity-item:nth-child(1) { animation-delay: 0.1s; }
-  .activity-item:nth-child(2) { animation-delay: 0.2s; }
-  .activity-item:nth-child(3) { animation-delay: 0.3s; }
-  .activity-item:nth-child(4) { animation-delay: 0.4s; }
-  .activity-item:nth-child(5) { animation-delay: 0.5s; }
-
-  .activity-item:hover {
-    background: white;
-    border-color: var(--neo-primary);
-    transform: translateX(8px) scale(1.02);
-    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.15);
-  }
-
-  .activity-item::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 60px;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2));
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .activity-item:hover::after {
-    opacity: 1;
-  }
-
-  .activity-avatar {
-    width: 48px;
-    height: 48px;
-    border-radius: 18px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 900;
-    font-size: 1.2rem;
-    position: relative;
-    border: 2px solid white;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  }
-
-  .activity-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 16px;
-  }
-
-  .online-indicator {
-    position: absolute;
-    bottom: 2px;
-    right: 2px;
-    width: 12px;
-    height: 12px;
-    background: #10b981;
-    border: 2px solid white;
-    border-radius: 50%;
-    animation: glowPulse 2s infinite;
-  }
-
-  .activity-content {
-    flex: 1;
-    min-width: 0;
-  }
-
-  .activity-user {
-    font-weight: 900;
-    font-size: 1rem;
-    margin-bottom: 4px;
-    color: var(--text-primary);
-  }
-
-  .activity-action {
-    font-size: 0.85rem;
-    color: var(--text-muted);
-    margin-bottom: 4px;
-  }
-
-  .activity-action strong {
-    color: var(--neo-primary);
-    font-weight: 800;
-  }
-
-  .activity-time {
-    font-size: 0.7rem;
-    color: #94a3b8;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  .activity-xp {
-    background: var(--gradient-warning);
-    color: #0f172a;
-    padding: 4px 10px;
-    border-radius: 100px;
-    font-weight: 900;
-    font-size: 0.7rem;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);
-    animation: badgePop 2s infinite;
-  }
-
-  /* Trending Section */
-  .trending-section {
-    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-    border-radius: 28px;
-    padding: 20px;
-    margin-bottom: 25px;
-  }
-
-  .trending-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  .trending-icon {
-    width: 30px;
-    height: 30px;
-    border-radius: 10px;
-    background: var(--gradient-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 0.9rem;
-  }
-
-  .trending-title {
-    font-weight: 900;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--text-primary);
-  }
-
-  .trending-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: 18px;
-    transition: all 0.3s;
-    cursor: pointer;
-  }
-
-  .trending-item:hover {
-    background: white;
-    transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  }
-
-  .trending-rank {
-    width: 28px;
-    height: 28px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 900;
-    font-size: 0.8rem;
-  }
-
-  .trending-rank.gold {
-    background: linear-gradient(135deg, #fbbf24, #f59e0b);
-  }
-
-  .trending-rank.silver {
-    background: linear-gradient(135deg, #94a3b8, #64748b);
-  }
-
-  .trending-rank.bronze {
-    background: linear-gradient(135deg, #b45309, #92400e);
-  }
-
-  .trending-info {
-    flex: 1;
-  }
-
-  .trending-name {
-    font-weight: 900;
-    font-size: 0.9rem;
-    margin-bottom: 2px;
-  }
-
-  .trending-stats {
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .trending-stats i {
-    color: var(--neo-amber);
-  }
-
-  .trending-change {
-    font-size: 0.7rem;
-    font-weight: 700;
-    padding: 2px 8px;
-    border-radius: 100px;
-  }
-
-  .trending-change.up {
-    background: rgba(16, 185, 129, 0.1);
-    color: #059669;
-  }
-
-  .trending-change.down {
-    background: rgba(239, 68, 68, 0.1);
-    color: #dc2626;
-  }
-
-  /* Achievement Showcase */
-  .achievement-showcase {
-    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-    border-radius: 28px;
-    padding: 20px;
-    margin-bottom: 25px;
-  }
-
-  .achievement-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin-top: 15px;
-  }
-
-  .achievement-badge {
-    aspect-ratio: 1;
-    background: white;
-    border-radius: 18px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 10px;
-    transition: all 0.3s;
-    border: 2px solid transparent;
-    cursor: pointer;
-  }
-
-  .achievement-badge:hover {
-    transform: translateY(-5px);
-    border-color: var(--neo-primary);
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.2);
-  }
-
-  .achievement-badge i {
     font-size: 1.5rem;
-    margin-bottom: 5px;
-  }
-
-  .achievement-badge span {
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-align: center;
-    color: var(--text-muted);
-  }
-
-  .achievement-badge.gold i { color: #fbbf24; }
-  .achievement-badge.silver i { color: #94a3b8; }
-  .achievement-badge.bronze i { color: #b45309; }
-  .achievement-badge.platinum i { color: #667eea; }
-
-  /* Upcoming Events */
-  .events-section {
-    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-    border-radius: 28px;
-    padding: 20px;
-    margin-bottom: 25px;
-  }
-
-  .event-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    border-radius: 20px;
-    transition: all 0.3s;
-    cursor: pointer;
-  }
-
-  .event-item:hover {
-    background: white;
-    transform: translateX(5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-  }
-
-  .event-date {
-    width: 50px;
-    height: 50px;
-    background: var(--gradient-primary);
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-weight: 900;
-    font-size: 1.2rem;
-    line-height: 1.2;
-  }
-
-  .event-date small {
-    font-size: 0.6rem;
-    font-weight: 600;
-    text-transform: uppercase;
-  }
-
-  .event-info {
-    flex: 1;
-  }
-
-  .event-name {
-    font-weight: 900;
-    font-size: 0.9rem;
-    margin-bottom: 4px;
-  }
-
-  .event-meta {
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .event-badge {
-    background: var(--gradient-success);
-    color: white;
-    padding: 2px 8px;
-    border-radius: 100px;
-    font-size: 0.6rem;
-    font-weight: 800;
+    margin-bottom: 16px;
   }
 
   /* Quick Actions */
-  .quick-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 25px;
-  }
-
-  .quick-action-btn {
-    background: linear-gradient(145deg, #f8fafc, #f1f5f9);
-    border: 2px solid transparent;
-    border-radius: 20px;
-    padding: 15px 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    transition: all 0.3s;
-    cursor: pointer;
-    text-decoration: none;
-    color: var(--text-primary);
-  }
-
-  .quick-action-btn:hover {
+  .action-card {
     background: white;
+    border-radius: 20px;
+    padding: 32px;
+    text-decoration: none !important;
+    display: block;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+    transition: all 0.3s;
+  }
+
+  .action-card:hover {
     border-color: var(--neo-primary);
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.15);
+    background: #fcfcff;
+    transform: translateY(-4px);
   }
 
-  .quick-action-btn:hover i {
+  .action-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+    transition: all 0.3s;
+  }
+
+  .action-card:hover .action-icon {
     transform: scale(1.1);
-    color: var(--neo-primary);
   }
 
-  .quick-action-btn i {
-    font-size: 1.4rem;
-    color: var(--text-muted);
-    transition: all 0.3s;
-  }
-
-  .quick-action-btn span {
-    font-size: 0.7rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  /* Connect Button */
-  .connect-btn {
-    background: var(--gradient-community);
-    border: none;
-    border-radius: 100px;
-    padding: 18px;
-    color: white;
-    font-weight: 900;
-    font-size: 1rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    width: 100%;
-    transition: all 0.3s;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 10px 25px -5px rgba(102, 126, 234, 0.4);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .connect-btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-    transition: left 0.5s;
-  }
-
-  .connect-btn:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 35px -5px rgba(102, 126, 234, 0.5);
-  }
-
-  .connect-btn:hover::before {
-    left: 100%;
-  }
-
-  .connect-btn i {
-    margin-right: 8px;
-  }
-
-  /* Progress Bar Enhancements */
-  .progress-track {
-    background: white;
-    border-radius: 32px;
-    padding: 30px 35px;
-    border: 2px solid #e2e8f0;
-    box-shadow: var(--card-shadow);
-  }
-
-  .progress-bar-glow {
-    height: 16px;
-    background: #e2e8f0;
-    border-radius: 100px;
-    overflow: hidden;
-    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
-  }
-
-  .progress-bar-fill {
-    height: 100%;
-    background: var(--gradient-primary);
-    border-radius: 100px;
-    transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 0 15px var(--neo-primary);
-  }
-
-  .progress-bar-fill::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-    animation: shimmer 2s infinite;
-  }
-
-  /* Quick Stats Card Enhancement */
-  .quick-stats-card {
-    background: white;
-    border-radius: 32px;
-    padding: 25px;
-    border: 2px solid #e2e8f0;
-    box-shadow: var(--card-shadow);
-  }
-
-  .stat-item {
-    padding: 15px;
-    border-radius: 20px;
+  /* Activity Feed */
+  .activity-item {
+    padding: 16px;
+    border-radius: 16px;
     background: #f8fafc;
-    transition: all 0.3s;
+    margin-bottom: 12px;
+    transition: all 0.2s;
+    border: 1px solid transparent;
   }
 
-  .stat-item:hover {
+  .activity-item:hover {
     background: white;
-    box-shadow: 0 5px 15px rgba(37, 99, 235, 0.1);
-    transform: translateX(5px);
+    border-color: #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
   }
 
-  /* Floating Action Button Enhancement */
-  .fab-button {
-    width: 65px;
-    height: 65px;
+  /* Progress Bar */
+  .progress-container {
+    height: 12px;
+    background: #f1f5f9;
+    border-radius: 100px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
     background: var(--gradient-primary);
-    border: 2px solid white;
-    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.4);
+    border-radius: 100px;
+    transition: width 1s ease-in-out;
+  }
+
+  /* Floating Button */
+  .fab {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 64px;
+    height: 64px;
+    border-radius: 32px;
+    background: var(--gradient-primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4);
+    z-index: 1000;
+    border: none;
     transition: all 0.3s;
   }
 
-  .fab-button:hover {
+  .fab:hover {
     transform: scale(1.1) rotate(90deg);
-    box-shadow: 0 15px 40px rgba(37, 99, 235, 0.5);
-  }
-
-  /* Utility Classes - Enhanced Visibility */
-  .text-primary {
-    color: var(--neo-primary) !important;
-    font-weight: 600;
-  }
-  
-  .text-muted {
-    color: var(--text-muted) !important;
-  }
-  
-  .fw-black {
-    font-weight: 900;
-    letter-spacing: -0.02em;
-  }
-  
-  .opacity-70 {
-    opacity: 0.9 !important;
-  }
-  
-  .bg-primary-soft {
-    background: linear-gradient(135deg, #dbeafe, #ede9fe);
-  }
-  
-  /* Accessibility Improvements */
-  .skip-to-content {
-    position: absolute;
-    left: -9999px;
-    top: 0;
-    background: var(--neo-primary);
-    color: white;
-    padding: 15px 30px;
-    text-decoration: none;
-    font-weight: bold;
-    border-radius: 0 0 10px 10px;
-    z-index: 9999;
-  }
-  
-  .skip-to-content:focus {
-    left: 50%;
-    transform: translateX(-50%);
-  }
-  
-  :focus-visible {
-    outline: 4px solid var(--neo-primary);
-    outline-offset: 4px;
-    border-radius: 8px;
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    * {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
-
-  /* Responsive Adjustments */
-  @media (max-width: 768px) {
-    .display-1 {
-      font-size: 3rem;
-    }
-    
-    .neo-hero-card {
-      padding: 40px 30px;
-      border-radius: 30px;
-    }
-    
-    .action-nexus-card {
-      padding: 30px;
-    }
-    
-    .community-stats-grid {
-      grid-template-columns: 1fr;
-    }
   }
 </style>
-{% endblock %}
-
-{% block content %}
-<!-- Skip to main content link -->
-<a href="#main-content" class="skip-to-content">Skip to main content</a>
-
-<main id="main-content">
-  <!-- Welcome & Hero Section -->
-  <div
-    class="neo-hero-card reveal-anim mb-5"
-    role="region"
-    aria-label="Welcome section"
-  >
-    <div class="hero-glow-orb" aria-hidden="true"></div>
-    <div class="row align-items-center position-relative">
-      <div class="col-lg-7">
-        <div class="d-flex align-items-center gap-3 mb-4 flex-wrap">
-          {% if not must_select_domain %}
-          <div class="neo-tag" aria-label="Current domain">
-            <i class="fas fa-satellite me-2" aria-hidden="true"></i>
-            {{ profile.preferred_domain.name }}
-          </div>
-          <form
-            action="{% url 'leave_domain' %}"
-            method="post"
-            class="d-inline"
-          >
-            {% csrf_token %}
-            <button
-              type="submit"
-              class="btn btn-link p-0 text-white opacity-75 small text-decoration-none hover-opacity-100 fw-bold"
-              style="font-size: 0.85rem; letter-spacing: 0.5px"
-              onclick="return confirm('Warning: Exiting this track will reset your score to 0. Continue?');"
-              aria-label="Switch domain (warning: score will reset)"
-            >
-              <i class="fas fa-exchange-alt me-1"></i>SWITCH TRACK
-            </button>
-          </form>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <!-- Hero Section -->
+  <div class="hero-card mb-5 reveal">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          {% if profile.preferred_domain %}
+          <span class="badge bg-primary px-3 py-2 rounded-pill">
+            <i class="fas fa-rocket me-2"></i>{{ profile.preferred_domain.name}}
+          </span>
           {% else %}
-          <div
-            class="neo-tag"
-            style="background: rgba(220, 38, 38, 0.2); border-color: #ef4444;"
-            aria-label="No domain selected"
-          >
-            <i class="fas fa-exclamation-triangle me-2" aria-hidden="true"></i>
-            TRACK PENDING - SELECT BELOW
-          </div>
+          <span class="badge bg-danger px-3 py-2 rounded-pill">
+            <i class="fas fa-exclamation-triangle me-2"></i>No Track Selected
+          </span>
           {% endif %}
-          <div
-            class="xp-badge-lg"
-            aria-label="Current level: {{ profile.level }}"
-          >
-            <i class="fas fa-crown me-1"></i>LEVEL {{ profile.level }}
-          </div>
+          <span class="badge bg-warning text-dark px-3 py-2 rounded-pill">
+            <i class="fas fa-crown me-2"></i>Level {{ profile.level }}
+          </span>
         </div>
-
-        <h1 class="display-1 fw-black mb-4">
-          Welcome back,
-          <span class="fw-light">{{ request.user.username }}</span>
+        <h1 class="display-4 fw-bold mb-3">
+          Welcome back, {{ request.user.username }}!
         </h1>
-        <p
-          class="fs-3 mb-5 fw-semibold"
-          style="max-width: 600px; color: rgba(255, 255, 255, 0.95); text-shadow: 0 2px 5px rgba(0,0,0,0.2);"
-          aria-label="Current XP: {{ profile.points }}"
-        >
-          <i class="fas fa-bolt me-2"></i>{{ profile.points }} XP Accumulated
-          <span class="d-block fs-5 mt-2 opacity-75">Ready for your next challenge?</span>
+        <p class="lead opacity-75 mb-4">
+          You've earned <strong>{{ profile.points }} XP</strong> so far. Keep
+          pushing!
         </p>
 
-        <div class="d-flex gap-4 flex-wrap" role="group" aria-label="Primary actions">
+        <div class="d-flex gap-3">
           <a
             href="{% url 'student_domains' %}"
-            class="btn btn-light btn-lg px-5 py-3 rounded-pill fw-black shadow-lg"
-            style="background: white; color: var(--neo-primary-dark); border: 2px solid white;"
-            aria-label="Access core learning materials"
+            class="btn btn-light btn-lg px-4 fw-bold rounded-pill"
           >
-            <i class="fas fa-cubes-stacked me-2"></i>ACCESS CORE
+            Continue Learning
           </a>
           <a
             href="{% url 'achievements_feed' %}"
-            class="btn btn-outline-light btn-lg px-5 py-3 rounded-pill fw-bold"
-            style="border-width: 2px; color: white;"
-            aria-label="View community feed"
+            class="btn btn-outline-light btn-lg px-4 rounded-pill"
           >
-            <i class="fas fa-satellite-dish me-2"></i>COMMUNITY FEED
+            Community
           </a>
         </div>
       </div>
-      <div
-        class="col-lg-5 d-none d-lg-block text-center mt-4"
-        aria-hidden="true"
-      >
-        <div style="animation: floatSoft 6s ease-in-out infinite">
-          <i class="fas fa-rocket fa-10x" style="color: rgba(255, 255, 255, 0.15);"></i>
+    </div>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="row g-4 mb-5 reveal delay-1">
+    <div class="col-md-4">
+      <div class="stat-launcher">
+        <div class="icon-box" style="background: #e0e7ff; color: #4f46e5">
+          <i class="fas fa-bolt"></i>
         </div>
+        <h6 class="text-muted text-uppercase small fw-bold mb-1">
+          Total Points
+        </h6>
+        <h2 class="fw-bold mb-0">{{ profile.points }} XP</h2>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-launcher">
+        <div class="icon-box" style="background: #fef2f2; color: #ef4444">
+          <i class="fas fa-fire"></i>
+        </div>
+        <h6 class="text-muted text-uppercase small fw-bold mb-1">
+          Current Streak
+        </h6>
+        <h2 class="fw-bold mb-0">{{ profile.streak_days }} Days</h2>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-launcher">
+        <div class="icon-box" style="background: #ecfdf5; color: #10b981">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <h6 class="text-muted text-uppercase small fw-bold mb-1">
+          Assignments
+        </h6>
+        <h2 class="fw-bold mb-0">
+          {{ completed_assignments }}/{{ total_assignments }}
+        </h2>
       </div>
     </div>
   </div>
 
-  <!-- Performance Matrix - Enhanced Visibility -->
-  <div
-    class="row g-4 mb-5 reveal-anim delay-100"
-    role="region"
-    aria-label="Performance statistics"
-  >
-    <div class="col-md-4">
-      <div
-        class="glass-stat-launcher"
-        tabindex="0"
-        role="article"
-        aria-label="Total XP: {{ profile.points }}"
-      >
-        <div class="icon-sphere" style="color: var(--neo-primary);">
-          <i class="fas fa-bolt fa-2x"></i>
-        </div>
-        <h6 class="fw-bold small text-uppercase mb-1 tracking-widest text-secondary">
-          TOTAL XP
-        </h6>
-        <h2 class="fw-black mb-0 display-6">
-          {{ profile.points }} <span class="fs-6 fw-bold text-muted">XP</span>
-        </h2>
-        <div class="mt-2 small text-primary fw-bold">
-          <i class="fas fa-arrow-up me-1"></i>+{{ weekly_gain|default:"0" }} this week
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div
-        class="glass-stat-launcher"
-        tabindex="0"
-        role="article"
-        aria-label="Streak: {{ profile.streak_days }} days"
-      >
-        <div class="icon-sphere" style="color: var(--neo-rose);">
-          <i class="fas fa-fire fa-2x"></i>
-        </div>
-        <h6 class="fw-bold small text-uppercase mb-1 tracking-widest text-secondary">
-          CURRENT STREAK
-        </h6>
-        <h2 class="fw-black mb-0 display-6">
-          {{ profile.streak_days }}
-          <span class="fs-6 fw-bold text-muted">DAYS</span>
-        </h2>
-        <div class="mt-2">
-          <span class="badge bg-rose-soft text-rose px-3 py-2 rounded-pill fw-bold">
-            <i class="fas fa-calendar-check me-1"></i>Best: {{ max_streak|default:profile.streak_days }}
-          </span>
-        </div>
-      </div>
-    </div>
-    <div class="col-md-4">
-      <div
-        class="glass-stat-launcher"
-        tabindex="0"
-        role="article"
-        aria-label="Level {{ profile.level }} Elite"
-      >
-        <div class="icon-sphere" style="color: var(--neo-emerald);">
-          <i class="fas fa-shield-halved fa-2x"></i>
-        </div>
-        <h6 class="fw-bold small text-uppercase mb-1 tracking-widest text-secondary">
-          ELITE STATUS
-        </h6>
-        <h2 class="fw-black mb-0 display-6">
-          LEVEL {{ profile.level }}
-        </h2>
-        <div class="mt-2">
-          <div class="progress" style="height: 8px; background: #e2e8f0;">
-            <div class="progress-bar bg-success" style="width: {{ next_level_progress|default:'75' }}%;"></div>
-          </div>
-          <small class="text-muted mt-1 d-block">{{ points_to_next_level|default:'500' }} XP to next level</small>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  {% if must_select_domain %}
-  <!-- Strategic Selection Alert - Enhanced -->
-  <div
-    class="card border-0 rounded-5 overflow-hidden mb-5 reveal-anim delay-200"
-    style="background: linear-gradient(135deg, #0f172a, #1e1b4b); color: white; border: 2px solid var(--neo-primary);"
-    role="region"
-    aria-label="Domain selection required"
-  >
-    <div class="card-body p-5 p-lg-6">
-      <div class="row align-items-center">
-        <div class="col-lg-8">
-          <div class="d-flex align-items-center gap-3 mb-4">
-            <span class="badge bg-danger px-4 py-3 rounded-pill fw-bold fs-6">
-              <i class="fas fa-exclamation-circle me-2"></i>ACTION REQUIRED
-            </span>
-          </div>
-          <h2 class="display-4 fw-black mb-3">
-            Choose Your <span style="color: var(--neo-amber-light);">Path</span>
-          </h2>
-          <p class="fs-4 mb-5 opacity-90">
-            Select a specialization to unlock personalized content and track your progress.
-          </p>
-          <div class="dropdown">
-            <button
-              class="btn btn-lg px-5 py-3 fw-black rounded-pill shadow-2xl"
-              style="background: var(--gradient-primary); color: white; border: 2px solid white; font-size: 1.2rem;"
-              type="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-              aria-haspopup="true"
-              aria-label="Select your domain track"
+  <!-- Main Content Row -->
+  <div class="row g-5">
+    <!-- Left Column: Actions & Progress -->
+    <div class="col-lg-8">
+      {% if profile.preferred_domain %}
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-5 reveal delay-2">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="fw-bold mb-0">Current Progress</h4>
+          <div class="d-flex align-items-center gap-3">
+            <span class="fw-bold text-primary">{{ domain_progress }}%</span>
+            <form
+              action="{% url 'leave_domain' %}"
+              method="post"
+              class="d-inline"
             >
-              <i class="fas fa-compass me-2"></i>INITIALIZE TRACK
-              <i class="fas fa-chevron-down ms-2"></i>
-            </button>
-            <ul
-              class="dropdown-menu shadow-lg border-0 p-3 rounded-4 mt-3"
-              style="min-width: 300px;"
-              role="menu"
-            >
-              {% for domain in available_domains %}
-              <li role="none">
-                <form action="{% url 'student_profile' %}" method="post">
-                  {% csrf_token %}
-                  <input
-                    type="hidden"
-                    name="preferred_domain"
-                    value="{{ domain.id }}"
-                  />
-                  <button
-                    type="submit"
-                    class="dropdown-item rounded-3 py-3 fw-bold px-4 mb-2"
-                    role="menuitem"
-                    style="font-size: 1.1rem;"
-                    aria-label="Select {{ domain.name }} domain"
-                  >
-                    <span class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
-                      <i class="fas fa-atom text-primary"></i>
-                    </span>
-                    {{ domain.name }}
-                    <span class="badge bg-success ms-3">Available</span>
-                  </button>
-                </form>
-              </li>
-              {% endfor %}
-            </ul>
+              {% csrf_token %}
+              <button
+                type="submit"
+                class="btn btn-outline-danger btn-sm rounded-pill px-3"
+                onclick="
+                  return confirm(
+                    'Are you sure you want to leave this domain? Your progress and XP for this track will be permanently reset.',
+                  );
+                "
+              >
+                <i class="fas fa-sign-out-alt me-1"></i> Leave Domain
+              </button>
+            </form>
           </div>
         </div>
-        <div class="col-lg-4 d-none d-lg-block text-center" aria-hidden="true">
-          <i
-            class="fas fa-map-signs fa-8x"
-            style="color: rgba(255, 255, 255, 0.15); animation: floatSoft 10s ease-in-out infinite;"
-          ></i>
-        </div>
-      </div>
-    </div>
-  </div>
-  {% else %}
-  <!-- Domain Progress Section - Enhanced -->
-  <div
-    class="progress-track mb-5 reveal-anim delay-150"
-    role="region"
-    aria-label="Domain progress"
-  >
-    <div class="row align-items-center">
-      <div class="col-md-8">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <h4 class="fw-black mb-0">
-            <span class="text-primary">{{ profile.preferred_domain.name }}</span>
-          </h4>
-          <span class="badge bg-primary-soft text-primary px-4 py-2 rounded-pill fw-bold">
-            <i class="fas fa-trophy me-1"></i>Domain Rank #{{ domain_rank|default:"42" }}
-          </span>
-        </div>
-        <div class="progress-bar-glow mb-2" style="height: 20px;">
+        <div class="progress-container mb-3">
           <div
-            class="progress-bar-fill"
-            style="width: {{ domain_progress }}%;"
-            role="progressbar"
-            aria-label="Domain progress"
-            aria-valuenow="{{ domain_progress }}"
-            aria-valuemin="0"
-            aria-valuemax="100"
+            class="progress-fill"
+            style="width: {{ domain_progress }}%"
           ></div>
         </div>
-        <div class="d-flex justify-content-between small fw-bold mt-2">
-          <span class="text-success"><i class="fas fa-check-circle me-1"></i>{{ completed_modules|default:"3" }} Modules Done</span>
-          <span class="text-primary"><i class="fas fa-clock me-1"></i>{{ remaining_modules|default:"2" }} Remaining</span>
-        </div>
+        <p class="text-muted small mb-0">
+          <i class="fas fa-info-circle me-1"></i>
+          Finish your remaining assignments to reach the next milestone!
+        </p>
       </div>
-      <div class="col-md-4 text-md-end mt-4 mt-md-0">
-        <div class="display-4 fw-black text-primary">{{ domain_progress }}%</div>
-        <span class="badge bg-success px-4 py-2 rounded-pill fw-bold fs-6 mt-2">
-          <i class="fas fa-flag-checkered me-2"></i>MASTERY IN PROGRESS
-        </span>
-      </div>
-    </div>
-  </div>
-  {% endif %}
-
-  <div class="row g-5 mb-5">
-    <!-- Action Grid - Enhanced -->
-    <div class="col-lg-8 reveal-anim delay-200">
-      <div class="d-flex align-items-center justify-content-between mb-5">
-        <h2 class="fw-black display-6 mb-0">
-          <span class="text-primary">Quick</span> Actions
-        </h2>
-        <a
-          href="{% url 'leaderboard' %}"
-          class="btn btn-outline-primary btn-lg rounded-pill fw-bold px-4"
-          style="border-width: 2px;"
-          aria-label="View leaderboard"
-        >
-          <i class="fas fa-chart-line me-2"></i>LEADERBOARD
-          <i class="fas fa-arrow-right ms-2"></i>
-        </a>
-      </div>
-
-      <div class="row g-4">
-        <div class="col-md-6">
-          <a
-            href="{% url 'student_domains' %}"
-            class="action-nexus-card"
-            aria-label="Access Skill Archives"
+      {% else %}
+      <div
+        class="card border-0 bg-primary text-white p-5 rounded-4 mb-5 reveal delay-2 shadow-lg"
+        style="position: relative; z-index: 5"
+      >
+        <h2 class="fw-bold mb-3">Select Your Track</h2>
+        <p class="mb-4 opacity-75">
+          Initialize your learning journey by choosing a domain that interests
+          you.
+        </p>
+        <div class="dropdown">
+          <button
+            class="btn btn-light btn-lg rounded-pill px-5 dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
           >
-            <div class="nexus-icon" style="background: #dbeafe; color: var(--neo-primary);">
-              <i class="fas fa-layer-group fa-2x"></i>
-            </div>
-            <h3 class="fw-black h2 mb-3">Skill Archives</h3>
-            <p class="text-muted mb-4 fs-5">
-              Access 50+ interactive modules and hands-on labs.
-            </p>
-            <span class="badge bg-primary-soft text-primary px-4 py-2 rounded-pill fw-bold">
-              {{ available_modules|default:"12" }} New Modules
-            </span>
-          </a>
-        </div>
-        <div class="col-md-6">
-          <a
-            href="{% url 'student_quizzes' %}"
-            class="action-nexus-card"
-            aria-label="Access Logic Trials"
-          >
-            <div class="nexus-icon" style="background: #ede9fe; color: var(--neo-violet);">
-              <i class="fas fa-puzzle-piece fa-2x"></i>
-            </div>
-            <h3 class="fw-black h2 mb-3">Logic Trials</h3>
-            <p class="text-muted mb-4 fs-5">
-              Challenge yourself with 100+ assessment tests.
-            </p>
-            <span class="badge bg-violet-soft text-violet px-4 py-2 rounded-pill fw-bold">
-              {{ pending_quizzes|default:"5" }} Pending
-            </span>
-          </a>
-        </div>
-        <div class="col-md-6">
-          <a
-            href="{% url 'placement_guide' %}"
-            class="action-nexus-card"
-            aria-label="Access Career Thrust"
-          >
-            <div class="nexus-icon" style="background: #d1fae5; color: var(--neo-emerald);">
-              <i class="fas fa-briefcase fa-2x"></i>
-            </div>
-            <h3 class="fw-black h2 mb-3">Career Thrust</h3>
-            <p class="text-muted mb-4 fs-5">
-              Prepare for top-tier companies with exclusive resources.
-            </p>
-            <span class="badge bg-emerald-soft text-emerald px-4 py-2 rounded-pill fw-bold">
-              {{ placement_resources|default:"8" }} Resources
-            </span>
-          </a>
-        </div>
-        <div class="col-md-6">
-          <a
-            href="{% url 'achievements_feed' %}"
-            class="action-nexus-card"
-            aria-label="Access Peer Network"
-          >
-            <div class="nexus-icon" style="background: #ffe4e6; color: var(--neo-rose);">
-              <i class="fas fa-users fa-2x"></i>
-            </div>
-            <h3 class="fw-black h2 mb-3">Peer Network</h3>
-            <p class="text-muted mb-4 fs-5">
-              Connect with 500+ learners and share achievements.
-            </p>
-            <span class="badge bg-rose-soft text-rose px-4 py-2 rounded-pill fw-bold">
-              {{ online_peers|default:"23" }} Online Now
-            </span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <!-- ==================== -->
-    <!-- ENHANCED COMMUNITY SIDEBAR -->
-    <!-- ==================== -->
-    <div class="col-lg-4 reveal-anim delay-300">
-      <div class="community-wrapper">
-        <!-- Header with Live Indicator -->
-        <div class="d-flex align-items-center justify-content-between mb-4">
-          <div class="live-indicator">
-            <span class="live-dot"></span>
-            COMMUNITY LIVE
-          </div>
-          <span class="badge bg-primary px-3 py-2 rounded-pill fw-bold">
-            {{ total_members|default:"1,234" }} Members
-          </span>
-        </div>
-
-        <!-- Community Stats Grid -->
-        <div class="community-stats-grid">
-          <div class="community-stat-card">
-            <div class="community-stat-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="community-stat-value">{{ online_now|default:"234" }}</div>
-            <div class="community-stat-label">Online Now</div>
-          </div>
-          <div class="community-stat-card">
-            <div class="community-stat-icon">
-              <i class="fas fa-comments"></i>
-            </div>
-            <div class="community-stat-value">{{ daily_messages|default:"1.2K" }}</div>
-            <div class="community-stat-label">Messages</div>
-          </div>
-          <div class="community-stat-card">
-            <div class="community-stat-icon">
-              <i class="fas fa-medal"></i>
-            </div>
-            <div class="community-stat-value">{{ daily_achievements|default:"89" }}</div>
-            <div class="community-stat-label">Achievements</div>
-          </div>
-          <div class="community-stat-card">
-            <div class="community-stat-icon">
-              <i class="fas fa-clock"></i>
-            </div>
-            <div class="community-stat-value">{{ avg_response|default:"5m" }}</div>
-            <div class="community-stat-label">Response Time</div>
-          </div>
-        </div>
-
-        <!-- Activity Feed -->
-        <div class="activity-feed">
-          <div class="feed-header">
-            <span class="feed-title">
-              <i class="fas fa-rss me-2"></i>LIVE ACTIVITY
-            </span>
-            <span class="feed-badge">{{ recent_activities_count|default:"12" }} new</span>
-          </div>
-
-          {% if recent_achievements %}
-            {% for ach in recent_achievements|slice:":5" %}
-            <div class="activity-item d-flex align-items-center gap-3">
-              <div class="activity-avatar">
-                {% if ach.student.profile.avatar %}
-                  <img src="{{ ach.student.profile.avatar.url }}" alt="{{ ach.student.username }}">
-                {% else %}
-                  {{ ach.student.username|first|upper }}
-                {% endif %}
-                <span class="online-indicator"></span>
-              </div>
-              <div class="activity-content">
-                <div class="activity-user">{{ ach.student.username }}</div>
-                <div class="activity-action">
-                  earned <strong>{{ ach.title }}</strong>
-                </div>
-                <div class="activity-time">
-                  <i class="far fa-clock"></i> {{ ach.created_at|timesince }} ago
-                </div>
-              </div>
-              <div class="activity-xp">+{{ ach.xp_awarded }} XP</div>
-            </div>
+            Browse Tracks
+          </button>
+          <ul class="dropdown-menu shadow-lg border-0 rounded-3 mt-2">
+            {% for domain in available_domains %}
+            <li>
+              <form action="{% url 'student_profile' %}" method="post">
+                {% csrf_token %}
+                <input
+                  type="hidden"
+                  name="preferred_domain"
+                  value="{{ domain.id }}"
+                />
+                <button type="submit" class="dropdown-item py-2 fw-bold">
+                  {{ domain.name }}
+                </button>
+              </form>
+            </li>
             {% endfor %}
-          {% else %}
-            <!-- Sample Activity Items for Demo -->
-            <div class="activity-item d-flex align-items-center gap-3">
-              <div class="activity-avatar" style="background: var(--gradient-primary);">JS</div>
-              <div class="activity-content">
-                <div class="activity-user">John Smith</div>
-                <div class="activity-action">
-                  completed <strong>Advanced Python</strong>
-                </div>
-                <div class="activity-time">
-                  <i class="far fa-clock"></i> 2 min ago
-                </div>
-              </div>
-              <div class="activity-xp">+250 XP</div>
-            </div>
-            <div class="activity-item d-flex align-items-center gap-3">
-              <div class="activity-avatar" style="background: var(--gradient-success);">EM</div>
-              <div class="activity-content">
-                <div class="activity-user">Emma Watson</div>
-                <div class="activity-action">
-                  reached <strong>Level 15</strong>
-                </div>
-                <div class="activity-time">
-                  <i class="far fa-clock"></i> 5 min ago
-                </div>
-              </div>
-              <div class="activity-xp">+500 XP</div>
-            </div>
-            <div class="activity-item d-flex align-items-center gap-3">
-              <div class="activity-avatar" style="background: var(--gradient-warning);">MC</div>
-              <div class="activity-content">
-                <div class="activity-user">Mike Chen</div>
-                <div class="activity-action">
-                  earned <strong>Perfect Score</strong> badge
-                </div>
-                <div class="activity-time">
-                  <i class="far fa-clock"></i> 12 min ago
-                </div>
-              </div>
-              <div class="activity-xp">+150 XP</div>
-            </div>
-            <div class="activity-item d-flex align-items-center gap-3">
-              <div class="activity-avatar" style="background: var(--gradient-community);">SR</div>
-              <div class="activity-content">
-                <div class="activity-user">Sarah Rahman</div>
-                <div class="activity-action">
-                  started <strong>Machine Learning</strong> track
-                </div>
-                <div class="activity-time">
-                  <i class="far fa-clock"></i> 18 min ago
-                </div>
-              </div>
-              <div class="activity-xp">+100 XP</div>
-            </div>
-            <div class="activity-item d-flex align-items-center gap-3">
-              <div class="activity-avatar" style="background: var(--gradient-danger);">AK</div>
-              <div class="activity-content">
-                <div class="activity-user">Alex Kumar</div>
-                <div class="activity-action">
-                  solved <strong>5 challenges</strong> in a row
-                </div>
-                <div class="activity-time">
-                  <i class="far fa-clock"></i> 25 min ago
-                </div>
-              </div>
-              <div class="activity-xp">+300 XP</div>
-            </div>
-          {% endif %}
+          </ul>
         </div>
+      </div>
+      {% endif %}
 
-        <!-- Trending Section -->
-        <div class="trending-section">
-          <div class="trending-header">
-            <div class="trending-icon">
-              <i class="fas fa-fire"></i>
+      <div class="row g-4 mb-5 reveal delay-3">
+        <div class="col-md-6">
+          <a href="{% url 'student_domains' %}" class="action-card">
+            <div
+              class="action-icon"
+              style="background: #e0e7ff; color: #4f46e5"
+            >
+              <i class="fas fa-book-open"></i>
             </div>
-            <span class="trending-title">Trending This Week</span>
-          </div>
-          
-          <div class="trending-item">
-            <div class="trending-rank gold">1</div>
-            <div class="trending-info">
-              <div class="trending-name">Data Science</div>
-              <div class="trending-stats">
-                <i class="fas fa-users"></i> 234 learners
-                <i class="fas fa-chart-line ms-2"></i> +45%
-              </div>
-            </div>
-            <span class="trending-change up">
-              <i class="fas fa-arrow-up"></i> 3
-            </span>
-          </div>
-
-          <div class="trending-item">
-            <div class="trending-rank silver">2</div>
-            <div class="trending-info">
-              <div class="trending-name">Cloud Computing</div>
-              <div class="trending-stats">
-                <i class="fas fa-users"></i> 189 learners
-                <i class="fas fa-chart-line ms-2"></i> +32%
-              </div>
-            </div>
-            <span class="trending-change up">
-              <i class="fas fa-arrow-up"></i> 1
-            </span>
-          </div>
-
-          <div class="trending-item">
-            <div class="trending-rank bronze">3</div>
-            <div class="trending-info">
-              <div class="trending-name">Cybersecurity</div>
-              <div class="trending-stats">
-                <i class="fas fa-users"></i> 156 learners
-                <i class="fas fa-chart-line ms-2"></i> +28%
-              </div>
-            </div>
-            <span class="trending-change down">
-              <i class="fas fa-arrow-down"></i> 2
-            </span>
-          </div>
-
-          <div class="trending-item">
-            <div class="trending-rank">4</div>
-            <div class="trending-info">
-              <div class="trending-name">AI & ML</div>
-              <div class="trending-stats">
-                <i class="fas fa-users"></i> 142 learners
-                <i class="fas fa-chart-line ms-2"></i> +21%
-              </div>
-            </div>
-            <span class="trending-change up">
-              <i class="fas fa-arrow-up"></i> 5
-            </span>
-          </div>
+            <h4 class="fw-bold mb-2">Learning Path</h4>
+            <p class="text-muted mb-0">
+              Access your 2026 curriculum and training modules.
+            </p>
+          </a>
         </div>
-
-        <!-- Achievement Showcase -->
-        <div class="achievement-showcase">
-          <div class="trending-header">
-            <div class="trending-icon" style="background: var(--gradient-achievement);">
+        <div class="col-md-6">
+          <a href="{% url 'student_quizzes' %}" class="action-card">
+            <div
+              class="action-icon"
+              style="background: #f5f3ff; color: #8b5cf6"
+            >
+              <i class="fas fa-brain"></i>
+            </div>
+            <h4 class="fw-bold mb-2">Logic Trials</h4>
+            <p class="text-muted mb-2">
+              Test your knowledge with curated puzzles.
+            </p>
+            {% if pending_quizzes > 0 %}
+            <span class="badge bg-soft-purple text-purple px-3 py-1"
+              >{{ pending_quizzes }} Pending</span
+            >
+            {% endif %}
+          </a>
+        </div>
+        <div class="col-md-6">
+          <a href="{% url 'placement_guide' %}" class="action-card">
+            <div
+              class="action-icon"
+              style="background: #ecfdf5; color: #10b981"
+            >
+              <i class="fas fa-briefcase"></i>
+            </div>
+            <h4 class="fw-bold mb-2">Career Thrust</h4>
+            <p class="text-muted mb-0">
+              Placement resources and interview preparation.
+            </p>
+          </a>
+        </div>
+        <div class="col-md-6">
+          <a href="{% url 'leaderboard' %}" class="action-card">
+            <div
+              class="action-icon"
+              style="background: #fffbeb; color: #f59e0b"
+            >
               <i class="fas fa-trophy"></i>
             </div>
-            <span class="trending-title">Recent Badges</span>
-          </div>
-
-          <div class="achievement-grid">
-            <div class="achievement-badge gold">
-              <i class="fas fa-crown"></i>
-              <span>Champion</span>
-            </div>
-            <div class="achievement-badge silver">
-              <i class="fas fa-rocket"></i>
-              <span>Speedster</span>
-            </div>
-            <div class="achievement-badge platinum">
-              <i class="fas fa-brain"></i>
-              <span>Genius</span>
-            </div>
-            <div class="achievement-badge bronze">
-              <i class="fas fa-shield"></i>
-              <span>Defender</span>
-            </div>
-            <div class="achievement-badge gold">
-              <i class="fas fa-star"></i>
-              <span>All-Star</span>
-            </div>
-            <div class="achievement-badge silver">
-              <i class="fas fa-code"></i>
-              <span>Developer</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Upcoming Events -->
-        <div class="events-section">
-          <div class="trending-header">
-            <div class="trending-icon" style="background: var(--gradient-success);">
-              <i class="fas fa-calendar-alt"></i>
-            </div>
-            <span class="trending-title">Upcoming Events</span>
-          </div>
-
-          <div class="event-item">
-            <div class="event-date">
-              15
-              <small>MAR</small>
-            </div>
-            <div class="event-info">
-              <div class="event-name">AI Summit 2024</div>
-              <div class="event-meta">
-                <i class="fas fa-clock"></i> 2:00 PM
-                <span class="event-badge">LIVE</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="event-item">
-            <div class="event-date">
-              18
-              <small>MAR</small>
-            </div>
-            <div class="event-info">
-              <div class="event-name">Coding Challenge</div>
-              <div class="event-meta">
-                <i class="fas fa-clock"></i> 5:00 PM
-                <span class="event-badge">500 XP</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="event-item">
-            <div class="event-date">
-              20
-              <small>MAR</small>
-            </div>
-            <div class="event-info">
-              <div class="event-name">Mentorship Hour</div>
-              <div class="event-meta">
-                <i class="fas fa-clock"></i> 3:00 PM
-                <span class="event-badge">Q&A</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-          <a href="#" class="quick-action-btn">
-            <i class="fas fa-video"></i>
-            <span>Join Live</span>
+            <h4 class="fw-bold mb-2">Leaderboard</h4>
+            <p class="text-muted mb-0">
+              See how you rank against your fellow peers.
+            </p>
           </a>
-          <a href="#" class="quick-action-btn">
-            <i class="fas fa-users"></i>
-            <span>Find Groups</span>
-          </a>
-          <a href="#" class="quick-action-btn">
-            <i class="fas fa-calendar-plus"></i>
-            <span>Schedule</span>
-          </a>
-          <a href="#" class="quick-action-btn">
-            <i class="fas fa-gift"></i>
-            <span>Rewards</span>
-          </a>
-        </div>
-
-        <!-- Connect Button -->
-        <button class="connect-btn" onclick="window.location.href='{% url 'achievements_feed' %}'">
-          <i class="fas fa-satellite-dish"></i>
-          CONNECT WITH COMMUNITY
-        </button>
-
-        <!-- Quick Stats Card (Optional Additional Stats) -->
-        <div class="quick-stats-card mt-4">
-          <h3 class="h6 fw-black mb-4">
-            <i class="fas fa-chart-pie text-primary me-2"></i>Your Community Stats
-          </h3>
-          
-          <div class="stat-item mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold"><i class="fas fa-comment-dots text-primary me-2"></i>Posts</span>
-              <span class="fw-black h5 mb-0">{{ user_posts|default:"47" }}</span>
-            </div>
-            <small class="text-success">{{ post_engagement|default:"89" }}% engagement</small>
-          </div>
-          
-          <div class="stat-item mb-3">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold"><i class="fas fa-handshake text-warning me-2"></i>Connections</span>
-              <span class="fw-black h5 mb-0">{{ user_connections|default:"128" }}</span>
-            </div>
-            <small class="text-muted">{{ new_connections|default:"12" }} new this week</small>
-          </div>
-          
-          <div class="stat-item">
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="fw-bold"><i class="fas fa-award text-primary me-2"></i>Influence Score</span>
-              <span class="fw-black h5 mb-0 text-primary">{{ influence_score|default:"845" }}</span>
-            </div>
-            <small class="text-success"><i class="fas fa-arrow-up me-1"></i>Top 15%</small>
-          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Featured Achievements - Enhanced -->
-  {% if featured_achievements %}
-  <div class="row reveal-anim delay-400 mb-5" role="region" aria-label="Featured achievements">
-    <div class="col-12 mb-4">
-      <h2 class="fw-black display-6">
-        <span class="text-primary">Featured</span> Achievements
-      </h2>
-    </div>
-    {% for achievement in featured_achievements %}
-    <div class="col-md-4 mb-4">
-      <div class="card border-0 rounded-4 h-100" style="background: white; border: 2px solid #e2e8f0;">
-        <div class="card-body p-4">
-          <div class="d-flex align-items-center gap-3 mb-3">
-            <div class="icon-sphere mb-0" style="width: 50px; height: 50px; background: #fef3c7; color: var(--neo-amber);">
-              <i class="fas fa-crown"></i>
+    <!-- Right Column: Community & Achievements -->
+    <div class="col-lg-4">
+      <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 reveal delay-3">
+        <h5 class="fw-bold mb-4 d-flex align-items-center">
+          <i class="fas fa-medal text-warning me-2"></i> Recent Success
+        </h5>
+
+        {% if recent_achievements %} {% for ach in recent_achievements %}
+        <div class="activity-item">
+          <div class="d-flex align-items-center gap-3">
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+              style="width: 40px; height: 40px; min-width: 40px"
+            >
+              <i class="fas fa-user small"></i>
             </div>
             <div>
-              <h6 class="fw-black mb-1">{{ achievement.title }}</h6>
-              <p class="text-muted small mb-0">
-                <i class="fas fa-user me-1"></i>{{ achievement.student.username }}
-              </p>
+              <div class="fw-bold small">{{ ach.student.username }}</div>
+              <div class="text-muted" style="font-size: 0.8rem">
+                {{ ach.title }}
+              </div>
+              <div class="text-muted" style="font-size: 0.7rem">
+                {{ ach.created_at|timesince }} ago
+              </div>
             </div>
-          </div>
-          <p class="text-muted mb-3">{{ achievement.description|truncatechars:80 }}</p>
-          <div class="d-flex justify-content-between align-items-center">
-            <span class="small text-muted">
-              <i class="far fa-calendar me-1"></i>{{ achievement.created_at|date }}
-            </span>
-            <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold">
-              +{{ achievement.xp_awarded }} XP
-            </span>
           </div>
         </div>
+        {% endfor %} {% else %}
+        <div class="text-center py-4">
+          <p class="text-muted small mb-0">No recent achievements yet.</p>
+        </div>
+        {% endif %}
+
+        <a
+          href="{% url 'achievements_feed' %}"
+          class="btn btn-outline-primary w-100 rounded-pill mt-3"
+        >
+          View All Feed
+        </a>
       </div>
-    </div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
-  <!-- Loading State Skeleton -->
-  <div class="d-none" id="loading-skeleton" role="status" aria-label="Loading content">
-    <div class="row g-4">
-      {% for i in "123"|make_list %}
-      <div class="col-md-4">
-        <div class="glass-stat-launcher" style="height: 200px; background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite;"></div>
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-</main>
-
-<!-- Floating Action Button - Enhanced -->
-<div class="position-fixed bottom-0 end-0 p-4" style="z-index: 100">
-  <div class="dropdown">
-    <button
-      class="btn btn-primary rounded-circle shadow-lg fab-button"
-      type="button"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-      aria-label="Quick actions menu"
-      style="width: 70px; height: 70px;"
-    >
-      <i class="fas fa-bolt fa-2x" aria-hidden="true"></i>
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 p-3 rounded-4" style="min-width: 250px;">
-      <li><h6 class="dropdown-header fw-bold text-primary">Quick Actions</h6></li>
-      <li>
-        <a class="dropdown-item rounded-3 py-3 fw-bold" href="{% url 'student_domains' %}">
-          <i class="fas fa-cubes-stacked me-3 text-primary fa-lg"></i>Skill Archives
-        </a>
-      </li>
-      <li>
-        <a class="dropdown-item rounded-3 py-3 fw-bold" href="{% url 'student_quizzes' %}">
-          <i class="fas fa-brain-circuit me-3 text-info fa-lg"></i>Logic Trials
-        </a>
-      </li>
-      <li>
-        <a class="dropdown-item rounded-3 py-3 fw-bold" href="{% url 'placement_guide' %}">
-          <i class="fas fa-user-astronaut me-3 text-success fa-lg"></i>Career Thrust
-        </a>
-      </li>
-      <li><hr class="dropdown-divider"></li>
-      <li>
-        <a class="dropdown-item rounded-3 py-3 fw-bold" href="{% url 'leaderboard' %}">
-          <i class="fas fa-chart-line me-3 text-warning fa-lg"></i>Leaderboard
-        </a>
-      </li>
-    </ul>
-  </div>
-</div>
-
-<!-- Quick Stats Modal Trigger (Optional) -->
-<button type="button" class="btn btn-primary position-fixed start-0 bottom-0 m-4 rounded-circle shadow-lg" 
-        style="width: 50px; height: 50px; background: var(--gradient-primary); border: none;"
-        data-bs-toggle="modal" data-bs-target="#statsModal"
-        aria-label="View detailed statistics">
-  <i class="fas fa-chart-simple"></i>
-</button>
-
-<!-- Stats Modal -->
-<div class="modal fade" id="statsModal" tabindex="-1" aria-labelledby="statsModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content border-0 rounded-4">
-      <div class="modal-header border-0 p-4">
-        <h5 class="modal-title fw-black" id="statsModalLabel">Detailed Statistics</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body p-4">
-        <div class="row g-4">
-          <div class="col-md-6">
-            <div class="card border-0 bg-primary-soft p-4 rounded-4">
-              <h6 class="fw-bold mb-3">Learning Activity</h6>
-              <canvas id="activityChart" width="400" height="200"></canvas>
-            </div>
-          </div>
-          <div class="col-md-6">
-            <div class="card border-0 bg-success-soft p-4 rounded-4">
-              <h6 class="fw-bold mb-3">Domain Progress</h6>
-              <canvas id="domainChart" width="400" height="200"></canvas>
-            </div>
-          </div>
+      <div class="card border-0 shadow-sm rounded-4 p-4 reveal delay-4">
+        <h5 class="fw-bold mb-4">Community Stats</h5>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted small">Total Members</span>
+          <span class="fw-bold">{{ total_members }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+          <span class="text-muted small">Active Tracks</span>
+          <span class="fw-bold">Active</span>
+        </div>
+        <hr class="my-4" />
+        <div class="text-center">
+          <p class="text-muted small mb-3">Need help or advice?</p>
+          <a
+            href="{% url 'submit_feedback' %}"
+            class="btn btn-primary w-100 rounded-pill"
+          >
+            Talk to Mentor
+          </a>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-{% endblock %}
+<!-- Floating Action Menu Container -->
+<div class="dropdown">
+  <button
+    class="fab dropdown-toggle no-caret"
+    type="button"
+    data-bs-toggle="dropdown"
+  >
+    <i class="fas fa-plus fa-lg"></i>
+  </button>
+  <ul
+    class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2 mb-3"
+  >
+    <li>
+      <a
+        class="dropdown-item rounded-3 py-2 px-3 fw-bold"
+        href="{% url 'post_achievement' %}"
+      >
+        <i class="fas fa-award me-2 text-warning"></i> Post Achievement
+      </a>
+    </li>
+    <li>
+      <a
+        class="dropdown-item rounded-3 py-2 px-3 fw-bold"
+        href="{% url 'submit_feedback' %}"
+      >
+        <i class="fas fa-comment me-2 text-info"></i> Send Feedback
+      </a>
+    </li>
+    {% if profile.preferred_domain %}
+    <li>
+      <form
+        action="{% url 'leave_domain' %}"
+        method="post"
+        id="leaveDomainForm"
+      >
+        {% csrf_token %}
+        <button
+          type="button"
+          class="dropdown-item rounded-3 py-2 px-3 fw-bold text-danger"
+          onclick="
+            if (
+              confirm(
+                'Are you sure you want to leave your current domain? progress will be lost.',
+              )
+            )
+              document.getElementById('leaveDomainForm').submit();
+          "
+        >
+          <i class="fas fa-door-open me-2"></i> Leave Current Domain
+        </button>
+      </form>
+    </li>
+    {% endif %}
+    <li><hr class="dropdown-divider" /></li>
+    <li>
+      <a
+        class="dropdown-item rounded-3 py-2 px-3 fw-bold text-dark"
+        href="{% url 'logout' %}"
+      >
+        <i class="fas fa-sign-out-alt me-2"></i> Logout
+      </a>
+    </li>
+  </ul>
+</div>
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %} {% block extra_js %}
 <script>
-  // Smooth scroll for anchor links
-  document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-    anchor.addEventListener("click", function (e) {
-      e.preventDefault();
-      const target = document.querySelector(this.getAttribute("href"));
-      if (target) {
-        target.scrollIntoView({
-          behavior: "smooth",
-          block: "start",
-        });
-      }
+  // Simple intersection observer to add reveal classes if needed
+  // though we've hardcoded the initial ones for page load.
+  document.addEventListener("DOMContentLoaded", function () {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+        }
+      });
     });
+
+    document.querySelectorAll(".reveal").forEach((el) => observer.observe(el));
   });
-
-  // Intersection Observer for animations
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: "0px",
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("reveal-anim");
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  document.querySelectorAll(".glass-stat-launcher, .action-nexus-card, .activity-item").forEach((el) => {
-    observer.observe(el);
-  });
-
-  // Handle prefers-reduced-motion
-  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-  if (prefersReducedMotion.matches) {
-    document.documentElement.style.setProperty("--animation-duration", "0s");
-    document.querySelectorAll('[style*="animation"]').forEach(el => {
-      el.style.animation = "none";
-    });
-  }
-
-  // Touch device detection
-  if ("ontouchstart" in window) {
-    document.body.classList.add("touch-device");
-  }
-
-  // Logout confirmation
-  const logoutBtn = document.querySelector('a[href*="logout"]');
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", (e) => {
-      if (!confirm("Are you sure you want to log out?")) {
-        e.preventDefault();
-      }
-    });
-  }
-
-  // Initialize charts if modal exists
-  const statsModal = document.getElementById('statsModal');
-  if (statsModal) {
-    statsModal.addEventListener('shown.bs.modal', function () {
-      // Activity Chart
-      const activityCtx = document.getElementById('activityChart')?.getContext('2d');
-      if (activityCtx) {
-        new Chart(activityCtx, {
-          type: 'line',
-          data: {
-            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-            datasets: [{
-              label: 'XP Gained',
-              data: [120, 85, 150, 200, 175, 90, 110],
-              borderColor: '#2563eb',
-              backgroundColor: 'rgba(37, 99, 235, 0.1)',
-              tension: 0.4,
-              fill: true
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false }
-            }
-          }
-        });
-      }
-
-      // Domain Chart
-      const domainCtx = document.getElementById('domainChart')?.getContext('2d');
-      if (domainCtx) {
-        new Chart(domainCtx, {
-          type: 'doughnut',
-          data: {
-            labels: ['Completed', 'In Progress', 'Not Started'],
-            datasets: [{
-              data: [45, 30, 25],
-              backgroundColor: ['#10b981', '#3b82f6', '#e2e8f0'],
-              borderWidth: 0
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { position: 'bottom' }
-            }
-          }
-        });
-      }
-    });
-  }
-
-  // Auto-refresh activity feed simulationx
-  setInterval(() => {
-    const feedBadge = document.querySelector('.feed-badge');
-    if (feedBadge) {
-      const currentCount = parseInt(feedBadge.textContent) || 0;
-      feedBadge.textContent = (currentCount + 1) + ' new';
-      feedBadge.style.animation = 'badgePop 0.5s';
-      setTimeout(() => {
-        feedBadge.style.animation = '';
-      }, 500);
-    }
-  }, 30000); // Every 30 seconds
 </script>
 {% endblock %}

@@ -1,6 +1,32 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth import authenticate
 from .models import User, StudentProfile, Domain, Resource, Assignment, AssignmentStatus, Quiz, Achievement, Feedback, Alumni, Post, PlacementResource
+
+class LoginForm(AuthenticationForm):
+    def clean(self):
+        username = self.cleaned_data.get('username')
+        password = self.cleaned_data.get('password')
+
+        if username and password:
+            self.user_cache = authenticate(self.request, username=username, password=password)
+            
+            if self.user_cache is None:
+                # Check if user exists but is inactive
+                user_check = User.objects.filter(username=username).first()
+                if user_check and not user_check.is_active:
+                    raise forms.ValidationError(
+                        "Your account has been deactivated. Please contact the HOD for assistance.",
+                        code='deactivated',
+                    )
+                raise forms.ValidationError(
+                    "Invalid username or password. Please try again.",
+                    code='invalid_login',
+                )
+            else:
+                self.confirm_login_allowed(self.user_cache)
+
+        return self.cleaned_data
 
 class RegistrationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
@@ -97,10 +123,14 @@ class AchievementForm(forms.ModelForm):
 class FeedbackForm(forms.ModelForm):
     class Meta:
         model = Feedback
-        fields = ['mentor', 'domain', 'rating', 'comment']
+        fields = ['mentor', 'domain', 'comment']
         widgets = {
             'mentor': forms.Select(attrs={'class': 'form-select'}),
             'domain': forms.Select(attrs={'class': 'form-select'}),
-            'rating': forms.Select(attrs={'class': 'form-select'}),
-            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'comment': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Share your thoughts about your learning experience...'}),
+        }
+        labels = {
+            'mentor': 'Select Mentor',
+            'domain': 'Domain',
+            'comment': 'Your Feedback',
         }

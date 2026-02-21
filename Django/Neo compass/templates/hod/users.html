@@ -16,6 +16,86 @@
   </div>
 </div>
 
+<div class="row mb-4">
+  <div class="col-12">
+    <div class="glass-panel p-3">
+      <form
+        method="GET"
+        action="{% url 'hod_users' %}"
+        class="row g-3 align-items-end"
+      >
+        <div class="col-md-5">
+          <label class="form-label small fw-bold text-muted"
+            >SEARCH USERS</label
+          >
+          <div class="input-group">
+            <span class="input-group-text bg-white"
+              ><i class="fas fa-search text-muted"></i
+            ></span>
+            <input
+              type="text"
+              name="q"
+              class="form-control"
+              placeholder="Search by username or email..."
+              value="{{ query }}"
+            />
+          </div>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label small fw-bold text-muted">ROLE</label>
+          <select name="role" class="form-select">
+            <option value="">All Roles</option>
+            <option
+              value="student"
+              {%
+              if
+              role_filter=""
+              ="student"
+              %}selected{%
+              endif
+              %}
+            >
+              Student
+            </option>
+            <option
+              value="mentor"
+              {%
+              if
+              role_filter=""
+              ="mentor"
+              %}selected{%
+              endif
+              %}
+            >
+              Mentor
+            </option>
+            <option
+              value="hod"
+              {%
+              if
+              role_filter=""
+              ="hod"
+              %}selected{%
+              endif
+              %}
+            >
+              HOD
+            </option>
+          </select>
+        </div>
+        <div class="col-md-4 d-flex gap-2">
+          <button type="submit" class="btn btn-primary flex-grow-1">
+            <i class="fas fa-filter me-2"></i>Apply Filter
+          </button>
+          <a href="{% url 'hod_users' %}" class="btn btn-light border">
+            <i class="fas fa-undo"></i>
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
 <div class="card border-0 shadow-sm overflow-hidden">
   <div class="table-responsive">
     <table class="table table-hover align-middle mb-0">
@@ -24,7 +104,6 @@
           <th class="ps-4">User Details</th>
           <th>Role</th>
           <th>Status</th>
-          <th>Mentorship</th>
           <th class="text-end pe-4">Operations</th>
         </tr>
       </thead>
@@ -69,29 +148,9 @@
             </span>
             {% endif %} {% endif %}
           </td>
-          <td>
-            {% if user.role == 'student' %}
-            <div class="d-flex align-items-center">
-              <span class="text-muted small me-2">
-                <i class="fas fa-link me-1"></i>
-                {{user.student_profile.assigned_mentor.username|default:"Unassigned"}}
-              </span>
-              <a
-                href="{% url 'hod_assign_mentor' user.student_profile.id %}"
-                class="btn btn-sm btn-light border-0 py-0 px-2"
-                title="Change Mentor"
-              >
-                <i class="fas fa-pen small"></i>
-              </a>
-            </div>
-            {% else %}
-            <span class="text-muted small">—</span>
-            {% endif %}
-          </td>
           <td class="text-end pe-4">
             <div class="d-flex justify-content-end gap-2">
-              {% if user.role == 'student' and
-              user.student_profile.approval_status != 'APPROVED' %}
+              {% if user.role == 'student' and user.student_profile.approval_status != 'APPROVED' %}
               <form
                 action="{% url 'hod_approve_student' user.student_profile.id %}"
                 method="post"
@@ -173,6 +232,25 @@
                   </div>
                 </div>
               </div>
+              {% endif %}
+              {% if user.role == 'student' %}
+              <a
+                href="{% url 'hod_change_role' user.id %}?role=mentor"
+                class="btn btn-sm btn-outline-primary px-3"
+                style="border-radius: 8px"
+                onclick="return confirm('Promote {{ user.username }} to Mentor role? This will grant them administrative access to domains.')"
+              >
+                <i class="fas fa-user-plus me-1"></i> Make Mentor
+              </a>
+              {% elif user.role == 'mentor' %}
+              <a
+                href="{% url 'hod_change_role' user.id %}?role=student"
+                class="btn btn-sm btn-outline-warning px-3"
+                style="border-radius: 8px"
+                onclick="return confirm('Revoke mentor access for {{ user.username }}? They will be demoted to a regular student.')"
+              >
+                <i class="fas fa-user-minus me-1"></i> Revoke Access
+              </a>
               {% endif %}
 
               <a

@@ -34,17 +34,21 @@
                   name="mentor_ids"
                   value="{{ m.id }}"
                   id="mentor_{{ m.id }}"
-                  {%
-                  if
-                  m
-                  in
-                  domain.mentors.all
-                  %}checked{%
-                  endif
-                  %}
+                  {% if m.id in selected_mentor_ids %}checked{% endif %}
                 />
                 <label class="form-check-label w-100" for="mentor_{{ m.id }}">
-                  <h6 class="fw-bold mb-0">{{ m.username }}</h6>
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="fw-bold mb-0">{{ m.username }}</h6>
+                    {% if m.id in selected_mentor_ids %}
+                    <span
+                      class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 small"
+                      style="font-size: 0.65rem"
+                      >ASSIGNED</span
+                    >
+                    {% endif %}
+                  </div>
                   <small class="text-muted">{{ m.email }}</small>
                 </label>
               </div>
@@ -77,4 +81,5 @@
     background: rgba(79, 70, 229, 0.05) !important;
   }
 </style>
+
 {% endblock %}

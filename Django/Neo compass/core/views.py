@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.db import models
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from .forms import RegistrationForm, StudentProfileForm, DomainForm, ResourceForm, AssignmentForm, AssignmentSubmissionForm, GradeSubmissionForm, QuizForm, AchievementForm, FeedbackForm
@@ -44,13 +45,43 @@ def student_dashboard(request):
     
     must_select_domain = profile.preferred_domain is None
     
+    domain_progress = 0
+    completed_assignments = 0
+    total_assignments = 0
+    pending_quizzes = 0
+    
+    if profile.preferred_domain:
+        # Calculate Assignment Progress
+        total_assignments = Assignment.objects.filter(domain=profile.preferred_domain).count()
+        completed_assignments = AssignmentStatus.objects.filter(
+            student=request.user, 
+            assignment__domain=profile.preferred_domain, 
+            completed=True
+        ).count()
+        if total_assignments > 0:
+            domain_progress = int((completed_assignments / total_assignments) * 100)
+            
+        # Calculate Pending Quizzes
+        total_quizzes = Quiz.objects.filter(domain=profile.preferred_domain).count()
+        taken_quizzes = QuizResult.objects.filter(student=request.user, quiz__domain=profile.preferred_domain).count()
+        pending_quizzes = max(0, total_quizzes - taken_quizzes)
+    
     recent_achievements = Achievement.objects.all().order_by('-created_at')[:5]
     available_domains = Domain.objects.all()
+    
+    # Basic community stats
+    total_members = User.objects.filter(role='student').count()
+    
     return render(request, 'student/dashboard.html', {
         'profile': profile, 
         'recent_achievements': recent_achievements,
         'must_select_domain': must_select_domain,
-        'available_domains': available_domains
+        'available_domains': available_domains,
+        'domain_progress': domain_progress,
+        'completed_assignments': completed_assignments,
+        'total_assignments': total_assignments,
+        'pending_quizzes': pending_quizzes,
+        'total_members': total_members,
     })
 
 @login_required
@@ -238,10 +269,13 @@ def placement_guide(request):
 @login_required
 def mentor_dashboard(request):
     if request.user.role != 'mentor': return redirect('home')
-    my_students = StudentProfile.objects.filter(assigned_mentor=request.user)
+    # Get students from domains this mentor is assigned to
+    my_domains = Domain.objects.filter(mentors=request.user)
+    my_students = StudentProfile.objects.filter(preferred_domain__in=my_domains).distinct()
+    
     pending_approvals = my_students.filter(approval_status='PENDING')
     approved_students = my_students.filter(approval_status='APPROVED')
-    my_domains = Domain.objects.filter(mentors=request.user)
+    
     return render(request, 'mentor/dashboard.html', {
         'pending_approvals': pending_approvals,
         'my_students': my_students,
@@ -252,13 +286,15 @@ def mentor_dashboard(request):
 @login_required
 def mentor_students(request):
     if request.user.role != 'mentor': return redirect('home')
-    students = StudentProfile.objects.filter(assigned_mentor=request.user)
+    # Students in domains this mentor manages
+    students = StudentProfile.objects.filter(preferred_domain__mentors=request.user).distinct()
     return render(request, 'mentor/students.html', {'students': students})
 
 @login_required
 def approve_student(request, profile_id):
     if request.user.role != 'mentor': return redirect('home')
-    profile = get_object_or_404(StudentProfile, id=profile_id, assigned_mentor=request.user)
+    # Can only approve students in their assigned domains
+    profile = get_object_or_404(StudentProfile, id=profile_id, preferred_domain__mentors=request.user)
     if request.method == 'POST':
         action = request.POST.get('status')
         remark = request.POST.get('remark', '')
@@ -277,26 +313,33 @@ def approve_student(request, profile_id):
 @login_required
 def mentor_domains(request):
     if request.user.role != 'mentor': return redirect('home')
-    domains = Domain.objects.filter(created_by=request.user)
+    # Mentors see domains they are assigned to
+    domains = Domain.objects.filter(mentors=request.user)
     return render(request, 'mentor/domains.html', {'domains': domains})
 
 @login_required
-def add_domain(request):
-    if request.user.role != 'mentor': return redirect('home')
+def hod_add_domain(request):
+    if request.user.role != 'hod': return redirect('home')
     if request.method == 'POST':
         form = DomainForm(request.POST)
         if form.is_valid():
             domain = form.save(commit=False)
             domain.created_by = request.user
             domain.save()
-            return redirect('mentor_domains')
+            messages.success(request, f'Domain "{domain.name}" created successfully.')
+            return redirect('hod_domains')
     else:
         form = DomainForm()
-    return render(request, 'mentor/add_domain.html', {'form': form})
+    return render(request, 'hod/add_domain.html', {'form': form})
 
 @login_required
 def add_resource(request, domain_id):
-    domain = get_object_or_404(Domain, id=domain_id, created_by=request.user)
+    domain = get_object_or_404(Domain, id=domain_id)
+    # Security: Only creator (HOD/Mentor) OR assigned mentors can add resources
+    if domain.created_by != request.user and request.user not in domain.mentors.all():
+        messages.error(request, "Access denied. You are not assigned to this domain.")
+        return redirect('mentor_dashboard')
+        
     if request.method == 'POST':
         form = ResourceForm(request.POST)
         if form.is_valid():
@@ -310,7 +353,12 @@ def add_resource(request, domain_id):
 
 @login_required
 def add_assignment(request, domain_id):
-    domain = get_object_or_404(Domain, id=domain_id, created_by=request.user)
+    domain = get_object_or_404(Domain, id=domain_id)
+    # Security: Only creator (HOD/Mentor) OR assigned mentors can add assignments
+    if domain.created_by != request.user and request.user not in domain.mentors.all():
+        messages.error(request, "Access denied. You are not assigned to this domain.")
+        return redirect('mentor_dashboard')
+        
     if request.method == 'POST':
         form = AssignmentForm(request.POST)
         if form.is_valid():
@@ -376,8 +424,26 @@ def hod_approve_student(request, profile_id):
 @login_required
 def hod_users(request):
     if request.user.role != 'hod': return redirect('home')
-    users = User.objects.all()
-    return render(request, 'hod/users.html', {'users': users})
+    
+    query = request.GET.get('q', '')
+    role_filter = request.GET.get('role', '')
+    
+    users = User.objects.all().order_by('-date_joined')
+    
+    if query:
+        users = users.filter(
+            models.Q(username__icontains=query) | 
+            models.Q(email__icontains=query)
+        )
+        
+    if role_filter:
+        users = users.filter(role=role_filter)
+        
+    return render(request, 'hod/users.html', {
+        'users': users,
+        'query': query,
+        'role_filter': role_filter
+    })
 
 @login_required
 def hod_toggle_user(request, user_id):
@@ -388,22 +454,38 @@ def hod_toggle_user(request, user_id):
     return redirect('hod_users')
 
 @login_required
-def assign_mentor(request, profile_id):
+def hod_change_role(request, user_id):
     if request.user.role != 'hod': return redirect('home')
-    profile = get_object_or_404(StudentProfile, id=profile_id)
-    if profile.preferred_domain:
-        mentors = profile.preferred_domain.mentors.all()
-        if not mentors.exists():
-            mentors = User.objects.filter(role='mentor')
-    else:
-        mentors = User.objects.filter(role='mentor')
-    if request.method == 'POST':
-        mentor_id = request.POST.get('mentor_id')
-        profile.assigned_mentor = get_object_or_404(User, id=mentor_id)
-        profile.save()
-        messages.success(request, f'Mentor assigned to {profile.user.username}')
+    user = get_object_or_404(User, id=user_id)
+    new_role = request.GET.get('role')
+    
+    # Security: Don't allow changing HOD roles through this simple toggle
+    if user.role == 'hod' or new_role == 'hod':
+        messages.error(request, "HOD roles cannot be modified via this shortcut.")
         return redirect('hod_users')
-    return render(request, 'hod/assign_mentor.html', {'profile': profile, 'mentors': mentors})
+
+    if new_role in [choice[0] for choice in User.ROLE_CHOICES]:
+        old_role = user.role
+        user.role = new_role
+        user.save()
+        
+        # Ensure StudentProfile exists if becoming a student
+        if new_role == 'student':
+            from .models import StudentProfile
+            StudentProfile.objects.get_or_create(user=user)
+            messages.success(request, f'Access revoked. {user.username} is now a Student.')
+        
+        # If they were a student and are now a mentor
+        elif old_role == 'student' and new_role == 'mentor':
+            user.is_active = True
+            user.save()
+            messages.success(request, f'Promotion successful. {user.username} is now a Mentor.')
+        else:
+            messages.success(request, f'User {user.username} role updated to {new_role}.')
+    
+    return redirect('hod_users')
+
+
 
 @login_required
 def hod_feedback(request):
@@ -427,7 +509,12 @@ def hod_allocate_mentors(request, domain_id):
         messages.success(request, f'Mentors updated for {domain.name}')
         return redirect('hod_domains')
     all_mentors = User.objects.filter(role='mentor')
-    return render(request, 'hod/allocate_mentors.html', {'domain': domain, 'all_mentors': all_mentors})
+    selected_mentor_ids = list(domain.mentors.values_list('id', flat=True))
+    return render(request, 'hod/allocate_mentors.html', {
+        'domain': domain, 
+        'all_mentors': all_mentors,
+        'selected_mentor_ids': selected_mentor_ids
+    })
 
 # --- ALUMNI ---
 @login_required
@@ -439,16 +526,40 @@ def alumni_posts(request):
 @login_required
 def submit_feedback(request):
     if request.user.role != 'student': return redirect('home')
+    
+    student_profile = request.user.student_profile
+    student_domain = student_profile.preferred_domain
+    
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
+        # Re-apply filters for validation
+        if student_domain:
+            form.fields['domain'].queryset = Domain.objects.filter(id=student_domain.id)
+            form.fields['mentor'].queryset = User.objects.filter(role='mentor', allocated_domains=student_domain)
+        
         if form.is_valid():
             feedback = form.save(commit=False)
             feedback.student = request.user
             feedback.save()
+            messages.success(request, "Thank you for your feedback!")
             return redirect('student_dashboard')
     else:
-        form = FeedbackForm()
-    return render(request, 'student/feedback.html', {'form': form})
+        # Pre-fill domain if student has one
+        initial_data = {}
+        if student_domain:
+            initial_data['domain'] = student_domain
+        
+        form = FeedbackForm(initial=initial_data)
+        
+        # Filter choices
+        if student_domain:
+            form.fields['domain'].queryset = Domain.objects.filter(id=student_domain.id)
+            form.fields['mentor'].queryset = User.objects.filter(role='mentor', allocated_domains=student_domain)
+        else:
+            # If no domain yet, maybe show all but it's better to show empty or all
+            pass
+
+    return render(request, 'student/feedback.html', {'form': form, 'student_domain': student_domain})
 
 @login_required
 def like_achievement(request, achievement_id):

@@ -1,30 +1,123 @@
-{% extends 'base.html' %} {% block content %}
-<div class="row justify-content-center">
-  <div class="col-md-7">
-    <div class="glass-panel">
-      <h2 class="fw-bold mb-4">
-        Share <span class="text-gradient">Feedback</span>
+{% extends 'base.html' %} {% block title %}Share Feedback | Neo-Compass{%endblock %} {% block content %}
+<div class="row justify-content-center animate-up">
+  <div class="col-md-6">
+    <div class="glass-panel text-center mb-4">
+      <div class="icon-circle bg-primary-light mb-3 mx-auto">
+        <i class="fas fa-comment-dots text-primary fs-3"></i>
+      </div>
+      <h2 class="fw-bold mb-2">
+        Share your <span class="text-gradient">Feedback</span>
       </h2>
-      <form method="post">
-        {% csrf_token %} {{ form.as_p }}
-        <button type="submit" class="btn btn-primary w-100">
-          Submit Feedback
-        </button>
-      </form>
+      <p class="text-muted">
+        Your insights help us improve the mentorship experience and platform
+        quality.
+      </p>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body p-4 p-md-5">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-main"
+              >{{ form.domain.label }}</label
+            >
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="fas fa-layer-group text-muted"></i>
+              </span>
+              {{ form.domain }}
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-main"
+              >{{ form.mentor.label }}</label
+            >
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0">
+                <i class="fas fa-user-tie text-muted"></i>
+              </span>
+              {{ form.mentor }}
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold text-main"
+              >{{ form.comment.label }}</label
+            >
+            {{ form.comment }}
+          </div>
+
+          <div class="d-grid pt-2">
+            <button type="submit" class="btn btn-primary btn-lg shadow-sm">
+              <i class="fas fa-paper-plane me-2"></i> Submit Feedback
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="text-center mt-4">
+      <a
+        href="{% url 'student_dashboard' %}"
+        class="text-muted text-decoration-none hover-primary"
+      >
+        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+      </a>
     </div>
   </div>
 </div>
+
+{% block extra_css %}
 <style>
-  input,
-  textarea,
-  select {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    background: rgba(0, 0, 0, 0.2);
-    color: white;
-    border: 1px solid #444;
-    border-radius: 5px;
+  .animate-up {
+    animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  @keyframes slideUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .icon-circle {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .bg-primary-light {
+    background-color: rgba(79, 70, 229, 0.1);
+  }
+
+  .input-group-text {
+    border-radius: 10px 0 0 10px;
+  }
+
+  .form-select,
+  .form-control {
+    border-radius: 10px;
+    font-size: 0.95rem;
+  }
+
+  .input-group > .form-select,
+  .input-group > .form-control {
+    border-left: none;
+    border-radius: 0 10px 10px 0;
+  }
+
+  .hover-primary:hover {
+    color: var(--primary) !important;
   }
 </style>
-{% endblock %}
+{% endblock %} {% endblock %}

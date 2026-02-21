@@ -17,7 +17,7 @@ class User(AbstractUser):
 class Domain(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
-    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_domains', limit_choices_to={'role': 'mentor'})
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='created_domains')
     mentors = models.ManyToManyField(User, related_name='allocated_domains', limit_choices_to={'role': 'mentor'}, blank=True)
 
     def __str__(self):
@@ -153,6 +153,6 @@ class Feedback(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedbacks_given', limit_choices_to={'role': 'student'})
     mentor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='feedbacks_received', limit_choices_to={'role': 'mentor'})
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE)
-    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)])
+    rating = models.IntegerField(choices=[(i, str(i)) for i in range(1, 6)], null=True, blank=True)
     comment = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

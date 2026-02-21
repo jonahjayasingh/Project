@@ -10,8 +10,7 @@
                 <div class="row align-items-center position-relative z-1">
                     <div class="col-lg-8">
                         <h1 class="display-5 fw-bold mb-2">Hello, {{ user.username }}! 👋</h1>
-                        <p class="lead opacity-75 mb-4">You're making great progress. Ready to dive back into your {{
-                            profile.preferred_domain.name|default:"learning path" }}? </p>
+                        <p class="lead opacity-75 mb-4">You're making great progress. Ready to dive back into your {{ profile.preferred_domain.name|default:"learning path" }}? </p>
                         <div class="d-flex flex-wrap gap-2">
                             {% if profile.preferred_domain %}
                             <a href="{% url 'student_domain_detail' profile.preferred_domain.id %}"

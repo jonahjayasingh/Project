@@ -1,11 +1,12 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
+from .forms import LoginForm
 
 urlpatterns = [
     path('', views.home, name='home'),
     path('register/', views.register, name='register'),
-    path('login/', auth_views.LoginView.as_view(template_name='core/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='core/login.html', authentication_form=LoginForm), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('dashboard/', views.dashboard_redirect, name='dashboard'),
     
@@ -31,7 +32,7 @@ urlpatterns = [
     path('mentor/students/', views.mentor_students, name='mentor_students'),
     path('mentor/approve-student/<int:profile_id>/', views.approve_student, name='mentor_approve_student'),
     path('mentor/domains/', views.mentor_domains, name='mentor_domains'),
-    path('mentor/add-domain/', views.add_domain, name='mentor_add_domain'),
+    path('hod/add-domain/', views.hod_add_domain, name='hod_add_domain'),
     path('mentor/domain/<int:domain_id>/add-resource/', views.add_resource, name='mentor_add_resource'),
     path('mentor/domain/<int:domain_id>/add-assignment/', views.add_assignment, name='mentor_add_assignment'),
     path('mentor/grade-submissions/', views.grade_submissions, name='grade_submissions'),
@@ -42,7 +43,7 @@ urlpatterns = [
     path('hod/users/', views.hod_users, name='hod_users'),
     path('hod/approve-student/<int:profile_id>/', views.hod_approve_student, name='hod_approve_student'),
     path('hod/toggle-user/<int:user_id>/', views.hod_toggle_user, name='hod_toggle_user'),
-    path('hod/assign-mentor/<int:profile_id>/', views.assign_mentor, name='hod_assign_mentor'),
+    path('hod/change-role/<int:user_id>/', views.hod_change_role, name='hod_change_role'),
     path('hod/feedback/', views.hod_feedback, name='hod_feedback'),
     path('hod/domains/', views.hod_domains, name='hod_domains'),
     path('hod/domain/<int:domain_id>/allocate/', views.hod_allocate_mentors, name='hod_allocate_mentors'),
