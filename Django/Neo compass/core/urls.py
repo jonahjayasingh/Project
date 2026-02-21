@@ -20,6 +20,8 @@ urlpatterns = [
     path('student/quiz/<int:quiz_id>/', views.take_quiz, name='take_quiz'),
     path('student/achievements/', views.achievements_feed, name='achievements_feed'),
     path('student/achievement/post/', views.post_achievement, name='post_achievement'),
+    path('student/achievement/<int:achievement_id>/edit/', views.edit_achievement, name='edit_achievement'),
+    path('student/achievement/<int:achievement_id>/delete/', views.delete_achievement, name='delete_achievement'),
     path('student/leaderboard/', views.leaderboard, name='leaderboard'),
     path('student/placement/', views.placement_guide, name='placement_guide'),
     path('student/feedback/', views.submit_feedback, name='submit_feedback'),
@@ -51,4 +53,6 @@ urlpatterns = [
     # Social
     path('achievement/<int:achievement_id>/like/', views.like_achievement, name='like_achievement'),
     path('achievement/<int:achievement_id>/comment/', views.add_comment, name='add_comment'),
+    path('comment/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
+    path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
 ]

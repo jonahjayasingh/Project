@@ -8,11 +8,15 @@
     <div class="card p-4">
       <h5 class="fw-bold">{{ quiz.domain.name }} - Assessment</h5>
       <p class="text-muted">{{ quiz.question|truncatewords:10 }}</p>
+      {% if quiz.id in taken_quiz_ids %}
+      <button class="btn btn-secondary mt-3" disabled>Already Taken</button>
+      {% else %}
       <a
         href="{% url 'take_quiz' quiz.id %}"
         class="btn btn-outline-primary mt-3"
         >Take Quiz (20 Points)</a
       >
+      {% endif %}
     </div>
   </div>
   {% endfor %}

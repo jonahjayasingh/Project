@@ -1,0 +1,30 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row justify-content-center py-5">
+  <div class="col-md-6">
+    <div class="glass-panel text-center">
+      <div class="mb-4">
+        <i class="fas fa-exclamation-triangle fa-4x text-warning"></i>
+      </div>
+      <h2 class="fw-bold mb-3">Delete Achievement?</h2>
+      <p class="text-muted mb-4">
+        Are you sure you want to delete
+        <strong>"{{ achievement.title }}"</strong>? This action cannot be
+        undone.
+      </p>
+      <form method="post">
+        {% csrf_token %}
+        <div class="d-flex gap-3 justify-content-center">
+          <a
+            href="{% url 'achievements_feed' %}"
+            class="btn btn-outline-secondary px-4"
+            >Cancel</a
+          >
+          <button type="submit" class="btn btn-danger px-4">
+            Delete Permanently
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

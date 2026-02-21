@@ -90,11 +90,12 @@ class Quiz(models.Model):
 
 class QuizResult(models.Model):
     student = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': 'student'})
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE, related_name='results', null=True, blank=True)
     score = models.IntegerField()
     date = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.student.username} - {self.score}"
+        return f"{self.student.username} - {self.quiz.question[:20]} - {self.score}"
 
 class PlacementResource(models.Model):
     domain = models.ForeignKey(Domain, on_delete=models.CASCADE)

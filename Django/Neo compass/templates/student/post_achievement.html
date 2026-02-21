@@ -1,2 +1,8 @@
-{% extends 'core/form_page.html' %} {% block title %}Share Achievement{%
-endblock %}
+{% extends 'core/form_page.html' %} 
+{% block title %}
+{% if edit_mode %}
+Edit Achievement
+{% else %}
+Share Achievement
+{% endif %}
+{% endblock %}

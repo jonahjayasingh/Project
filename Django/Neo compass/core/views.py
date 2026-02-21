@@ -82,8 +82,9 @@ def leave_domain(request):
         dom_name = profile.preferred_domain.name if profile.preferred_domain else "domain"
         profile.preferred_domain = None
         profile.domain_joined_at = None
+        profile.points = 0
         profile.save()
-        messages.success(request, f'You have left {dom_name}. You can now select a new track.')
+        messages.success(request, f'You have left {dom_name}. Your score has been reset to zero.')
     return redirect('student_domains')
 
 @login_required
@@ -145,7 +146,11 @@ def student_quizzes(request):
         return redirect('student_dashboard')
         
     quizzes = Quiz.objects.filter(domain=profile.preferred_domain)
-    return render(request, 'student/quizzes.html', {'quizzes': quizzes})
+    taken_quiz_ids = QuizResult.objects.filter(student=request.user).values_list('quiz_id', flat=True)
+    return render(request, 'student/quizzes.html', {
+        'quizzes': quizzes, 
+        'taken_quiz_ids': taken_quiz_ids
+    })
 
 @login_required
 def take_quiz(request, quiz_id):
@@ -153,13 +158,18 @@ def take_quiz(request, quiz_id):
     profile = request.user.student_profile
     quiz = get_object_or_404(Quiz, id=quiz_id)
     
+    # Block retakes
+    if QuizResult.objects.filter(student=request.user, quiz=quiz).exists():
+        messages.warning(request, "You have already taken this quiz.")
+        return redirect('student_quizzes')
+    
     if quiz.domain != profile.preferred_domain:
         messages.error(request, "You can only take quizzes from your own domain.")
         return redirect('student_quizzes')
     if request.method == 'POST':
         answer = int(request.POST.get('answer'))
         score = 100 if answer == quiz.correct_answer else 0
-        QuizResult.objects.create(student=request.user, score=score)
+        QuizResult.objects.create(student=request.user, quiz=quiz, score=score)
         profile = request.user.student_profile
         profile.points += 20
         profile.save()
@@ -169,7 +179,11 @@ def take_quiz(request, quiz_id):
 @login_required
 def achievements_feed(request):
     achievements = Achievement.objects.all().order_by('-created_at')
-    return render(request, 'common/achievements.html', {'achievements': achievements})
+    liked_achievement_ids = Like.objects.filter(user=request.user).values_list('achievement_id', flat=True)
+    return render(request, 'common/achievements.html', {
+        'achievements': achievements,
+        'liked_achievement_ids': liked_achievement_ids
+    })
 
 @login_required
 def post_achievement(request):
@@ -187,6 +201,28 @@ def post_achievement(request):
     else:
         form = AchievementForm()
     return render(request, 'student/post_achievement.html', {'form': form})
+
+@login_required
+def edit_achievement(request, achievement_id):
+    achievement = get_object_or_404(Achievement, id=achievement_id, student=request.user)
+    if request.method == 'POST':
+        form = AchievementForm(request.POST, request.FILES, instance=achievement)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Achievement updated successfully.')
+            return redirect('achievements_feed')
+    else:
+        form = AchievementForm(instance=achievement)
+    return render(request, 'student/post_achievement.html', {'form': form, 'edit_mode': True})
+
+@login_required
+def delete_achievement(request, achievement_id):
+    achievement = get_object_or_404(Achievement, id=achievement_id, student=request.user)
+    if request.method == 'POST':
+        achievement.delete()
+        messages.success(request, 'Achievement deleted.')
+        return redirect('achievements_feed')
+    return render(request, 'student/delete_achievement.html', {'achievement': achievement})
 
 @login_required
 def leaderboard(request):
@@ -417,7 +453,11 @@ def submit_feedback(request):
 @login_required
 def like_achievement(request, achievement_id):
     achievement = get_object_or_404(Achievement, id=achievement_id)
-    Like.objects.get_or_create(achievement=achievement, user=request.user)
+    like_qs = Like.objects.filter(achievement=achievement, user=request.user)
+    if like_qs.exists():
+        like_qs.delete()
+    else:
+        Like.objects.create(achievement=achievement, user=request.user)
     return redirect('achievements_feed')
 
 @login_required
@@ -425,5 +465,22 @@ def add_comment(request, achievement_id):
     achievement = get_object_or_404(Achievement, id=achievement_id)
     if request.method == 'POST':
         content = request.POST.get('content')
-        Comment.objects.create(achievement=achievement, user=request.user, content=content)
+        if content:
+            Comment.objects.create(achievement=achievement, user=request.user, content=content)
+    return redirect('achievements_feed')
+
+@login_required
+def edit_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            comment.content = content
+            comment.save()
+    return redirect('achievements_feed')
+
+@login_required
+def delete_comment(request, comment_id):
+    comment = get_object_or_404(Comment, id=comment_id, user=request.user)
+    comment.delete()
     return redirect('achievements_feed')
