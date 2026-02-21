@@ -86,12 +86,14 @@
         <hr class="my-5 opacity-10" />
 
         <div class="text-center">
+          {% if profile.preferred_domain %}
           <p class="text-muted mb-4 small">
             {% if profile.approval_status == 'REJECTED' %} Your account was not
             approved by the HOD. Please reach out to support if you believe this
             is an error. {% else %} The mentoring board is currently reviewing
-            your registration. You will gain access to domain selection as soon
-            as your account is verified. {% endif %}
+            your application for
+            <strong>{{ profile.preferred_domain.name }}</strong>. You will gain
+            full access as soon as your account is verified. {% endif %}
           </p>
           <div class="d-flex gap-3 justify-content-center">
             <a
@@ -101,6 +103,47 @@
               <i class="fas fa-sync-alt me-2"></i> Refresh My Status
             </a>
           </div>
+          {% else %}
+          <div class="mb-4">
+            <h5 class="fw-bold text-dark mb-3">Select Your Learning Track</h5>
+            <p class="text-muted small mb-4">
+              You must pick a specialization to assign a mentor to your
+              application.
+            </p>
+
+            <div class="row g-3 justify-content-center">
+              {% for domain in available_domains %}
+              <div class="col-md-6 col-lg-4">
+                <div
+                  class="border rounded-4 p-3 h-100 text-start hover-shadow-sm transition-all bg-light bg-opacity-50"
+                >
+                  <h6 class="fw-bold mb-2">{{ domain.name }}</h6>
+                  <p
+                    class="text-muted small mb-3"
+                    style="font-size: 0.75rem; min-height: 2.5rem"
+                  >
+                    {{ domain.description|truncatechars:80 }}
+                  </p>
+                  <form action="{% url 'student_profile_edit' %}" method="post">
+                    {% csrf_token %}
+                    <input
+                      type="hidden"
+                      name="preferred_domain"
+                      value="{{ domain.id }}"
+                    />
+                    <button
+                      type="submit"
+                      class="btn btn-outline-primary btn-sm w-100 rounded-pill fw-bold"
+                    >
+                      Enroll in Track
+                    </button>
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
     </div>

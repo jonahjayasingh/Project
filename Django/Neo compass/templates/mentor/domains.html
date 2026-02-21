@@ -1,111 +1,294 @@
-{% extends 'base.html' %} {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-5">
-  <div>
-    <h1 class="fw-bold mb-1">My <span class="text-gradient">Domains</span></h1>
-    <p class="text-muted small mb-0">
-      Manage your learning tracks, resources, and assignments.
-    </p>
-  </div>
-  </div>
-</div>
+{% extends 'base.html' %} {% block extra_css %}
+<style>
+  :root {
+    --neo-indigo: #6366f1;
+    --neo-violet: #8b5cf6;
+    --neo-slate: #1e293b;
+    --neo-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
 
-<div class="row g-4">
-  {% for domain in domains %}
-  <div class="col-md-6">
-    <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100">
-      <!-- Top accent -->
-      <div
-        style="
-          height: 4px;
-          background: linear-gradient(90deg, #4f46e5, #7c3aed);
-        "
-      ></div>
-      <div class="p-4">
-        <!-- Title -->
-        <div class="d-flex justify-content-between align-items-start mb-2">
-          <h5 class="fw-bold text-dark mb-0">{{ domain.name }}</h5>
-          <span class="badge bg-light text-primary border small"
-            >Lead Mentor</span
-          >
-        </div>
-        <p class="text-muted small mb-4">
-          {{ domain.description|truncatechars:100 }}
-        </p>
+  body {
+    background-color: #f1f5f9;
+  }
 
-        <!-- Stats -->
-        <div class="row g-2 mb-4">
-          <div class="col-6">
-            <div
-              class="p-3 rounded-3 d-flex align-items-center gap-2"
-              style="background: #f0f4ff"
-            >
-              <i class="fas fa-file-alt text-primary small"></i>
-              <div>
-                <p class="fw-bold mb-0 small">
-                  {{ domain.resources.count }} Resources
-                </p>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .reveal {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  .section-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 24px;
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 3rem;
+    box-shadow: 0 20px 30px -10px rgba(30, 41, 59, 0.3);
+  }
+
+  .domain-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .domain-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    border-color: var(--neo-indigo);
+  }
+
+  .card-gradient-top {
+    height: 6px;
+    background: linear-gradient(90deg, var(--neo-indigo), var(--neo-violet));
+  }
+
+  .stat-badge {
+    padding: 10px 16px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+  }
+
+  .stat-badge i {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+
+  .resource-pills {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .resource-pill {
+    padding: 6px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--neo-slate);
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+
+  .resource-pill:hover {
+    background: #f1f5f9;
+    border-color: var(--neo-indigo);
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .btn-action {
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <!-- Hero Section -->
+  <div
+    class="section-hero d-flex justify-content-between align-items-center mb-5 reveal"
+  >
+    <div>
+      <h1 class="fw-bold mb-1">
+        Learning <span class="text-info">Domains</span>
+      </h1>
+      <p class="opacity-75 mb-0">
+        Architecting and managing the curriculum for your assigned guild
+        specializations.
+      </p>
+    </div>
+    <div class="text-end d-none d-md-block text-info">
+      <div class="h3 fw-bold mb-0">{{ domains.count }}</div>
+      <div class="small fw-bold opacity-50 text-uppercase">Active Circuits</div>
+    </div>
+  </div>
+
+  <div class="row g-4 reveal">
+    {% for domain in domains %}
+    <div class="col-lg-6">
+      <div class="domain-card d-flex flex-column">
+        <div class="card-gradient-top"></div>
+        <div class="p-4 p-md-5 flex-grow-1">
+          <!-- Header -->
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h3 class="fw-bold text-slate mb-1">{{ domain.name }}</h3>
+              <span
+                class="badge bg-indigo-subtle text-indigo px-3 py-1 rounded-pill small fw-bold"
+                >DOMAIN LEAD</span
+              >
+            </div>
+            <div class="bg-indigo-subtle p-3 rounded-4">
+              <i class="fas fa-microchip text-indigo fa-lg"></i>
+            </div>
+          </div>
+
+          <p class="text-muted mb-4 pe-lg-5">
+            {{ domain.description|truncatechars:150 }}
+          </p>
+
+          <!-- Quick Stats -->
+          <div class="row g-3 mb-4">
+            <div class="col-6">
+              <div class="stat-badge">
+                <i class="fas fa-book-open bg-indigo-subtle text-indigo"></i>
+                <div>
+                  <div class="fw-bold text-slate">
+                    {{ domain.resources.count }}
+                  </div>
+                  <div
+                    class="text-muted"
+                    style="
+                      font-size: 0.65rem;
+                      font-weight: 700;
+                      text-transform: uppercase;
+                    "
+                  >
+                    Assets
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="stat-badge">
+                <i class="fas fa-vial bg-amber-subtle text-amber"></i>
+                <div>
+                  <div class="fw-bold text-slate">
+                    {{ domain.assignments.count }}
+                  </div>
+                  <div
+                    class="text-muted"
+                    style="
+                      font-size: 0.65rem;
+                      font-weight: 700;
+                      text-transform: uppercase;
+                    "
+                  >
+                    Tasks
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-          <div class="col-6">
-            <div
-              class="p-3 rounded-3 d-flex align-items-center gap-2"
-              style="background: #fefce8"
+
+          <!-- Resources Section -->
+          <div class="mb-5">
+            <h6
+              class="text-uppercase fw-bold text-muted small mb-3"
+              style="letter-spacing: 1px"
             >
-              <i class="fas fa-tasks text-warning small"></i>
-              <div>
-                <p class="fw-bold mb-0 small">
-                  {{ domain.assignments.count }} Assignments
-                </p>
+              Recent Knowledge Drops
+            </h6>
+            <div class="resource-pills">
+              {% for r in domain.resources.all|slice:":3" %}
+              <div class="resource-pill">
+                <i
+                  class="fas fa-chevron-right text-indigo"
+                  style="font-size: 0.6rem"
+                ></i>
+                <span class="text-truncate">{{ r.title }}</span>
               </div>
+              {% empty %}
+              <p class="text-muted small italic">
+                No academic resources initialized.
+              </p>
+              {% endfor %}
             </div>
           </div>
         </div>
 
-        <!-- Resource List -->
-        {% if domain.resources.all %}
-        <div class="mb-3">
-          <p class="small fw-semibold text-muted mb-2">Recent Resources</p>
-          {% for r in domain.resources.all|slice:":3" %}
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <i
-              class="fas fa-circle text-primary"
-              style="font-size: 0.45rem"
-            ></i>
-            <span class="small text-muted text-truncate">{{ r.title }}</span>
+        <!-- Footer Actions -->
+        <div class="p-4 bg-light bg-opacity-50 border-top mt-auto">
+          <div class="action-grid">
+            <a
+              href="{% url 'mentor_add_resource' domain.id %}"
+              class="btn btn-action btn-outline-primary border-2"
+            >
+              <i class="fas fa-file-plus"></i> Add Resource
+            </a>
+            <a
+              href="{% url 'mentor_add_assignment' domain.id %}"
+              class="btn btn-action btn-outline-warning border-2"
+            >
+              <i class="fas fa-clipboard-check"></i> New Task
+            </a>
           </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-
-        <!-- Action Buttons -->
-        <div class="d-flex gap-2 pt-3 border-top">
-          <a
-            href="{% url 'mentor_add_resource' domain.id %}"
-            class="btn btn-sm btn-outline-primary flex-fill"
-          >
-            <i class="fas fa-plus me-1"></i> Resource
-          </a>
-          <a
-            href="{% url 'mentor_add_assignment' domain.id %}"
-            class="btn btn-sm btn-outline-warning flex-fill"
-          >
-            <i class="fas fa-plus me-1"></i> Assignment
-          </a>
         </div>
       </div>
     </div>
-  </div>
-  {% empty %}
-  <div class="col-12">
-    <div class="card border-0 shadow-sm rounded-4 py-5 text-center">
-      <i class="fas fa-cubes fa-3x opacity-25 text-muted mb-3"></i>
-      <h5 class="text-muted fw-semibold">No domains assigned</h5>
-      <p class="text-muted small">
-        Please contact the HOD to be allocated to a domain track.
+    {% empty %}
+    <div class="col-12 text-center py-5">
+      <div class="opacity-25 mb-4">
+        <i class="fas fa-mountain fa-5x"></i>
+      </div>
+      <h4 class="fw-bold text-slate">No Domain Allocations</h4>
+      <p class="text-muted">
+        You are not currently assigned as a mentor to any specialization tracks.
       </p>
+      <a
+        href="{% url 'mentor_dashboard' %}"
+        class="btn btn-primary rounded-pill px-5 py-2 fw-bold mt-3"
+        >Back to Command</a
+      >
     </div>
+    {% endfor %}
   </div>
-  {% endfor %}
 </div>
-{% endblock %}
+
+<style>
+  .bg-indigo-subtle {
+    background-color: #e0e7ff;
+  }
+  .bg-amber-subtle {
+    background-color: #fef3c7;
+  }
+  .text-indigo {
+    color: #6366f1;
+  }
+  .text-amber {
+    color: #f59e0b;
+  }
+  .text-slate {
+    color: #1e293b;
+  }
+</style>
+{% endblock %} {% endblock %}

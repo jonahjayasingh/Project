@@ -1,249 +1,523 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% block extra_css %}
+<style>
+  :root {
+    --brand-indigo: #4f46e5;
+    --brand-indigo-light: #818cf8;
+    --enterprise-slate: #0f172a;
+    --enterprise-zinc: #71717a;
+    --surface-bg: #f8fafc;
+    --surface-card: #ffffff;
+    --surface-border: #e2e8f0;
 
-<!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-5">
-  <div>
-    <h1 class="fw-bold mb-1">
-      Mentor <span class="text-gradient">Dashboard</span>
-    </h1>
-    <p class="text-muted small mb-0">
-      Welcome back, <strong>{{ request.user.username }}</strong>. Here's your
-      overview.
-    </p>
-  </div>
-  </div>
-</div>
+    --shadow-soft:
+      0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    --shadow-md:
+      0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    --shadow-lg:
+      0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  }
 
-<!-- Stats Row -->
-<div class="row g-4 mb-5">
-  <div class="col-sm-6 col-md-3">
-    <div
-      class="card border-0 shadow-sm p-4"
-      style="border-left: 4px solid #4f46e5 !important"
-    >
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <p class="text-muted small fw-semibold mb-1">Total Students</p>
-          <h2 class="fw-bold mb-0" style="color: #1e293b">
-            {{ my_students.count }}
-          </h2>
-        </div>
-        <div class="bg-primary bg-opacity-10 p-3 rounded-3 text-primary">
-          <i class="fas fa-user-graduate fa-lg"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6 col-md-3">
-    <div
-      class="card border-0 shadow-sm p-4"
-      style="border-left: 4px solid #10b981 !important"
-    >
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <p class="text-muted small fw-semibold mb-1">Approved</p>
-          <h2 class="fw-bold mb-0" style="color: #059669">
-            {{ approved_students.count }}
-          </h2>
-        </div>
-        <div class="bg-success bg-opacity-10 p-3 rounded-3 text-success">
-          <i class="fas fa-user-check fa-lg"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6 col-md-3">
-    <div
-      class="card border-0 shadow-sm p-4"
-      style="border-left: 4px solid #f59e0b !important"
-    >
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <p class="text-muted small fw-semibold mb-1">Pending Reviews</p>
-          <h2 class="fw-bold mb-0" style="color: #d97706">
-            {{ pending_approvals.count }}
-          </h2>
-        </div>
-        <div class="bg-warning bg-opacity-10 p-3 rounded-3 text-warning">
-          <i class="fas fa-user-clock fa-lg"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="col-sm-6 col-md-3">
-    <div
-      class="card border-0 shadow-sm p-4"
-      style="border-left: 4px solid #6366f1 !important"
-    >
-      <div class="d-flex justify-content-between align-items-center">
-        <div>
-          <p class="text-muted small fw-semibold mb-1">My Domains</p>
-          <h2 class="fw-bold mb-0" style="color: #4f46e5">
-            {{ my_domains.count }}
-          </h2>
-        </div>
-        <div
-          class="bg-secondary bg-opacity-10 p-3 rounded-3"
-          style="color: #6366f1"
-        >
-          <i class="fas fa-cubes fa-lg"></i>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+  body {
+    background-color: var(--surface-bg);
+    background-image:
+      radial-gradient(
+        circle at 100% 0%,
+        rgba(79, 70, 229, 0.03) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 0% 100%,
+        rgba(99, 102, 241, 0.03) 0%,
+        transparent 40%
+      );
+    color: var(--enterprise-slate);
+    font-family: "Inter", "Outfit", sans-serif;
+    letter-spacing: -0.01em;
+  }
 
-<div class="row g-4">
-  <!-- Pending Approvals -->
-  <div class="col-lg-7">
-    <div class="card border-0 shadow-sm overflow-hidden">
-      <div
-        class="px-4 py-3 d-flex justify-content-between align-items-center border-bottom"
-      >
-        <h6 class="fw-bold mb-0">
-          <i class="fas fa-hourglass-half text-warning me-2"></i>Pending
-          Approvals
-        </h6>
-        {% if pending_approvals.count > 0 %}
-        <span class="badge" style="background: #fef3c7; color: #92400e"
-          >{{ pending_approvals.count }} waiting</span
-        >
-        {% endif %}
-      </div>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
-          <thead>
-            <tr>
-              <th class="ps-4">Student</th>
-              <th>Preferred Domain</th>
-              <th class="text-end pe-4">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for profile in pending_approvals %}
-            <tr>
-              <td class="ps-4">
-                <div class="d-flex align-items-center">
+  /* Executive Animations */
+  @keyframes slideInUp {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .executive-fade {
+    animation: slideInUp 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  /* Executive Hero */
+  .exec-hero {
+    background: var(--enterprise-slate);
+    border-radius: 24px;
+    padding: 4rem 3.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .exec-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(79, 70, 229, 0.1) 100%
+    );
+    pointer-events: none;
+  }
+
+  .hero-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    color: var(--brand-indigo-light);
+    margin-bottom: 1rem;
+    display: block;
+  }
+
+  .hero-title {
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 1rem;
+  }
+
+  /* Intel Cards */
+  .intel-card {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-radius: 20px;
+    padding: 1.5rem;
+    height: 100%;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .intel-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand-indigo);
+  }
+
+  .intel-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+    font-size: 1.25rem;
+    background: #f1f5f9;
+    color: var(--enterprise-slate);
+    transition: all 0.3s ease;
+  }
+
+  .intel-card:hover .intel-icon {
+    background: var(--brand-indigo);
+    color: white;
+  }
+
+  .intel-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--enterprise-zinc);
+    margin-bottom: 0.25rem;
+  }
+
+  .intel-value {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--enterprise-slate);
+  }
+
+  /* Data Table Professional */
+  .data-section {
+    background: var(--surface-card);
+    border: 1px solid var(--surface-border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .section-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .table-head-professional {
+    background: #f8fafc;
+    border-bottom: 1px solid var(--surface-border);
+  }
+
+  .table-head-professional th {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--enterprise-zinc);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 1rem 2rem;
+  }
+
+  .table-row-hover {
+    transition: background 0.2s;
+  }
+
+  .table-row-hover:hover {
+    background: #f1f5f9;
+  }
+
+  /* Professional Buttons */
+  .btn-exec {
+    border-radius: 10px;
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-exec-primary {
+    background: var(--brand-indigo);
+    border: none;
+    color: white;
+  }
+
+  .btn-exec-primary:hover {
+    background: #4338ca;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+  }
+
+  .btn-exec-outline {
+    background: transparent;
+    border: 1px solid var(--surface-border);
+    color: var(--enterprise-slate);
+  }
+
+  .btn-exec-outline:hover {
+    background: #f8fafc;
+    border-color: var(--enterprise-zinc);
+  }
+
+  /* Custom Status Badges */
+  .status-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+  }
+  .status-pill-pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  .status-pill-approved {
+    background: #dcfce7;
+    color: #166534;
+  }
+
+  /* Utilities */
+  .avatar-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: var(--enterprise-slate);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container-fluid py-4 px-md-5">
+  <!-- Executive Overview -->
+  <div class="row mb-5">
+    <div class="col-12">
+      <div class="exec-hero executive-fade">
+        <div class="row align-items-center position-relative">
+          <div class="col-lg-8">
+            <span class="hero-label">Command Center Overview</span>
+            <h1 class="hero-title display-4">
+              Welcome back, {{ request.user.username }}
+            </h1>
+            <p class="lead opacity-75 mb-4" style="max-width: 600px">
+              You are currently overseeing **{{ my_students.count }} learners**
+              across **{{ my_domains.count }} specializations**. All systems are
+              operational.
+            </p>
+            <div class="d-flex gap-3">
+              <a
+                href="{% url 'mentor_students' %}"
+                class="btn btn-exec btn-exec-primary"
+              >
+                <i class="fas fa-users"></i> View Students
+              </a>
+              <a
+                href="{% url 'grade_submissions' %}"
+                class="btn btn-exec btn-exec-outline text-white border-white border-opacity-25"
+                style="background: rgba(255, 255, 255, 0.05)"
+              >
+                <i class="fas fa-check-circle"></i> Assessment Review
+              </a>
+            </div>
+          </div>
+          <div class="col-lg-4 d-none d-lg-block text-end">
+            <div
+              class="p-4 rounded-4"
+              style="
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+              "
+            >
+              <div class="text-start mb-4">
+                <div class="small opacity-50 fw-bold mb-1">NETWORK HEALTH</div>
+                <div class="d-flex align-items-center gap-2">
                   <div
-                    class="bg-warning bg-opacity-10 text-warning rounded-circle d-flex align-items-center justify-content-center fw-bold me-3"
-                    style="width: 38px; height: 38px"
-                  >
-                    {{ profile.user.username|first|upper }}
-                  </div>
-                  <div>
-                    <p class="fw-bold mb-0 small">
-                      {{ profile.user.username }}
-                    </p>
-                    <p class="text-muted mb-0" style="font-size: 0.75rem">
-                      Joined recently
-                    </p>
+                    class="bg-success rounded-circle"
+                    style="width: 8px; height: 8px"
+                  ></div>
+                  <span class="small fw-bold">Optimal Throughput</span>
+                </div>
+              </div>
+              <div class="row text-start g-3">
+                <div class="col-6">
+                  <div class="small opacity-50 mb-1">Uptime</div>
+                  <div class="fw-bold">99.9%</div>
+                </div>
+                <div class="col-6">
+                  <div class="small opacity-50 mb-1">Queue</div>
+                  <div class="fw-bold">
+                    {{ pending_approvals.count }} Pending
                   </div>
                 </div>
-              </td>
-              <td>
-                <span class="badge bg-light text-dark border small">
-                  {{ profile.preferred_domain.name|default:"Not set" }}
-                </span>
-              </td>
-              <td class="text-end pe-4">
-                <a
-                  href="{% url 'mentor_approve_student' profile.id %}"
-                  class="btn btn-sm btn-primary px-3"
-                >
-                  <i class="fas fa-eye me-1"></i> Review
-                </a>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="3" class="py-5 text-center text-muted">
-                <i
-                  class="fas fa-check-circle fa-2x text-success mb-2 d-block opacity-50"
-                ></i>
-                All students reviewed — no pending approvals.
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- Quick Actions + Student Roster -->
-  <div class="col-lg-5 d-flex flex-column gap-4">
-    <!-- Quick Actions -->
-    <div class="card border-0 shadow-sm p-4">
-      <h6 class="fw-bold mb-4">
-        <i class="fas fa-bolt text-primary me-2"></i>Quick Actions
-      </h6>
-      <div class="d-grid gap-2">
-        <a
-          href="{% url 'mentor_domains' %}"
-          class="btn btn-outline-primary text-start px-4 py-2"
-        >
-          <i class="fas fa-cubes me-2"></i> Manage Domains
-        </a>
-        <a
-          href="{% url 'grade_submissions' %}"
-          class="btn btn-outline-warning text-start px-4 py-2"
-        >
-          <i class="fas fa-star-half-alt me-2"></i> Grade Submissions
-        </a>
-        <a
-          href="{% url 'mentor_students' %}"
-          class="btn btn-outline-secondary text-start px-4 py-2"
-        >
-          <i class="fas fa-users me-2"></i> View All Students
-        </a>
+  <!-- Key Performance Indicators -->
+  <div class="row g-4 mb-5 executive-fade" style="animation-delay: 0.1s">
+    <div class="col-xl-3 col-sm-6">
+      <div class="intel-card">
+        <div class="intel-icon">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="intel-label">Active Learners</div>
+        <div class="intel-value">{{ my_students.count }}</div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+      <div class="intel-card">
+        <div class="intel-icon" style="color: #10b981">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <div class="intel-label">Authenticated</div>
+        <div class="intel-value">{{ approved_students.count }}</div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+      <div class="intel-card">
+        <div class="intel-icon" style="color: #f59e0b">
+          <i class="fas fa-hourglass-half"></i>
+        </div>
+        <div class="intel-label">Pending Review</div>
+        <div class="intel-value">{{ pending_approvals.count }}</div>
+      </div>
+    </div>
+    <div class="col-xl-3 col-sm-6">
+      <div class="intel-card">
+        <div class="intel-icon" style="color: #6366f1">
+          <i class="fas fa-network-wired"></i>
+        </div>
+        <div class="intel-label">Domain Areas</div>
+        <div class="intel-value">{{ my_domains.count }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-5 executive-fade" style="animation-delay: 0.2s">
+    <!-- Active Inductions -->
+    <div class="col-lg-8">
+      <div class="data-section">
+        <div class="section-header">
+          <h5 class="fw-bold mb-0">Incoming Applications</h5>
+          <span
+            class="badge bg-slate-subtle border text-slate px-3 py-2 rounded-pill small text-black"
+          >
+            {{ pending_approvals.count }} Action Required
+          </span>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="table-head-professional">
+              <tr>
+                <th>Applicant Identity</th>
+                <th>Target Specialization</th>
+                <th class="text-end">Administrative Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for profile in pending_approvals %}
+              <tr class="table-row-hover">
+                <td class="ps-4 py-4">
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="avatar-circle">
+                      {{ profile.user.username|first|upper }}
+                    </div>
+                    <div>
+                      <div class="fw-bold text-slate">
+                        {{ profile.user.username }}
+                      </div>
+                      <div class="text-muted small">
+                        ID: #{{ profile.id|add:1000 }}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-4">
+                  <span
+                    class="badge bg-white text-slate border px-3 py-2 rounded-pill small text-black fw-semibold"
+                  >
+                    {{ profile.preferred_domain.name|default:"Core
+                    Foundations"}}
+                  </span>
+                </td>
+                <td class="text-end pe-4 py-4">
+                  <div
+                    class="d-flex justify-content-end align-items-center gap-2"
+                  >
+                    <form
+                      action="{% url 'mentor_quick_approve' profile.id %}"
+                      method="post"
+                      class="m-0"
+                    >
+                      {% csrf_token %}
+                      <button
+                        type="submit"
+                        class="btn btn-exec btn-exec-primary py-2 px-3 small"
+                      >
+                        Approve
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="py-5 text-center text-muted">
+                  <i class="fas fa-check-circle fa-3x mb-3 opacity-20"></i>
+                  <h6 class="fw-bold">No Pending Inductions</h6>
+                  <p class="small mb-0">
+                    All applications have been processed for this cycle.
+                  </p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- My Students Mini-List -->
-    <div class="card border-0 shadow-sm overflow-hidden flex-grow-1">
-      <div
-        class="px-4 py-3 border-bottom d-flex justify-content-between align-items-center"
-      >
-        <h6 class="fw-bold mb-0">
-          <i class="fas fa-users text-secondary me-2"></i>My Students
-        </h6>
-        <a
-          href="{% url 'mentor_students' %}"
-          class="small text-primary text-decoration-none fw-bold"
-          >View all →</a
+    <!-- Management Sidebar -->
+    <div class="col-lg-4">
+      <div class="data-section p-4 mb-4">
+        <h6
+          class="fw-bold text-uppercase small text-muted mb-4"
+          style="letter-spacing: 0.1em"
         >
+          Quick Access
+        </h6>
+        <div class="d-grid gap-2">
+          <a
+            href="{% url 'mentor_domains' %}"
+            class="btn btn-exec btn-exec-outline w-100 justify-content-start"
+          >
+            <i class="fas fa-boxes"></i> Domain Management
+          </a>
+          <a
+            href="{% url 'grade_submissions' %}"
+            class="btn btn-exec btn-exec-outline w-100 justify-content-start"
+          >
+            <i class="fas fa-clipboard-check"></i> Submissions Center
+          </a>
+          <a
+            href="{% url 'mentor_students' %}"
+            class="btn btn-exec btn-exec-outline w-100 justify-content-start"
+          >
+            <i class="fas fa-user-friends"></i> Student Directory
+          </a>
+        </div>
       </div>
-      <div style="max-height: 280px; overflow-y: auto">
-        {% for profile in my_students %}
-        <div class="d-flex align-items-center px-4 py-3 border-bottom">
+
+      <div class="data-section p-4">
+        <h6
+          class="fw-bold text-uppercase small text-muted mb-4"
+          style="letter-spacing: 0.1em"
+        >
+          Recent Operative Activity
+        </h6>
+        <div class="activity-list">
+          {% for profile in my_students|slice:":6" %}
           <div
-            class="bg-primary bg-opacity-10 text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold me-3"
-            style="width: 36px; height: 36px; font-size: 0.8rem"
+            class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom border-light last-child-border-0"
           >
-            {{ profile.user.username|first|upper }}
+            <div
+              class="avatar-circle small"
+              style="width: 32px; height: 32px; font-size: 0.75rem"
+            >
+              {{ profile.user.username|first|upper }}
+            </div>
+            <div class="flex-grow-1">
+              <div class="fw-bold small">{{ profile.user.username }}</div>
+              <div class="text-muted small" style="font-size: 0.7rem">
+                {{ profile.points }} XP · Lvl {{ profile.level }}
+              </div>
+            </div>
+            <span
+              class="status-pill {% if profile.approval_status == 'APPROVED' %}status-pill-approved{% else %}status-pill-pending{% endif %}"
+            >
+              {{ profile.approval_status }}
+            </span>
           </div>
-          <div class="flex-grow-1">
-            <p class="fw-semibold mb-0 small">{{ profile.user.username }}</p>
-            <p class="text-muted mb-0" style="font-size: 0.73rem">
-              {{ profile.points }} pts · Level {{ profile.level }}
-            </p>
+          {% empty %}
+          <div class="text-center py-4 text-muted small">
+            No active learners found.
           </div>
-          <span
-            class="badge {% if profile.approval_status == 'APPROVED' %}bg-success{% elif profile.approval_status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %}"
-            style="font-size: 0.7rem"
-          >
-            {{ profile.approval_status }}
-          </span>
+          {% endfor %}
         </div>
-        {% empty %}
-        <div class="py-5 text-center text-muted small">
-          <i class="fas fa-user-plus fa-2x mb-2 d-block opacity-25"></i>
-          No students assigned yet.
-        </div>
-        {% endfor %}
       </div>
     </div>
   </div>
 </div>
 
+<style>
+  .last-child-border-0:last-child {
+    border-bottom: none !important;
+  }
+  .bg-slate-subtle {
+    background: #f1f5f9;
+  }
+</style>
 {% endblock %}

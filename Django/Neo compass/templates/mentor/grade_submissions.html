@@ -1,44 +1,186 @@
-{% extends 'base.html' %} {% block content %}
-<h2 class="fw-bold mb-4">
-  Grade <span class="text-gradient">Submissions</span>
-</h2>
-<div class="glass-panel">
-  <div class="table-responsive">
-    <table class="table table-dark table-hover">
-      <thead>
-        <tr>
-          <th>Student</th>
-          <th>Assignment</th>
-          <th>File</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for sub in submissions %}
-        <tr>
-          <td>{{ sub.student.username }}</td>
-          <td>{{ sub.assignment.title }}</td>
-          <td>
-            {% if sub.submission_file %}
-            <a
-              href="{{ sub.submission_file.url }}"
-              target="_blank"
-              class="btn btn-sm btn-link text-info"
-              >View File</a
-            >
-            {% else %} No file {% endif %}
-          </td>
-          <td>
-            <a
-              href="{% url 'grade_submission' sub.id %}"
-              class="btn btn-sm btn-primary"
-              >Grade</a
-            >
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+{% extends 'base.html' %} {% block extra_css %}
+<style>
+  :root {
+    --neo-indigo: #6366f1;
+    --neo-slate: #1e293b;
+  }
+
+  body {
+    background-color: #f1f5f9;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .reveal {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  .section-hero {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 24px;
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 3rem;
+    box-shadow: 0 20px 30px -10px rgba(30, 41, 59, 0.3);
+  }
+
+  .table-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  }
+
+  .table-header {
+    background: #f8fafc;
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    background: #e0e7ff;
+    color: var(--neo-indigo);
+  }
+
+  .file-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: #f1f5f9;
+    color: var(--neo-slate);
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .file-link:hover {
+    background: #e2e8f0;
+    color: var(--neo-indigo);
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <!-- Hero -->
+  <div
+    class="section-hero d-flex justify-content-between align-items-center mb-5 reveal"
+  >
+    <div>
+      <h1 class="fw-bold mb-1">
+        Assessment <span class="text-info">Queue</span>
+      </h1>
+      <p class="opacity-75 mb-0">
+        Reviewing student submissions across all active learning domains.
+      </p>
+    </div>
+    <div class="text-end d-none d-md-block text-info">
+      <div class="h3 fw-bold mb-0">{{ submissions.count }}</div>
+      <div class="small fw-bold opacity-50 text-uppercase">Pending Grades</div>
+    </div>
+  </div>
+
+  <div class="table-card reveal">
+    <div class="table-header">
+      <h5 class="fw-bold mb-0">
+        <i class="fas fa-tasks text-indigo me-2"></i>Submissions Registry
+      </h5>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead class="bg-light bg-opacity-50">
+          <tr
+            class="small text-muted text-uppercase fw-bold"
+            style="letter-spacing: 1px"
+          >
+            <th class="ps-4 py-3">Pathfinder</th>
+            <th class="py-3">Assignment Module</th>
+            <th class="py-3 text-center">Artifact</th>
+            <th class="text-end pe-4 py-3">Review</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sub in submissions %}
+          <tr>
+            <td class="ps-4 py-3">
+              <div class="d-flex align-items-center gap-3">
+                <div class="user-avatar">
+                  {{ sub.student.username|first|upper }}
+                </div>
+                <div class="fw-bold text-slate">{{ sub.student.username }}</div>
+              </div>
+            </td>
+            <td class="py-3">
+              <div class="fw-bold small text-slate">
+                {{ sub.assignment.title }}
+              </div>
+              <div class="text-muted small">ID: #{{ sub.id|add:5000 }}</div>
+            </td>
+            <td class="py-3 text-center">
+              {% if sub.submission_file %}
+              <a
+                href="{{ sub.submission_file.url }}"
+                target="_blank"
+                class="file-link"
+              >
+                <i class="fas fa-file-download"></i> View Artifact
+              </a>
+              {% else %}
+              <span class="text-muted small italic">No file attached</span>
+              {% endif %}
+            </td>
+            <td class="text-end pe-4 py-3">
+              <a
+                href="{% url 'grade_submission' sub.id %}"
+                class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm"
+              >
+                Grade Work
+              </a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="4" class="py-5 text-center">
+              <div class="opacity-25 mb-3">
+                <i class="fas fa-clipboard-check fa-4x"></i>
+              </div>
+              <h5 class="text-muted fw-bold">Queue is Empty</h5>
+              <p class="text-muted small">
+                No submissions currently require your specialized attention.
+              </p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
+
+<style>
+  .text-indigo {
+    color: #6366f1;
+  }
+  .text-slate {
+    color: #1e293b;
+  }
+</style>
 {% endblock %}

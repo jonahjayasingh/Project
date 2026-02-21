@@ -1,148 +1,249 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} {% block extra_css %}
+<style>
+  :root {
+    --neo-indigo: #6366f1;
+    --neo-emerald: #10b981;
+    --neo-amber: #f59e0b;
+    --neo-slate: #1e293b;
+    --neo-shadow:
+      0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  }
 
-<!-- Header -->
-<div class="d-flex justify-content-between align-items-center mb-5">
-  <div>
-    <h1 class="fw-bold mb-1">My <span class="text-gradient">Students</span></h1>
-    <p class="text-muted small mb-0">
-      Manage, review, and track all students assigned to you.
-    </p>
+  body {
+    background-color: #f1f5f9;
+  }
+
+  /* Animations */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .reveal {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+
+  /* Section Header */
+  .section-header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 24px;
+    padding: 2.5rem;
+    color: white;
+    margin-bottom: 3rem;
+    box-shadow: 0 20px 30px -10px rgba(30, 41, 59, 0.3);
+  }
+
+  /* Student Card */
+  .student-card {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .student-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05);
+    border-color: var(--neo-indigo);
+  }
+
+  .avatar-ring {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, var(--neo-indigo), #4f46e5);
+    color: white;
+    box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+  }
+
+  .stat-pill {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #f1f5f9;
+    flex: 1;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #64748b;
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .stat-value {
+    font-weight: 800;
+    color: var(--neo-slate);
+    font-size: 1rem;
+  }
+
+  .path-badge {
+    background: #f1f5f9;
+    color: var(--neo-slate);
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="container py-4">
+  <!-- Header Card -->
+  <div
+    class="section-header d-flex justify-content-between align-items-center mb-5 reveal"
+  >
+    <div>
+      <h1 class="fw-bold mb-1">
+        Student <span class="text-info">Directory</span>
+      </h1>
+      <p class="opacity-75 mb-0">
+        Direct oversight of your assigned pathfinders and their progression
+        metrics.
+      </p>
+    </div>
+    <div class="text-end d-none d-md-block">
+      <div class="h3 fw-bold mb-0 text-info">{{ students.count }}</div>
+      <div class="small fw-bold opacity-50 text-uppercase">Total Headcount</div>
+    </div>
   </div>
-  <span class="badge bg-light text-dark border px-3 py-2 fw-bold">
-    <i class="fas fa-users me-1 text-primary"></i> {{ students.count }} Total
-  </span>
-</div>
 
-<!-- Student Cards Grid -->
-{% if students %}
-<div class="row g-4">
-  {% for profile in students %}
-  <div class="col-md-6 col-lg-4">
-    <div
-      class="card border-0 shadow-sm h-100 rounded-4 overflow-hidden"
-      style="
-        transition:
-          transform 0.2s,
-          box-shadow 0.2s;
-      "
-    >
-      <!-- Card Top Accent -->
-      <div class="px-4 pt-4 pb-3">
-        <div class="d-flex align-items-center gap-3 mb-3">
-          <!-- Avatar -->
-          <div
-            class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white flex-shrink-0"
-            style="
-              width: 50px;
-              height: 50px;
-              font-size: 1.2rem;
-              background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            "
+  {% if students %}
+  <div class="row g-4 reveal">
+    {% for profile in students %}
+    <div class="col-md-6 col-lg-4">
+      <div class="student-card p-4">
+        <!-- Top Section -->
+        <div class="d-flex align-items-start justify-content-between mb-4">
+          <div class="avatar-ring">{{ profile.user.username|first|upper }}</div>
+          <span
+            class="badge {% if profile.approval_status == 'APPROVED' %}bg-success-subtle text-success border border-success border-opacity-10{% elif profile.approval_status == 'PENDING' %}bg-warning-subtle text-warning border border-warning border-opacity-10{% else %}bg-danger-subtle text-danger border border-danger border-opacity-10{% endif %} rounded-pill px-3 py-2 small fw-bold"
+            style="font-size: 0.7rem"
           >
-            {{ profile.user.username|first|upper }}
-          </div>
-          <div>
-            <h6 class="fw-bold mb-0 text-dark">{{ profile.user.username }}</h6>
-            <p class="text-muted small mb-0">
-              {{ profile.user.email|default:"No email" }}
-            </p>
-          </div>
-          <!-- Status Badge -->
-          <div class="ms-auto">
             <span
-              class="badge {% if profile.approval_status == 'APPROVED' %}bg-success {% elif profile.approval_status == 'PENDING' %}bg-warning {% else %}bg-danger{% endif %} small fw-semibold"
-            >
-              {{ profile.approval_status }}
-            </span>
+              class="status-dot {% if profile.approval_status == 'APPROVED' %}bg-success{% elif profile.approval_status == 'PENDING' %}bg-warning{% else %}bg-danger{% endif %} me-1"
+            ></span>
+            {{ profile.approval_status }}
+          </span>
+        </div>
+
+        <!-- Identity -->
+        <h5 class="fw-bold text-slate mb-1">{{ profile.user.username }}</h5>
+        <div class="path-badge mb-4">
+          <i class="fas fa-layer-group text-indigo"></i>
+          {{ profile.preferred_domain.name|default:"General Path" }}
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="d-flex gap-2 mb-4">
+          <div class="stat-pill">
+            <span class="stat-label">EXP</span>
+            <span class="stat-value">{{ profile.points }}</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-label">LVL</span>
+            <span class="stat-value">{{ profile.level }}</span>
+          </div>
+          <div class="stat-pill">
+            <span class="stat-label">STRK</span>
+            <span class="stat-value">{{ profile.streak_days }}d</span>
           </div>
         </div>
 
-        <!-- Domain & Enrollment Date -->
-        <div
-          class="p-3 rounded-3 mb-3"
-          style="background: #f8fafc; border: 1px solid #e2e8f0"
-        >
-          <div class="d-flex justify-content-between mb-2">
-            <span class="text-muted small">Domain</span>
-            <span class="small fw-semibold text-dark"
-              >{{ profile.preferred_domain.name|default:"Not set" }}</span
+        <!-- Meta Info -->
+        <div class="border-top pt-3 pb-2 mb-4">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="text-muted small">Email Registry</span>
+            <span class="small fw-bold"
+              >{{ profile.user.email|default:"N/A"|truncatechars:20 }}</span
             >
           </div>
           <div class="d-flex justify-content-between">
-            <span class="text-muted small">Enrolled</span>
-            <span class="small fw-semibold text-dark"
+            <span class="text-muted small">Joining Date</span>
+            <span class="small fw-bold"
               >{{ profile.domain_joined_at|date:"M d, Y"|default:"—" }}</span
             >
           </div>
         </div>
 
-        <!-- Gamification Stats -->
-        <div class="d-flex gap-3 mb-4">
-          <div
-            class="text-center flex-fill p-2 rounded-3"
-            style="background: #eef2ff"
-          >
-            <p class="fw-bold text-primary mb-0" style="font-size: 1.1rem">
-              {{ profile.points }}
-            </p>
-            <p class="text-muted mb-0" style="font-size: 0.72rem">Points</p>
-          </div>
-          <div
-            class="text-center flex-fill p-2 rounded-3"
-            style="background: #f0fdf4"
-          >
-            <p class="fw-bold text-success mb-0" style="font-size: 1.1rem">
-              {{ profile.level }}
-            </p>
-            <p class="text-muted mb-0" style="font-size: 0.72rem">Level</p>
-          </div>
-          <div
-            class="text-center flex-fill p-2 rounded-3"
-            style="background: #fffbeb"
-          >
-            <p class="fw-bold text-warning mb-0" style="font-size: 1.1rem">
-              {{ profile.streak_days }}
-            </p>
-            <p class="text-muted mb-0" style="font-size: 0.72rem">Streak</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Card Footer Action -->
-      <div class="px-4 pb-4">
-        <a
-          href="{% url 'mentor_approve_student' profile.id %}"
-          class="btn btn-outline-primary w-100 py-2 fw-semibold rounded-3"
-        >
-          <i class="fas fa-user-edit me-2"></i> Review Profile
-        </a>
+        <!-- Footer -->
       </div>
     </div>
+    {% endfor %}
   </div>
-  {% endfor %}
+  {% else %}
+  <!-- Empty State -->
+  <div class="card border-0 shadow-sm rounded-4 py-5 text-center reveal">
+    <div class="opacity-10 mb-4">
+      <i class="fas fa-users-slash fa-5x"></i>
+    </div>
+    <h4 class="text-slate fw-bold">No Active Pathfinders</h4>
+    <p class="text-muted px-4">
+      Your student list is currently empty. Students assigned by the HOD will
+      materialize here.
+    </p>
+    <div class="mt-4">
+      <a
+        href="{% url 'mentor_dashboard' %}"
+        class="btn btn-indigo px-4 py-2 rounded-pill fw-bold text-white"
+      >
+        <i class="fas fa-arrow-left me-2"></i> Return to Command
+      </a>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
-{% else %}
-<!-- Empty State -->
-<div class="card border-0 shadow-sm rounded-4 py-5 text-center">
-  <i class="fas fa-user-slash fa-3x text-muted opacity-25 mb-3"></i>
-  <h5 class="text-muted fw-semibold">No students assigned yet</h5>
-  <p class="text-muted small">
-    Students will appear here once the HOD assigns them to you.
-  </p>
-  <a
-    href="{% url 'mentor_dashboard' %}"
-    class="btn btn-primary btn-sm px-4 mt-2"
-  >
-    <i class="fas fa-home me-1"></i> Back to Dashboard
-  </a>
-</div>
-{% endif %}
-
+<!-- Extra styles -->
 <style>
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08) !important;
+  .bg-success-subtle {
+    background-color: #dcfce7;
+  }
+  .bg-warning-subtle {
+    background-color: #fef3c7;
+  }
+  .bg-danger-subtle {
+    background-color: #fee2e2;
+  }
+  .text-indigo {
+    color: #6366f1;
+  }
+  .btn-indigo {
+    background: #6366f1;
+  }
+  .btn-indigo:hover {
+    background: #4f46e5;
+  }
+  .text-slate {
+    color: #1e293b;
   }
 </style>
 {% endblock %}

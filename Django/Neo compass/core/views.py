@@ -41,7 +41,11 @@ def student_dashboard(request):
     if request.user.role != 'student': return redirect('home')
     profile = request.user.student_profile
     if profile.approval_status != 'APPROVED':
-        return render(request, 'student/pending.html', {'profile': profile})
+        available_domains = Domain.objects.all()
+        return render(request, 'student/pending.html', {
+            'profile': profile,
+            'available_domains': available_domains
+        })
     
     must_select_domain = profile.preferred_domain is None
     
@@ -290,25 +294,18 @@ def mentor_students(request):
     students = StudentProfile.objects.filter(preferred_domain__mentors=request.user).distinct()
     return render(request, 'mentor/students.html', {'students': students})
 
+
+
 @login_required
-def approve_student(request, profile_id):
+def mentor_quick_approve(request, profile_id):
     if request.user.role != 'mentor': return redirect('home')
-    # Can only approve students in their assigned domains
     profile = get_object_or_404(StudentProfile, id=profile_id, preferred_domain__mentors=request.user)
     if request.method == 'POST':
-        action = request.POST.get('status')
-        remark = request.POST.get('remark', '')
-        profile.approval_remark = remark
-        if action == 'APPROVED':
-            profile.approval_status = 'APPROVED'
-            profile.approved_at = timezone.now()
-            messages.success(request, f'Student {profile.user.username} approved to access the platform.')
-        else:
-            profile.approval_status = 'REJECTED'
-            messages.warning(request, f'Student {profile.user.username} rejected.')
+        profile.approval_status = 'APPROVED'
+        profile.approved_at = timezone.now()
         profile.save()
-        return redirect('mentor_dashboard')
-    return render(request, 'mentor/approve_student.html', {'profile': profile})
+        messages.success(request, f'Student {profile.user.username} has been granted access.')
+    return redirect('mentor_dashboard')
 
 @login_required
 def mentor_domains(request):

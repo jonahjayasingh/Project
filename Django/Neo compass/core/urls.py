@@ -30,7 +30,8 @@ urlpatterns = [
     # Mentor
     path('mentor/dashboard/', views.mentor_dashboard, name='mentor_dashboard'),
     path('mentor/students/', views.mentor_students, name='mentor_students'),
-    path('mentor/approve-student/<int:profile_id>/', views.approve_student, name='mentor_approve_student'),
+
+    path('mentor/quick-approve/<int:profile_id>/', views.mentor_quick_approve, name='mentor_quick_approve'),
     path('mentor/domains/', views.mentor_domains, name='mentor_domains'),
     path('hod/add-domain/', views.hod_add_domain, name='hod_add_domain'),
     path('mentor/domain/<int:domain_id>/add-resource/', views.add_resource, name='mentor_add_resource'),
