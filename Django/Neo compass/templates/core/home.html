@@ -1,55 +1,285 @@
-{% extends 'base.html' %} {% block content %}
-<div class="row min-vh-75 align-items-center">
-  <div class="col-lg-7">
-    <h1 class="display-3 fw-bold mb-4" style="color: var(--text-main)">
-      Unlock Your <span class="text-gradient">Potential</span>
-    </h1>
-    <p class="lead text-muted mb-5">
-      Neo-Compass is a professional platform designed to bridge the gap between
-      learning and industry leadership through personalized mentoring.
-    </p>
-    <div class="d-flex gap-3">
-      <a
-        href="{% url 'register' %}"
-        class="btn btn-primary btn-lg px-4 shadow-sm"
-        >Get Started</a
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  .hero-section {
+    padding: 80px 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-blob {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(
+      circle,
+      rgba(79, 70, 229, 0.1) 0%,
+      rgba(255, 255, 255, 0) 70%
+    );
+    top: -100px;
+    right: -100px;
+    z-index: -1;
+    border-radius: 50%;
+    filter: blur(40px);
+  }
+
+  .hero-img-container {
+    position: relative;
+    perspective: 1000px;
+  }
+
+  .hero-img {
+    border-radius: 24px;
+    box-shadow:
+      0 30px 60px -12px rgba(50, 50, 93, 0.25),
+      0 18px 36px -18px rgba(0, 0, 0, 0.3);
+    transition: transform 0.5s ease;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0% {
+      transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotateX(2deg) rotateY(-2deg);
+    }
+    100% {
+      transform: translateY(0px) rotateX(0deg) rotateY(0deg);
+    }
+  }
+
+  .feature-card {
+    padding: 2.5rem;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg-card);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-10px);
+    border-color: var(--primary);
+    box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.15);
+  }
+
+  .feature-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .feature-card:hover .feature-icon-wrapper {
+    transform: scale(1.1) rotate(5deg);
+  }
+
+  .stats-section {
+    background-color: var(--text-main);
+    color: white;
+    border-radius: 32px;
+    padding: 60px;
+    margin-top: 80px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .stats-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      45deg,
+      rgba(79, 70, 229, 0.1) 0%,
+      rgba(255, 255, 255, 0) 100%
+    );
+    pointer-events: none;
+  }
+
+  .stat-item h3 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(135deg, #fff, rgba(255, 255, 255, 0.7));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .section-tag {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(79, 70, 229, 0.1);
+    color: var(--primary);
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 1.5rem;
+  }
+</style>
+{% endblock %} {% block content %}
+<div class="hero-section">
+  <div class="hero-blob"></div>
+  <div class="row align-items-center">
+    <div class="col-lg-6 mb-5 mb-lg-0">
+      <span class="section-tag">Empowering Your Future</span>
+      <h1
+        class="display-3 fw-extrabold mb-4"
+        style="color: var(--text-main); line-height: 1.1"
       >
-      <a href="{% url 'login' %}" class="btn btn-outline-secondary btn-lg px-4"
-        >Sign In</a
-      >
+        Navigate Your <span class="text-gradient">Career Path</span> with
+        Precision
+      </h1>
+      <p class="lead text-muted mb-5 fs-5" style="max-width: 90%">
+        Neo-Compass is a professional platform designed to bridge the gap
+        between ambition and industry leadership through personalized mentoring
+        and gamified learning.
+      </p>
+      <div class="d-flex flex-wrap gap-3">
+        <a
+          href="{% url 'register' %}"
+          class="btn btn-primary btn-lg px-5 py-3 shadow-lg d-flex align-items-center"
+        >
+          Get Started <i class="fas fa-arrow-right ms-2"></i>
+        </a>
+        <a
+          href="{% url 'login' %}"
+          class="btn btn-outline-secondary btn-lg px-5 py-3"
+        >
+          Learn More
+        </a>
+      </div>
     </div>
-  </div>
-  <div class="col-lg-5 d-none d-lg-block">
-    <div class="p-3 bg-white rounded-4 shadow-sm border">
-      <img
-        src="https://cdni.iconscout.com/illustration/premium/thumb/skill-development-illustration-download-in-svg-png-gif-file-formats--growth-personal-and-professional-learning-learning-new-skills-pack-people-illustrations-5210940.png"
-        alt="Hero"
-        class="img-fluid"
-      />
+    <div class="col-lg-6">
+      <div class="hero-img-container text-center">
+        <img
+          src="{% static 'images/hero_v2.png' %}"
+          alt="Hero Image"
+          class="img-fluid hero-img"
+        />
+      </div>
     </div>
   </div>
 </div>
 
 <div class="row g-4 mt-5">
-  <div class="col-md-4 text-center">
-    <div class="p-4 bg-white rounded-4 shadow-sm h-100 border">
-      <i class="fas fa-chalkboard-teacher fa-2x text-primary mb-3"></i>
-      <h5 class="fw-bold">Mentorship</h5>
-      <p class="small text-muted mb-0">Learn directly from industry experts.</p>
+  <div class="col-md-4">
+    <div class="feature-card">
+      <div class="feature-icon-wrapper bg-primary bg-opacity-10 text-primary">
+        <i class="fas fa-chalkboard-teacher fa-lg"></i>
+      </div>
+      <h4 class="fw-bold mb-3">Expert Mentorship</h4>
+      <p class="text-muted mb-0">
+        Gain direct insights from industry veterans who have walked the path
+        before you.
+      </p>
     </div>
   </div>
-  <div class="col-md-4 text-center">
-    <div class="p-4 bg-white rounded-4 shadow-sm h-100 border">
-      <i class="fas fa-gamepad fa-2x text-success mb-3"></i>
-      <h5 class="fw-bold">Gamification</h5>
-      <p class="small text-muted mb-0">Earn points and reach new levels.</p>
+  <div class="col-md-4">
+    <div class="feature-card">
+      <div class="feature-icon-wrapper bg-success bg-opacity-10 text-success">
+        <i class="fas fa-gamepad fa-lg"></i>
+      </div>
+      <h4 class="fw-bold mb-3">Interactive Learning</h4>
+      <p class="text-muted mb-0">
+        Engage with a gamified curriculum designed to keep you motivated and on
+        track.
+      </p>
     </div>
   </div>
-  <div class="col-md-4 text-center">
-    <div class="p-4 bg-white rounded-4 shadow-sm h-100 border">
-      <i class="fas fa-user-graduate fa-2x text-info mb-3"></i>
-      <h5 class="fw-bold">Alumni</h5>
-      <p class="small text-muted mb-0">Connect with our global network.</p>
+  <div class="col-md-4">
+    <div class="feature-card">
+      <div class="feature-icon-wrapper bg-info bg-opacity-10 text-info">
+        <i class="fas fa-network-wired fa-lg"></i>
+      </div>
+      <h4 class="fw-bold mb-3">Global Network</h4>
+      <p class="text-muted mb-0">
+        Connect with a thriving community of peers and alumni from around the
+        world.
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="stats-section shadow-lg">
+  <div class="row text-center g-5">
+    <div class="col-6 col-md-3 stat-item">
+      <h3>98%</h3>
+      <p class="text-white text-opacity-75 mb-0">Success Rate</p>
+    </div>
+    <div class="col-6 col-md-3 stat-item">
+      <h3>50+</h3>
+      <p class="text-white text-opacity-75 mb-0">Industry Core Domains</p>
+    </div>
+    <div class="col-6 col-md-3 stat-item">
+      <h3>200+</h3>
+      <p class="text-white text-opacity-75 mb-0">Expert Mentors</p>
+    </div>
+    <div class="col-6 col-md-3 stat-item">
+      <h3>5K+</h3>
+      <p class="text-white text-opacity-75 mb-0">Students Guided</p>
+    </div>
+  </div>
+</div>
+
+<div class="row mt-5 pt-5">
+  <div class="col-lg-12">
+    <h2 class="display-5 fw-bold mb-4">
+      Why Choose <span class="text-gradient">Neo-Compass</span>?
+    </h2>
+    <div class="mb-4">
+      <div class="d-flex mb-3">
+        <div class="me-3">
+          <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+            <i class="fas fa-check text-primary"></i>
+          </div>
+        </div>
+        <div>
+          <h5 class="fw-bold">Tailored Guidance</h5>
+          <p class="text-muted">
+            Personalized roadmaps that adapt to your unique skills and career
+            goals.
+          </p>
+        </div>
+      </div>
+      <div class="d-flex mb-3">
+        <div class="me-3">
+          <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+            <i class="fas fa-check text-primary"></i>
+          </div>
+        </div>
+        <div>
+          <h5 class="fw-bold">Real-world Projects</h5>
+          <p class="text-muted">
+            Apply your learning to actual industry challenges and build a strong
+            portfolio.
+          </p>
+        </div>
+      </div>
+      <div class="d-flex">
+        <div class="me-3">
+          <div class="bg-primary bg-opacity-10 p-2 rounded-circle">
+            <i class="fas fa-check text-primary"></i>
+          </div>
+        </div>
+        <div>
+          <h5 class="fw-bold">Alumni Support</h5>
+          <p class="text-muted">
+            Access to our exclusive alumni network for hiring opportunities and
+            advice.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </div>
