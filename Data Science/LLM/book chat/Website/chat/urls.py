@@ -10,6 +10,7 @@ urlpatterns = [
     path('conversation/<int:conversation_id>/', views.conversation_detail, name='conversation_detail'),
     path('send_message/', views.send_message, name='send_message'),
     path('send_message/<int:conversation_id>/', views.send_message, name='send_message_to_conversation'),
+    path('message/<int:message_id>/', views.get_message, name='get_message'),
     path('new_conversation/', views.new_conversation, name='new_conversation'),
     path('delete_conversation/<int:conversation_id>/', views.delete_conversation, name='delete_conversation'),
     path('rename_conversation/<int:conversation_id>/', views.rename_conversation, name='rename_conversation'),
@@ -19,4 +20,5 @@ urlpatterns = [
     path('clear_library/', views.clear_library, name='clear_library'),
     path('delete_document/<int:document_id>/', views.delete_document, name='delete_document'),
     path('upload_progress/', views.upload_progress, name='upload_progress'),
+    path('sidebar_refresh/', views.sidebar_refresh, name='sidebar_refresh'),
 ]

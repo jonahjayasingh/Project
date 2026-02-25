@@ -8,7 +8,7 @@ from datetime import datetime
 from .models import ChatSession, ChatMessage
 from donations.models import Donation
 
-OLLAMA_API_URL = "http://localhost:11434"
+OLLAMA_API_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "cogito-2.1:671b-cloud"
 
 @login_required
@@ -122,7 +122,7 @@ When you have all the details, confirm with the user and let them know the donat
 
 Previous conversation:"""
     
-    for msg in messages[-10:]:  # Last 10 messages for context
+    for msg in list(messages)[-10:]:  # Last 10 messages for context
         context += f"\n{msg.role.capitalize()}: {msg.content}"
     
     return context

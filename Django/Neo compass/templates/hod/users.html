@@ -1,4 +1,5 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %}
+ {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-5">
   <div>
     <h1 class="fw-bold mb-1">
@@ -47,39 +48,27 @@
             <option value="">All Roles</option>
             <option
               value="student"
-              {%
-              if
-              role_filter=""
-              ="student"
-              %}selected{%
-              endif
-              %}
+              {% if role_filter == "student" %}selected{% endif %}
             >
               Student
             </option>
             <option
               value="mentor"
-              {%
-              if
-              role_filter=""
-              ="mentor"
-              %}selected{%
-              endif
-              %}
+              {%if role_filter  == "mentor"%}selected{%endif  %}
             >
               Mentor
             </option>
             <option
               value="hod"
-              {%
-              if
-              role_filter=""
-              ="hod"
-              %}selected{%
-              endif
-              %}
+              {% if role_filter == "hod" %}selected{% endif %}
             >
               HOD
+            </option>
+            <option
+              value="alumni"
+              {% if role_filter == "alumni" %}selected{% endif %}
+            >
+              Alumni
             </option>
           </select>
         </div>
@@ -126,7 +115,7 @@
           </td>
           <td>
             <span
-              class="badge {% if user.role == 'hod' %}bg-primary {% elif user.role == 'mentor' %}bg-info {% else %}bg-secondary{% endif %}"
+              class="badge {% if user.role == 'hod' %}bg-primary {% elif user.role == 'mentor' %}bg-info {% elif user.role == 'alumni' %}bg-dark {% else %}bg-secondary{% endif %}"
             >
               {{ user.role|upper }}
             </span>
@@ -138,7 +127,8 @@
             >
               {{ user.student_profile.get_approval_status_display }}
             </span>
-            {% else %} {% if user.is_active %}
+            {% else %} 
+            {% if user.is_active %}
             <span class="d-flex align-items-center text-success small fw-bold">
               <i class="fas fa-check-circle me-1"></i> Active
             </span>
@@ -146,7 +136,9 @@
             <span class="d-flex align-items-center text-danger small fw-bold">
               <i class="fas fa-times-circle me-1"></i> Inactive
             </span>
-            {% endif %} {% endif %}
+            {% endif %} 
+            
+            {% endif %}
           </td>
           <td class="text-end pe-4">
             <div class="d-flex justify-content-end gap-2">
@@ -232,8 +224,197 @@
                   </div>
                 </div>
               </div>
-              {% endif %}
+              {% if user.role == 'alumni' %}
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary px-3"
+                style="border-radius: 8px"
+                data-bs-toggle="modal"
+                data-bs-target="#editAlumniModal{{user.id}}"
+              >
+                <i class="fas fa-edit me-1"></i> Edit Alumni
+              </button>
+
+              <!-- Edit Alumni Modal -->
+              <div
+                class="modal fade"
+                id="editAlumniModal{{user.id}}"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 pb-0 ps-4 pt-4">
+                      <h5 class="modal-title fw-bold">Update Alumni Record</h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <form
+                      action="{% url 'update_alumni_profile' user.id %}"
+                      method="post"
+                    >
+                      {% csrf_token %}
+                      <div class="modal-body p-4 text-start">
+                        <div class="mb-3">
+                          <label class="form-label small fw-bold text-muted"
+                            >GRADUATION YEAR</label
+                          >
+                          <input
+                            type="number"
+                            name="graduation_year"
+                            class="form-control"
+                            value="{{ user.alumni_profile.graduation_year }}"
+                            required
+                          />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label small fw-bold text-muted"
+                            >CURRENT COMPANY / STATUS</label
+                          >
+                          <input
+                            type="text"
+                            name="current_company"
+                            class="form-control"
+                            value="{{ user.alumni_profile.current_company }}"
+                            required
+                          />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label small fw-bold text-muted"
+                            >BIO / ACHIEVEMENTS</label
+                          >
+                          <textarea
+                            name="description"
+                            class="form-control"
+                            rows="3"
+                          >
+                            {{ user.alumni_profile.profile_description }}
+                          </textarea>
+                        </div>
+                      </div>
+                      <div class="modal-footer border-0 pt-0 pe-4 pb-4">
+                        <button
+                          type="button"
+                          class="btn btn-light btn-sm px-4"
+                          data-bs-dismiss="modal"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          class="btn btn-primary btn-sm px-4"
+                        >
+                          Save Changes
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+              {% endif %} 
               {% if user.role == 'student' %}
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-success px-3"
+                style="border-radius: 8px"
+                data-bs-toggle="modal"
+                data-bs-target="#graduateModal{{user.id}}"
+                {% if user.student_profile.approval_status != "APPROVED" %}
+                disabled title="Student must be approved first" 
+                {%endif%}
+              >
+                <i class="fas fa-graduation-cap me-1"></i> Graduate
+              </button>
+
+              <!-- Graduate Modal -->
+              <div
+                class="modal fade"
+                id="graduateModal{{user.id}}"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content border-0 shadow-lg rounded-4">
+                    <div class="modal-header border-0 pb-0 ps-4 pt-4">
+                      <h5 class="modal-title fw-bold">Graduate to Alumni</h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <form
+                      action="{% url 'hod_graduate_student' user.id %}"
+                      method="post"
+                    >
+                      {% csrf_token %}
+                      <div class="modal-body p-4 text-start">
+                        <p class="text-muted small mb-3">
+                          Convert <strong>{{user.username}}</strong> into an
+                          Alumni record. This will update their role and create
+                          a public alumni profile.
+                        </p>
+                        <div class="mb-3">
+                          <label class="form-label small fw-bold text-muted"
+                            >GRADUATION YEAR</label
+                          >
+                          <input
+                            type="number"
+                            name="graduation_year"
+                            class="form-control"
+                            value="2025"
+                            required
+                          />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label small fw-bold text-muted"
+                            >CURRENT COMPANY / STATUS</label
+                          >
+                          <input
+                            type="text"
+                            name="current_company"
+                            class="form-control"
+                            placeholder="e.g. Google, SDE at TCS, Higher Studies"
+                            required
+                          />
+                        </div>
+                        <div class="mb-3">
+                          <label class="form-label small fw-bold text-muted"
+                            >BIO / ACHIEVEMENTS (OPTIONAL)</label
+                          >
+                          <textarea
+                            name="description"
+                            class="form-control"
+                            rows="3"
+                            placeholder="A brief description for the alumni directory..."
+                          ></textarea>
+                        </div>
+                      </div>
+                      <div class="modal-footer border-0 pt-0 pe-4 pb-4">
+                        <button
+                          type="button"
+                          class="btn btn-light btn-sm px-4"
+                          data-bs-dismiss="modal"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          class="btn btn-success btn-sm px-4"
+                        >
+                          Confirm Graduation
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
               <a
                 href="{% url 'hod_change_role' user.id %}?role=mentor"
                 class="btn btn-sm btn-outline-primary px-3"
@@ -259,8 +440,10 @@
                 style="border-radius: 8px"
               >
                 {% if user.is_active %}
-                <i class="fas fa-user-slash me-1"></i> Deactivate {% else %}
-                <i class="fas fa-user-check me-1"></i> Activate {% endif %}
+                <i class="fas fa-user-slash me-1"></i> Deactivate 
+                {% else %}
+                <i class="fas fa-user-check me-1"></i> Activate 
+                {% endif %}
               </a>
             </div>
           </td>

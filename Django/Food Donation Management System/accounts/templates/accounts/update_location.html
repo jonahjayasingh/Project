@@ -1,234 +1,268 @@
-{% extends 'base.html' %}
-
-{% block title %}Update My Location{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}Update My Location{% endblock %} {%block content %}
 <div class="row justify-content-center">
-    <div class="col-md-10">
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="card-header bg-success text-white p-4">
-                <h2 class="mb-0"><i class="bi bi-geo-alt-fill"></i> Update My Location</h2>
-            </div>
-            <div class="card-body p-4">
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i> <strong>Note:</strong> Setting your location helps match you with
-                    nearby donations and improves coordination.
-                </div>
-
-                <form method="post" id="locationForm">
-                    {% csrf_token %}
-
-                    <div class="row">
-                        <!-- Left Column: Form Fields -->
-                        <div class="col-md-6">
-                            {% if user.address %}
-                            <div class="alert alert-success mb-4">
-                                <h6><i class="bi bi-check-circle"></i> Current Location</h6>
-                                <p class="mb-0"><strong>Address:</strong> {{ user.address }}</p>
-                                {% if user.latitude and user.longitude %}
-                                <p class="mb-0"><strong>Coordinates:</strong> {{ user.latitude }}, {{ user.longitude }}
-                                </p>
-                                {% endif %}
-                            </div>
-                            {% else %}
-                            <div class="alert alert-warning mb-4">
-                                <i class="bi bi-exclamation-triangle"></i> You haven't set your location yet.
-                            </div>
-                            {% endif %}
-
-                            <div class="mb-3">
-                                <label for="address" class="form-label">Your Address</label>
-                                <textarea class="form-control" id="address" name="address" rows="3"
-                                    placeholder="Enter your complete address"
-                                    required>{{ user.address|default:'' }}</textarea>
-                                <small class="text-muted">Enter your base location or office address</small>
-                            </div>
-
-                            <div class="card bg-light mb-3">
-                                <div class="card-body">
-                                    <h6 class="mb-3"><i class="bi bi-geo-alt"></i> Location Coordinates</h6>
-
-                                    <button type="button" class="btn btn-success btn-sm mb-3 w-100"
-                                        id="detectLocationBtn">
-                                        <i class="bi bi-crosshair"></i> Detect My Current Location
-                                    </button>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-2">
-                                            <label for="latitude" class="form-label">Latitude</label>
-                                            <input type="number" class="form-control" id="latitude" name="latitude"
-                                                step="0.000001" placeholder="e.g., 28.6139"
-                                                value="{{ user.latitude|default:'' }}">
-                                        </div>
-
-                                        <div class="col-md-6 mb-2">
-                                            <label for="longitude" class="form-label">Longitude</label>
-                                            <input type="number" class="form-control" id="longitude" name="longitude"
-                                                step="0.000001" placeholder="e.g., 77.2090"
-                                                value="{{ user.longitude|default:'' }}">
-                                        </div>
-                                    </div>
-
-                                    <small class="text-muted">
-                                        <i class="bi bi-info-circle"></i> Click the map or use detect button
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Right Column: Map -->
-                        <div class="col-md-6">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-secondary text-white">
-                                    <h6 class="mb-0"><i class="bi bi-map"></i> Your Location</h6>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div id="map" style="height: 450px; width: 100%;"></div>
-                                </div>
-                                <div class="card-footer bg-light">
-                                    <small class="text-muted">
-                                        <i class="bi bi-hand-index"></i> Click on the map to set your location
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="d-flex gap-2 mt-4">
-                        <button type="submit" class="btn btn-success flex-fill">
-                            <i class="bi bi-check-circle"></i> Save Location
-                        </button>
-                        <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i> Cancel
-                        </a>
-                    </div>
-                </form>
-            </div>
+  <div class="col-md-10">
+    <div class="card border-0 shadow-sm rounded-4">
+      <div class="card-header bg-success text-white p-4">
+        <h2 class="mb-0">
+          <i class="bi bi-geo-alt-fill"></i> Update My Location
+        </h2>
+      </div>
+      <div class="card-body p-4">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i> <strong>Note:</strong> Setting your
+          location helps match you with nearby donations and improves
+          coordination.
         </div>
+
+        <form method="post" id="locationForm">
+          {% csrf_token %}
+
+          <div class="row">
+            <!-- Left Column: Form Fields -->
+            <div class="col-md-6">
+              {% if user.address %}
+              <div class="alert alert-success mb-4">
+                <h6><i class="bi bi-check-circle"></i> Current Location</h6>
+                <p class="mb-0"><strong>Address:</strong> {{ user.address }}</p>
+                {% if user.latitude and user.longitude %}
+                <p class="mb-0">
+                  <strong>Coordinates:</strong> {{ user.latitude }}, {{ user.longitude }}
+                </p>
+                {% endif %}
+              </div>
+              {% else %}
+              <div class="alert alert-warning mb-4">
+                <i class="bi bi-exclamation-triangle"></i> You haven't set your
+                location yet.
+              </div>
+              {% endif %}
+
+              <div class="mb-3">
+                <label for="address" class="form-label">Your Address</label>
+                <textarea
+                  class="form-control"
+                  id="address"
+                  name="address"
+                  rows="3"
+                  placeholder="Enter your complete address"
+                  required
+                >
+{{ user.address|default:'' }}</textarea
+                >
+                <small class="text-muted"
+                  >Enter your base location or office address</small
+                >
+              </div>
+
+              <div class="card bg-light mb-3">
+                <div class="card-body">
+                  <h6 class="mb-3">
+                    <i class="bi bi-geo-alt"></i> Location Coordinates
+                  </h6>
+
+                  <button
+                    type="button"
+                    class="btn btn-success btn-sm mb-3 w-100"
+                    id="detectLocationBtn"
+                  >
+                    <i class="bi bi-crosshair"></i> Detect My Current Location
+                  </button>
+
+                  <div class="row">
+                    <div class="col-md-6 mb-2">
+                      <label for="latitude" class="form-label">Latitude</label>
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="latitude"
+                        name="latitude"
+                        step="0.000001"
+                        placeholder="e.g., 28.6139"
+                        value="{{ user.latitude|default:'' }}"
+                      />
+                    </div>
+
+                    <div class="col-md-6 mb-2">
+                      <label for="longitude" class="form-label"
+                        >Longitude</label
+                      >
+                      <input
+                        type="number"
+                        class="form-control"
+                        id="longitude"
+                        name="longitude"
+                        step="0.000001"
+                        placeholder="e.g., 77.2090"
+                        value="{{ user.longitude|default:'' }}"
+                      />
+                    </div>
+                  </div>
+
+                  <small class="text-muted">
+                    <i class="bi bi-info-circle"></i> Click the map or use
+                    detect button
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Column: Map -->
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm">
+                <div class="card-header bg-secondary text-white">
+                  <h6 class="mb-0"><i class="bi bi-map"></i> Your Location</h6>
+                </div>
+                <div class="card-body p-0">
+                  <div id="map" style="height: 450px; width: 100%"></div>
+                </div>
+                <div class="card-footer bg-light">
+                  <small class="text-muted">
+                    <i class="bi bi-hand-index"></i> Click on the map to set
+                    your location
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-success flex-fill">
+              <i class="bi bi-check-circle"></i> Save Location
+            </button>
+            <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
+              <i class="bi bi-x-circle"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-    // Initialize map
-    {% if user.latitude and user.longitude %}
-    let map = L.map('map').setView([{{ user.latitude }}, { { user.longitude } }], 15);
-    {% else %}
-    let map = L.map('map').setView([20.5937, 78.9629], 5);
-    {% endif %}
+  // Initialize map
+  {% if user.latitude and user.longitude %}
+  let map = L.map('map').setView([{{ user.latitude }}, {{ user.longitude }}], 15);
+  {% else %}
+  let map = L.map('map').setView([20.5937, 78.9629], 5);
+  {% endif %}
 
-    // Add OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(map);
+  // Add OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+  }).addTo(map);
 
-    // Marker for location
-    let marker = null;
+  // Marker for location
+  let marker = null;
 
-    // Get form inputs
-    const latInput = document.getElementById('latitude');
-    const lonInput = document.getElementById('longitude');
-    const detectBtn = document.getElementById('detectLocationBtn');
+  // Get form inputs
+  const latInput = document.getElementById('latitude');
+  const lonInput = document.getElementById('longitude');
+  const detectBtn = document.getElementById('detectLocationBtn');
 
-    // Function to update marker position
-    function updateMarker(lat, lon) {
-        if (marker) {
-            map.removeLayer(marker);
-        }
+  // Function to update marker position
+  function updateMarker(lat, lon) {
+      if (marker) {
+          map.removeLayer(marker);
+      }
 
-        marker = L.marker([lat, lon], {
-            draggable: true
-        }).addTo(map);
+      marker = L.marker([lat, lon], {
+          draggable: true
+      }).addTo(map);
 
-        marker.bindPopup('<b>Your Location</b><br>Drag to adjust').openPopup();
+      marker.bindPopup('<b>Your Location</b><br>Drag to adjust').openPopup();
 
-        // Update inputs when marker is dragged
-        marker.on('dragend', function (e) {
-            const position = marker.getLatLng();
-            latInput.value = position.lat.toFixed(6);
-            lonInput.value = position.lng.toFixed(6);
-        });
+      // Update inputs when marker is dragged
+      marker.on('dragend', function (e) {
+          const position = marker.getLatLng();
+          latInput.value = position.lat.toFixed(6);
+          lonInput.value = position.lng.toFixed(6);
+      });
 
-        map.setView([lat, lon], 15);
-    }
+      map.setView([lat, lon], 15);
+  }
 
-    // Click on map to set location
-    map.on('click', function (e) {
-        const lat = e.latlng.lat;
-        const lon = e.latlng.lng;
+  // Click on map to set location
+  map.on('click', function (e) {
+      const lat = e.latlng.lat;
+      const lon = e.latlng.lng;
 
-        latInput.value = lat.toFixed(6);
-        lonInput.value = lon.toFixed(6);
+      latInput.value = lat.toFixed(6);
+      lonInput.value = lon.toFixed(6);
 
-        updateMarker(lat, lon);
-    });
+      updateMarker(lat, lon);
+  });
 
-    // Detect current location button
-    detectBtn.addEventListener('click', function () {
-        if ('geolocation' in navigator) {
-            detectBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Detecting...';
-            detectBtn.disabled = true;
+  // Detect current location button
+  detectBtn.addEventListener('click', function () {
+      if ('geolocation' in navigator) {
+          detectBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Detecting...';
+          detectBtn.disabled = true;
 
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
+          navigator.geolocation.getCurrentPosition(
+              function (position) {
+                  const lat = position.coords.latitude;
+                  const lon = position.coords.longitude;
 
-                    latInput.value = lat.toFixed(6);
-                    lonInput.value = lon.toFixed(6);
+                  latInput.value = lat.toFixed(6);
+                  lonInput.value = lon.toFixed(6);
 
-                    updateMarker(lat, lon);
+                  updateMarker(lat, lon);
 
-                    detectBtn.innerHTML = '<i class="bi bi-check-circle"></i> Location Detected!';
-                    setTimeout(() => {
-                        detectBtn.innerHTML = '<i class="bi bi-crosshair"></i> Detect My Current Location';
-                        detectBtn.disabled = false;
-                    }, 2000);
-                },
-                function (error) {
-                    alert('Error detecting location: ' + error.message);
-                    detectBtn.innerHTML = '<i class="bi bi-crosshair"></i> Detect My Current Location';
-                    detectBtn.disabled = false;
-                }
-            );
-        } else {
-            alert('Geolocation is not supported by your browser');
-        }
-    });
+                  detectBtn.innerHTML = '<i class="bi bi-check-circle"></i> Location Detected!';
+                  setTimeout(() => {
+                      detectBtn.innerHTML = '<i class="bi bi-crosshair"></i> Detect My Current Location';
+                      detectBtn.disabled = false;
+                  }, 2000);
+              },
+              function (error) {
+                  alert('Error detecting location: ' + error.message);
+                  detectBtn.innerHTML = '<i class="bi bi-crosshair"></i> Detect My Current Location';
+                  detectBtn.disabled = false;
+              }
+          );
+      } else {
+          alert('Geolocation is not supported by your browser');
+      }
+  });
 
-    // Update map when coordinates are manually entered
-    latInput.addEventListener('change', function () {
-        const lat = parseFloat(latInput.value);
-        const lon = parseFloat(lonInput.value);
+  // Update map when coordinates are manually entered
+  latInput.addEventListener('change', function () {
+      const lat = parseFloat(latInput.value);
+      const lon = parseFloat(lonInput.value);
 
-        if (!isNaN(lat) && !isNaN(lon)) {
-            updateMarker(lat, lon);
-        }
-    });
+      if (!isNaN(lat) && !isNaN(lon)) {
+          updateMarker(lat, lon);
+      }
+  });
 
-    lonInput.addEventListener('change', function () {
-        const lat = parseFloat(latInput.value);
-        const lon = parseFloat(lonInput.value);
+  lonInput.addEventListener('change', function () {
+      const lat = parseFloat(latInput.value);
+      const lon = parseFloat(lonInput.value);
 
-        if (!isNaN(lat) && !isNaN(lon)) {
-            updateMarker(lat, lon);
-        }
-    });
+      if (!isNaN(lat) && !isNaN(lon)) {
+          updateMarker(lat, lon);
+      }
+  });
 
-    // Load existing coordinates if available
-    window.addEventListener('load', function () {
-        const lat = parseFloat(latInput.value);
-        const lon = parseFloat(lonInput.value);
+  // Load existing coordinates if available
+  window.addEventListener('load', function () {
+      const lat = parseFloat(latInput.value);
+      const lon = parseFloat(lonInput.value);
 
-        if (!isNaN(lat) && !isNaN(lon)) {
-            updateMarker(lat, lon);
-        }
-    });
+      if (!isNaN(lat) && !isNaN(lon)) {
+          updateMarker(lat, lon);
+      }
+  });
 </script>
 {% endblock %}

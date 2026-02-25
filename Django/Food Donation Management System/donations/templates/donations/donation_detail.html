@@ -115,8 +115,7 @@
                             <i class="bi bi-arrow-left"></i> Back to Dashboard
                         </a>
 
-                        {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Accepted' and
-                        not donation.assigned_volunteer %}
+                        {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Accepted' and not donation.assigned_volunteer %}
                         <a href="{% url 'cancel_acceptance' donation.id %}" class="btn btn-danger"
                             onclick="return confirm('Release this donation back to pending?')">
                             <i class="bi bi-x-circle"></i> Cancel Acceptance

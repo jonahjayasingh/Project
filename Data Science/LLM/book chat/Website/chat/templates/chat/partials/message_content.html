@@ -1,0 +1,26 @@
+{% if message.content == "NEURAL_CORE_THINK_9821" %}
+<div
+  class="msg-text"
+  id="msg-text-{{ message.id }}"
+  hx-get="{% url 'get_message' message.id %}"
+  hx-trigger="every 2s"
+  hx-swap="outerHTML"
+>
+  <div class="processing-bubbles"><span></span><span></span><span></span></div>
+  <div
+    style="
+      font-size: 0.7rem;
+      color: var(--accent-primary);
+      font-weight: 800;
+      letter-spacing: 1px;
+      margin-top: 5px;
+    "
+  >
+    NEURAL CORE SECURE SEARCH ACTIVE...
+  </div>
+</div>
+{% else %}
+<div class="msg-text" id="msg-text-{{ message.id }}">
+  {{ message.content|linebreaks }}
+</div>
+{% endif %}

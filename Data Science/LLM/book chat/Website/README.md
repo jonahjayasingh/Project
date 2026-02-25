@@ -5,6 +5,7 @@ A beautiful, feature-rich AI assistant built with Django, HTMX, and LangChain. T
 ## ✨ Features
 
 ### Core Chat Features
+
 - 💬 **Real-time Chat Interface** - Beautiful, responsive chat UI similar to ChatGPT
 - 🔄 **HTMX Integration** - Smooth, dynamic updates without page reloads
 - 📝 **Conversation Management** - Create, rename, clear, and delete conversations
@@ -12,6 +13,7 @@ A beautiful, feature-rich AI assistant built with Django, HTMX, and LangChain. T
 - 🎨 **Modern Dark Theme** - Sleek, professional design with smooth animations
 
 ### AI & RAG Features
+
 - 🤖 **Ollama Integration** - Local AI inference using Ollama
 - 📚 **Document Upload** - Upload PDF and TXT files to create a knowledge base
 - 🧠 **RAG-Powered Responses** - AI answers questions based on your uploaded documents
@@ -19,6 +21,7 @@ A beautiful, feature-rich AI assistant built with Django, HTMX, and LangChain. T
 - 📊 **Library Management** - View and manage your document library
 
 ### User Experience
+
 - ⚡ **Fast & Responsive** - Optimized for performance
 - 📱 **Mobile Friendly** - Works great on all devices
 - ⌨️ **Keyboard Shortcuts** - Enter to send, Shift+Enter for new line
@@ -28,6 +31,7 @@ A beautiful, feature-rich AI assistant built with Django, HTMX, and LangChain. T
 ## 🚀 Getting Started
 
 ### Prerequisites
+
 - Python 3.8+
 - [Ollama](https://ollama.ai/) installed and running
 - Ollama model downloaded (e.g., `ollama pull llava:7b`)
@@ -35,27 +39,32 @@ A beautiful, feature-rich AI assistant built with Django, HTMX, and LangChain. T
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    cd Website
    ```
 
 2. **Create a virtual environment**
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Run migrations**
+
    ```bash
    python manage.py migrate
    ```
 
 5. **Start the development server**
+
    ```bash
    python manage.py runserver
    ```
@@ -66,11 +75,13 @@ A beautiful, feature-rich AI assistant built with Django, HTMX, and LangChain. T
 ## 📖 Usage
 
 ### Basic Chat
+
 1. Click "New Chat" to start a conversation
 2. Type your message and press Enter
 3. The AI will respond using the configured Ollama model
 
 ### Using RAG (Document-Based Chat)
+
 1. Go to Settings (gear icon in header)
 2. Upload PDF or TXT files in the "Library Management" section
 3. Click "Upload & Process" to ingest the documents
@@ -78,6 +89,7 @@ A beautiful, feature-rich AI assistant built with Django, HTMX, and LangChain. T
 5. The AI will use your documents to provide accurate answers
 
 ### Managing Conversations
+
 - **Rename**: Click the three-dot menu → Rename
 - **Clear**: Click the three-dot menu → Clear (removes all messages)
 - **Delete**: Click the three-dot menu → Delete (removes entire conversation)
@@ -101,7 +113,7 @@ Website/
 │       ├── index.html         # Main chat page
 │       ├── settings.html      # Settings page
 │       └── partials/          # HTMX partials
-├── chatgpt_clone/             # Django project settings
+├── docchat/                   # Django project settings
 ├── books/                     # Uploaded documents (auto-created)
 ├── book_db/                   # Vector database (auto-created)
 ├── db.sqlite3                 # SQLite database
@@ -112,6 +124,7 @@ Website/
 ## 🎨 Features in Detail
 
 ### Conversation Management
+
 - Create unlimited conversations
 - Each conversation maintains its own message history
 - Conversations are automatically titled based on first message
@@ -120,6 +133,7 @@ Website/
 - Delete conversations you no longer need
 
 ### Document Processing
+
 - Supports PDF and TXT files
 - Automatic text extraction and chunking
 - Vector embeddings using Ollama's nomic-embed-text
@@ -128,6 +142,7 @@ Website/
 - Clear entire library when needed
 
 ### AI Integration
+
 - Uses Ollama for local, private AI inference
 - Configurable model selection
 - Context-aware responses
@@ -137,13 +152,17 @@ Website/
 ## 🔧 Configuration
 
 ### Changing the AI Model
+
 Edit `chat/ai_service.py`:
+
 ```python
 DEFAULT_LLM_MODEL = "llava:7b"  # Change to your preferred model
 ```
 
 ### Adjusting Chunk Size
+
 Edit `chat/ai_service.py`:
+
 ```python
 splitter = RecursiveCharacterTextSplitter(
     chunk_size=600,      # Adjust chunk size
@@ -193,6 +212,7 @@ This project is open source and available under the MIT License.
 ## 📧 Support
 
 If you encounter any issues or have questions, please check:
+
 1. Ollama is running (`ollama serve`)
 2. Required model is downloaded (`ollama pull llava:7b`)
 3. All dependencies are installed

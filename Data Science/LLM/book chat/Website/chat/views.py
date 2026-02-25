@@ -74,7 +74,7 @@ def conversation_detail(request, conversation_id):
     }
     
     if request.headers.get('HX-Request'):
-        return render(request, 'chat/partials/messages.html', context)
+        return render(request, 'chat/partials/chat_pane.html', context)
     
     return render(request, 'chat/index.html', context)
 
@@ -91,10 +91,17 @@ def send_message(request, conversation_id=None):
     if conversation_id:
         conversation = get_object_or_404(Conversation, id=conversation_id, user=request.user)
     else:
-        conversation = Conversation.objects.create(
-            user=request.user,
-            title=user_message[:50] + ('...' if len(user_message) > 50 else '')
-        )
+        # Reuse latest conversation if it exists to avoid multiple chat creation for single dialogue
+        conversation = Conversation.objects.filter(user=request.user).order_by('-updated_at').first()
+        if not conversation:
+            conversation = Conversation.objects.create(
+                user=request.user,
+                title=user_message[:50] + ('...' if len(user_message) > 50 else '')
+            )
+        elif not conversation.messages.exists() or conversation.title == "New Chat":
+            # Update title for empty or placeholder conversations
+            conversation.title = user_message[:50] + ('...' if len(user_message) > 50 else '')
+            conversation.save()
     
     # Save user message
     user_msg = Message.objects.create(
@@ -103,13 +110,12 @@ def send_message(request, conversation_id=None):
         content=user_message
     )
     
-    # Process any uploaded documents from the chat input
+    # Process documents as before...
     uploaded_files = request.FILES.getlist('documents')
     if uploaded_files:
         project_root = os.path.dirname(os.path.dirname(__file__))
         book_dir = os.path.join(project_root, "books")
         os.makedirs(book_dir, exist_ok=True)
-        
         temp_paths = []
         for f in uploaded_files:
             file_path = os.path.join(book_dir, f"{request.user.id}_{f.name}")
@@ -117,26 +123,46 @@ def send_message(request, conversation_id=None):
                 for chunk in f.chunks():
                     dest.write(chunk)
             temp_paths.append(file_path)
-            
-            Document.objects.create(
-                user=request.user,
-                name=f.name,
-                file_path=file_path,
-                is_global=False # Chat uploads are private by default
-            )
-        
-        # Immediate ingestion (blocking for chat simplicity, or could be background)
+            Document.objects.create(user=request.user, name=f.name, file_path=file_path, is_global=False)
         ai_service.ingest_documents(temp_paths, user=request.user, is_global=False)
 
-    # Generate response
-    ai_response = generate_ai_response(user_message, request.user)
-    
+    # Initialize Assistant Placeholder
     assistant_msg = Message.objects.create(
         conversation=conversation,
         role='assistant',
-        content=ai_response
+        content="NEURAL_CORE_THINK_9821"
     )
     
+    # Start Asynchronous Generation
+    def run_async_gen(msg_id, query, user_id):
+        from .models import Message
+        from django.contrib.auth.models import User
+        from django.db import connection
+        try:
+            usr = User.objects.get(id=user_id)
+            response = generate_ai_response(query, usr)
+            msg = Message.objects.get(id=msg_id)
+            msg.content = response
+            msg.save()
+        finally:
+            connection.close()
+
+    thread = threading.Thread(target=run_async_gen, args=(assistant_msg.id, user_message, request.user.id))
+    thread.start()
+    
+    # Wait for completion (blocking the view request)
+    # Increased timeout to 300s to ensure direct answer delivery for most cases
+    thread.join(timeout=300) 
+    
+    # Ensure we have the latest content (even if the thread is still running, 
+    # the placeholder logic in the template will catch it)
+    assistant_msg.refresh_from_db()
+    
+    # If it was the first message, update the conversation title
+    if conversation.messages.count() <= 2 and (conversation.title == "New Chat" or conversation.title[:50] in user_message):
+        conversation.title = user_message[:50] + ('...' if len(user_message) > 50 else '')
+        conversation.save()
+
     context = {
         'user_message': user_msg,
         'assistant_message': assistant_msg,
@@ -144,14 +170,44 @@ def send_message(request, conversation_id=None):
     }
     
     response = render(request, 'chat/partials/message_pair.html', context)
-    # Trigger both message addition and a sidebar refresh (in case it was the first message)
     response['HX-Trigger'] = 'messageAdded, refreshSidebar'
     return response
 
 @login_required
+def get_message(request, message_id):
+    """Standard polling endpoint for message completion with zombie protection"""
+    from .models import Message
+    from django.utils import timezone
+    from datetime import timedelta
+    
+    try:
+        message = Message.objects.get(id=message_id, conversation__user=request.user)
+    except Message.DoesNotExist:
+        return HttpResponse("")
+    
+    # Zombie Protection: If message is > 10 mins old and still thinking, it likely crashed
+    if message.content == "NEURAL_CORE_THINK_9821" and message.timestamp < timezone.now() - timedelta(minutes=10):
+        message.content = "⚠️ Search protocol interrupted. Please re-submit your query."
+        message.save()
+    
+    return render(request, 'chat/partials/message_content.html', {'message': message})
+
+@login_required
 def new_conversation(request):
-    """Create a new conversation - standard redirect"""
+    """Create a new conversation - supports HTMX navigation"""
     conversation = Conversation.objects.create(user=request.user, title="New Chat")
+    
+    if request.headers.get('HX-Request'):
+        conversations = Conversation.objects.filter(user=request.user).order_by('-updated_at')[:20]
+        context = {
+            'conversations': conversations,
+            'current_conversation': conversation,
+        }
+        # Force a chat pane update and refresh sidebar
+        response = render(request, 'chat/partials/chat_pane.html', context)
+        response['HX-Trigger'] = 'refreshSidebar'
+        return response
+        
     return redirect('conversation_detail', conversation_id=conversation.id)
 
 @login_required
@@ -338,3 +394,27 @@ def generate_ai_response(user_message, user):
         return ai_service.generate_response(user_message, user=user, use_rag=True)
     except Exception as e:
         return f"Error: {str(e)}"
+
+@login_required
+def sidebar_refresh(request):
+    """View to return only the sidebar partial for HTMX updates"""
+    conversations = Conversation.objects.filter(user=request.user).order_by('-updated_at')[:20]
+    
+    # Check if we have a current conversation ID from the referrer URL
+    # to maintain active state in the sidebar
+    current_conversation = None
+    import re
+    referer = request.headers.get('Referer', '')
+    match = re.search(r'/conversation/(\d+)/', referer)
+    if match:
+        conv_id = match.group(1)
+        current_conversation = Conversation.objects.filter(id=conv_id, user=request.user).first()
+    
+    if not current_conversation:
+        current_conversation = conversations.first() if conversations.exists() else None
+
+    return render(request, 'chat/partials/sidebar.html', {
+        'conversations': conversations,
+        'current_conversation': current_conversation
+    })
+

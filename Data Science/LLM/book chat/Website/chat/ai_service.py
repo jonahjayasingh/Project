@@ -1,77 +1,102 @@
 """
-AI Service for handling RAG-based chat responses
+STRICT RAG AI Service — Answers ONLY from uploaded books
+Uses Ollama + Chroma + LangChain
 """
+
 import os
+import time
+import shutil
+
 from langchain_chroma import Chroma
 from langchain_ollama import OllamaEmbeddings, OllamaLLM
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-import shutil
 
-# Configuration
+
+# ================= CONFIGURATION =================
+
 BASE_PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 DB_DIR = os.path.join(BASE_PROJECT_DIR, "book_db")
 BOOK_DIR = os.path.join(BASE_PROJECT_DIR, "books")
-DEFAULT_LLM_MODEL = "llava:7b"
+
+DEFAULT_LLM_MODEL = "qwen2.5:3b"
 EMBEDDING_MODEL = "nomic-embed-text"
 
+RELEVANCE_THRESHOLD = 0.6   # Higher = stricter grounding
+
+
+# ================= SERVICE CLASS =================
 
 class AIService:
-    """Service for AI-powered chat responses using RAG"""
-    
+    """AI-powered strict RAG chat service (book-only answers)"""
+
     def __init__(self, llm_model=None):
         self.llm_model = llm_model or DEFAULT_LLM_MODEL
         self.embeddings = None
         self.db = None
         self.llm = None
-        self.progress = {} # user_id -> percentage
-        
+        self.progress = {}   # user_id -> progress info
+
+    # -------------------------------------------------
+    # Initialization
+    # -------------------------------------------------
+
     def initialize(self):
-        """Initialize the AI service components"""
+
         try:
             self.embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL)
+
             if os.path.exists(DB_DIR):
-                self.db = Chroma(persist_directory=DB_DIR, embedding_function=self.embeddings)
-            self.llm = OllamaLLM(model=self.llm_model)
+                self.db = Chroma(
+                    persist_directory=DB_DIR,
+                    embedding_function=self.embeddings
+                )
+
+            # Temperature 0 = deterministic, no creativity
+            self.llm = OllamaLLM(
+                model=self.llm_model,
+                temperature=0
+            )
+
             return True
+
         except Exception as e:
-            print(f"Error initializing AI service: {e}")
+            print(f"Initialization error: {e}")
             return False
-    
+
+    # -------------------------------------------------
+    # Main Response
+    # -------------------------------------------------
+
     def generate_response(self, user_message, user=None, use_rag=True):
-        """
-        Generate AI response for user message
-        
-        Args:
-            user_message: The user's input message
-            user: The user object requesting the response
-            use_rag: Whether to use RAG (retrieval-augmented generation)
-        
-        Returns:
-            str: AI-generated response
-        """
+
         if not self.llm:
             self.initialize()
-        
+
         if not self.llm:
-            return "⚠️ AI service is not available. Please make sure Ollama is running."
-        
+            return "⚠️ Ollama is not running."
+
         try:
             if use_rag and self.db:
                 return self._generate_rag_response(user_message, user)
             else:
                 return self._generate_simple_response(user_message)
+
         except Exception as e:
-            print(f"Error generating response: {e}")
-            return f"❌ I encountered an error: {str(e)}"
-    
+            print(f"Generation error: {e}")
+            return f"❌ Error: {str(e)}"
+
+    # -------------------------------------------------
+    # STRICT RAG RESPONSE (BOOK-ONLY)
+    # -------------------------------------------------
+
     def _generate_rag_response(self, user_message, user=None):
-        """Generate response using RAG with user-specific filtering"""
-        print(f"🔍 Using RAG to answer for user {user.username if user else 'Anonymous'}: {user_message[:50]}...")
-        
-        # Build metadata filter
-        # Admin can access everything, users can access their own + global
+
+        print(f"🔎 RAG query: {user_message[:60]}")
+
+        # ---------- Metadata filter ----------
         search_filter = None
+
         if user and not user.is_superuser:
             search_filter = {
                 "$or": [
@@ -79,148 +104,144 @@ class AIService:
                     {"is_global": {"$eq": True}}
                 ]
             }
-        # If user is admin (is_superuser), search_filter remains None
-        
-        # Perform similarity search
+
+        # ---------- Similarity search ----------
         try:
-            print(f"DEBUG: Starting similarity search for {user_message[:20]}...")
             if search_filter:
-                docs = self.db.similarity_search_with_score(user_message, k=8, filter=search_filter)
+                docs = self.db.similarity_search_with_score(
+                    user_message, k=8, filter=search_filter
+                )
             else:
                 docs = self.db.similarity_search_with_score(user_message, k=8)
-            print(f"DEBUG: Similarity search complete. Found {len(docs) if docs else 0} documents.")
+
         except Exception as e:
-            print(f"Filter error (falling back to no filter): {e}")
+            print(f"Filter failed, fallback search: {e}")
             docs = self.db.similarity_search_with_score(user_message, k=8)
-        
-        if not docs or len(docs) == 0:
-            return "I couldn't find relevant information in the library. Please upload documents."
-        
-        # Build context
-        context_parts = []
-        for i, (doc, score) in enumerate(docs):
-            source = doc.metadata.get('source_file', 'Unknown')
-            context_parts.append(doc.page_content)
-        
-        context = "\n\n".join(context_parts)
-        print("DEBUG: Context built. Invoking LLM...")
-        
-        prompt = f"""Answer the question using ONLY the context provided below.
+
+        if not docs:
+            return "This information is not available in the provided documents."
+
+        # ---------- Relevance filtering ----------
+        filtered_docs = [
+            doc for doc, score in docs
+            if score >= RELEVANCE_THRESHOLD
+        ]
+
+        if not filtered_docs:
+            return "This information is not available in the provided documents."
+
+        # ---------- Build context ----------
+        context = "\n\n".join(d.page_content for d in filtered_docs)
+
+        # ---------- STRICT PROMPT ----------
+        prompt = f"""
+You are a question-answering assistant.
+
+STRICT RULES:
+- Answer ONLY using the information from the context below.
+- DO NOT use outside knowledge.
+- DO NOT guess or infer.
+- If the answer is not explicitly stated in the context,
+  respond EXACTLY with:
+  "This information is not available in the provided documents."
+
 Context:
 {context}
 
 Question: {user_message}
-Answer:"""
-        
-        response = self.llm.invoke(prompt)
-        print("DEBUG: LLM response received.")
-        return response
-    
+
+Answer:
+"""
+
+        return self.llm.invoke(prompt)
+
+    # -------------------------------------------------
+    # Simple LLM (No RAG)
+    # -------------------------------------------------
+
     def _generate_simple_response(self, user_message):
-        """Generate simple response without RAG"""
         prompt = f"Question: {user_message}\nAnswer:"
         return self.llm.invoke(prompt)
-    
+
+    # -------------------------------------------------
+    # Document Ingestion
+    # -------------------------------------------------
+
     def ingest_documents(self, file_paths, user=None, is_global=False):
-        """
-        Ingest documents into the vector database with ownership info
-        """
+
         try:
-            if not os.path.exists(BOOK_DIR):
-                os.makedirs(BOOK_DIR)
-            
+            os.makedirs(BOOK_DIR, exist_ok=True)
+
             docs = []
+
             for file_path in file_paths:
                 filename = os.path.basename(file_path)
+
                 if filename.lower().endswith(".pdf"):
                     loader = PyPDFLoader(file_path)
                 else:
                     loader = TextLoader(file_path, encoding="utf-8")
-                
-                loaded = loader.load()
-                for d in loaded:
-                    d.metadata["source_file"] = filename
+
+                loaded_docs = loader.load()
+
+                for d in loaded_docs:
+                    # Lowercase content as per user request
+                    d.page_content = d.page_content.lower()
+                    d.metadata["source_file"] = filename.lower()
                     d.metadata["user_id"] = user.id if user else 0
                     d.metadata["is_global"] = is_global
-                docs.extend(loaded)
-            
+
+                docs.extend(loaded_docs)
+
             if not docs:
                 return False, "No documents loaded."
-            
-            splitter = RecursiveCharacterTextSplitter(chunk_size=600, chunk_overlap=120)
+
+            splitter = RecursiveCharacterTextSplitter(
+                chunk_size=800,
+                chunk_overlap=150
+            )
+
             chunks = splitter.split_documents(docs)
-            
+
             if not self.embeddings:
                 self.embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL)
-            
-            # Reset progress for user
+
             user_id = user.id if user else 0
-            self.progress[user_id] = {"percentage": 0, "current_file": "Initializing..."}
-            
-            # Process in batches to show progress
+            self.progress[user_id] = {"percentage": 0, "file": "Starting"}
+
             batch_size = 5
-            total_chunks = len(chunks)
-            
-            for i in range(0, total_chunks, batch_size):
-                batch = chunks[i:i+batch_size]
-                # Get the source file of the first chunk in batch for tracking
+            total = len(chunks)
+
+            for i in range(0, total, batch_size):
+                batch = chunks[i:i + batch_size]
                 current_file = batch[0].metadata.get("source_file", "Unknown")
-                
+
                 if self.db is None:
-                    # Ensure directory exists and is writable
-                    if not os.path.exists(DB_DIR):
-                        os.makedirs(DB_DIR, exist_ok=True)
-                    
+                    os.makedirs(DB_DIR, exist_ok=True)
+
                     self.db = Chroma.from_documents(
                         documents=batch,
                         embedding=self.embeddings,
                         persist_directory=DB_DIR,
                     )
-                    
-                    # Try to force 777 on the new DB to avoid readonly issues on external drives
-                    try:
-                        for root, dirs, files in os.walk(DB_DIR):
-                            for d in dirs: os.chmod(os.path.join(root, d), 0o777)
-                            for f in files: os.chmod(os.path.join(root, f), 0o777)
-                    except:
-                        pass
                 else:
                     self.db.add_documents(batch)
-                
-                # Update progress
+
+                percent = int(((i + len(batch)) / total) * 100)
+
                 self.progress[user_id] = {
-                    "percentage": int(((i + len(batch)) / total_chunks) * 100),
+                    "percentage": percent,
                     "current_file": current_file
                 }
-            
-            # Reset progress once done
-            # self.progress[user_id] = 100 # Handled by the loop
-            
-            return True, f"Successfully ingested {len(docs)} pages."
-        except Exception as e:
-            print(f"CRITICAL: Ingestion failed: {str(e)}")
-            # Cleanup on failure: Remove physical files and database records
-            from .models import Document
-            for file_path in file_paths:
-                # 1. Remove physical file
-                if os.path.exists(file_path):
-                    try:
-                        os.remove(file_path)
-                        print(f"Cleanup: Removed failed document file: {file_path}")
-                    except:
-                        pass
-                
-                # 2. Remove database record
-                try:
-                    Document.objects.filter(file_path=file_path).delete()
-                    print(f"Cleanup: Removed failed document record for: {file_path}")
-                except:
-                    pass
 
-            if user: 
-                self.progress[user.id] = -1 # Error state
-            return False, f"Error: {str(e)}"
-    
+            return True, f"Ingested {len(docs)} pages."
+
+        except Exception as e:
+            print(f"Ingestion failed: {e}")
+            if user:
+                self.progress[user.id] = -1
+            return False, str(e)
+
     def get_library_info(self, user=None):
         """Get information about the current library for a user"""
         from .models import Document
@@ -241,59 +262,55 @@ Answer:"""
             'owner': doc.user.username if doc.user else 'Global'
         } for doc in docs]
 
+    # -------------------------------------------------
+    # Delete vectors for a file
+    # -------------------------------------------------
+
     def delete_document_vectors(self, filename):
-        """Remove document chunks from the vector database"""
+
         if not self.db:
             self.initialize()
-        
-        if self.db:
-            try:
-                # Delete by filename metadata
-                self.db.delete(where={"source_file": filename})
-                return True
-            except Exception as e:
-                print(f"Error deleting vectors for {filename}: {e}")
-                return False
-        return False
+
+        try:
+            self.db.delete(where={"source_file": filename})
+            return True
+        except Exception as e:
+            print(f"Delete error: {e}")
+            return False
+
+    # -------------------------------------------------
+    # Clear library (selective for users, complete for admin)
+    # -------------------------------------------------
 
     def clear_library(self, user=None):
-        """Clear user's documents (admins can clear all)"""
         from .models import Document
         try:
             if user and user.is_superuser:
                 # Complete reset for admin
                 Document.objects.all().delete()
-                
-                # Close reference to db before deleting files to avoid locks
                 self.db = None
-                
                 if os.path.exists(DB_DIR):
-                    import shutil
-                    import time
-                    # Small delay to ensure any file locks are released
                     time.sleep(0.5)
                     shutil.rmtree(DB_DIR, ignore_errors=True)
-                
                 return True, "Global library and vector database cleared."
             elif user:
                 # Selective clear for regular users
                 user_docs = Document.objects.filter(user=user)
                 for doc in user_docs:
-                    # Remove vectors
                     self.delete_document_vectors(doc.name)
-                    # Remove physical file
                     if os.path.exists(doc.file_path):
                         try:
                             os.remove(doc.file_path)
-                        except Exception as e:
-                            print(f"Error removing file {doc.file_path}: {e}")
-                
+                        except:
+                            pass
                 user_docs.delete()
                 return True, "Your personal library and associated files cleared."
         except Exception as e:
             return False, f"Error clearing library: {str(e)}"
             
         return False, "Unauthorized or invalid user."
+    
 
-# Global instance
+# ================= GLOBAL INSTANCE =================
+
 ai_service = AIService()

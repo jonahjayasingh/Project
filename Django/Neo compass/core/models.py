@@ -7,6 +7,7 @@ class User(AbstractUser):
         ('student', 'Student'),
         ('mentor', 'Mentor'),
         ('hod', 'HOD'),
+        ('alumni', 'Alumni'),
     )
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     is_active = models.BooleanField(default=True)
@@ -108,6 +109,7 @@ class PlacementResource(models.Model):
         return self.title
 
 class Alumni(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='alumni_profile')
     name = models.CharField(max_length=100)
     graduation_year = models.IntegerField()
     current_company = models.CharField(max_length=200)

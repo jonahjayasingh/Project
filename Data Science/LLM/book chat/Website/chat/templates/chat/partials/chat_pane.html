@@ -1,0 +1,125 @@
+<div
+  id="chat-pane-wrapper"
+  hx-on::after-settle="
+    const container = document.getElementById('messages-container');
+    if(container) container.scrollTop = container.scrollHeight;
+    document.body.dispatchEvent(new Event('refreshSidebar'));
+"
+>
+  <header class="chat-header">
+    <h1 class="chat-title">
+      <i class="fas fa-cube"></i>
+      {% if current_conversation %} {{ current_conversation.title }} {% else %}
+      Neural Core Interface {% endif %}
+    </h1>
+    <div class="status-capsule">
+      <div class="status-dot"></div>
+      RAG INFRASTRUCTURE ACTIVE
+    </div>
+  </header>
+
+  <div class="messages-container" id="messages-container">
+    {% if not current_conversation %}
+    <div class="placeholder-content">
+      <div class="placeholder-icon">
+        <i class="fas fa-atom"></i>
+      </div>
+      <h2
+        style="
+          font-size: 1.5rem;
+          font-weight: 800;
+          letter-spacing: 4px;
+          text-transform: uppercase;
+          color: var(--text-tertiary);
+          margin-bottom: 1rem;
+        "
+      >
+        Awaiting Query
+      </h2>
+      <p
+        style="color: var(--text-tertiary); max-width: 400px; line-height: 1.8"
+      >
+        Select a dialogue cycle or initialize a new link to start querying your
+        vectorized knowledge base.
+      </p>
+    </div>
+    {% else %} {% include 'chat/partials/messages.html' %} {% endif %}
+
+    <!-- Inline Processing Indicator -->
+    <div
+      class="message-row assistant processing-indicator htmx-indicator"
+      id="ai-processing"
+    >
+      <div class="msg-avatar ai-gradient">
+        <i class="fas fa-atom"></i>
+      </div>
+      <div class="msg-content">
+        <div class="processing-bubbles">
+          <span></span><span></span><span></span>
+        </div>
+        <div
+          style="
+            font-size: 0.7rem;
+            color: var(--accent-primary);
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-top: 5px;
+          "
+        >
+          NEURAL CORE PROCESSING QUERY...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="input-section">
+    <div class="input-card" id="input-container">
+      <form
+        id="message-form"
+        class="message-form"
+        style="display: flex; width: 100%; gap: 1rem; align-items: flex-end"
+        hx-post="{% if current_conversation %}{% url 'send_message_to_conversation' current_conversation.id %}{% else %}{% url 'send_message' %}{% endif %}"
+        hx-target="#messages-container"
+        hx-swap="beforeend"
+        hx-indicator="#ai-processing"
+        hx-disabled-elt="#message-input, .btn-send"
+        hx-on::before-request="
+                    const input = document.getElementById('message-input');
+                    const container = document.getElementById('messages-container');
+                    if(input.value.trim()) {
+                        const userMsg = `<div class='message-row user temporary-msg'><div class='msg-avatar ua-gradient'><i class='fas fa-fingerprint'></i></div><div class='msg-content'><div class='msg-text'>${input.value.replace(/\n/g, '<br>')}</div></div></div>`;
+                        container.insertAdjacentHTML('beforeend', userMsg);
+                    }
+                    this.classList.add('is-locked'); 
+                    document.getElementById('input-container').style.opacity='0.5'; 
+                    container.scrollTop = container.scrollHeight;
+                "
+        hx-on::after-request="
+                    this.reset(); 
+                    this.classList.remove('is-locked'); 
+                    document.getElementById('input-container').style.opacity='1'; 
+                    document.querySelectorAll('.temporary-msg').forEach(m => m.remove());
+                    setTimeout(() => { document.getElementById('messages-container').scrollTop = document.getElementById('messages-container').scrollHeight; }, 50);
+                "
+        hx-trigger="submit"
+      >
+        {% csrf_token %}
+
+        <textarea
+          name="message"
+          id="message-input"
+          class="chat-textarea"
+          placeholder="Transmit query to neural core..."
+          required
+        ></textarea>
+
+        <button type="submit" class="action-btn btn-send" id="send-btn">
+          <i class="fas fa-arrow-up"></i>
+        </button>
+      </form>
+    </div>
+    <div class="footer-text">
+      CORE PROTOCOL: ENCRYPTED • RETRIEVAL: ENABLED • LOCAL DEPLOYMENT
+    </div>
+  </div>
+</div>

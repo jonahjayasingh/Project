@@ -1,0 +1,44 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row">
+  <div class="col-md-6 mx-auto">
+    <div class="card p-5">
+      <h2 class="fw-bold mb-4">
+        Create <span class="text-gradient">Alumni Profile</span>
+      </h2>
+      <form method="POST">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-bold">Full Name</label>
+          {{ form.name }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Graduation Year</label>
+          {{ form.graduation_year }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Current Company</label>
+          {{ form.current_company }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Domain</label>
+          {{ form.domain }}
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">Bio/Description</label>
+          {{ form.profile_description }}
+        </div>
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary btn-lg">
+            Create Profile
+          </button>
+          <a
+            href="{% url 'add_alumni_post' %}"
+            class="btn btn-outline-secondary"
+            >Go Back</a
+          >
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

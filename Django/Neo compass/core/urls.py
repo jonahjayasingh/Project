@@ -45,12 +45,16 @@ urlpatterns = [
     path('hod/approve-student/<int:profile_id>/', views.hod_approve_student, name='hod_approve_student'),
     path('hod/toggle-user/<int:user_id>/', views.hod_toggle_user, name='hod_toggle_user'),
     path('hod/change-role/<int:user_id>/', views.hod_change_role, name='hod_change_role'),
+    path('hod/graduate-student/<int:user_id>/', views.hod_graduate_student, name='hod_graduate_student'),
+    path('alumni/update-profile/<int:user_id>/', views.update_alumni_profile, name='update_alumni_profile'),
     path('hod/feedback/', views.hod_feedback, name='hod_feedback'),
     path('hod/domains/', views.hod_domains, name='hod_domains'),
     path('hod/domain/<int:domain_id>/allocate/', views.hod_allocate_mentors, name='hod_allocate_mentors'),
     
     # Alumni
     path('alumni/posts/', views.alumni_posts, name='alumni_posts'),
+    path('alumni/posts/add/', views.add_alumni_post, name='add_alumni_post'),
+    path('alumni/add/', views.add_alumni, name='add_alumni'),
     
     # Social
     path('achievement/<int:achievement_id>/like/', views.like_achievement, name='like_achievement'),

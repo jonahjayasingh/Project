@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegistrationForm, StudentProfileForm, DomainForm, ResourceForm, AssignmentForm, AssignmentSubmissionForm, GradeSubmissionForm, QuizForm, AchievementForm, FeedbackForm
+from .forms import RegistrationForm, StudentProfileForm, DomainForm, ResourceForm, AssignmentForm, AssignmentSubmissionForm, GradeSubmissionForm, QuizForm, AchievementForm, FeedbackForm, PostForm, AlumniForm
 from .models import User, StudentProfile, Domain, Resource, Assignment, AssignmentStatus, Quiz, QuizResult, PlacementResource, Alumni, Post, Achievement, Like, Comment, Feedback
 from django.contrib import messages
 from django.utils import timezone
@@ -290,8 +290,11 @@ def mentor_dashboard(request):
 @login_required
 def mentor_students(request):
     if request.user.role != 'mentor': return redirect('home')
-    # Students in domains this mentor manages
-    students = StudentProfile.objects.filter(preferred_domain__mentors=request.user).distinct()
+    # Students and Alumni in domains this mentor manages
+    students = StudentProfile.objects.filter(
+        preferred_domain__mentors=request.user,
+        user__role__in=['student', 'alumni']
+    ).distinct()
     return render(request, 'mentor/students.html', {'students': students})
 
 
@@ -482,6 +485,75 @@ def hod_change_role(request, user_id):
     
     return redirect('hod_users')
 
+@login_required
+def hod_graduate_student(request, user_id):
+    # Allow HOD and Mentors to graduate
+    if request.user.role not in ['hod', 'mentor']:
+        return redirect('home')
+        
+    student_user = get_object_or_404(User, id=user_id)
+    
+    if student_user.role == 'alumni':
+        messages.info(request, f"{student_user.username} is already an Alumni.")
+        return redirect('hod_users' if request.user.role == 'hod' else 'mentor_students')
+        
+    if student_user.role != 'student':
+        messages.error(request, "Only students can be graduated.")
+        return redirect('hod_users' if request.user.role == 'hod' else 'mentor_students')
+
+    profile = student_user.student_profile
+    
+    # Security: Mentors can only graduate students in their domains
+    if request.user.role == 'mentor':
+        if not Domain.objects.filter(mentors=request.user, id=profile.preferred_domain.id).exists():
+            messages.error(request, "Access denied. You can only graduate students in your assigned domains.")
+            return redirect('mentor_students')
+
+    if request.method == 'POST':
+        grad_year = request.POST.get('graduation_year')
+        company = request.POST.get('current_company')
+        description = request.POST.get('description', '')
+        
+        # Create Alumni record
+        Alumni.objects.create(
+            user=student_user,
+            name=f"{student_user.first_name} {student_user.last_name}" if (student_user.first_name or student_user.last_name) else student_user.username,
+            graduation_year=grad_year,
+            current_company=company,
+            domain=profile.preferred_domain,
+            profile_description=description
+        )
+        
+        # Change user role
+        student_user.role = 'alumni'
+        student_user.save()
+        
+        messages.success(request, f"Congratulations! {student_user.username} has been graduated to Alumni.")
+    
+    return redirect('hod_users' if request.user.role == 'hod' else 'mentor_students')
+
+@login_required
+def update_alumni_profile(request, user_id):
+    if request.user.role not in ['hod', 'mentor']:
+        return redirect('home')
+        
+    alumni_user = get_object_or_404(User, id=user_id, role='alumni')
+    alumni_profile = get_object_or_404(Alumni, user=alumni_user)
+    
+    if request.user.role == 'mentor':
+        if not Domain.objects.filter(mentors=request.user, id=alumni_profile.domain.id).exists():
+            messages.error(request, "Access denied. You can only edit alumni in your assigned domains.")
+            return redirect('mentor_students')
+
+    if request.method == 'POST':
+        alumni_profile.graduation_year = request.POST.get('graduation_year')
+        alumni_profile.current_company = request.POST.get('current_company')
+        alumni_profile.profile_description = request.POST.get('description', '')
+        alumni_profile.save()
+        
+        messages.success(request, f"Profile for {alumni_user.username} updated successfully.")
+        
+    return redirect('hod_users' if request.user.role == 'hod' else 'mentor_students')
 
 
 @login_required
@@ -518,6 +590,35 @@ def hod_allocate_mentors(request, domain_id):
 def alumni_posts(request):
     posts = Post.objects.all().order_by('-created_at')
     return render(request, 'alumni/posts.html', {'posts': posts})
+
+@login_required
+def add_alumni_post(request):
+    # Allow HOD and Mentors to add posts, or anyone for now if role checking is not strictly required
+    if request.method == 'POST':
+        form = PostForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Alumni insight posted successfully.')
+            return redirect('alumni_posts')
+    else:
+        form = PostForm()
+    return render(request, 'alumni/add_post.html', {'form': form})
+
+@login_required
+def add_alumni(request):
+    if request.user.role not in ['hod', 'mentor']:
+        messages.error(request, "Only HODs and Mentors can manage alumni profiles.")
+        return redirect('alumni_posts')
+        
+    if request.method == 'POST':
+        form = AlumniForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Alumni profile created successfully.')
+            return redirect('add_alumni_post')
+    else:
+        form = AlumniForm()
+    return render(request, 'alumni/add_alumni.html', {'form': form})
 
 # --- FEEDBACK ---
 @login_required

@@ -1,5 +1,14 @@
 {% extends 'base.html' %} {% block content %}
-<h1 class="fw-bold mb-5">Alumni <span class="text-gradient">Insights</span></h1>
+<div class="d-flex justify-content-between align-items-center mb-5">
+  <h1 class="fw-bold mb-0">
+    Alumni <span class="text-gradient">Insights</span>
+  </h1>
+  {% if user.role == 'hod' or user.role == 'mentor' %}
+  <a href="{% url 'add_alumni_post' %}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-2"></i>Add New Post
+  </a>
+  {% endif %}
+</div>
 <div class="row">
   <div class="col-md-8 mx-auto">
     {% for post in posts %}

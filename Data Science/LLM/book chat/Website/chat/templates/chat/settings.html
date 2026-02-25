@@ -137,7 +137,8 @@
                                         <span style="font-weight: 800; font-size: 1.05rem;">{{ book.name }}</span>
                                         <div style="display: flex; align-items: center; gap: 1.5rem;">
                                             <span class="pill-badge"
-                                                style="padding: 6px 14px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-radius: 100px; {% if book.is_global %}background: var(--grad-accent); color: #fff;{% else %}background: rgba(255,255,255,0.08); color: var(--text-secondary);{% endif %}">
+                                                style="padding: 6px 14px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; border-radius: 100px; 
+                                                {% if book.is_global %}background: var(--grad-accent); color: #fff;{% else %}background: rgba(255,255,255,0.08); color: var(--text-secondary);{% endif %}">
                                                 {{ book.is_global|yesno:"Global,Link-Locked" }}
                                             </span>
 

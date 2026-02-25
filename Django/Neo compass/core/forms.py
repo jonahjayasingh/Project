@@ -134,3 +134,23 @@ class FeedbackForm(forms.ModelForm):
             'domain': 'Domain',
             'comment': 'Your Feedback',
         }
+class PostForm(forms.ModelForm):
+    class Meta:
+        model = Post
+        fields = ['alumni', 'title', 'content']
+        widgets = {
+            'alumni': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter post title'}),
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Share your insights...'}),
+        }
+class AlumniForm(forms.ModelForm):
+    class Meta:
+        model = Alumni
+        fields = ['name', 'graduation_year', 'current_company', 'domain', 'profile_description']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Full Name'}),
+            'graduation_year': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Graduation Year (e.g. 2020)'}),
+            'current_company': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Current Company'}),
+            'domain': forms.Select(attrs={'class': 'form-select'}),
+            'profile_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Bio/Description'}),
+        }
