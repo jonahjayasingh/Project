@@ -1,0 +1,119 @@
+{% extends 'base.html' %} {% block title %}Manage Portfolio - {{ service.name
+}}{% endblock %} {% block content %}
+<div class="row align-items-center mb-5 animate-up">
+  <div class="col-md-8">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item">
+          <a
+            href="{% url 'services:admin_services' %}"
+            class="text-primary text-decoration-none"
+            >Admin Services</a
+          >
+        </li>
+        <li class="breadcrumb-item active">Portfolio Management</li>
+      </ol>
+    </nav>
+    <h2
+      class="fw-bold mb-0"
+      style="font-family: &quot;Playfair Display&quot;, serif"
+    >
+      Showcase: {{ service.name }}
+    </h2>
+    <p class="text-muted">
+      Upload and manage visual evidence of your premium work
+    </p>
+  </div>
+</div>
+
+<div class="row g-4 animate-up delay-1">
+  <!-- Upload Side -->
+  <div class="col-lg-4">
+    <div
+      class="card border-0 shadow-sm rounded-4 p-4 sticky-top"
+      style="top: 100px"
+    >
+      <h4
+        class="fw-bold mb-4"
+        style="font-family: &quot;Playfair Display&quot;, serif"
+      >
+        Add Past Work
+      </h4>
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label small fw-bold text-uppercase"
+            >Project Image</label
+          >
+          {{ form.image }}
+        </div>
+        <div class="mb-5">
+          <label class="form-label small fw-bold text-uppercase"
+            >Short Caption</label
+          >
+          {{ form.caption }}
+        </div>
+        <button
+          type="submit"
+          class="btn btn-premium w-100 py-3 rounded-pill shadow-sm"
+        >
+          Upload to Showcase <i class="bi bi-cloud-arrow-up ms-1"></i>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Gallery Side -->
+  <div class="col-lg-8">
+    <div class="card border-0 shadow-sm rounded-4 p-4">
+      <h5 class="fw-bold mb-4">Active Showcase Gallery</h5>
+      <div class="row g-3">
+        {% for item in portfolios %}
+        <div class="col-md-4">
+          <div
+            class="position-relative group rounded-4 overflow-hidden shadow-sm"
+            style="height: 180px"
+          >
+            <img
+              src="{{ item.image.url }}"
+              class="w-100 h-100"
+              style="object-fit: cover"
+            />
+            <div
+              class="position-absolute inset-0 bg-dark opacity-0 transition-all d-flex align-items-center justify-content-center flex-column p-2 text-center text-white"
+              style="transition: opacity 0.3s ease"
+            >
+              <p class="small mb-2 fw-bold">
+                {{ item.caption|default:"Past Work" }}
+              </p>
+              <a
+                href="{% url 'services:service_portfolio_delete' item.pk %}"
+                class="btn btn-danger btn-sm rounded-pill px-3"
+                onclick="return confirm('Remove this image from portfolio?');"
+              >
+                <i class="bi bi-trash small"></i> Remove
+              </a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="col-12 py-5 text-center">
+          <div class="bg-light rounded-circle d-inline-block p-4 mb-3">
+            <i class="bi bi-images fs-1 text-muted"></i>
+          </div>
+          <p class="text-muted">
+            No portfolio items found. Upload your first masterpiece!
+          </p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .group:hover .bg-dark {
+    opacity: 0.7 !important;
+  }
+</style>
+{% endblock %}

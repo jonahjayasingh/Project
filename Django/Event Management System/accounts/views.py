@@ -75,11 +75,19 @@ def admin_dashboard_view(request):
     """
     Admin dashboard view.
     """
-    from vendors.models import Vendor
-    
-    vendors = Vendor.objects.all()
+    from events.models import Event
+    from food.models import MenuItem
+    from services.models import Service
+
+    events = Event.objects.all()
+    menu_items = MenuItem.objects.all()
+    services = Service.objects.all()
+
     context = {
-        'vendors_count': vendors.count(),
+        'events_count': events.count(),
+        'menu_items_count': menu_items.count(),
+        'services_count': services.count(),
+        'recent_events': events.order_by('-created_at')[:5],
     }
     return render(request, 'accounts/admin_dashboard.html', context)
 
@@ -90,17 +98,11 @@ def client_dashboard_view(request):
     Client dashboard view.
     """
     from events.models import Event
-    from bookings.models import Booking
-    from guests.models import Guest
     
-    events = Event.objects.filter(created_by=request.user)
-    bookings = Booking.objects.filter(event__created_by=request.user)
-    guests = Guest.objects.filter(event__created_by=request.user)
+    events = Event.objects.filter(client=request.user)
     
     context = {
         'events_count': events.count(),
-        'bookings_count': bookings.count(),
-        'guests_count': guests.count(),
-        'recent_events': events[:5],
+        'recent_events': events.order_by('-created_at')[:5],
     }
     return render(request, 'accounts/client_dashboard.html', context)

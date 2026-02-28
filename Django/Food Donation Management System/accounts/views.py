@@ -67,19 +67,29 @@ def dashboard_redirect(request):
 
 @login_required
 def update_location(request):
-    """Update user location (for volunteers and NGOs)"""
+    """Update user location (for volunteers and NGOs) and email"""
     if request.method == 'POST':
         address = request.POST.get('address')
         latitude = request.POST.get('latitude')
         longitude = request.POST.get('longitude')
+        email = request.POST.get('email')
         
         user = request.user
+        
+        # Update email if provided and different
+        if email and email != user.email:
+            from .models import CustomUser
+            if CustomUser.objects.filter(email=email).exclude(id=user.id).exists():
+                messages.error(request, "This email is already in use by another account.")
+                return render(request, 'accounts/update_location.html')
+            user.email = email
+            
         user.address = address
         user.latitude = latitude if latitude else None
         user.longitude = longitude if longitude else None
         user.save()
         
-        messages.success(request, "Your location has been updated successfully!")
+        messages.success(request, "Your profile has been updated successfully!")
         return redirect('dashboard')
     
     return render(request, 'accounts/update_location.html')

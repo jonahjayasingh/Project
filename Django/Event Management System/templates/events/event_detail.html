@@ -1,183 +1,290 @@
-{% extends 'base.html' %}
-
-{% block title %}{{ event.name }} - Event Details{% endblock %}
-
-{% block content %}
-<div class="row mb-4">
-    <div class="col">
-        <h1 class="text-white">
-            <i class="bi bi-calendar-event"></i> {{ event.name }}
-        </h1>
+{% extends 'base.html' %} {% block title %}Event Ledger -
+Kalyanakumar{%endblock%} {% block content %}
+<div class="row mb-5 align-items-center animate-up">
+  <div class="col-md-8">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-2">
+        <li class="breadcrumb-item">
+          <a
+            href="{% url 'accounts:dashboard' %}"
+            class="text-primary text-decoration-none"
+            >Dashboard</a
+          >
+        </li>
+        <li class="breadcrumb-item active">Ledger Details</li>
+      </ol>
+    </nav>
+    <h1
+      class="fw-bold display-4 mb-2"
+      style="font-family: &quot;Playfair Display&quot;, serif"
+    >
+      Event Planning
+      <span class="text-primary-emphasis opacity-50">Ledger</span>
+    </h1>
+    <p class="text-muted fs-5">
+      Everything you need to manage your special occasion.
+    </p>
+  </div>
+  <div class="col-md-4 text-md-end">
+    <div class="dropdown">
+      <button
+        class="btn btn-outline-dark rounded-pill px-4 py-2 dropdown-toggle"
+        data-bs-toggle="dropdown"
+      >
+        Manage Event
+      </button>
+      <ul
+        class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 p-2"
+      >
+        <li>
+          <a
+            class="dropdown-item rounded-3"
+            href="{% url 'events:event_update' event.pk %}"
+            ><i class="bi bi-pencil me-2 text-primary"></i>Modify Details</a
+          >
+        </li>
+        <li><hr class="dropdown-divider" /></li>
+        <li>
+          <a
+            class="dropdown-item rounded-3 text-danger"
+            href="{% url 'events:event_delete' event.pk %}"
+            ><i class="bi bi-trash me-2"></i>Cancel Booking</a
+          >
+        </li>
+      </ul>
     </div>
-    <div class="col-auto">
-        <a href="{% url 'events:event_update' event.pk %}" class="btn btn-warning">
-            <i class="bi bi-pencil"></i> Edit
-        </a>
-        <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-danger">
-            <i class="bi bi-trash"></i> Delete
-        </a>
-    </div>
+  </div>
 </div>
 
 <div class="row g-4">
-    <!-- Event Details -->
-    <div class="col-md-8">
-        <div class="card mb-4">
-            <div class="card-header bg-white">
-                <h5 class="mb-0"><i class="bi bi-info-circle"></i> Event Information</h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <strong><i class="bi bi-calendar"></i> Date:</strong>
-                        <p>{{ event.date }}</p>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong><i class="bi bi-geo-alt"></i> Venue:</strong>
-                        <p>{{ event.venue }}</p>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <strong><i class="bi bi-people"></i> Expected Guests:</strong>
-                        <p>{{ event.expected_guests }}</p>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <p><span class="badge bg-success fs-6">Rs. {{ event.budget }}</span></p>
-                    </div>
-                </div>
-            </div>
+  <!-- Main Info -->
+  <div class="col-lg-8 animate-up delay-1">
+    <div class="card border-0 shadow-sm rounded-5 overflow-hidden mb-4">
+      <div class="row g-0">
+        <div class="col-md-4">
+          {% if event.event_type.image %}
+          <img
+            src="{{ event.event_type.image.url }}"
+            class="h-100 w-100"
+            style="object-fit: cover"
+          />
+          {% else %}
+          <div
+            class="bg-primary h-100 d-flex align-items-center justify-content-center text-white p-5"
+          >
+            <i class="bi bi-balloon-heart display-1"></i>
+          </div>
+          {% endif %}
         </div>
-
-        <!-- Vendor Bookings -->
-        <div class="card mb-4">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-bookmark-check"></i> Vendor Bookings</h5>
-                <a href="{% url 'bookings:booking_create' %}" class="btn btn-sm btn-primary">
-                    <i class="bi bi-plus"></i> Book Vendor
-                </a>
+        <div class="col-md-8 p-5">
+          <div class="d-flex justify-content-between align-items-start mb-4">
+            <div>
+              <span
+                class="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 small mb-3 text-uppercase fw-bold"
+                >{{ event.event_type.name }}</span
+              >
+              <h2
+                class="fw-bold mb-1 text-dark"
+                style="font-family: &quot;Playfair Display&quot;, serif"
+              >
+                {{ event.client_name }}
+              </h2>
+              <p class="text-muted mb-0 fs-5">
+                <i class="bi bi-geo-alt-fill me-2 text-primary"></i
+                >{{event.venue_location }}
+              </p>
             </div>
-            <div class="card-body">
-                {% if bookings %}
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Vendor</th>
-                                <th>Category</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for booking in bookings %}
-                            <tr>
-                                <td>{{ booking.vendor.name }}</td>
-                                <td>{{ booking.vendor.category }}</td>
-                                <td>Rs. {{ booking.price }}</td>
-                                <td><span class="badge bg-success">{{ booking.status }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+            <div class="text-end">
+              <span
+                class="badge {% if event.status == 'CONFIRMED' %}bg-success text-white{% elif event.status == 'PENDING' %}bg-warning text-dark{% else %}bg-dark text-white{% endif %} px-4 py-2 rounded-pill shadow-sm"
+              >
+                {{ event.status }}
+              </span>
+            </div>
+          </div>
+
+          <div class="row g-4 pt-4 border-top">
+            <div class="col-6">
+              <div
+                class="small text-muted text-uppercase fw-bold tracking-widest mb-1"
+              >
+                Function Date
+              </div>
+              <div class="h5 fw-bold mb-0 text-dark">
+                {{ event.date|date:"l, M d, Y" }}
+              </div>
+            </div>
+            <div class="col-6">
+              <div
+                class="small text-muted text-uppercase fw-bold tracking-widest mb-1"
+              >
+                Contact Details
+              </div>
+              <div class="h5 fw-bold mb-0 text-dark">
+                {{ event.client_phone }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Order Selections (Placeholder logic for what's active in the event) -->
+    <div class="card border-0 shadow-sm rounded-5 p-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4
+          class="fw-bold mb-0"
+          style="font-family: &quot;Playfair Display&quot;, serif"
+        >
+          Service Selections
+        </h4>
+        <div class="d-flex gap-2">
+          <a
+            href="{% url 'food:menu_list' %}?event_id={{ event.id }}"
+            class="btn btn-light rounded-pill btn-sm px-3"
+            ><i class="bi bi-egg-fried me-1 text-primary"></i>Add Food</a
+          >
+          <a
+            href="{% url 'services:service_list' %}?event_id={{ event.id }}"
+            class="btn btn-light rounded-pill btn-sm px-3"
+            ><i class="bi bi-star me-1 text-primary"></i>Add Service</a
+          >
+        </div>
+      </div>
+
+      <div class="row g-4">
+        {% for selection in event.selections.all %}
+        <div class="col-md-6">
+          <div class="card border-0 bg-light rounded-4 p-3 h-100">
+            <div class="d-flex align-items-center">
+              <div class="flex-shrink-0 me-3">
+                {% if selection.food_item %}
+                <div class="bg-success-subtle text-success p-3 rounded-3">
+                  <i class="bi bi-egg-fried fs-4"></i>
                 </div>
                 {% else %}
-                <p class="text-muted text-center mb-0">No vendor bookings yet.</p>
+                <div class="bg-primary-subtle text-primary p-3 rounded-3">
+                  <i
+                    class="bi bi-{{ selection.service_item.icon|default:'stars' }} fs-4"
+                  ></i>
+                </div>
                 {% endif %}
-            </div>
-        </div>
-
-        <!-- Guest List -->
-        <div class="card">
-            <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                <h5 class="mb-0"><i class="bi bi-people"></i> Guest List</h5>
-                <a href="{% url 'guests:guest_create' %}" class="btn btn-sm btn-primary">
-                    <i class="bi bi-plus"></i> Add Guest
-                </a>
-            </div>
-            <div class="card-body">
-                {% if guests %}
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Contact</th>
-                                <th>Category</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for guest in guests %}
-                            <tr>
-                                <td>{{ guest.name }}</td>
-                                <td>{{ guest.contact }}</td>
-                                <td><span class="badge bg-info">{{ guest.category }}</span></td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+              </div>
+              <div class="flex-grow-1">
+                <div
+                  class="small text-muted text-uppercase fw-bold opacity-75 mb-1"
+                  style="font-size: 0.7rem"
+                >
+                  {% if selection.food_item %}Cuisine Selection{% else %}Premium
+                  Service{% endif %}
                 </div>
-                {% else %}
-                <p class="text-muted text-center mb-0">No guests added yet.</p>
-                {% endif %}
+                <h6 class="fw-bold mb-0 text-dark">
+                  {% if selection.food_item %}{{ selection.food_item.name }} {%else %}{{ selection.service_item.name }}{% endif %}
+                </h6>
+                <p class="small text-muted mb-0">
+                  Qty: {{ selection.quantity }} × ₹{{ selection.unit_price }}
+                </p>
+              </div>
+              <div class="text-end">
+                <div class="fw-bold text-dark">
+                  ₹{{ selection.total_price }}
+                </div>
+              </div>
             </div>
+          </div>
         </div>
+        {% empty %}
+        <div class="col-12 text-center py-5 bg-light rounded-5">
+          <i
+            class="bi bi-box-seam display-2 text-muted opacity-25 mb-3 d-block"
+          ></i>
+          <h5 class="fw-bold text-dark">No Selections Yet</h5>
+          <p class="text-muted mx-auto mb-4" style="max-width: 400px">
+            Start adding your favorite menus and services to build your event's
+            ledger.
+          </p>
+          <div class="d-flex gap-2 justify-content-center">
+            <a
+              href="{% url 'food:menu_list' %}"
+              class="btn btn-sm btn-outline-primary rounded-pill px-4"
+              >Browse Food</a
+            >
+            <a
+              href="{% url 'services:service_list' %}"
+              class="btn btn-sm btn-outline-primary rounded-pill px-4"
+              >Browse Services</a
+            >
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Sidebar Info -->
+  <div class="col-lg-4 animate-up delay-2">
+    <div class="card border-0 shadow-lg rounded-5 p-5 mb-4 bg-white">
+      <h4
+        class="fw-bold mb-4"
+        style="font-family: &quot;Playfair Display&quot;, serif"
+      >
+        Payment Summary
+      </h4>
+
+      <div class="d-flex justify-content-between mb-3 text-muted">
+        <span>Total Estimated Cost</span>
+        <span class="fw-bold text-dark">₹{{ event.total_cost }}</span>
+      </div>
+
+      <div class="d-flex justify-content-between mb-3 text-muted">
+        <span>Advance Payments</span>
+        <span class="fw-bold text-success">₹{{ event.advance_paid }}</span>
+      </div>
+
+      <hr class="opacity-10 my-4" />
+
+      <div class="d-flex justify-content-between mb-5">
+        <span class="fs-4 fw-bold">Due Balance</span>
+        <span class="fs-4 fw-bold text-danger"
+          >₹{{ event.remaining_balance }}</span
+        >
+      </div>
+
+      {% if event.remaining_balance > 0 %}
+      <a
+        href="{% url 'payments:pay_now' event.id %}"
+        class="btn btn-premium w-100 py-3 rounded-pill fs-5 shadow-xl"
+      >
+        Pay Securely <i class="bi bi-credit-card-2-back-fill ms-2 small"></i>
+      </a>
+      {% else %}
+      <div class="alert alert-success border-0 rounded-4 text-center py-3">
+        <i class="bi bi-patch-check-fill me-2 fs-5"></i> Ledger Fully Cleared
+      </div>
+      {% endif %}
     </div>
 
-    <!-- Budget Tracker -->
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0"><i class="bi bi-calculator"></i> Budget Tracker</h5>
-            </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <small class="text-muted">Total Budget</small>
-                    <h4 class="text-success">Rs. {{ event.budget }}</h4>
-                </div>
-
-                <div class="mb-3">
-                    <small class="text-muted">Total Bookings Cost</small>
-                    <h4 class="text-danger">- Rs. {{ total_bookings }}</h4>
-                </div>
-
-                <hr>
-
-                <div>
-                    <small class="text-muted">Remaining Balance</small>
-                    <h3 class="{% if remaining_budget >= 0 %}text-success{% else %}text-danger{% endif %}">
-                        Rs. {{ remaining_budget }}
-                    </h3>
-                    {% if remaining_budget < 0 %} <small class="text-danger">
-                        <i class="bi bi-exclamation-triangle"></i> Over budget!
-                        </small>
-                        {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <div class="card mt-3">
-            <div class="card-header bg-white">
-                <h6 class="mb-0"><i class="bi bi-bar-chart"></i> Budget Breakdown</h6>
-            </div>
-            <div class="card-body">
-                <div class="progress mb-2" style="height: 25px;">
-                    {% widthratio total_bookings event.budget 100 as percentage %}
-                    <div class="progress-bar {% if percentage > 100 %}bg-danger{% else %}bg-primary{% endif %}"
-                        role="progressbar"
-                        style="width: {% if percentage > 100 %}100{% else %}{{ percentage }}{% endif %}%">
-                        {{ percentage }}%
-                    </div>
-                </div>
-                <small class="text-muted">Budget utilized</small>
-            </div>
-        </div>
+    {% if event.status == 'COMPLETED' %}
+    <div
+      class="card border-0 shadow-sm rounded-5 p-5 bg-dark text-white text-center"
+    >
+      <h4
+        class="fw-bold mb-3"
+        style="font-family: &quot;Playfair Display&quot;, serif"
+      >
+        Share the Joy
+      </h4>
+      <p class="opacity-75 mb-5 small">
+        We'd love to hear how your {{ event.event_type.name }} experience was.
+      </p>
+      <a
+        href="{% url 'feedback:submit' event.id %}"
+        class="btn btn-outline-primary rounded-pill w-100 py-3 text-white border-white"
+      >
+        Submit Feedback <i class="bi bi-heart-fill ms-2 small"></i>
+      </a>
     </div>
-</div>
-
-<div class="row mt-4">
-    <div class="col">
-        <a href="{% url 'events:event_list' %}" class="btn btn-secondary">
-            <i class="bi bi-arrow-left"></i> Back to Events
-        </a>
-    </div>
+    {% endif %}
+  </div>
 </div>
 {% endblock %}

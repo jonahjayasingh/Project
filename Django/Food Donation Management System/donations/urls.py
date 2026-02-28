@@ -30,4 +30,7 @@ urlpatterns = [
     # General URLs
     path('list/', views.donation_list, name='donation_list'),
     path('history/', views.donation_history, name='donation_history'),
+    path('track-status/<int:donation_id>/', views.track_status, name='track_status'),
+    path('admin/archive/', views.manage_archived, name='manage_archived'),
+    path('admin/archive/restore/<int:donation_id>/', views.restore_donation, name='restore_donation'),
 ]

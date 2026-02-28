@@ -1,0 +1,84 @@
+{% extends 'base.html' %} {% block title %}{{ title }} - Admin{% endblock %} {%block content %}
+<div class="row justify-content-center animate-up">
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="bg-dark p-4 text-white">
+        <h3
+          class="fw-bold mb-0"
+          style="font-family: &quot;Playfair Display&quot;, serif"
+        >
+          {{ title }}
+        </h3>
+        <p class="small opacity-75 mb-0">
+          Define professional services and add-ons
+        </p>
+      </div>
+
+      <div class="card-body p-5">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row g-4">
+            <div class="col-md-7">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Service Name</label
+                >
+                {{ form.name }}
+              </div>
+            </div>
+            <div class="col-md-5">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Icon Identifier</label
+                >
+                <div class="input-group">
+                  <span class="input-group-text bg-light border-0">bi-</span>
+                  {{ form.icon }}
+                </div>
+                <div class="form-text x-small">
+                  Use Bootstrap Icons (e.g., 'camera', 'music-note')
+                </div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Starting Price (₹)</label
+                >
+                {{ form.base_price }}
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Service Scope & Description</label
+                >
+                {{ form.description }}
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-5 opacity-10" />
+
+          <div class="d-flex gap-3">
+            <button
+              type="submit"
+              class="btn btn-premium px-5 rounded-pill shadow-sm"
+            >
+              Save Service Plan
+            </button>
+            <a
+              href="{% url 'services:admin_services' %}"
+              class="btn btn-light px-4 rounded-pill"
+              >Cancel</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

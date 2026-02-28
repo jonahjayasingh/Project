@@ -1,165 +1,368 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block title %}Donor Dashboard | Smart
+Food{%endblock %} {% block content %}
+<style>
+  .dashboard-header {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 24px;
+    padding: 3rem;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    color: white;
+  }
 
-{% block title %}Donor Dashboard{% endblock %}
+  .dashboard-header::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(
+      circle,
+      rgba(79, 70, 229, 0.2) 0%,
+      transparent 70%
+    );
+    border-radius: 50%;
+  }
 
-{% block content %}
-<div class="row align-items-center mb-5">
-    <div class="col">
-        <h1 class="display-5 fw-bold text-dark">Welcome back, {{ user.username }}!</h1>
-        <p class="text-muted lead">Track your impact and manage your contributions.</p>
+  .stat-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 20px;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  .action-card {
+    border-radius: 24px;
+    border: none;
+    overflow: hidden;
+    position: relative;
+    height: 100%;
+    transition: all 0.3s ease;
+  }
+
+  .action-card:hover {
+    transform: scale(1.02);
+  }
+
+  .icon-box {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .table-container {
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    overflow: hidden;
+  }
+
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .status-pending {
+    background: #fff7ed;
+    color: #9a3412;
+  }
+  .status-accepted {
+    background: #ecfeff;
+    color: #0891b2;
+  }
+  .status-picked {
+    background: #eef2ff;
+    color: #4338ca;
+  }
+  .status-delivered {
+    background: #f0fdf4;
+    color: #166534;
+  }
+  .status-rejected {
+    background: #fef2f2;
+    color: #991b1b;
+  }
+
+  .avatar-stack {
+    display: flex;
+    align-items: center;
+  }
+
+  .avatar-item {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid white;
+    margin-left: -8px;
+  }
+
+  .avatar-item:first-child {
+    margin-left: 0;
+  }
+</style>
+
+<div class="dashboard-header animate__animated animate__fadeIn">
+  <div class="row align-items-center">
+    <div class="col-lg-8 text-center text-lg-start">
+      <span
+        class="badge bg-primary-subtle text-primary mb-3 px-3 py-2 rounded-pill fw-bold"
+        >DASHBOARD OVERVIEW</span
+      >
+      <h1 class="display-4 fw-800 mb-2">Welcome back, {{ user.username }}!</h1>
+      <p class="lead opacity-75 mb-0">
+        You've helped feed hundreds with your generous contributions.
+      </p>
     </div>
-    <div class="col-auto">
-        <a href="{% url 'create_donation' %}" class="btn btn-primary d-flex align-items-center">
-            <i class="bi bi-plus-circle me-2"></i> Create New Donation
-        </a>
+    <div class="col-lg-4 text-center text-lg-end mt-4 mt-lg-0">
+      <a
+        href="{% url 'create_donation' %}"
+        class="btn btn-primary btn-lg px-5 py-3 shadow-lg rounded-pill"
+      >
+        <i class="bi bi-plus-lg me-2"></i> New Donation
+      </a>
     </div>
+  </div>
+
+  <!-- Quick Stats Over Header -->
+  <div class="row g-4 mt-4">
+    <div class="col-md-4">
+      <div class="stat-card bg-white bg-opacity-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-white opacity-75 fw-600">Pending Approval</span>
+          <i class="bi bi-clock-history text-warning fs-4"></i>
+        </div>
+        <h2 class="fw-bold mb-0">{{ pending_count }}</h2>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card bg-white bg-opacity-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-white opacity-75 fw-600">Active Donations</span>
+          <i class="bi bi-arrow-repeat text-info fs-4"></i>
+        </div>
+        <h2 class="fw-bold mb-0">{{ accepted_count }}</h2>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="stat-card bg-white bg-opacity-10 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="text-white opacity-75 fw-600">Total Delivered</span>
+          <i class="bi bi-check2-circle text-success fs-4"></i>
+        </div>
+        <h2 class="fw-bold mb-0">{{ delivered_count }}</h2>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Statistics Cards -->
 <div class="row g-4 mb-5">
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 hover-lift">
-            <div class="card-body p-4 text-center">
-                <div class="mb-3">
-                    <i class="bi bi-clock text-warning" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="fw-bold mb-1">{{ pending_count }}</h3>
-                <p class="text-muted mb-0">Pending</p>
-            </div>
-        </div>
+  <div class="col-md-6">
+    <div
+      class="action-card shadow-sm p-4"
+      style="background: white; border: 1px solid #e2e8f0"
+    >
+      <div class="icon-box bg-primary-subtle text-primary">
+        <i class="bi bi-robot"></i>
+      </div>
+      <h4 class="fw-bold mb-2">AI Smart Donation</h4>
+      <p class="text-muted mb-4">
+        The easiest way to donate. Just tell our AI what you have, and it will
+        handle the rest!
+      </p>
+      <a
+        href="{% url 'chatbot' %}"
+        class="btn btn-outline-primary rounded-pill px-4"
+      >
+        Talk to Assistant <i class="bi bi-arrow-right ms-2"></i>
+      </a>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 hover-lift">
-            <div class="card-body p-4 text-center">
-                <div class="mb-3">
-                    <i class="bi bi-check-circle text-info" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="fw-bold mb-1">{{ accepted_count }}</h3>
-                <p class="text-muted mb-0">Accepted</p>
-            </div>
-        </div>
+  </div>
+  <div class="col-md-6">
+    <div
+      class="action-card shadow-sm p-4"
+      style="background: white; border: 1px solid #e2e8f0"
+    >
+      <div class="icon-box bg-success-subtle text-success">
+        <i class="bi bi-geo-alt"></i>
+      </div>
+      <h4 class="fw-bold mb-2">Update Your Location</h4>
+      <p class="text-muted mb-4">
+        Make sure your pickup location is accurate to help our volunteers find
+        you faster.
+      </p>
+      <a
+        href="{% url 'update_location' %}"
+        class="btn btn-outline-success rounded-pill px-4"
+      >
+        Manage Location <i class="bi bi-map ms-2"></i>
+      </a>
     </div>
-    <div class="col-md-4">
-        <div class="card border-0 shadow-sm rounded-4 hover-lift">
-            <div class="card-body p-4 text-center">
-                <div class="mb-3">
-                    <i class="bi bi-trophy text-success" style="font-size: 2.5rem;"></i>
-                </div>
-                <h3 class="fw-bold mb-1">{{ delivered_count }}</h3>
-                <p class="text-muted mb-0">Delivered</p>
-            </div>
-        </div>
-    </div>
+  </div>
 </div>
 
-<!-- Quick Actions -->
-<div class="row g-4 mb-5">
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm rounded-4 bg-gradient"
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-            <div class="card-body p-4 text-white">
-                <div class="d-flex align-items-center mb-3">
-                    <i class="bi bi-robot" style="font-size: 3rem;"></i>
-                    <div class="ms-3">
-                        <h4 class="fw-bold mb-1">AI Donation Assistant</h4>
-                        <p class="mb-0 opacity-75">Let our AI help you create a donation</p>
-                    </div>
-                </div>
-                <a href="{% url 'chatbot' %}" class="btn btn-light w-100 fw-bold">
-                    <i class="bi bi-chat-dots"></i> Start Chat
-                </a>
-            </div>
-        </div>
+<!-- Table Section -->
+<div class="table-container mb-5">
+  <div
+    class="p-4 border-bottom bg-white d-flex justify-content-between align-items-center"
+  >
+    <div>
+      <h5 class="fw-bold mb-1">Recent Activity</h5>
+      <p class="text-muted small mb-0">Showing your last 5 donations</p>
     </div>
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm rounded-4 bg-gradient"
-            style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
-            <div class="card-body p-4 text-white">
-                <div class="d-flex align-items-center mb-3">
-                    <i class="bi bi-file-earmark-text" style="font-size: 3rem;"></i>
-                    <div class="ms-3">
-                        <h4 class="fw-bold mb-1">Manual Form</h4>
-                        <p class="mb-0 opacity-75">Create donation using traditional form</p>
-                    </div>
+    <a
+      href="{% url 'donation_history' %}"
+      class="btn btn-sm btn-light rounded-pill px-3"
+      >View All History</a
+    >
+  </div>
+
+  <div class="table-responsive">
+    {% if donations %}
+    <table class="table align-middle mb-0">
+      <thead class="bg-light">
+        <tr>
+          <th class="ps-4 py-3 text-uppercase small fw-bold text-muted">
+            Food Details
+          </th>
+          <th class="py-3 text-uppercase small fw-bold text-muted">Quantity</th>
+          <th class="py-3 text-uppercase small fw-bold text-muted">
+            Pickup Schedule
+          </th>
+          <th class="py-3 text-uppercase small fw-bold text-muted text-center">
+            Status
+          </th>
+          <th class="py-3 text-uppercase small fw-bold text-muted text-center">
+            OTP
+          </th>
+          <th
+            class="pe-4 py-3 text-uppercase small fw-bold text-muted text-end"
+          >
+            Action
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for donation in donations|slice:":5" %}
+        <tr>
+          <td class="ps-4 py-4">
+            <div class="d-flex align-items-center">
+              <div class="flex-shrink-0 me-3">
+                <div
+                  class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center"
+                  style="width: 40px; height: 40px"
+                >
+                  <i class="bi bi-box"></i>
                 </div>
-                <a href="{% url 'create_donation' %}" class="btn btn-light w-100 fw-bold">
-                    <i class="bi bi-pencil-square"></i> Fill Form
-                </a>
+              </div>
+              <div>
+                <h6 class="fw-bold mb-0 text-dark">{{ donation.food_type }}</h6>
+                <div class="d-flex align-items-center">
+                  <span class="text-muted tiny me-2"
+                    >ID #{{ donation.id }}</span
+                  >
+                  <span class="text-muted tiny d-flex align-items-center">
+                    <i
+                      class="bi bi-geo-alt-fill text-danger me-1"
+                      style="font-size: 0.6rem"
+                    ></i>
+                    <span class="text-truncate" style="max-width: 120px"
+                      >{{ donation.address }}</span
+                    >
+                  </span>
+                </div>
+              </div>
             </div>
-        </div>
+          </td>
+          <td class="py-4">
+            <span class="fw-semibold">{{ donation.quantity }}</span>
+          </td>
+          <td class="py-4">
+            <div class="d-flex flex-column">
+              <span class="text-dark fw-500"
+                >{{ donation.pickup_time|date:"M d, Y" }}</span
+              >
+              <span class="text-muted small"
+                >{{ donation.pickup_time|date:"h:i A" }}</span
+              >
+            </div>
+          </td>
+          <td class="py-4 text-center">
+            <span
+              class="status-badge {% if donation.status == 'Pending' %}status-pending {% elif donation.status == 'Accepted' %}status-accepted {% elif donation.status == 'Picked' %}status-picked {% elif donation.status == 'Delivered' %}status-delivered {% else %}status-rejected{% endif %}"
+            >
+              {{ donation.status }}
+            </span>
+          </td>
+          <td class="py-4 text-center">
+            {% if donation.status == 'Accepted' %}
+            <div class="badge bg-dark px-3 py-2 font-monospace">
+              {{ donation.pickup_otp }}
+            </div>
+            {% else %}
+            <span class="text-muted opacity-50">--</span>
+            {% endif %}
+          </td>
+          <td class="pe-4 py-4 text-end">
+            <a
+              href="{% url 'donation_detail' donation.id %}"
+              class="btn btn-icon btn-light rounded-circle shadow-sm"
+            >
+              <i class="bi bi-chevron-right text-primary"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="text-center py-5">
+      <img
+        src="https://cdni.iconscout.com/illustration/premium/thumb/empty-box-2524458-2118318.png"
+        style="width: 200px"
+        alt="No Donations"
+      />
+      <h4 class="fw-bold mt-4">No active donations</h4>
+      <p class="text-muted">Start by creating your first donation today!</p>
+      <div class="mt-4">
+        <a href="{% url 'chatbot' %}" class="btn btn-primary rounded-pill px-5"
+          >Get Started</a
+        >
+      </div>
     </div>
+    {% endif %}
+  </div>
 </div>
 
-<!-- Recent Donations -->
-<div class="card border-0 shadow-sm rounded-4">
-    <div class="card-header bg-white border-0 p-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <h5 class="fw-bold mb-0"><i class="bi bi-box-seam"></i> Recent Donations</h5>
-            <a href="{% url 'donation_history' %}" class="btn btn-sm btn-outline-primary">View All</a>
-        </div>
-    </div>
-    <div class="card-body p-0">
-        {% if donations %}
-        <div class="table-responsive">
-            <table class="table table-hover mb-0">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="px-4 py-3">Food Type</th>
-                        <th class="py-3">Quantity</th>
-                        <th class="py-3">Pickup Time</th>
-                        <th class="py-3">Status</th>
-                        <th class="py-3">Pickup OTP</th>
-                        <th class="py-3">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for donation in donations|slice:":5" %}
-                    <tr>
-                        <td class="px-4 py-3 fw-bold">{{ donation.food_type }}</td>
-                        <td class="py-3">{{ donation.quantity }}</td>
-                        <td class="py-3">{{ donation.pickup_time|date:"M d, h:i A" }}</td>
-                        <td class="py-3">
-                            <span class="badge 
-                                {% if donation.status == 'Pending' %}bg-warning
-                                {% elif donation.status == 'Accepted' %}bg-info
-                                {% elif donation.status == 'Picked' %}bg-primary
-                                {% elif donation.status == 'Delivered' %}bg-success
-                                {% else %}bg-danger{% endif %}">
-                                {{ donation.status }}
-                            </span>
-                        </td>
-                        <td class="py-3">
-                            {% if donation.status == 'Accepted' %}
-                            <code class="bg-dark text-white px-2 py-1 rounded fw-bold">{{ donation.pickup_otp }}</code>
-                            {% else %}
-                            <span class="text-muted small">-</span>
-                            {% endif %}
-                        </td>
-                        <td class="py-3">
-                            <a href="{% url 'donation_detail' donation.id %}" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-        {% else %}
-        <div class="text-center py-5">
-            <i class="bi bi-box-seam" style="font-size: 4rem; color: #ccc;"></i>
-            <h3 class="mt-3">No Donations Yet</h3>
-            <p class="text-muted mb-4">Your journey to making a difference starts here.</p>
-            <div class="d-flex gap-3 justify-content-center">
-                <a href="{% url 'chatbot' %}" class="btn btn-primary">
-                    <i class="bi bi-robot"></i> Use AI Assistant
-                </a>
-                <a href="{% url 'create_donation' %}" class="btn btn-outline-primary">
-                    <i class="bi bi-pencil-square"></i> Fill Form
-                </a>
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
+<script>
+  // Add subtle animation when items appear
+  document.addEventListener("DOMContentLoaded", function () {
+    const rows = document.querySelectorAll("tbody tr");
+    rows.forEach((row, index) => {
+      row.style.opacity = "0";
+      row.style.transform = "translateY(10px)";
+      row.style.transition = "all 0.3s ease-out";
+      setTimeout(() => {
+        row.style.opacity = "1";
+        row.style.transform = "translateY(0)";
+      }, 100 * index);
+    });
+  });
+</script>
 {% endblock %}

@@ -1,53 +1,461 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block title %}Member Access - Kalyanakumar{%endblock %} {% block extra_css %}
+<style>
+  :root {
+    --auth-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    --accent-color: #6366f1;
+    --glass-bg: rgba(255, 255, 255, 0.98);
+  }
 
-{% block title %}Login - Event Management{% endblock %}
+  /* Animated Mesh Background */
+  .auth-section {
+    min-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    position: relative;
+    background-color: #f8fafc;
+    overflow: hidden;
+  }
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-5">
-        <div class="card">
-            <div class="card-body p-5">
-                <h2 class="text-center mb-4">
-                    <i class="bi bi-box-arrow-in-right"></i> Welcome Back
-                </h2>
-                <p class="text-center text-muted mb-4">Login to your account</p>
+  .mesh-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 250%;
+    height: 250%;
+    transform: translate(-50%, -50%);
+    background:
+      radial-gradient(
+        circle at 10% 20%,
+        rgba(99, 102, 241, 0.08) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 90% 80%,
+        rgba(168, 85, 247, 0.08) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(20, 184, 166, 0.05) 0%,
+        transparent 50%
+      );
+    z-index: 0;
+    animation: rotateMesh 25s linear infinite;
+  }
 
-                <form method="post">
-                    {% csrf_token %}
+  @keyframes rotateMesh {
+    from {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+      transform: translate(-50%, -50%) rotate(-360deg);
+    }
+  }
 
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                        {{ form.username }}
-                        {% if form.username.errors %}
-                        <div class="text-danger small">{{ form.username.errors }}</div>
-                        {% endif %}
-                    </div>
+  .container {
+    position: relative;
+    z-index: 1;
+  }
 
-                    <div class="mb-4">
-                        <label for="{{ form.password.id_for_label }}" class="form-label">Password</label>
-                        {{ form.password }}
-                        {% if form.password.errors %}
-                        <div class="text-danger small">{{ form.password.errors }}</div>
-                        {% endif %}
-                    </div>
+  .floating-obj {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(50px);
+    z-index: 0;
+    opacity: 0.3;
+    animation: float 12s ease-in-out infinite;
+  }
 
-                    {% if form.non_field_errors %}
-                    <div class="alert alert-danger">
-                        {{ form.non_field_errors }}
-                    </div>
-                    {% endif %}
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-40px) rotate(10deg);
+    }
+  }
 
-                    <button type="submit" class="btn btn-primary w-100 mb-3">
-                        <i class="bi bi-check-circle"></i> Login
-                    </button>
-                </form>
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, 0.2);
+  }
 
-                <p class="text-center mb-0">
-                    Don't have an account?
-                    <a href="{% url 'accounts:register' %}" class="text-decoration-none">Register here</a>
-                </p>
+  .auth-hero {
+    background: url("https://images.unsplash.com/photo-1469334031218-e382a71b716b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80");
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 80px 60px;
+    color: white;
+  }
+
+  .auth-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.9));
+  }
+
+  .auth-hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .auth-form-container {
+    padding: 100px 80px;
+    background: white;
+  }
+
+  .premium-field {
+    position: relative;
+    margin-bottom: 30px;
+  }
+
+  .premium-field i {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+  }
+
+  .premium-field .form-control {
+    padding-left: 55px;
+    height: 70px;
+    border-radius: 20px;
+    border: 2px solid #f1f5f9;
+    background: #f8fafc;
+    font-weight: 500;
+    font-size: 1.1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .premium-field .form-control:focus {
+    border-color: #6366f1;
+    background: white;
+    box-shadow: 0 15px 30px -5px rgba(99, 102, 241, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .error-glass {
+    background: rgba(254, 226, 226, 0.82);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 20px;
+    padding: 20px 25px;
+    margin-bottom: 30px;
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  .btn-premium-auth {
+    background: var(--auth-gradient);
+    color: white !important;
+    border-radius: 22px;
+    padding: 22px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: none;
+    transition: all 0.4s ease;
+    box-shadow: 0 15px 30px -10px rgba(15, 23, 42, 0.6);
+  }
+
+  .btn-premium-auth:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 25px 50px -15px rgba(15, 23, 42, 0.7);
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 15px 20px;
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+  }
+
+  .benefit-item:hover {
+    transform: translateX(10px);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .benefit-icon {
+    width: 35px;
+    height: 35px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    font-size: 1rem;
+  }
+
+  @keyframes fadeInSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-up {
+    animation: fadeInSlideUp 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .delay-1 {
+    animation-delay: 0.2s;
+  }
+  .delay-2 {
+    animation-delay: 0.4s;
+  }
+
+  @media (max-width: 991px) {
+    .auth-hero {
+      min-height: 250px;
+      padding: 40px;
+    }
+    .auth-form-container {
+      padding: 50px 30px;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<section class="auth-section">
+  <!-- Mesh & Floating Objects -->
+  <div class="mesh-bg"></div>
+  <div
+    class="floating-obj"
+    style="
+      width: 400px;
+      height: 400px;
+      background: rgba(99, 102, 241, 0.1);
+      top: -10%;
+      left: -5%;
+    "
+  ></div>
+  <div
+    class="floating-obj"
+    style="
+      width: 300px;
+      height: 300px;
+      background: rgba(168, 85, 247, 0.1);
+      bottom: -5%;
+      right: 5%;
+      animation-delay: -3s;
+    "
+  ></div>
+
+  <div class="container">
+    <div class="glass-card shadow-2xl">
+      <div class="row g-0">
+        <!-- Hero Side -->
+        <div class="col-lg-5 auth-hero">
+          <div class="auth-hero-content animate-up">
+            <h2
+              class="display-4 fw-bold mb-5"
+              style="
+                font-family: &quot;Playfair Display&quot;, serif;
+                line-height: 1.2;
+              "
+            >
+              Welcome Back to <br /><span class="text-white opacity-50"
+                >Excellence.</span
+              >
+            </h2>
+            <p class="fs-5 opacity-75 mb-5">
+              Continue your creative journey with our professional suite of
+              planning tools.
+            </p>
+
+            <div class="benefits-scroller">
+              <div class="benefit-item">
+                <div class="benefit-icon text-success">
+                  <i class="bi bi-graph-up-arrow"></i>
+                </div>
+                <span>Real-time Financial Ledger</span>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon text-info">
+                  <i class="bi bi-people-fill"></i>
+                </div>
+                <span>Tier-1 Vendor Network</span>
+              </div>
+              <div class="benefit-item">
+                <div class="benefit-icon text-warning">
+                  <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <span>24/7 Priority Concierge</span>
+              </div>
             </div>
+          </div>
         </div>
+
+        <!-- Form Side -->
+        <div class="col-lg-7 auth-form-container bg-white">
+          <div class="text-center mb-5 animate-up delay-1">
+            <h2
+              class="fw-bold h1 mb-3"
+              style="font-family: &quot;Playfair Display&quot;, serif"
+            >
+              Member Portal
+            </h2>
+            <p class="text-muted fs-5">Secure access to your bespoke events</p>
+          </div>
+
+          <form method="post" class="animate-up delay-2">
+            {% csrf_token %}
+
+            <div class="premium-field">
+              <i class="bi bi-person-badge"></i>
+              <input
+                type="text"
+                name="username"
+                class="form-control"
+                placeholder="Username"
+                required
+                id="id_username"
+              />
+              {% if form.username.errors %}
+              <div class="text-danger small mt-2 ps-3">
+                {{ form.username.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="premium-field">
+              <i class="bi bi-shield-lock-fill"></i>
+              <input
+                type="password"
+                name="password"
+                class="form-control"
+                placeholder="Password"
+                required
+                id="id_password"
+              />
+              {% if form.password.errors %}
+              <div class="text-danger small mt-2 ps-3">
+                {{ form.password.errors.0 }}
+              </div>
+              {% endif %}
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="error-glass d-flex align-items-center shadow-sm">
+              <div
+                class="bg-danger text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                style="width: 40px; height: 40px; flex-shrink: 0"
+              >
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+              </div>
+              <div class="text-danger-emphasis fw-semibold">
+                {{ form.non_field_errors.0 }}
+              </div>
+            </div>
+            {% endif %}
+
+            <div class="d-flex justify-content-between align-items-center mb-5">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="rememberMe"
+                />
+                <label
+                  class="form-check-label small text-muted"
+                  for="rememberMe"
+                  >Maintain Session Securely</label
+                >
+              </div>
+              <a
+                href="#"
+                class="small text-primary fw-bold text-decoration-none"
+                style="border-bottom: 1px solid currentColor"
+                >Forgot Access?</a
+              >
+            </div>
+
+            <button
+              type="submit"
+              class="btn btn-premium-auth w-100 shadow-xl py-3 fs-5"
+            >
+              Enter Secure Portal <i class="bi bi-arrow-right-short ms-1"></i>
+            </button>
+          </form>
+
+          <div
+            class="mt-5 text-center animate-up"
+            style="animation-delay: 0.8s"
+          >
+            <div class="p-4 bg-light rounded-4 border border-white">
+              <p class="text-muted mb-0">
+                New to the Kalyanakumar experience?
+                <a
+                  href="{% url 'accounts:register' %}"
+                  class="text-primary fw-bold text-decoration-none ms-1"
+                  style="border-bottom: 2px solid currentColor"
+                  >Request an Account</a
+                >
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+</section>
+{% endblock %} {% block extra_js %}
+<script>
+  // Parallex effect for login page too
+  document.addEventListener("mousemove", (e) => {
+    const objs = document.querySelectorAll(".floating-obj");
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+
+    objs.forEach((obj, index) => {
+      const speed = (index + 1) * 30;
+      obj.style.transform = `translate(${-x * speed}px, ${-y * speed}px)`;
+    });
+  });
+</script>
 {% endblock %}

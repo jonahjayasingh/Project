@@ -1,17 +1,17 @@
-{% extends 'base.html' %} {% block title %}Update My Location{% endblock %} {%block content %}
+{% extends 'base.html' %} {% block title %}Update My Profile{% endblock %}
+{%block content %}
 <div class="row justify-content-center">
   <div class="col-md-10">
     <div class="card border-0 shadow-sm rounded-4">
       <div class="card-header bg-success text-white p-4">
         <h2 class="mb-0">
-          <i class="bi bi-geo-alt-fill"></i> Update My Location
+          <i class="bi bi-person-gear"></i> Update My Profile
         </h2>
       </div>
       <div class="card-body p-4">
         <div class="alert alert-info">
-          <i class="bi bi-info-circle"></i> <strong>Note:</strong> Setting your
-          location helps match you with nearby donations and improves
-          coordination.
+          <i class="bi bi-info-circle"></i> <strong>Note:</strong> Keeping your
+          profile updated helps NGOs and donors coordinate more effectively.
         </div>
 
         <form method="post" id="locationForm">
@@ -36,6 +36,22 @@
                 location yet.
               </div>
               {% endif %}
+
+              <div class="mb-3">
+                <label for="email" class="form-label">Email Address</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  id="email"
+                  name="email"
+                  placeholder="Enter your email address"
+                  value="{{ user.email }}"
+                  required
+                />
+                <small class="text-muted"
+                  >This will be used for all system notifications</small
+                >
+              </div>
 
               <div class="mb-3">
                 <label for="address" class="form-label">Your Address</label>
@@ -127,7 +143,7 @@
 
           <div class="d-flex gap-2 mt-4">
             <button type="submit" class="btn btn-success flex-fill">
-              <i class="bi bi-check-circle"></i> Save Location
+              <i class="bi bi-check-circle"></i> Save Changes
             </button>
             <a href="{% url 'dashboard' %}" class="btn btn-outline-secondary">
               <i class="bi bi-x-circle"></i> Cancel

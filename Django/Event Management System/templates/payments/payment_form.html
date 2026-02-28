@@ -1,0 +1,179 @@
+{% extends 'base.html' %} {% block title %}Secure Payment -
+Kalyanakumar{%endblock %} {% block content %}
+
+<div class="row justify-content-center animate-up">
+  <div class="col-md-6">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="bg-primary p-4 text-white text-center">
+        <i class="bi bi-shield-lock display-4 mb-3"></i>
+        <h3
+          class="fw-bold mb-1"
+          style="font-family: &quot;Playfair Display&quot;, serif"
+        >
+          Secure Checkout
+        </h3>
+        <p class="small opacity-75 mb-0">
+          Event Reference: {{ event.event_type.name }} | {{ event.date|date:"F
+          d, Y" }}
+        </p>
+      </div>
+
+      <div class="card-body p-5">
+        <div class="d-flex justify-content-between mb-4 pb-3 border-bottom">
+          <span class="text-muted">Total Cost</span>
+          <span class="h5 fw-bold text-dark"
+            >₹{{ event.total_cost|default:"0.00" }}</span
+          >
+        </div>
+
+        <div class="d-flex justify-content-between mb-4 pb-3 border-bottom">
+          <span class="text-muted">Already Paid</span>
+          <span class="text-success fw-bold"
+            >₹{{ event.advance_paid|default:"0.00" }}</span
+          >
+        </div>
+
+        <div class="d-flex justify-content-between mb-5">
+          <span class="fs-5 fw-bold">Remaining Balance</span>
+          <span class="fs-5 fw-bold text-primary" id="remainingBalance"
+            >₹{{ event.remaining_balance|default:"0.00" }}</span
+          >
+        </div>
+
+        <form method="post" id="paymentForm">
+          {% csrf_token %}
+
+          <div class="mb-4">
+            <label class="form-label small fw-bold text-uppercase text-muted"
+              >Payment Type</label
+            >
+            <select
+              name="payment_type"
+              id="paymentType"
+              class="form-select border-0 bg-light p-3 rounded-3 shadow-sm"
+            >
+              <option value="ADVANCE">Advance Booking (30%)</option>
+              <option value="FULL">Full Payment (100%)</option>
+              <option value="BALANCE">Full Remaining Balance</option>
+              <option value="CUSTOM">Custom Installment</option>
+            </select>
+          </div>
+
+          <div class="mb-5">
+            <label class="form-label small fw-bold text-uppercase text-muted"
+              >Amount to Pay (₹)</label
+            >
+            <div class="input-group">
+              <span
+                class="input-group-text border-0 bg-light rounded-pill-start px-3"
+                >₹</span
+              >
+              <input
+                type="number"
+                name="amount"
+                id="paymentAmount"
+                class="form-control border-0 bg-light p-3 rounded-pill-end shadow-sm"
+                placeholder="0.00"
+                required
+                step="0.01"
+                min="1"
+                max="{{ event.remaining_balance|default:0 }}"
+              />
+            </div>
+            <div
+              id="amountError"
+              class="text-danger small mt-2"
+              style="display: none"
+            >
+              Amount cannot exceed the remaining balance of ₹{{event.remaining_balance|default:0 }}.
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-premium w-100 py-3 rounded-pill fs-5 shadow-xl"
+            id="payButton"
+          >
+            Process Secure Payment <i class="bi bi-lock-fill ms-2 small"></i>
+          </button>
+
+          <p class="text-center mt-4 small text-muted">
+            <i class="bi bi-patch-check-fill text-success me-1"></i> SSL
+            Encrypted & Secure
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-4 text-center">
+      <a
+        href="{% url 'events:event_detail' event.pk %}"
+        class="text-muted text-decoration-none small"
+      >
+        <i class="bi bi-arrow-left me-1"></i> Back to Event Details
+      </a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const paymentType = document.getElementById("paymentType");
+    const paymentAmount = document.getElementById("paymentAmount");
+    const amountError = document.getElementById("amountError");
+    const payButton = document.getElementById("payButton");
+
+    const totalCost = parseFloat("{{ event.total_cost|default:0 }}");
+    const advancePaid = parseFloat("{{ event.advance_paid|default:0 }}");
+    const remainingBalance = parseFloat(
+      "{{ event.remaining_balance|default:0 }}",
+    );
+    const advanceThreshold = totalCost * 0.3;
+
+    // Disable Advance option if already paid anything
+    if (advancePaid > 0) {
+      const advanceOption = paymentType.querySelector(
+        'option[value="ADVANCE"]',
+      );
+      if (advanceOption) {
+        advanceOption.disabled = true;
+        paymentType.value = "BALANCE"; // Default to balance if advance is paid
+      }
+    }
+
+    function updateAmount() {
+      const type = paymentType.value;
+      amountError.style.display = "none";
+      payButton.disabled = false;
+
+      if (type === "ADVANCE") {
+        paymentAmount.value = advanceThreshold.toFixed(2);
+        paymentAmount.readOnly = true;
+      } else if (type === "FULL" || type === "BALANCE") {
+        paymentAmount.value = remainingBalance.toFixed(2);
+        paymentAmount.readOnly = true;
+      } else {
+        paymentAmount.value = "";
+        paymentAmount.readOnly = false;
+        paymentAmount.focus();
+      }
+    }
+
+    paymentAmount.addEventListener("input", function () {
+      const val = parseFloat(this.value);
+      if (val > remainingBalance) {
+        amountError.style.display = "block";
+        payButton.disabled = true;
+      } else {
+        amountError.style.display = "none";
+        payButton.disabled = false;
+      }
+    });
+
+    paymentType.addEventListener("change", updateAmount);
+
+    // Initialize
+    updateAmount();
+  });
+</script>
+{% endblock %}

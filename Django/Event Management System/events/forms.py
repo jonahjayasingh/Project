@@ -1,33 +1,40 @@
 from django import forms
-from .models import Event
+from django.utils import timezone
+from .models import Event, EventType
+from django.core.exceptions import ValidationError
+
+class EventTypeForm(forms.ModelForm):
+    class Meta:
+        model = EventType
+        fields = ['name', 'image']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Marriage, Birthday'}),
+            'image': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'name': 'Event Name',
+            'image': 'Event Image'
+        }
 
 class EventForm(forms.ModelForm):
-    """
-    Form for creating and editing events.
-    """
     class Meta:
         model = Event
-        fields = ['name', 'date', 'venue', 'expected_guests', 'budget']
+        fields = ['event_type', 'date', 'venue_location', 'client_name', 'client_phone', 'client_email']
         widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Event Name'
-            }),
+            'event_type': forms.Select(attrs={'class': 'form-select'}),
             'date': forms.DateInput(attrs={
-                'class': 'form-control',
-                'type': 'date'
+                'class': 'form-control', 
+                'type': 'date',
+                'min': timezone.now().date().isoformat()
             }),
-            'venue': forms.TextInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Event Venue'
-            }),
-            'expected_guests': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Expected Number of Guests'
-            }),
-            'budget': forms.NumberInput(attrs={
-                'class': 'form-control',
-                'step': '0.01',
-                'placeholder': 'Total Budget'
-            }),
+            'venue_location': forms.TextInput(attrs={'class': 'form-control'}),
+            'client_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'client_phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'client_email': forms.EmailInput(attrs={'class': 'form-control'}),
         }
+
+    def clean_date(self):
+        date = self.cleaned_data.get('date')
+        if date and date < timezone.now().date():
+            raise ValidationError("Events cannot be scheduled in the past.")
+        return date

@@ -1,75 +1,562 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% block title %}Join the Elite - Kalyanakumar
+Registration{% endblock %} {% block extra_css %}
+<style>
+  :root {
+    --auth-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    --gold-accent: #d4af37;
+    --soft-glow: rgba(99, 102, 241, 0.4);
+    --glass-bg: rgba(255, 255, 255, 0.9);
+  }
 
-{% block title %}Register - Event Management{% endblock %}
+  /* Mesh Background */
+  .auth-section {
+    min-height: 95vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 0;
+    position: relative;
+    background-color: #f8fafc;
+    overflow: hidden;
+  }
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card">
-            <div class="card-body p-5">
-                <h2 class="text-center mb-4">
-                    <i class="bi bi-person-plus-fill"></i> Create Account
-                </h2>
-                <p class="text-center text-muted mb-4">Join our Event Management System</p>
+  .mesh-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200%;
+    height: 200%;
+    transform: translate(-50%, -50%);
+    background:
+      radial-gradient(
+        circle at 10% 20%,
+        rgba(99, 102, 241, 0.1) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 90% 80%,
+        rgba(168, 85, 247, 0.1) 0%,
+        transparent 40%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(20, 184, 166, 0.05) 0%,
+        transparent 50%
+      );
+    z-index: 0;
+    animation: rotateMesh 20s linear infinite;
+  }
 
-                <form method="post">
-                    {% csrf_token %}
+  @keyframes rotateMesh {
+    from {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
+    }
+  }
 
-                    <div class="mb-3">
-                        <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
-                        {{ form.username }}
-                        {% if form.username.errors %}
-                        <div class="text-danger small">{{ form.username.errors }}</div>
-                        {% endif %}
-                    </div>
+  .container {
+    position: relative;
+    z-index: 1;
+  }
 
-                    <div class="mb-3">
-                        <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
-                        {{ form.email }}
-                        {% if form.email.errors %}
-                        <div class="text-danger small">{{ form.email.errors }}</div>
-                        {% endif %}
-                    </div>
+  /* Decorative Floating Objects */
+  .floating-obj {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    z-index: 0;
+    opacity: 0.4;
+    animation: float 10s ease-in-out infinite;
+  }
 
-                    <div class="mb-3">
-                        <label for="{{ form.password1.id_for_label }}" class="form-label">Password</label>
-                        {{ form.password1 }}
-                        {% if form.password1.errors %}
-                        <div class="text-danger small">{{ form.password1.errors }}</div>
-                        {% endif %}
-                    </div>
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-30px) scale(1.1);
+    }
+  }
 
-                    <div class="mb-3">
-                        <label for="{{ form.password2.id_for_label }}" class="form-label">Confirm Password</label>
-                        {{ form.password2 }}
-                        {% if form.password2.errors %}
-                        <div class="text-danger small">{{ form.password2.errors }}</div>
-                        {% endif %}
-                    </div>
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    overflow: hidden;
+    box-shadow:
+      0 30px 60px -12px rgba(0, 0, 0, 0.15),
+      inset 0 0 80px rgba(255, 255, 255, 0.2);
+    transition: transform 0.3s ease;
+  }
 
-                    <div class="mb-4">
-                        <label for="{{ form.role.id_for_label }}" class="form-label">Role</label>
-                        {{ form.role }}
-                        <small class="form-text text-muted d-block">
-                            <strong>ADMIN:</strong> Manage vendors |
-                            <strong>CLIENT:</strong> Create events & book vendors
-                        </small>
-                        {% if form.role.errors %}
-                        <div class="text-danger small">{{ form.role.errors }}</div>
-                        {% endif %}
-                    </div>
+  .auth-hero {
+    background: url("https://images.unsplash.com/photo-1519225421980-715cb0215aed?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80");
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 60px;
+    color: white;
+  }
 
-                    <button type="submit" class="btn btn-primary w-100 mb-3">
-                        <i class="bi bi-check-circle"></i> Register
-                    </button>
-                </form>
+  .auth-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9));
+  }
 
-                <p class="text-center mb-0">
-                    Already have an account?
-                    <a href="{% url 'accounts:login' %}" class="text-decoration-none">Login here</a>
-                </p>
+  .auth-hero-header {
+    position: relative;
+    z-index: 2;
+  }
+
+  .auth-hero-footer {
+    position: relative;
+    z-index: 2;
+  }
+
+  .auth-form-container {
+    padding: 80px 60px;
+    background: white;
+  }
+
+  .premium-field {
+    position: relative;
+    margin-bottom: 25px;
+  }
+
+  .premium-field i {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+  }
+
+  .premium-field .form-control {
+    padding-left: 55px;
+    height: 65px;
+    border-radius: 20px;
+    border: 2px solid #f1f5f9;
+    background: #f8fafc;
+    font-weight: 500;
+    font-size: 1rem;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .premium-field .form-control:focus {
+    border-color: #6366f1;
+    background: white;
+    box-shadow: 0 15px 25px -5px rgba(99, 102, 241, 0.15);
+    transform: translateY(-2px);
+  }
+
+  .premium-field .form-control:focus + i {
+    color: #6366f1;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  .error-glass {
+    background: rgba(254, 226, 226, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    border-radius: 20px;
+    padding: 20px 25px;
+    margin-bottom: 30px;
+    animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  }
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
+
+  .btn-premium-auth {
+    background: var(--auth-gradient);
+    color: white !important;
+    border-radius: 22px;
+    padding: 20px;
+    font-weight: 800;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    border: none;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+    box-shadow: 0 15px 30px -10px rgba(15, 23, 42, 0.5);
+  }
+
+  .btn-premium-auth::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 300%;
+    height: 300%;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translate(-50%, -50%) rotate(45deg) translateY(100%);
+    transition: transform 0.6s ease;
+  }
+
+  .btn-premium-auth:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -12px rgba(15, 23, 42, 0.6);
+  }
+
+  .btn-premium-auth:hover::after {
+    transform: translate(-50%, -50%) rotate(45deg) translateY(-100%);
+  }
+
+  .partner-logos {
+    display: flex;
+    gap: 20px;
+    opacity: 0.6;
+    margin-top: 40px;
+  }
+
+  .partner-logos i {
+    font-size: 1.5rem;
+  }
+
+  @keyframes fadeInSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-up {
+    animation: fadeInSlideUp 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .delay-1 {
+    animation-delay: 0.2s;
+  }
+  .delay-2 {
+    animation-delay: 0.4s;
+  }
+  .delay-3 {
+    animation-delay: 0.6s;
+  }
+
+  @media (max-width: 991px) {
+    .auth-hero {
+      min-height: 350px;
+      padding: 40px;
+    }
+    .auth-form-container {
+      padding: 40px 30px;
+    }
+    .glass-card {
+      border-radius: 30px;
+    }
+  }
+</style>
+{% endblock %} {% block content %}
+<section class="auth-section">
+  <!-- Mesh & Floating Objects -->
+  <div class="mesh-bg"></div>
+  <div
+    class="floating-obj"
+    style="
+      width: 300px;
+      height: 300px;
+      background: #6366f1;
+      top: 10%;
+      right: 5%;
+    "
+  ></div>
+  <div
+    class="floating-obj"
+    style="
+      width: 250px;
+      height: 250px;
+      background: #a855f7;
+      bottom: 10%;
+      left: 5%;
+      animation-delay: -2s;
+    "
+  ></div>
+
+  <div class="container py-5">
+    <div class="glass-card shadow-2xl">
+      <div class="row g-0 align-items-stretch">
+        <!-- Hero Side -->
+        <div class="col-lg-5 auth-hero">
+          <div class="auth-hero-header animate-up">
+            <div class="d-flex align-items-center mb-4">
+              <div
+                class="bg-primary-subtle text-primary p-2 rounded-circle me-3"
+                style="
+                  width: 45px;
+                  height: 45px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                "
+              >
+                <i class="bi bi-stars fs-4"></i>
+              </div>
+              <span
+                class="text-uppercase fw-bold tracking-widest letter-spacing-1"
+                >Premium Experiences</span
+              >
             </div>
+
+            <h1
+              class="display-3 fw-bold mb-4"
+              style="
+                font-family: &quot;Playfair Display&quot;, serif;
+                line-height: 1.1;
+              "
+            >
+              Crafting <br />Your Next <br /><span
+                class="text-primary-emphasis"
+                style="color: #cbd5e1 !important"
+                >Masterpiece.</span
+              >
+            </h1>
+            <p class="lead opacity-75 mb-0">
+              Join the choice of elite clients and turn your vision into a
+              reality with our world-class planning tools.
+            </p>
+          </div>
+
+          <div class="auth-hero-footer animate-up delay-3">
+            <div class="testimonial-badge p-4">
+              <div class="d-flex align-items-center mb-3">
+                <div class="text-warning d-flex gap-1 me-3">
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                  <i class="bi bi-star-fill"></i>
+                </div>
+                <span class="small fw-bold opacity-75"
+                  >TrustPilot Platinum Partner</span
+                >
+              </div>
+              <p
+                class="mb-3 italic opacity-90"
+                style="font-size: 1.1rem; line-height: 1.5"
+              >
+                "The attention to detail and seamless luxury experience provided
+                by Kalyanakumar is simply unmatched."
+              </p>
+              <div class="d-flex align-items-center">
+                <div
+                  class="bg-light rounded-circle me-3"
+                  style="width: 40px; height: 40px"
+                ></div>
+                <div>
+                  <div class="fw-bold small">Sophia Reynolds</div>
+                  <div class="small opacity-50">Global Event Director</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="partner-logos">
+              <i class="bi bi-gem"></i>
+              <i class="bi bi-camera-reels"></i>
+              <i class="bi bi-flower1"></i>
+              <i class="bi bi-palette"></i>
+            </div>
+          </div>
         </div>
+
+        <!-- Form Side -->
+        <div class="col-lg-7 auth-form-container">
+          <div class="text-center mb-5 animate-up delay-1">
+            <h2
+              class="fw-bold h1 mb-3"
+              style="font-family: &quot;Playfair Display&quot;, serif"
+            >
+              Begin Your Journey
+            </h2>
+            <p class="text-muted fs-5">
+              Personalize your concierge experience in seconds.
+            </p>
+          </div>
+
+          <form method="post" id="registrationForm" class="animate-up delay-2">
+            {% csrf_token %}
+
+            <div class="row g-4">
+              {% if form.non_field_errors %}
+              <div class="col-12">
+                <div class="error-glass d-flex align-items-center shadow-sm">
+                  <div
+                    class="bg-danger text-white rounded-circle p-2 me-3 d-flex align-items-center justify-content-center"
+                    style="width: 40px; height: 40px; flex-shrink: 0"
+                  >
+                    <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                  </div>
+                  <div class="text-danger-emphasis fw-semibold">
+                    {{ form.non_field_errors }}
+                  </div>
+                </div>
+              </div>
+              {% endif %}
+
+              <!-- Username -->
+              <div class="col-md-12">
+                <div class="premium-field">
+                  <i class="bi bi-person"></i>
+                  <input
+                    type="text"
+                    name="username"
+                    class="form-control"
+                    placeholder="Unique Identity (Username)"
+                    required
+                    id="id_username"
+                  />
+                  {% if form.username.errors %}
+                  <div class="text-danger small mt-2 ps-3">
+                    <i class="bi bi-info-circle me-1"></i> {{
+                    form.username.errors.0 }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Email -->
+              <div class="col-md-12">
+                <div class="premium-field">
+                  <i class="bi bi-envelope-at"></i>
+                  <input
+                    type="email"
+                    name="email"
+                    class="form-control"
+                    placeholder="Best Email for Contact"
+                    required
+                    id="id_email"
+                  />
+                  {% if form.email.errors %}
+                  <div class="text-danger small mt-2 ps-3">
+                    <i class="bi bi-info-circle me-1"></i> {{
+                    form.email.errors.0 }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Password 1 -->
+              <div class="col-md-6">
+                <div class="premium-field">
+                  <i class="bi bi-key-fill"></i>
+                  <input
+                    type="password"
+                    name="password1"
+                    class="form-control"
+                    placeholder="Secure Password"
+                    required
+                    id="id_password1"
+                  />
+                  {% if form.password1.errors %}
+                  <div class="text-danger small mt-2 ps-3">
+                    <i class="bi bi-info-circle me-1"></i> {{
+                    form.password1.errors.0 }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Password 2 -->
+              <div class="col-md-6">
+                <div class="premium-field">
+                  <i class="bi bi-patch-check-fill"></i>
+                  <input
+                    type="password"
+                    name="password2"
+                    class="form-control"
+                    placeholder="Verify Security"
+                    required
+                    id="id_password2"
+                  />
+                  {% if form.password2.errors %}
+                  <div class="text-danger small mt-2 ps-3">
+                    <i class="bi bi-info-circle me-1"></i> {{form.password2.errors.0 }}
+                  </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-5">
+              <button
+                type="submit"
+                class="btn btn-premium-auth w-100 shadow-xl py-3 fs-5"
+              >
+                Join the Elite Portal
+                <i class="bi bi-chevron-right ms-2 fs-6"></i>
+              </button>
+            </div>
+          </form>
+
+          <div class="mt-5 text-center animate-up delay-3">
+            <div class="p-4 bg-light rounded-4 border border-white">
+              <p class="text-muted mb-0">
+                Revisiting your previous plans?
+                <a
+                  href="{% url 'accounts:login' %}"
+                  class="text-primary fw-bold text-decoration-none ms-1"
+                  style="border-bottom: 2px solid currentColor"
+                  >Sign In to Dashboard</a
+                >
+              </p>
+            </div>
+            <p class="mt-4 small text-muted opacity-50">
+              &copy; 2026 Kalyanakumar Luxury Event Management Group. All Rights
+              Reserved.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-</div>
+  </div>
+</section>
+{% endblock %} {% block extra_js %}
+<script>
+  // Subtle parallax effect on floating objects
+  document.addEventListener("mousemove", (e) => {
+    const objs = document.querySelectorAll(".floating-obj");
+    const x = e.clientX / window.innerWidth;
+    const y = e.clientY / window.innerHeight;
+
+    objs.forEach((obj, index) => {
+      const speed = (index + 1) * 20;
+      obj.style.transform = `translate(${-x * speed}px, ${-y * speed}px)`;
+    });
+  });
+</script>
 {% endblock %}

@@ -1,0 +1,83 @@
+{% extends 'base.html' %} {% block title %}Share Experience - Kalyanakumar{%
+endblock %} {% block content %}
+<div class="row justify-content-center animate-up">
+  <div class="col-md-7">
+    <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="bg-dark p-5 text-white text-center position-relative">
+        <div
+          class="position-absolute top-0 start-50 translate-middle mt-2 opacity-10"
+        >
+          <i class="bi bi-chat-heart-fill display-1"></i>
+        </div>
+        <h2
+          class="fw-bold mb-3 mt-4"
+          style="font-family: &quot;Playfair Display&quot;, serif"
+        >
+          How was your journey?
+        </h2>
+        <p class="lead opacity-75">
+          Your feedback helps us maintain the gold standard of event management.
+        </p>
+        <div class="mt-4 badge bg-primary rounded-pill px-4 py-2">
+          Event: {{ event.event_type.name }}
+        </div>
+      </div>
+
+      <div class="card-body p-5">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="mb-5 text-center">
+            <label class="form-label h5 fw-bold mb-4 d-block"
+              >Overall Impression</label
+            >
+            <div class="rating-container">{{ form.rating }}</div>
+            <div class="small text-muted mt-3">
+              From "Met Expectations" to "Absolute Masterpiece"
+            </div>
+          </div>
+
+          <div class="mb-5">
+            <label class="form-label h5 fw-bold mb-3 d-block"
+              >Tell us more</label
+            >
+            {{ form.comment }}
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-premium w-100 py-3 rounded-pill fs-5 shadow-xl"
+          >
+            Submit My Experience <i class="bi bi-send-fill ms-2 small"></i>
+          </button>
+
+          <div class="text-center mt-5">
+            <p class="small text-muted mb-0">
+              By submitting, you allow us to feature your review in our public
+              portfolio.
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-4 text-center">
+      <a
+        href="{% url 'events:event_detail' event.pk %}"
+        class="text-muted text-decoration-none small"
+      >
+        Maybe later, back to event details
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  .rating-container select {
+    text-align-last: center;
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--bs-primary);
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,98 @@
+{% extends 'base.html' %} {% block title %}All Bookings - Admin{% endblock %} {%block content %}
+<div class="row align-items-center mb-5 animate-up">
+  <div class="col-md-6">
+    <h2
+      class="fw-bold mb-0"
+      style="font-family: &quot;Playfair Display&quot;, serif"
+    >
+      Operation Center
+    </h2>
+    <p class="text-muted">Monitor all active and historical event bookings</p>
+  </div>
+</div>
+
+<div
+  class="card border-0 shadow-sm rounded-5 overflow-hidden animate-up delay-1"
+>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="bg-light">
+        <tr>
+          <th class="ps-5 py-4 border-0">Client & Event</th>
+          <th class="py-4 border-0">Date</th>
+          <th class="py-4 border-0">Venue</th>
+          <th class="py-4 border-0">Financials</th>
+          <th class="py-4 border-0">Status</th>
+          <th class="py-4 border-0 text-end pe-5">Management</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for event in events %}
+        <tr>
+          <td class="ps-5 py-4">
+            <div class="d-flex align-items-center">
+              <div
+                class="bg-primary-subtle text-primary rounded-circle me-3 d-flex align-items-center justify-content-center fw-bold"
+                style="width: 45px; height: 45px"
+              >
+                {{ event.client.username|slice:":1"|upper }}
+              </div>
+              <div>
+                <div class="fw-bold text-dark">{{ event.event_type.name }}</div>
+                <div class="small text-muted">{{ event.client_name }}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="fw-bold">{{ event.date|date:"d M Y" }}</div>
+            <div class="small text-muted">{{ event.date|date:"l" }}</div>
+          </td>
+          <td>
+            <div class="small text-dark fw-semibold">
+              <i class="bi bi-geo-alt me-1"></i>{{event.venue_location|truncatechars:30 }}
+            </div>
+          </td>
+          <td>
+            <div class="small mb-1">
+              Total: <strong>₹{{ event.total_cost }}</strong>
+            </div>
+            <div class="x-small mt-1 text-muted">
+              Paid: ₹{{ event.advance_paid }}
+            </div>
+          </td>
+          <td>
+            {% if event.status == 'CONFIRMED' %}
+            <span class="badge bg-success-subtle text-success rounded-pill px-3"
+              >Confirmed</span
+            >
+            {% elif event.status == 'PENDING' %}
+            <span class="badge bg-warning-subtle text-warning rounded-pill px-3"
+              >Pending</span
+            >
+            {% else %}
+            <span class="badge bg-light text-muted rounded-pill px-3"
+              >{{ event.status }}</span
+            >
+            {% endif %}
+          </td>
+          <td class="text-end pe-5">
+            <a
+              href="{% url 'events:event_detail' event.pk %}"
+              class="btn btn-outline-primary btn-sm rounded-pill px-3"
+              >Review Details</a
+            >
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-5">
+            <i class="bi bi-calendar-x display-4 text-muted d-block mb-3"></i>
+            <h5 class="text-muted">No bookings registered in the system.</h5>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

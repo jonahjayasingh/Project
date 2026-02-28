@@ -1,5 +1,0 @@
-django>=5.0
-pdfplumber
-python-docx
-ollama
-pillow

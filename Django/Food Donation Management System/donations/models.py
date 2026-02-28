@@ -9,12 +9,14 @@ class Donation(models.Model):
         ('Picked', 'Picked'),
         ('Delivered', 'Delivered'),
         ('Rejected', 'Rejected'),
+        ('Expired', 'Expired'),
     )
 
     donor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='donations')
     food_type = models.CharField(max_length=100)
     quantity = models.CharField(max_length=50)
     cooked_time = models.DateTimeField(null=True, blank=True)
+    expiry_time = models.DateTimeField(null=True, blank=True)
     pickup_time = models.DateTimeField()
     
     # Address and location fields
@@ -30,10 +32,15 @@ class Donation(models.Model):
     pickup_otp = models.CharField(max_length=6, blank=True, null=True)
     delivery_otp = models.CharField(max_length=6, blank=True, null=True)
     
+    is_archived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
+        from datetime import timedelta
+        if self.cooked_time and not self.expiry_time:
+            self.expiry_time = self.cooked_time + timedelta(hours=6)
+        
         if not self.pickup_otp:
             import random
             self.pickup_otp = str(random.randint(100000, 999999))
@@ -70,3 +77,15 @@ class Donation(models.Model):
         distance = R * c
         
         return round(distance, 2)
+
+class DonationRejection(models.Model):
+    donation = models.ForeignKey(Donation, on_delete=models.CASCADE, related_name='rejections')
+    ngo = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rejected_donations')
+    reason = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('donation', 'ngo')
+
+    def __str__(self):
+        return f"Rejection: {self.donation} by {self.ngo.username}"

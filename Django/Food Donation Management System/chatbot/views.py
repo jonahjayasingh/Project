@@ -2,160 +2,299 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+
 import json
 import requests
-from datetime import datetime
+from datetime import timedelta
+from django.utils import timezone
+
 from .models import ChatSession, ChatMessage
 from donations.models import Donation
 
-OLLAMA_API_URL = "http://localhost:11434/api/generate"
+
+OLLAMA_API_URL = "http://localhost:11434"
 MODEL_NAME = "cogito-2.1:671b-cloud"
+
+
+# =========================================================
+# MAIN CHAT PAGE
+# =========================================================
 
 @login_required
 def chatbot_view(request):
-    """Main chatbot interface"""
-    # Get or create active session for user
-    session = ChatSession.objects.filter(user=request.user, is_active=True).first()
+
+    session = ChatSession.objects.filter(
+        user=request.user,
+        is_active=True
+    ).first()
+
     if not session:
         session = ChatSession.objects.create(user=request.user)
-    
-    messages = session.messages.all()
-    return render(request, 'chatbot/chat.html', {
-        'session': session,
-        'messages': messages
+
+    return render(request, "chatbot/chat.html", {
+        "session": session,
+        "chat_messages": session.messages.all()
     })
+
+
+# =========================================================
+# NEW SESSION
+# =========================================================
+
+@login_required
+def new_session(request):
+    ChatSession.objects.filter(
+        user=request.user,
+        is_active=True
+    ).update(is_active=False)
+
+    ChatSession.objects.create(user=request.user)
+
+    return redirect("chatbot")
+
+
+# =========================================================
+# SAVE ASSISTANT MESSAGE
+# =========================================================
+
+def save_reply(session, text):
+    ChatMessage.objects.create(
+        session=session,
+        role="assistant",
+        content=text
+    )
+    return JsonResponse({"response": text})
+
+
+# =========================================================
+# OLLAMA — STRUCTURED EXTRACTION
+# =========================================================
+
+def extract_info(user_message, last_assistant_msg=""):
+
+    prompt = f"""
+Analyze this user message for a Food Donation System.
+Previous Assistant Message: "{last_assistant_msg}"
+User Message: "{user_message}"
+
+Return ONLY JSON:
+{{
+  "food_type": "string or null",
+  "quantity": "string or null",
+  "pickup_time": "string or null",
+  "intent": "donate / confirm / chat / greeting",
+  "is_confirmation": true/false
+}}
+
+Note: If the user says "yes", "correct", "confirm", or "ok" in response to a confirmation request, set is_confirmation to true.
+"""
+
+    response = requests.post(
+        f"{OLLAMA_API_URL}/api/generate",
+        json={
+            "model": MODEL_NAME,
+            "prompt": prompt,
+            "stream": False,
+            "format": "json"
+        },
+        timeout=60
+    )
+
+    if response.status_code != 200:
+        return {}
+
+    try:
+        content = response.json()["response"]
+        return json.loads(content)
+    except:
+        return {}
+
+
+# =========================================================
+# OLLAMA — CONVERSATIONAL RESPONSE
+# =========================================================
+
+def generate_conversation(user_message, session):
+
+    history = "\n".join(
+        f"{m.role}: {m.content}" for m in list(session.messages.all())[-8:]
+    )
+
+    state = f"""
+Current Status:
+- Food: {session.food_type or 'Not yet known'}
+- Quantity: {session.quantity or 'Not yet known'}
+- Pickup Time: {session.pickup_time or 'Not yet known'}
+- Awaiting Confirmation: {session.awaiting_confirmation}
+"""
+
+    prompt = f"""
+You are a warm, friendly assistant for a Food Donation System.
+
+Goals:
+- Have natural conversation
+- Encourage food donation
+- Ask for missing details politely
+- Keep responses short and human-like
+
+{state}
+
+Conversation:
+{history}
+
+User: {user_message}
+Assistant:
+"""
+
+    response = requests.post(
+        f"{OLLAMA_API_URL}/api/generate",
+        json={
+            "model": MODEL_NAME,
+            "prompt": prompt,
+            "stream": False
+        },
+        timeout=60
+    )
+    if response.status_code == 200:
+        return response.json().get("response", "I'm here to help.")
+
+    return "Sorry, I couldn't respond right now."
+
+
+# =========================================================
+# SEND MESSAGE — CONVERSATIONAL LOGIC
+# =========================================================
 
 @login_required
 @require_POST
 def send_message(request):
-    """Handle chat message and get response from Ollama"""
-    try:
-        data = json.loads(request.body)
-        user_message = data.get('message', '').strip()
-        
-        if not user_message:
-            return JsonResponse({'error': 'Message cannot be empty'}, status=400)
-        
-        # Get or create active session
-        session = ChatSession.objects.filter(user=request.user, is_active=True).first()
-        if not session:
-            session = ChatSession.objects.create(user=request.user)
-        
-        # Save user message
-        ChatMessage.objects.create(
-            session=session,
-            role='user',
-            content=user_message
-        )
-        
-        # Build conversation context
-        conversation_history = session.messages.all()
-        context = build_donation_context(conversation_history)
-        
-        # Get response from Ollama
-        prompt = f"""{context}
 
-User: {user_message}
-Assistant:"""
-        
-        response = requests.post(
-            OLLAMA_API_URL,
-            json={
-                "model": MODEL_NAME,
-                "prompt": prompt,
-                "stream": False
-            },
-            timeout=30
-        )
-        
-        if response.status_code == 200:
-            assistant_message = response.json().get('response', 'Sorry, I could not process that.')
-            
-            # Save assistant response
-            ChatMessage.objects.create(
-                session=session,
-                role='assistant',
-                content=assistant_message
-            )
-            
-            # Check if we have all donation details and create donation
-            donation_data = extract_donation_data(conversation_history)
-            if donation_data and all(donation_data.values()):
-                create_donation_from_chat(request.user, donation_data)
-                return JsonResponse({
-                    'response': assistant_message,
-                    'donation_created': True
-                })
-            
-            return JsonResponse({'response': assistant_message})
-        else:
-            return JsonResponse({'error': 'Failed to get response from chatbot'}, status=500)
-            
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+    data = json.loads(request.body)
+    user_message = data.get("message", "").strip()
+    location = data.get("location")
 
-@login_required
-def new_session(request):
-    """Create a new chat session"""
-    # Deactivate current session
-    ChatSession.objects.filter(user=request.user, is_active=True).update(is_active=False)
-    
-    # Create new session
-    ChatSession.objects.create(user=request.user)
-    
-    return redirect('chatbot')
+    if not user_message:
+        return JsonResponse({"error": "Empty message"}, status=400)
 
-def build_donation_context(messages):
-    """Build context for donation collection"""
-    context = """You are a helpful assistant for a Food Donation Management System. 
-Your job is to collect donation details from donors in a friendly, conversational manner.
+    session = ChatSession.objects.filter(
+        user=request.user,
+        is_active=True
+    ).first()
 
-You need to collect the following information:
-1. Food type (e.g., rice, vegetables, cooked meals)
-2. Quantity (e.g., 5 kg, 10 servings)
-3. Cooked time (when the food was cooked, if applicable)
-4. Pickup time (when the food can be picked up)
-5. Location (latitude and longitude, or ask for address)
+    if not session:
+        session = ChatSession.objects.create(user=request.user)
 
-Ask for one detail at a time. Be friendly and conversational.
-When you have all the details, confirm with the user and let them know the donation will be created.
-
-Previous conversation:"""
-    
-    for msg in list(messages)[-10:]:  # Last 10 messages for context
-        context += f"\n{msg.role.capitalize()}: {msg.content}"
-    
-    return context
-
-def extract_donation_data(messages):
-    """Extract donation data from conversation"""
-    # This is a simplified extraction
-    # In production, you'd use NLP or structured prompts
-    data = {
-        'food_type': None,
-        'quantity': None,
-        'cooked_time': None,
-        'pickup_time': None,
-        'latitude': None,
-        'longitude': None
-    }
-    
-    # Basic keyword extraction (simplified)
-    conversation_text = ' '.join([msg.content for msg in messages])
-    
-    # This would need more sophisticated parsing in production
-    # For now, return None to indicate manual form should be used
-    return None
-
-def create_donation_from_chat(user, donation_data):
-    """Create donation from extracted chat data"""
-    Donation.objects.create(
-        donor=user,
-        food_type=donation_data['food_type'],
-        quantity=donation_data['quantity'],
-        cooked_time=donation_data.get('cooked_time'),
-        pickup_time=donation_data['pickup_time'],
-        latitude=donation_data.get('latitude'),
-        longitude=donation_data.get('longitude'),
-        status='Pending'
+    # Save user message
+    ChatMessage.objects.create(
+        session=session,
+        role="user",
+        content=user_message
     )
+
+    # =====================================================
+    # STEP 1 — EXTRACT INFO SILENTLY
+    # =====================================================
+    last_reply = session.messages.filter(role='assistant').last()
+    last_assistant_text = last_reply.content if last_reply else ""
+    
+    info = extract_info(user_message, last_assistant_text)
+
+    food = info.get("food_type")
+    quantity = info.get("quantity")
+    pickup_time = info.get("pickup_time")
+    intent = info.get("intent")
+    is_confirm = info.get("is_confirmation")
+    
+    # Keyword fallback for robustness
+    if not is_confirm:
+        confirm_words = ['yes', 'yeah', 'confirm', 'correct', 'ok', 'okay', 'sure']
+        is_confirm = any(word == user_message.lower().strip() for word in confirm_words)
+
+    # Update details if found (allows changing mind)
+    if food:
+        session.food_type = food
+    if quantity:
+        session.quantity = quantity
+    if pickup_time:
+        session.pickup_time = pickup_time
+
+    session.save()
+
+    # =====================================================
+    # STEP 2 — CONFIRMATION FLOW
+    # =====================================================
+
+    if session.food_type and session.quantity and session.pickup_time and not session.awaiting_confirmation:
+
+        session.awaiting_confirmation = True
+        session.save()
+
+        return save_reply(
+            session,
+            f"Great! You want to donate {session.quantity} of {session.food_type} for pickup at {session.pickup_time}. "
+            f"Please confirm so I can arrange pickup. "
+            f"Just say 'confirm donation'."
+        )
+
+    # =====================================================
+    # STEP 3 — CREATE DONATION
+    # =====================================================
+
+    if session.awaiting_confirmation and (is_confirm or intent == "confirm"):
+
+        if session.donation_created:
+            return save_reply(session, "Donation already created.")
+
+        address = (
+            location.get("address")
+            if location and location.get("address")
+            else getattr(request.user, "address", "Address from chat")
+        )
+
+        donation = Donation.objects.create(
+            donor=request.user,
+            food_type=session.food_type,
+            quantity=session.quantity,
+            cooked_time=timezone.now(),
+            pickup_time=timezone.now() + timedelta(hours=2), # Default if parsing fails
+            address=address,
+            latitude=location.get("lat") if location else None,
+            longitude=location.get("lon") if location else None,
+            status="Pending"
+        )
+        
+        # Log Activity and Send Email
+        from donations.utils import send_donation_email, log_system_activity
+        log_system_activity("Donation Created", request.user, f"Donation #{donation.id} created via AI Assistant")
+        send_donation_email(
+            "Donation Created",
+            "donation_created",
+            {'donation': donation},
+            [request.user.email]
+        )
+
+        # Create status history
+        from tracking.models import StatusHistory
+        StatusHistory.objects.create(
+            donation=donation,
+            status='Pending',
+            changed_by=request.user,
+            notes='Donation created via AI Assistant'
+        )
+
+        session.donation_created = True
+        session.is_active = False
+        session.save()
+
+        return save_reply(
+            session,
+            "✅ Your donation has been scheduled! Thank you for helping people in need."
+        )
+
+    # =====================================================
+    # STEP 4 — NORMAL CONVERSATION
+    # =====================================================
+
+    reply = generate_conversation(user_message, session)
+
+    return save_reply(session, reply)

@@ -1,0 +1,264 @@
+{% extends 'base.html' %} {% block title %}Event Planner -
+Kalyanakumar{%endblock %} {% block content %}
+<div class="row align-items-center mb-5 animate-up">
+  <div class="col-md-8">
+    <h2
+      class="fw-bold display-5"
+      style="font-family: &quot;Playfair Display&quot;, serif"
+    >
+      Your Selection
+      <span class="text-primary-emphasis opacity-50">Planner</span>
+    </h2>
+    <p class="text-muted fs-5">
+      Review and finalize your curated menus and services.
+    </p>
+  </div>
+  <div class="col-md-4 text-md-end">
+    <a
+      href="{% url 'events:event_create' %}"
+      class="btn btn-outline-primary rounded-pill px-4"
+    >
+      <i class="bi bi-calendar-plus me-2"></i>New Event
+    </a>
+  </div>
+</div>
+
+<div class="row">
+  <!-- Items Side -->
+  <div class="col-lg-8 animate-up delay-1">
+    {% for item in cart.items.all %}
+    <div
+      class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden position-relative"
+    >
+      <div class="row g-0 align-items-center">
+        <div class="col-md-3">
+          {% if item.food_item %} {% if item.food_item.image %}
+          <img
+            src="{{ item.food_item.image.url }}"
+            class="img-fluid"
+            style="height: 140px; width: 100%; object-fit: cover"
+          />
+          {% else %}
+          <div
+            class="bg-light d-flex align-items-center justify-content-center"
+            style="height: 140px"
+          >
+            <i class="bi bi-egg-fried display-5 text-muted"></i>
+          </div>
+          {% endif %} {% elif item.service_item %}
+          <div
+            class="bg-dark d-flex align-items-center justify-content-center"
+            style="height: 140px"
+          >
+            <i
+              class="bi bi-{{ item.service_item.icon|default:'stars' }} display-4 text-primary-emphasis"
+            ></i>
+          </div>
+          {% endif %}
+        </div>
+        <div class="col-md-9 p-4">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <span
+                class="badge {% if item.food_item %}bg-success-subtle text-success{% else %}bg-primary-subtle text-primary{% endif %} rounded-pill px-3 py-1 small mb-2 text-uppercase"
+              >
+                {% if item.food_item %}Cuisine Item{% else %}Premium
+                Service{%endif %}
+              </span>
+              <h5 class="fw-bold mb-1 text-dark">
+                {% if item.food_item %}{{ item.food_item.name }}{% else %}{{item.service_item.name }}{% endif %}
+              </h5>
+              <p class="text-muted small mb-0">
+                {% if item.food_item %} Rate: ₹{{ item.food_item.price }}/Plate
+                | Guests: {{ cart.guest_count }} {% else %} Base Price: ₹{{
+                item.service_item.base_price }} {% endif %}
+              </p>
+
+              {% if item.service_item %}
+              <form
+                action="{% url 'cart:update_item_quantity' item.id %}"
+                method="post"
+                class="mt-2"
+              >
+                {% csrf_token %}
+                <div
+                  class="input-group input-group-sm"
+                  style="max-width: 120px"
+                >
+                  <span class="input-group-text bg-light border-0">Qty</span>
+                  <input
+                    type="number"
+                    name="quantity"
+                    value="{{ item.quantity }}"
+                    min="1"
+                    class="form-control border-0 bg-light text-center"
+                  />
+                  <button
+                    class="btn btn-outline-primary border-0"
+                    type="submit"
+                  >
+                    <i class="bi bi-check-lg"></i>
+                  </button>
+                </div>
+              </form>
+              {% endif %}
+            </div>
+            <div class="text-end">
+              <div class="h5 fw-bold text-primary mb-3">
+                ₹{{ item.subtotal }}
+              </div>
+              <form
+                action="{% url 'cart:remove_from_cart' item.id %}"
+                method="post"
+                style="display: inline"
+              >
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="btn btn-link text-danger p-0 small text-decoration-none border-0 bg-transparent"
+                >
+                  <i class="bi bi-trash-fill"></i> Remove
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+      <div class="mb-4">
+        <i class="bi bi-bag-plus display-1 text-muted opacity-25"></i>
+      </div>
+      <h3 class="fw-bold">Your planner is empty</h3>
+      <p class="text-muted mb-4">
+        You haven't selected any menus or services for your event yet.
+      </p>
+      <div class="d-flex gap-2 justify-content-center">
+        <a
+          href="{% url 'food:menu_list' %}"
+          class="btn btn-premium px-4 rounded-pill"
+          >Explore Menus</a
+        >
+        <a
+          href="{% url 'services:service_list' %}"
+          class="btn btn-outline-primary px-4 rounded-pill"
+          >Explore Services</a
+        >
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Summary Side -->
+  <div class="col-lg-4 animate-up delay-2">
+    <div
+      class="card border-0 shadow-lg rounded-4 p-4 sticky-top"
+      style="top: 100px; background: #fff"
+    >
+      <h4
+        class="fw-bold mb-4"
+        style="font-family: &quot;Playfair Display&quot;, serif"
+      >
+        Final Summary
+      </h4>
+
+      <div class="d-flex justify-content-between mb-3 text-muted">
+        <span>Items Selected</span>
+        <span class="fw-bold text-dark">{{ cart.items.count }}</span>
+      </div>
+
+      <div class="d-flex justify-content-between mb-3 text-muted">
+        <span>Sub-Total</span>
+        <span class="fw-bold text-dark">₹{{ cart.total_price }}</span>
+      </div>
+
+      <div class="d-flex justify-content-between mb-4">
+        <span class="text-muted">GST & Extras</span>
+        <span class="text-success small fw-bold"
+          >Fully Transparent Pricing</span
+        >
+      </div>
+
+      <hr class="opacity-10 mb-4" />
+
+      <div class="d-flex justify-content-between mb-5">
+        <span class="fs-4 fw-bold">Grand Total</span>
+        <span class="fs-4 fw-bold text-primary">₹{{ cart.total_price }}</span>
+      </div>
+
+      <form
+        action="{% url 'cart:update_guest_count' %}"
+        method="post"
+        class="mb-5"
+      >
+        {% csrf_token %}
+        <label class="form-label small fw-bold text-uppercase text-muted p-1"
+          >Number of Guests</label
+        >
+        <div class="input-group">
+          <input
+            type="number"
+            name="guest_count"
+            value="{{ cart.guest_count }}"
+            min="1"
+            class="form-control border-0 bg-light p-3"
+            placeholder="e.g., 200"
+          />
+          <button class="btn btn-outline-primary px-3" type="submit">
+            Update
+          </button>
+        </div>
+        <div class="form-text small text-primary opacity-75 mt-1">
+          <i class="bi bi-info-circle me-1"></i> Food pricing is based on this
+          count.
+        </div>
+      </form>
+
+      {% if cart.items.exists %}
+      <form action="{% url 'cart:finalize' %}" method="post">
+        {% csrf_token %}
+        <div class="mb-4">
+          <label class="form-label small fw-bold text-uppercase text-muted p-1"
+            >Assign to Existing Event</label
+          >
+          <select
+            name="event_id"
+            class="form-select border-0 bg-light rounded-3 p-3"
+            required
+          >
+            <option value="">-- Choose Event --</option>
+            {% for event in user_events %}
+            <option value="{{ event.id }}">
+              {{ event.event_type.name }} - {{ event.date|date:"M d, Y" }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-premium w-100 py-3 rounded-pill fs-5 shadow-xl"
+        >
+          Finalize Booking <i class="bi bi-arrow-right-short ms-1"></i>
+        </button>
+      </form>
+      {% else %}
+      <button
+        class="btn btn-secondary w-100 py-3 rounded-pill fs-5 disabled opacity-50"
+      >
+        Selection Empty
+      </button>
+      {% endif %}
+
+      <div
+        class="mt-4 p-3 bg-primary-subtle rounded-4 small text-primary-emphasis"
+      >
+        <i class="bi bi-info-circle-fill me-2"></i>
+        Finishing this step will lock your selection and generate an invoice for
+        the selected event.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,82 +1,74 @@
-{% extends 'base.html' %}
-
-{% block title %}My Events{% endblock %}
-
+{% extends 'base.html' %} {% block title %}My Events - Kalyanakumar{% endblock%} 
 {% block content %}
-<div class="row mb-4">
-    <div class="col">
-        <h1 class="text-white">
-            <i class="bi bi-calendar-event"></i> My Events
-        </h1>
-    </div>
-    <div class="col-auto">
-        <a href="{% url 'events:event_create' %}" class="btn btn-light">
-            <i class="bi bi-plus-circle"></i> Create Event
-        </a>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h2 class="fw-bold" style="font-family: &quot;Playfair Display&quot;, serif">
+    My Managed Events
+  </h2>
+  <a href="{% url 'events:event_create' %}" class="btn btn-premium">
+    <i class="bi bi-plus-lg me-2"></i>New Event
+  </a>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        {% if events %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th>Event Name</th>
-                        <th>Date</th>
-                        <th>Venue</th>
-                        <th>Expected Guests</th>
-                        <th>Budget</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for event in events %}
-                    <tr>
-                        <td>
-                            <strong>{{ event.name }}</strong>
-                        </td>
-                        <td>
-                            <i class="bi bi-calendar"></i> {{ event.date }}
-                        </td>
-                        <td>
-                            <i class="bi bi-geo-alt"></i> {{ event.venue }}
-                        </td>
-                        <td>
-                            <i class="bi bi-people"></i> {{ event.expected_guests }}
-                        </td>
-                        <td>
-                            <span class="badge bg-success">Rs. {{ event.budget }}</span>
-                        </td>
-                        <td>
-                            <a href="{% url 'events:event_detail' event.pk %}" class="btn btn-sm btn-info" title="View">
-                                <i class="bi bi-eye"></i>
-                            </a>
-                            <a href="{% url 'events:event_update' event.pk %}" class="btn btn-sm btn-warning"
-                                title="Edit">
-                                <i class="bi bi-pencil"></i>
-                            </a>
-                            <a href="{% url 'events:event_delete' event.pk %}" class="btn btn-sm btn-danger"
-                                title="Delete">
-                                <i class="bi bi-trash"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+<div class="row">
+  {% for event in events %}
+  <div class="col-md-4 mb-4">
+    <div class="card h-100">
+      {% if event.event_type.image %}
+      <img
+        src="{{ event.event_type.image.url }}"
+        class="card-img-top"
+        alt="{{ event.event_type.name }}"
+        style="height: 200px; object-fit: cover"
+      />
+      {% endif %}
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <h5 class="card-title fw-bold mb-0 text-primary">
+            {{ event.event_type.name }}
+          </h5>
+          <span
+            class="badge {% if event.status == 'CONFIRMED' %}bg-success{% elif event.status == 'PENDING' %}bg-warning{% else %}bg-secondary{% endif %}"
+          >
+            {{ event.status }}
+          </span>
         </div>
-        {% else %}
-        <div class="text-center py-5">
-            <i class="bi bi-calendar-x display-1 text-muted"></i>
-            <h4 class="mt-3">No Events Yet</h4>
-            <p class="text-muted">Create your first event to get started!</p>
-            <a href="{% url 'events:event_create' %}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Create Event
-            </a>
+        <p class="text-muted small mb-2">
+          <i class="bi bi-calendar-event me-2"></i>{{ event.date }}
+        </p>
+        <p class="mb-3 text-truncate">
+          <i class="bi bi-geo-alt me-2"></i>{{ event.venue_location }}
+        </p>
+
+        <div class="d-flex gap-2">
+          <a
+            href="{% url 'events:event_detail' event.pk %}"
+            class="btn btn-outline-primary btn-sm rounded-pill flex-grow-1"
+            >View Details</a
+          >
+          <a
+            href="{% url 'events:event_update' event.pk %}"
+            class="btn btn-light btn-sm rounded-pill"
+            ><i class="bi bi-pencil"></i
+          ></a>
         </div>
-        {% endif %}
+      </div>
     </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5">
+    <div class="card border-0 bg-light p-5">
+      <i class="bi bi-calendar2-x fs-1 text-muted mb-3"></i>
+      <h4>No events planned yet</h4>
+      <p class="text-muted">
+        Start by creating your first event to choose services and menus.
+      </p>
+      <a
+        href="{% url 'events:event_create' %}"
+        class="btn btn-premium mx-auto mt-3"
+        >Plan an Event</a
+      >
+    </div>
+  </div>
+  {% endfor %}
 </div>
 {% endblock %}

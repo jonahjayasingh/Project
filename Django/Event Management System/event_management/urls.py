@@ -22,12 +22,21 @@ def home_view(request):
     """Home page view"""
     return render(request, 'home.html')
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),
     path('accounts/', include('accounts.urls')),
     path('events/', include('events.urls')),
-    path('vendors/', include('vendors.urls')),
-    path('bookings/', include('bookings.urls')),
-    path('guests/', include('guests.urls')),
+    path('food/', include('food.urls')),
+    path('services/', include('services.urls')),
+    path('cart/', include('cart.urls')),
+    path('payments/', include('payments.urls')),
+    path('feedback/', include('feedback.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

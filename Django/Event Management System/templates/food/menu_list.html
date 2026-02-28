@@ -1,0 +1,229 @@
+{% extends 'base.html' %} {% block title %}Our Exquisite Menus -
+Kalyanakumar{%endblock %} {% block content %}
+<div class="text-center mb-5 animate-up">
+  {% if current_event %}
+  <div
+    class="d-inline-block px-4 py-2 bg-primary-subtle text-primary rounded-pill mb-3 fw-bold small"
+  >
+    <i class="bi bi-calendar-check me-2"></i>Planning for: {{
+    current_event.event_type.name }} on {{ current_event.date }}
+  </div>
+  {% endif %}
+  <h2
+    class="fw-bold display-5"
+    style="font-family: &quot;Playfair Display&quot;, serif"
+  >
+    The Epicurean Gallery
+  </h2>
+  <p class="text-muted fs-5">
+    Curated menus for life's most celebrated moments
+  </p>
+
+  <!-- Filter Controls -->
+  <div class="d-flex justify-content-center gap-3 mt-4">
+    <button
+      class="btn btn-premium px-4 rounded-pill filter-btn active"
+      data-filter="all"
+    >
+      All Dishes
+    </button>
+    <button
+      class="btn btn-outline-success px-4 rounded-pill filter-btn"
+      data-filter="veg"
+    >
+      <i class="bi bi-circle-fill me-2 small"></i>Pure Veg
+    </button>
+    <button
+      class="btn btn-outline-danger px-4 rounded-pill filter-btn"
+      data-filter="nonveg"
+    >
+      <i class="bi bi-circle-fill me-2 small"></i>Non-Veg
+    </button>
+  </div>
+</div>
+
+{% for category in categories %}
+<div class="mb-5 animate-up delay-1 category-section">
+  <div class="d-flex align-items-center mb-4">
+    <h3
+      class="fw-bold mb-0 me-3"
+      style="font-family: &quot;Playfair Display&quot;, serif"
+    >
+      {{ category.name }}
+    </h3>
+    <hr class="flex-grow-1 border-primary opacity-10" />
+  </div>
+
+  <div class="row g-4">
+    {% for item in category.items.all %}
+    <div
+      class="col-md-3 menu-item-card"
+      data-type="{% if item.is_veg %}veg{% else %}nonveg{% endif %}"
+    >
+      <div
+        class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative transition-hover"
+      >
+        <!-- Visual Header -->
+        <div class="position-relative" style="height: 200px">
+          {% if item.image %}
+          <img
+            src="{{ item.image.url }}"
+            class="w-100 h-100"
+            style="object-fit: cover"
+          />
+          {% else %}
+          <div
+            class="w-100 h-100 bg-light d-flex align-items-center justify-content-center"
+          >
+            <i class="bi bi-egg-fried display-4 text-muted opacity-25"></i>
+          </div>
+          {% endif %}
+
+          <!-- Indicators -->
+          <div
+            class="position-absolute top-0 end-0 m-3 d-flex flex-column gap-2 align-items-end"
+          >
+            <span
+              class="badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill fw-bold"
+              >₹{{ item.price }} / Plate</span
+            >
+            <div
+              class="rounded-circle shadow-sm d-flex align-items-center justify-content-center border-2 border-white"
+              style="width: 25px; height: 25px; background: {% if item.is_veg %}#198754{% else %}#dc3545{% endif %};"
+            >
+              <i
+                class="bi bi-circle-fill text-white"
+                style="font-size: 0.5rem"
+              ></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-body p-4 d-flex flex-column">
+          <h5 class="fw-bold mb-1 text-dark">{{ item.name }}</h5>
+          <p class="text-muted small mb-4 flex-grow-1">
+            {{ item.description|default:"Chef's specialty prepared
+            withpremiumingredients." }}
+          </p>
+
+          <div class="mt-auto">
+            {% if item.id in cart_item_ids %}
+            <!-- Remove Toggle -->
+            <form action="{% url 'cart:remove_food' item.id %}" method="post">
+              {% csrf_token %} {% if current_event %}<input
+                type="hidden"
+                name="event_id"
+                value="{{ current_event.id }}"
+              />{% endif %}
+              <button
+                type="submit"
+                class="btn btn-outline-danger w-100 rounded-pill py-2 small shadow-sm"
+              >
+                <i class="bi bi-dash-circle me-1"></i> Remove from Plan
+              </button>
+            </form>
+            {% else %}
+            <!-- Add Toggle -->
+            <form action="{% url 'cart:add_to_cart' %}" method="post">
+              {% csrf_token %}
+              <input type="hidden" name="food_id" value="{{ item.id }}" />
+              {% if current_event %}<input
+                type="hidden"
+                name="event_id"
+                value="{{ current_event.id }}"
+              />{% endif %}
+              <button
+                type="submit"
+                class="btn btn-premium w-100 rounded-pill py-2 small shadow-sm"
+              >
+                <i class="bi bi-plus-circle me-1"></i> Add to Plan
+              </button>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% empty %}
+<div class="text-center py-5">
+  <i class="bi bi-journal-x display-1 text-muted opacity-25 mb-3"></i>
+  <p class="text-muted fs-5">
+    Our chefs are currently preparing the menu. Please check back soon.
+  </p>
+</div>
+{% endfor %}
+
+<style>
+  .transition-hover {
+    transition: all 0.3s ease;
+    border: 1px solid transparent !important;
+  }
+  .transition-hover:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1) !important;
+    border-color: rgba(var(--bs-primary-rgb), 0.2) !important;
+  }
+  .filter-btn.active {
+    background: var(--primary-gradient);
+    color: white !important;
+    border: none;
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+  }
+  .filter-btn[data-filter="veg"].active {
+    background: #198754 !important;
+    box-shadow: 0 4px 15px rgba(25, 135, 84, 0.4);
+  }
+  .filter-btn[data-filter="nonveg"].active {
+    background: #dc3545 !important;
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.4);
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const filterBtns = document.querySelectorAll(".filter-btn");
+    const menuItems = document.querySelectorAll(".menu-item-card");
+    const categorySections = document.querySelectorAll(".category-section");
+
+    filterBtns.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        // 1. Manage Button States
+        filterBtns.forEach((b) => {
+          b.classList.remove("active");
+          // If it was the premium/all button, ensure it stays as outline when not active
+          if (b.getAttribute("data-filter") === "all") {
+            b.classList.remove("btn-premium");
+            b.classList.add("btn-outline-primary");
+          }
+        });
+
+        // 2. Set current button as active
+        btn.classList.add("active");
+        if (btn.getAttribute("data-filter") === "all") {
+          btn.classList.remove("btn-outline-primary");
+          btn.classList.add("btn-premium");
+        }
+
+        // 3. Filter Items
+        const filter = btn.getAttribute("data-filter");
+        menuItems.forEach((card) => {
+          const isMatch =
+            filter === "all" || card.getAttribute("data-type") === filter;
+          card.style.display = isMatch ? "block" : "none";
+        });
+
+        // 4. Smooth Section Visibility (Hide empty categories)
+        categorySections.forEach((section) => {
+          const hasVisibleItems = Array.from(
+            section.querySelectorAll(".menu-item-card"),
+          ).some((card) => card.style.display !== "none");
+          section.style.display = hasVisibleItems ? "block" : "none";
+        });
+      });
+    });
+  });
+</script>
+{% endblock %}

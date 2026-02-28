@@ -1,197 +1,281 @@
 {% extends 'base.html' %}
-
-{% block title %}Donation Detail{% endblock %}
-
-{% block content %}
+ {% block title %}Donation Detail{% endblock %} 
+ {% block content %}
 <div class="container mt-4">
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0"><i class="bi bi-info-circle"></i> Donation #{{ donation.id }}</h4>
-                </div>
-                <div class="card-body">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Food Type:</strong> {{ donation.food_type }}</p>
-                            <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
-                            <p><strong>Donor:</strong> {{ donation.donor.username }}</p>
-                        </div>
-                        <div class="col-md-6">
-                            <p><strong>Status:</strong>
-                                <span class="badge 
-                                    {% if donation.status == 'Pending' %}bg-warning
-                                    {% elif donation.status == 'Accepted' %}bg-info
-                                    {% elif donation.status == 'Picked' %}bg-primary
-                                    {% elif donation.status == 'Delivered' %}bg-success
-                                    {% else %}bg-danger{% endif %}">
-                                    {{ donation.status }}
-                                </span>
-                            </p>
-                            <p><strong>Created:</strong> {{ donation.created_at|date:"M d, Y h:i A" }}</p>
-                            <p><strong>Last Updated:</strong> {{ donation.updated_at|date:"M d, Y h:i A" }}</p>
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <p><strong>Pickup Time:</strong> {{ donation.pickup_time|date:"M d, Y h:i A" }}</p>
-                            {% if donation.cooked_time %}
-                            <p><strong>Cooked Time:</strong> {{ donation.cooked_time|date:"M d, Y h:i A" }}</p>
-                            {% endif %}
-                        </div>
-                        <div class="col-md-6">
-                            {% if donation.latitude and donation.longitude %}
-                            <p><strong>Coordinates:</strong> {{ donation.latitude }}, {{ donation.longitude }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <p><strong>Pickup Address:</strong></p>
-                            <p class="text-muted">{{ donation.address }}</p>
-                        </div>
-                    </div>
-
-                    {% if donation.latitude and donation.longitude %}
-                    <div class="row mb-3">
-                        <div class="col-12">
-                            <div class="card border-0 shadow-sm">
-                                <div class="card-header bg-secondary text-white">
-                                    <h6 class="mb-0"><i class="bi bi-map"></i> Pickup Location Map</h6>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div id="detailMap" style="height: 300px; width: 100%;"></div>
-                                </div>
-                                <div class="card-footer bg-light">
-                                    <small class="text-muted">
-                                        <i class="bi bi-geo-alt"></i> Coordinates: {{ donation.latitude }},
-                                        {{donation.longitude }}
-                                    </small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {% endif %}
-
-                    {% if donation.assigned_ngo %}
-                    <div class="alert alert-info">
-                        <strong>Assigned NGO:</strong> {{ donation.assigned_ngo.username }}
-                    </div>
-                    {% endif %}
-
-                    {% if donation.assigned_volunteer %}
-                    <div class="alert alert-success">
-                        <strong>Assigned Volunteer:</strong> {{ donation.assigned_volunteer.username }}
-                    </div>
-                    {% endif %}
-
-                    {% if user.role == 'donor' and donation.status == 'Accepted' %}
-                    <div class="alert alert-dark d-flex align-items-center justify-content-between">
-                        <div>
-                            <i class="bi bi-shield-lock-fill me-2"></i>
-                            <strong>Pickup Verification Code:</strong>
-                            <p class="mb-0 small text-muted">Provide this to the volunteer when they arrive.</p>
-                        </div>
-                        <code class="fs-4 bg-white px-3 py-1 rounded">{{ donation.pickup_otp }}</code>
-                    </div>
-                    {% endif %}
-
-                    {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Picked' %}
-                    <div class="alert alert-dark d-flex align-items-center justify-content-between">
-                        <div>
-                            <i class="bi bi-shield-check-fill me-2"></i>
-                            <strong>Delivery Verification Code:</strong>
-                            <p class="mb-0 small text-muted">Provide this to the volunteer upon delivery.</p>
-                        </div>
-                        <code class="fs-4 bg-white px-3 py-1 rounded">{{ donation.delivery_otp }}</code>
-                    </div>
-                    {% endif %}
-
-                    <div class="d-flex gap-2">
-                        <a href="{% if user.role == 'donor' %}{% url 'donor_dashboard' %}{% elif user.role == 'ngo' %}{% url 'ngo_dashboard' %}{% elif user.role == 'volunteer' %}{% url 'volunteer_dashboard' %}{% else %}{% url 'admin_dashboard' %}{% endif %}"
-                            class="btn btn-secondary">
-                            <i class="bi bi-arrow-left"></i> Back to Dashboard
-                        </a>
-
-                        {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Accepted' and not donation.assigned_volunteer %}
-                        <a href="{% url 'cancel_acceptance' donation.id %}" class="btn btn-danger"
-                            onclick="return confirm('Release this donation back to pending?')">
-                            <i class="bi bi-x-circle"></i> Cancel Acceptance
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+  <div class="row">
+    <div class="col-md-8">
+      <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+          <h4 class="mb-0">
+            <i class="bi bi-info-circle"></i> Donation #{{ donation.id }}
+          </h4>
         </div>
+        <div class="card-body">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p><strong>Food Type:</strong> {{ donation.food_type }}</p>
+              <p><strong>Quantity:</strong> {{ donation.quantity }}</p>
+              <p><strong>Donor:</strong> {{ donation.donor.username }}</p>
+            </div>
+            <div class="col-md-6">
+              <p>
+                <strong>Status:</strong>
+                <span
+                  id="status-badge"
+                  class="badge {% if donation.status == 'Pending' %}bg-warning {% elif donation.status == 'Accepted' %}bg-info {% elif donation.status == 'Picked' %}bg-primary {% elif donation.status == 'Delivered' %}bg-success {% elif donation.status == 'Expired' %}bg-dark {% else %}bg-danger{% endif %}"
+                >
+                  {{ donation.status }}
+                </span>
+              </p>
+              {% if donation.expiry_time %}
+              <p class="text-danger">
+                <strong
+                  ><i class="bi bi-hourglass-split"></i> Expires in:</strong
+                >
+                <span
+                  id="expiry-timer"
+                  data-expiry="{{ donation.expiry_time|date:'c' }}"
+                  >Calculating...</span
+                >
+              </p>
+              {% endif %}
+              <p>
+                <strong>Created:</strong> {{ donation.created_at|date:"M d, Yh:i A" }}
+              </p>
+              <p>
+                <strong>Last Updated:</strong> {{ donation.updated_at|date:"M d,  Y h:i A" }}
+              </p>
+            </div>
+          </div>
 
-        <div class="col-md-4">
-            <div class="card shadow">
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <p>
+                <strong>Pickup Time:</strong> {{ donation.pickup_time|date:"M d,Y h:i A" }}
+              </p>
+              {% if donation.cooked_time %}
+              <p>
+                <strong>Cooked Time:</strong> {{ donation.cooked_time|date:"M d, Y h:i A" }}
+              </p>
+              {% endif %}
+            </div>
+            <div class="col-md-6">
+              {% if donation.latitude and donation.longitude %}
+              <p>
+                <strong>Coordinates:</strong> {{ donation.latitude }}, {{donation.longitude }}
+              </p>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-12">
+              <p><strong>Pickup Address:</strong></p>
+              <p class="text-muted">{{ donation.address }}</p>
+              <a
+                href="https://www.google.com/maps/dir/?api=1&destination={{ donation.latitude }},{{ donation.longitude }}"
+                target="_blank"
+                class="btn btn-sm btn-outline-info"
+              >
+                <i class="bi bi-geo"></i> Open in Navigation
+              </a>
+            </div>
+          </div>
+
+          {% if donation.latitude and donation.longitude %}
+          <div class="row mb-3">
+            <div class="col-12">
+              <div class="card border-0 shadow-sm">
                 <div class="card-header bg-secondary text-white">
-                    <h5 class="mb-0"><i class="bi bi-clock-history"></i> Status History</h5>
+                  <h6 class="mb-0">
+                    <i class="bi bi-map"></i> Pickup Location Map
+                  </h6>
                 </div>
-                <div class="card-body">
-                    {% if status_history %}
-                    <div class="timeline">
-                        {% for history in status_history %}
-                        <div class="mb-3 pb-3 border-bottom">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <span class="badge 
-                                                {% if history.status == 'Pending' %}bg-warning
-                                                {% elif history.status == 'Accepted' %}bg-info
-                                                {% elif history.status == 'Picked' %}bg-primary
-                                                {% elif history.status == 'Delivered' %}bg-success
-                                                {% else %}bg-danger{% endif %}">
-                                        {{ history.status }}
-                                    </span>
-                                    {% if history.changed_by %}
-                                    <p class="mb-0 mt-1 small">By: {{ history.changed_by.username }}</p>
-                                    {% endif %}
-                                    {% if history.notes %}
-                                    <p class="mb-0 small text-muted">{{ history.notes }}</p>
-                                    {% endif %}
-                                </div>
-                                <small class="text-muted">{{ history.created_at|date:"M d, h:i A" }}</small>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    {% else %}
-                    <p class="text-muted">No status history available.</p>
-                    {% endif %}
+                <div class="card-body p-0">
+                  <div id="detailMap" style="height: 300px; width: 100%"></div>
                 </div>
+                <div class="card-footer bg-light">
+                  <small class="text-muted">
+                    <i class="bi bi-geo-alt"></i> Coordinates: {{ donation.latitude }}, {{donation.longitude }}
+                  </small>
+                </div>
+              </div>
             </div>
+          </div>
+          {% endif %} {% if donation.assigned_ngo %}
+          <div class="alert alert-info">
+            <strong>Assigned NGO:</strong> {{ donation.assigned_ngo.username }}
+          </div>
+          {% endif %} {% if donation.assigned_volunteer %}
+          <div class="alert alert-success">
+            <strong>Assigned Volunteer:</strong> {{donation.assigned_volunteer.username }}
+          </div>
+          {% endif %} 
+          {% if user.role == 'donor' and donation.status == 'Accepted' %}
+          <div
+            class="alert alert-dark d-flex align-items-center justify-content-between"
+          >
+            <div>
+              <i class="bi bi-shield-lock-fill me-2"></i>
+              <strong>Pickup Verification Code:</strong>
+              <p class="mb-0 small text-muted">
+                Provide this to the volunteer when they arrive.
+              </p>
+            </div>
+            <code class="fs-4 bg-white px-3 py-1 rounded"
+              >{{ donation.pickup_otp }}</code
+            >
+          </div>
+          {% endif %} 
+          {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Picked' %}
+          <div
+            class="alert alert-dark d-flex align-items-center justify-content-between"
+          >
+            <div>
+              <i class="bi bi-shield-check-fill me-2"></i>
+              <strong>Delivery Verification Code:</strong>
+              <p class="mb-0 small text-muted">
+                Provide this to the volunteer upon delivery.
+              </p>
+            </div>
+            <code class="fs-4 bg-white px-3 py-1 rounded"
+              >{{ donation.delivery_otp }}</code
+            >
+          </div>
+          {% endif %}
+
+          <div class="d-flex gap-2">
+            <a
+              href="{% if user.role == 'donor' %}{% url 'donor_dashboard' %}{% elif user.role == 'ngo' %}{% url 'ngo_dashboard' %}{% elif user.role == 'volunteer' %}{% url 'volunteer_dashboard' %}{% else %}{% url 'admin_dashboard' %}{% endif %}"
+              class="btn btn-secondary"
+            >
+              <i class="bi bi-arrow-left"></i> Back to Dashboard
+            </a>
+
+            {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Accepted' and not donation.assigned_volunteer %}
+            <a
+              href="{% url 'cancel_acceptance' donation.id %}"
+              class="btn btn-danger"
+              onclick="
+                return confirm('Release this donation back to pending?');
+              "
+            >
+              <i class="bi bi-x-circle"></i> Cancel Acceptance
+            </a>
+            {% endif %}
+          </div>
         </div>
+      </div>
     </div>
+
+    <div class="col-md-4">
+      <div class="card shadow">
+        <div class="card-header bg-secondary text-white">
+          <h5 class="mb-0">
+            <i class="bi bi-clock-history"></i> Status History
+          </h5>
+        </div>
+        <div class="card-body">
+          {% if status_history %}
+          <div class="timeline">
+            {% for history in status_history %}
+            <div class="mb-3 pb-3 border-bottom">
+              <div class="d-flex justify-content-between align-items-start">
+                <div>
+                  <span
+                    class="badge {% if history.status == 'Pending' %}bg-warning {% elif history.status == 'Accepted' %}bg-info {% elif history.status == 'Picked' %}bg-primary {% elif history.status == 'Delivered' %}bg-success {% else %}bg-danger{% endif %}"
+                  >
+                    {{ history.status }}
+                  </span>
+                  {% if history.changed_by %}
+                  <p class="mb-0 mt-1 small">
+                    By: {{ history.changed_by.username }}
+                  </p>
+                  {% endif %} {% if history.notes %}
+                  <p class="mb-0 small text-muted">{{ history.notes }}</p>
+                  {% endif %}
+                </div>
+                <small class="text-muted"
+                  >{{ history.created_at|date:"M d, h:i A" }}</small
+                >
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <p class="text-muted">No status history available.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
 <!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 {% if donation.latitude and donation.longitude %}
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const detailMap = L.map('detailMap').setView(
-            [{{ donation.latitude }}, {{ donation.longitude }}],
-        15
-    );
+      document.addEventListener("DOMContentLoaded", function () {
+          const detailMap = L.map('detailMap').setView(
+              [{{ donation.latitude }}, {{ donation.longitude }}],
+          15
+      );
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(detailMap);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors',
+          maxZoom: 19
+      }).addTo(detailMap);
 
-    L.marker([{{ donation.latitude }}, {{ donation.longitude }}])
-        .addTo(detailMap)
-        .bindPopup('<b>Pickup Location</b><br>{{ donation.address|escapejs }}')
-        .openPopup();
-});
+      L.marker([{{ donation.latitude }}, {{ donation.longitude }}])
+          .addTo(detailMap)
+          .bindPopup('<b>Pickup Location</b><br>{{ donation.address|escapejs }}')
+          .openPopup();
 
+      // Polling logic
+      setInterval(function() {
+          const donationId = "{{ donation.id }}";
+          fetch(`/donations/track-status/${donationId}/`)
+              .then(response => response.json())
+              .then(data => {
+                  const currentStatus = document.getElementById('status-badge').innerText.trim();
+                  if (data.status !== currentStatus) {
+                      window.location.reload();
+                  }
+              });
+      }, 5000);
+
+      // Expiry Timer Logic
+      const expirySpan = document.getElementById('expiry-timer');
+      if (expirySpan) {
+          const expiryDate = new Date(expirySpan.getAttribute('data-expiry')).getTime();
+
+          function updateTimer() {
+              const now = new Date().getTime();
+              const distance = expiryDate - now;
+
+              if (distance < 0) {
+                  expirySpan.innerHTML = "EXPIRED";
+                  expirySpan.className = "fw-bold text-danger";
+                  return;
+              }
+
+              const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+              const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+              const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+              expirySpan.innerHTML = hours + "h " + minutes + "m " + seconds + "s ";
+          }
+          setInterval(updateTimer, 1000);
+          updateTimer();
+      }
+  });
 </script>
-{% endif %}
+{% endif %} 
 {% endblock %}

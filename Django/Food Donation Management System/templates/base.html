@@ -114,6 +114,7 @@
         .toast-info {
             background-color: #e0f2fe !important;
             color: #075985 !important;
+            
         }
 
         /* Floating Chatbot Button */
@@ -164,10 +165,12 @@
     <div class="toast-container position-fixed bottom-0 end-0 p-4">
         {% if messages %}
         {% for message in messages %}
-        <div class="toast show align-items-center border-0 rounded-4 shadow-lg mb-2 toast-{{ message.tags }} {% if 'success' in message.tags %}toast-success{% elif 'error' in message.tags or 'danger' in message.tags %}toast-error{% elif 'info' in message.tags %}toast-info{% endif %}"
+        {% if 'info' not in message.tags %}
+        <div class="toast show align-items-center border-0 rounded-4 shadow-lg mb-2 toast-{{ message.tags }} {% if 'success' in message.tags %}toast-success{% elif 'error' in message.tags or 'danger' in message.tags %}toast-error{% elif 'info' in message.tag %}toast-info{% endif %}"
             role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000" data-bs-autohide="true">
             <div class="d-flex">
                 <div class="toast-body d-flex align-items-center gap-2 py-3 px-4">
+                    
                     {% if 'success' in message.tags %}
                     <span class="fs-4">✅</span>
                     {% elif 'error' in message.tags or 'danger' in message.tags %}
@@ -178,6 +181,7 @@
                     <div class="fw-bold">{{ message }}</div>
                 </div>
             </div>
+            {% endif %}
         </div>
         {% endfor %}
         {% endif %}

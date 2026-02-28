@@ -1,0 +1,185 @@
+{% extends 'base.html' %} {% block title %}Event Services -
+Kalyanakumar{%endblock %} {% block content %}
+<div class="text-center mb-5 animate-up">
+  {% if current_event %}
+  <div
+    class="d-inline-block px-4 py-2 bg-primary-subtle text-primary rounded-pill mb-3 fw-bold small"
+  >
+    <i class="bi bi-calendar-check me-2"></i>Planning for: {{
+    current_event.event_type.name }} on {{ current_event.date }}
+  </div>
+  {% endif %}
+  <h2
+    class="fw-bold display-5"
+    style="font-family: &quot;Playfair Display&quot;, serif"
+  >
+    Premium Event Services
+  </h2>
+  <hr
+    class="mx-auto border-primary opacity-25"
+    style="width: 100px; height: 3px"
+  />
+  <p class="text-muted fs-5">Professional support for a seamless experience</p>
+</div>
+
+<div class="row g-4 animate-up delay-1">
+  {% for service in services %}
+  <div class="col-md-4">
+    <div
+      class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden card-hover"
+    >
+      <div class="position-relative">
+        {% if service.icon %}
+        <div
+          class="bg-dark p-5 text-center text-white"
+          style="
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <i
+            class="bi bi-{{ service.icon }} display-2 text-primary-emphasis"
+          ></i>
+        </div>
+        {% else %}
+        <div
+          class="bg-dark p-5 text-center text-white"
+          style="
+            height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <i class="bi bi-stars display-2 text-warning"></i>
+        </div>
+        {% endif %}
+        <div
+          class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-dark text-white"
+          style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.9))"
+        >
+          <h4 class="fw-bold mb-0">{{ service.name }}</h4>
+        </div>
+      </div>
+      <div class="card-body p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span
+            class="badge bg-primary-subtle text-primary fs-5 fw-bold px-3 py-2 rounded-pill shadow-sm"
+            >₹{{ service.base_price }}</span
+          >
+          <span class="small text-muted"
+            ><i class="bi bi-patch-check-fill text-primary me-1"></i
+            >Verified</span
+          >
+        </div>
+        <p class="text-muted mb-4" style="min-height: 48px">
+          {{ service.description }}
+        </p>
+
+        {% if service.id in cart_item_ids %}
+        <form
+          action="{% url 'cart:remove_service' service.id %}"
+          method="post"
+          class="mb-4"
+        >
+          {% csrf_token %} {% if current_event %}<input
+            type="hidden"
+            name="event_id"
+            value="{{ current_event.id }}"
+          />{% endif %}
+          <button
+            type="submit"
+            class="btn btn-outline-danger w-100 rounded-pill shadow-sm"
+          >
+            <i class="bi bi-dash-circle me-1"></i> Remove from Plan
+          </button>
+        </form>
+        {% else %}
+        <form action="{% url 'cart:add_to_cart' %}" method="post" class="mb-4">
+          {% csrf_token %}
+          <input type="hidden" name="service_id" value="{{ service.id }}" />
+          {% if current_event %}<input
+            type="hidden"
+            name="event_id"
+            value="{{ current_event.id }}"
+          />{% endif %}
+          <div class="d-flex gap-2">
+            <input
+              type="number"
+              name="quantity"
+              value="1"
+              min="1"
+              class="form-control bg-light border-0 rounded-pill text-center w-25"
+              style="height: 45px"
+            />
+            <button
+              type="submit"
+              class="btn btn-premium flex-grow-1 rounded-pill shadow-sm"
+            >
+              <i class="bi bi-plus-circle me-1"></i> Add to Plan
+            </button>
+          </div>
+        </form>
+        {% endif %}
+
+        <hr class="opacity-10" />
+
+        <!-- Portfolio Link -->
+        <a
+          class="btn btn-outline-light text-dark btn-sm rounded-pill w-100 mt-2"
+          data-bs-toggle="collapse"
+          href="#portfolio-{{ service.id }}"
+        >
+          <i class="bi bi-images me-2 text-primary"></i>View Showcase Portfolio
+        </a>
+        <div class="collapse" id="portfolio-{{ service.id }}">
+          <div class="row g-2 mt-3 p-3 bg-light rounded-4 border">
+            <label
+              class="small fw-bold text-uppercase text-muted mb-2 d-block"
+              style="font-size: 0.65rem"
+              >Recent Work Highlights</label
+            >
+            {% for item in service.portfolio.all %}
+            <div class="col-4">
+              <div
+                class="rounded-3 overflow-hidden shadow-sm ratio ratio-1x1 border bg-white"
+              >
+                <img
+                  src="{{ item.image.url }}"
+                  class="img-fluid"
+                  style="object-fit: cover"
+                  title="{{ item.caption }}"
+                />
+              </div>
+              {% if item.caption %}
+              <div
+                class="x-small text-muted mt-1 text-truncate"
+                style="font-size: 0.6rem"
+              >
+                {{ item.caption }}
+              </div>
+              {% endif %}
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-4">
+              <p class="small text-muted mb-0">
+                <i class="bi bi-camera-fill me-1 opacity-50"></i>Portfolio
+                updates in progress...
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12 text-center py-5">
+    <i class="bi bi-collection fs-1 text-muted mb-3 d-block opacity-25"></i>
+    <p class="text-muted">No premium services currently available.</p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

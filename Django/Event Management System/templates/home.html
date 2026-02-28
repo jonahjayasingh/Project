@@ -1,288 +1,205 @@
-{% extends 'base.html' %}
-
-{% block title %}Home - Event Management System{% endblock %}
-
-{% block extra_css %}
-<style>
-    .hero-section {
-        padding: 100px 0;
-        text-align: center;
-        color: white;
-    }
-
-    .hero-title {
-        font-size: 3.5rem;
-        font-weight: bold;
-        margin-bottom: 20px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .hero-subtitle {
-        font-size: 1.5rem;
-        margin-bottom: 40px;
-        opacity: 0.95;
-    }
-
-    .feature-card {
-        background: white;
-        border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 30px;
-        transition: all 0.3s ease;
-        height: 100%;
-    }
-
-    .feature-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .feature-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .cta-button {
-        font-size: 1.2rem;
-        padding: 15px 40px;
-        margin: 10px;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-    }
-
-    .cta-button:hover {
-        transform: scale(1.1);
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
-    }
-
-    .stats-section {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        border-radius: 20px;
-        padding: 40px;
-        margin: 40px 0;
-    }
-
-    .stat-item {
-        text-align: center;
-        color: white;
-    }
-
-    .stat-number {
-        font-size: 3rem;
-        font-weight: bold;
-        display: block;
-    }
-
-    .stat-label {
-        font-size: 1.1rem;
-        opacity: 0.9;
-    }
-</style>
-{% endblock %}
-
-{% block content %}
-<!-- Hero Section -->
-<div class="hero-section">
-    <div class="container">
-        <h1 class="hero-title">
-            <i class="bi bi-calendar-event"></i> Event Management System
-        </h1>
-        <p class="hero-subtitle">
-            Plan, Organize, and Execute Perfect Events with Ease
-        </p>
-
-        <div class="mt-4">
-            {% if user.is_authenticated %}
-            <a href="{% url 'accounts:dashboard' %}" class="btn btn-light btn-lg cta-button">
-                <i class="bi bi-speedometer2"></i> Go to Dashboard
-            </a>
-            {% else %}
-            <a href="{% url 'accounts:register' %}" class="btn btn-light btn-lg cta-button">
-                <i class="bi bi-person-plus"></i> Get Started
-            </a>
-            <a href="{% url 'accounts:login' %}" class="btn btn-outline-light btn-lg cta-button">
-                <i class="bi bi-box-arrow-in-right"></i> Login
-            </a>
-            {% endif %}
-        </div>
-
-        <!-- Stats Section -->
-        <div class="stats-section mt-5">
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="stat-item">
-                        <span class="stat-number"><i class="bi bi-calendar-check"></i></span>
-                        <span class="stat-label">Event Planning</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-item">
-                        <span class="stat-number"><i class="bi bi-shop"></i></span>
-                        <span class="stat-label">Vendor Management</span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="stat-item">
-                        <span class="stat-number"><i class="bi bi-people"></i></span>
-                        <span class="stat-label">Guest Tracking</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+{% extends 'base.html' %} {% block content %}
+<div class="row align-items-center py-5 min-vh-75">
+  <div class="col-lg-6 order-2 order-lg-1">
+    <div
+      class="badge bg-primary-subtle text-primary border border-primary px-3 py-2 rounded-pill mb-4 fw-bold"
+    >
+      <i class="bi bi-award me-2"></i>Premier Event Management in India
     </div>
+    <h1
+      class="display-2 fw-bold mb-4"
+      style="font-family: &quot;Playfair Display&quot;, serif; line-height: 1.1"
+    >
+      We Design Your <span class="text-primary italic">Dreams</span> Into
+      Reality
+    </h1>
+    <p class="lead text-muted mb-5 pe-lg-5" style="font-size: 1.25rem">
+      From intimate birthdays to grand regal weddings, we curate every detail
+      with precision, elegance, and a touch of magic.
+    </p>
+    <div class="d-flex flex-wrap gap-3">
+      <a
+        href="{% url 'accounts:register' %}"
+        class="btn btn-premium btn-lg px-5 py-3 shadow-lg fs-5"
+      >
+        Start Planning <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+      <a
+        href="#portfolio"
+        class="btn btn-outline-dark btn-lg px-5 py-3 rounded-4 fs-5"
+      >
+        Our Work
+      </a>
+    </div>
+
+    <div class="mt-5 d-flex align-items-center gap-4 text-muted small">
+      <div>
+        <i class="bi bi-check-circle-fill text-success me-2"></i>Custom Menus
+      </div>
+      <div>
+        <i class="bi bi-check-circle-fill text-success me-2"></i>Premium Decor
+      </div>
+      <div>
+        <i class="bi bi-check-circle-fill text-success me-2"></i>Live Tracking
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 order-1 order-lg-2 mb-5 mb-lg-0">
+    <div class="position-relative">
+      <div
+        class="bg-primary rounded-circle position-absolute top-50 start-50 translate-middle opacity-10"
+        style="width: 120%; height: 120%; filter: blur(100px)"
+      ></div>
+      <img
+        src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80"
+        class="img-fluid rounded-5 shadow-2xl position-relative z-1 border border-white border-5"
+        style="transform: skewY(-2deg)"
+      />
+
+      <div
+        class="card p-3 rounded-4 border-0 shadow-lg position-absolute top-0 start-0 m-4 d-none d-md-block z-2 bg-white/90 backdrop-blur-sm"
+        style="width: 200px; transform: rotate(-10deg)"
+      >
+        <div class="d-flex align-items-center">
+          <div class="bg-warning text-white p-2 rounded-3 me-2">
+            <i class="bi bi-star-fill"></i>
+          </div>
+          <div>
+            <div class="fw-bold small">4.9/5 Rating</div>
+            <div class="text-muted x-small">1000+ Happy Clients</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-<!-- Features Section -->
-<div class="container mb-5">
-    <div class="row text-center mb-5">
-        <div class="col">
-            <h2 class="text-white mb-3">Powerful Features</h2>
-            <p class="text-white-50">Everything you need to manage events professionally</p>
-        </div>
+<div id="portfolio" class="py-5 mt-5">
+  <div class="row justify-content-center text-center mb-5">
+    <div class="col-md-8">
+      <h2
+        class="display-5 fw-bold mb-3"
+        style="font-family: &quot;Playfair Display&quot;, serif"
+      >
+        Our Masterpiece Events
+      </h2>
+      <p class="text-muted">
+        Explore the diverse range of celebrations we specialize in, each crafted
+        with a unique vision.
+      </p>
     </div>
+  </div>
 
-    <div class="row g-4">
-        <!-- Feature 1: Event Management -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-calendar-event"></i>
-                </div>
-                <h4>Event Management</h4>
-                <p class="text-muted">
-                    Create and manage events with complete details including date, venue,
-                    expected guests, and budget tracking.
-                </p>
-                <ul class="text-start text-muted">
-                    <li>Create unlimited events</li>
-                    <li>Track event details</li>
-                    <li>Budget monitoring</li>
-                    <li>Real-time updates</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Feature 2: Vendor Booking -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-bookmark-check"></i>
-                </div>
-                <h4>Vendor Booking</h4>
-                <p class="text-muted">
-                    Book vendors for your events with automatic price calculation and
-                    duplicate booking prevention.
-                </p>
-                <ul class="text-start text-muted">
-                    <li>Multiple vendor categories</li>
-                    <li>Automatic pricing</li>
-                    <li>Conflict prevention</li>
-                    <li>Easy management</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Feature 3: Guest Management -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-people"></i>
-                </div>
-                <h4>Guest Management</h4>
-                <p class="text-muted">
-                    Organize your guest list with categories and contact information
-                    for seamless event coordination.
-                </p>
-                <ul class="text-start text-muted">
-                    <li>Categorize guests (VIP, Family, Friend)</li>
-                    <li>Store contact details</li>
-                    <li>Track RSVPs</li>
-                    <li>Export guest lists</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Feature 4: Budget Tracker -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-calculator"></i>
-                </div>
-                <h4>Budget Tracker</h4>
-                <p class="text-muted">
-                    Keep your event expenses under control with automatic budget
-                    calculations and visual tracking.
-                </p>
-                <ul class="text-start text-muted">
-                    <li>Automatic calculations</li>
-                    <li>Visual progress bars</li>
-                    <li>Over-budget alerts</li>
-                    <li>Cost breakdowns</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Feature 5: Role-Based Access -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-shield-check"></i>
-                </div>
-                <h4>Secure Access</h4>
-                <p class="text-muted">
-                    Role-based authentication ensures proper access control with
-                    separate dashboards for admins and clients.
-                </p>
-                <ul class="text-start text-muted">
-                    <li>Admin & Client roles</li>
-                    <li>Secure authentication</li>
-                    <li>Custom dashboards</li>
-                    <li>Data protection</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Feature 6: Modern UI -->
-        <div class="col-md-4">
-            <div class="feature-card">
-                <div class="feature-icon">
-                    <i class="bi bi-palette"></i>
-                </div>
-                <h4>Beautiful Design</h4>
-                <p class="text-muted">
-                    Modern, responsive interface built with Bootstrap 5 for a
-                    premium user experience across all devices.
-                </p>
-                <ul class="text-start text-muted">
-                    <li>Responsive design</li>
-                    <li>Smooth animations</li>
-                    <li>Intuitive navigation</li>
-                    <li>Mobile-friendly</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Call to Action -->
-{% if not user.is_authenticated %}
-<div class="container text-center mb-5">
-    <div class="card" style="background: rgba(255, 255, 255, 0.95);">
-        <div class="card-body p-5">
-            <h2 class="mb-3">Ready to Get Started?</h2>
-            <p class="text-muted mb-4">
-                Join our Event Management System today and experience hassle-free event planning!
+  <div class="row g-4">
+    <!-- Marriage -->
+    <div class="col-md-4">
+      <div class="card border-0 h-100 overflow-hidden rounded-5 group">
+        <div class="position-relative">
+          <img
+            src="https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            class="card-img-top"
+            style="height: 400px; object-fit: cover"
+          />
+          <div
+            class="position-absolute bottom-0 start-0 w-100 p-4 text-white p-5"
+            style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.9))"
+          >
+            <h3 class="fw-bold mb-1">Grand Weddings</h3>
+            <p class="small opacity-75">
+              Regal celebrations for your forever journey.
             </p>
-            <a href="{% url 'accounts:register' %}" class="btn btn-primary btn-lg cta-button">
-                <i class="bi bi-rocket"></i> Create Free Account
-            </a>
+            <a
+              href="{% url 'accounts:register' %}"
+              class="btn btn-sm btn-outline-light rounded-pill px-3 mt-2"
+              >Explore Weddings</a
+            >
+          </div>
         </div>
+      </div>
     </div>
+
+    <!-- Birthday -->
+    <div class="col-md-4">
+      <div class="card border-0 h-100 overflow-hidden rounded-5">
+        <div class="position-relative">
+          <img
+            src="https://images.unsplash.com/photo-1530103862676-fa8c9d34a689?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            class="card-img-top"
+            style="height: 400px; object-fit: cover"
+          />
+          <div
+            class="position-absolute bottom-0 start-0 w-100 p-4 text-white p-5"
+            style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.9))"
+          >
+            <h3 class="fw-bold mb-1">Birthdays</h3>
+            <p class="small opacity-75">
+              Fun and vibrant memories for every age.
+            </p>
+            <a
+              href="{% url 'accounts:register' %}"
+              class="btn btn-sm btn-outline-light rounded-pill px-3 mt-2"
+              >Explore Parties</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Traditional -->
+    <div class="col-md-4">
+      <div class="card border-0 h-100 overflow-hidden rounded-5">
+        <div class="position-relative">
+          <img
+            src="https://images.unsplash.com/photo-1510076857177-7470076d4098?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+            class="card-img-top"
+            style="height: 400px; object-fit: cover"
+          />
+          <div
+            class="position-absolute bottom-0 start-0 w-100 p-4 text-white p-5"
+            style="background: linear-gradient(transparent, rgba(0, 0, 0, 0.9))"
+          >
+            <h3 class="fw-bold mb-1">Custom Events</h3>
+            <p class="small opacity-75">
+              Special milestones handled with care.
+            </p>
+            <a
+              href="{% url 'accounts:register' %}"
+              class="btn btn-sm btn-outline-light rounded-pill px-3 mt-2"
+              >Explore Traditions</a
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-{% endif %}
+
+<div
+  class="bg-dark text-white rounded-5 p-5 mt-5 mb-5 shadow-2xl overflow-hidden position-relative"
+>
+  <div class="row align-items-center position-relative z-1">
+    <div class="col-md-8">
+      <h2
+        class="display-5 fw-bold mb-4"
+        style="font-family: &quot;Playfair Display&quot;, serif"
+      >
+        Ready to Host an <br />Unforgettable Event?
+      </h2>
+      <p class="lead opacity-75 mb-0">
+        Join 1000+ happy clients who trusted Kalyanakumar for their most
+        precious moments.
+      </p>
+    </div>
+    <div class="col-md-4 text-md-end mt-4 mt-md-0">
+      <a
+        href="{% url 'accounts:register' %}"
+        class="btn btn-premium btn-lg px-5 py-3"
+        >Register Now</a
+      >
+    </div>
+  </div>
+  <div
+    class="position-absolute top-0 end-0 h-100 w-25 bg-gradient-to-l from-primary-500/20 to-transparent"
+  ></div>
+</div>
 {% endblock %}

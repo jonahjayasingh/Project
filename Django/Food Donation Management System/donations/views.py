@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Donation
+from .models import Donation, DonationRejection
 from .forms import DonationForm, AssignVolunteerForm
 from accounts.models import CustomUser
 from tracking.models import StatusHistory
@@ -12,7 +12,7 @@ from tracking.models import StatusHistory
 @login_required
 def donor_dashboard(request):
     """Donor dashboard showing their donations"""
-    donations = Donation.objects.filter(donor=request.user).order_by('-created_at')
+    donations = Donation.objects.filter(donor=request.user, is_archived=False).order_by('-created_at')
     pending_count = donations.filter(status='Pending').count()
     accepted_count = donations.filter(status='Accepted').count()
     delivered_count = donations.filter(status='Delivered').count()
@@ -34,12 +34,20 @@ def create_donation(request):
             donation.donor = request.user
             donation.save()
             
-            # Create status history
             StatusHistory.objects.create(
                 donation=donation,
                 status='Pending',
                 changed_by=request.user,
                 notes='Donation created'
+            )
+            
+            from .utils import send_donation_email, log_system_activity
+            log_system_activity("Donation Created", request.user, f"Donation #{donation.id} for {donation.food_type}")
+            send_donation_email(
+                "Donation Created",
+                "donation_created",
+                {'donation': donation},
+                [request.user.email]
             )
             
             messages.success(request, "Donation created successfully! Thank you for your contribution.")
@@ -76,10 +84,24 @@ def ngo_dashboard(request):
         messages.error(request, "Access denied.")
         return redirect('dashboard')
     
-    pending_donations = Donation.objects.filter(status='Pending').order_by('-created_at')
+    from django.utils import timezone
+    now = timezone.now()
+    
+    # Exclude donations rejected by this NGO OR expired
+    rejected_ids = DonationRejection.objects.filter(ngo=request.user).values_list('donation_id', flat=True)
+    pending_donations = Donation.objects.filter(
+        status='Pending',
+        is_archived=False
+    ).exclude(
+        Q(id__in=rejected_ids) | Q(expiry_time__lte=now)
+    ).order_by('-created_at')
+    
     accepted_donations = Donation.objects.filter(
         assigned_ngo=request.user,
-        status__in=['Accepted', 'Picked', 'Delivered']
+        status__in=['Accepted', 'Picked', 'Delivered'],
+        is_archived=False
+    ).exclude(
+        Q(status__in=['Accepted', 'Picked']) & Q(expiry_time__lte=now)
     ).order_by('-updated_at')
     
     # Calculate distances for pending donations if NGO has location set
@@ -91,17 +113,23 @@ def ngo_dashboard(request):
                 float(request.user.longitude)
             )
             can_accept = distance is None or distance <= 20  # 20km limit
+            
+            # Urgent flag if nearing expiry (2 hours)
+            is_urgent = donation.expiry_time and donation.expiry_time <= now + timezone.timedelta(hours=2)
+            
             pending_with_distance.append({
                 'donation': donation,
                 'distance': distance,
-                'can_accept': can_accept
+                'can_accept': can_accept,
+                'is_urgent': is_urgent
             })
     else:
         for donation in pending_donations:
             pending_with_distance.append({
                 'donation': donation,
                 'distance': None,
-                'can_accept': False  # Must set location first
+                'can_accept': False,
+                'is_urgent': False
             })
     
     return render(request, 'donations/ngo_dashboard.html', {
@@ -121,6 +149,12 @@ def accept_donation(request, donation_id):
     
     if donation.status != 'Pending':
         messages.error(request, "This donation is no longer pending.")
+        return redirect('ngo_dashboard')
+    
+    # Check for expiry
+    from django.utils import timezone
+    if donation.expiry_time and donation.expiry_time <= timezone.now():
+        messages.error(request, "This donation has expired and cannot be accepted.")
         return redirect('ngo_dashboard')
     
     # Check NGO location and distance (20km limit)
@@ -144,12 +178,20 @@ def accept_donation(request, donation_id):
     donation.assigned_ngo = request.user
     donation.save()
     
-    # Create status history
     StatusHistory.objects.create(
         donation=donation,
         status='Accepted',
         changed_by=request.user,
         notes=f'Accepted by NGO: {request.user.username}'
+    )
+    
+    from .utils import send_donation_email, log_system_activity
+    log_system_activity("Donation Accepted", request.user, f"NGO {request.user.username} accepted donation #{donation.id}")
+    send_donation_email(
+        "Donation Accepted",
+        "donation_accepted",
+        {'donation': donation},
+        [donation.donor.email]
     )
     
     messages.success(request, f"Donation #{donation.id} accepted successfully!")
@@ -168,18 +210,22 @@ def reject_donation(request, donation_id):
         messages.error(request, "This donation is no longer pending.")
         return redirect('ngo_dashboard')
     
-    donation.status = 'Rejected'
-    donation.save()
-    
-    # Create status history
-    StatusHistory.objects.create(
+    # Create rejection record for this specific NGO
+    DonationRejection.objects.get_or_create(
         donation=donation,
-        status='Rejected',
-        changed_by=request.user,
-        notes=f'Rejected by NGO: {request.user.username}'
+        ngo=request.user,
+        defaults={'reason': 'Rejected via NGO dashboard'}
     )
     
-    messages.warning(request, f"Donation #{donation.id} has been rejected.")
+    # Create status history (don't change the main status)
+    StatusHistory.objects.create(
+        donation=donation,
+        status='Pending',
+        changed_by=request.user,
+        notes=f'Rejected by NGO: {request.user.username}. Still available for others.'
+    )
+    
+    messages.warning(request, f"Donation #{donation.id} has been removed from your list.")
     return redirect('ngo_dashboard')
 
 @login_required
@@ -241,6 +287,14 @@ def assign_volunteer(request, donation_id):
                     status='Accepted',
                     changed_by=request.user,
                     notes=f'Volunteer assigned: {volunteer.username}'
+                )
+                
+                from .utils import send_donation_email
+                send_donation_email(
+                    "Volunteer Assigned",
+                    "volunteer_assigned",
+                    {'donation': donation},
+                    [donation.donor.email, volunteer.email]
                 )
                 
                 messages.success(request, f"Volunteer {volunteer.username} assigned successfully!")
@@ -368,6 +422,14 @@ def mark_picked(request, donation_id):
                 notes=f'Picked up by volunteer: {request.user.username} (OTP Verified)'
             )
             
+            from .utils import send_donation_email
+            send_donation_email(
+                "Donation Picked Up",
+                "donation_picked",
+                {'donation': donation},
+                [donation.donor.email, donation.assigned_ngo.email]
+            )
+            
             messages.success(request, f"Donation #{donation.id} marked as picked!")
             return redirect('volunteer_dashboard')
         else:
@@ -406,12 +468,15 @@ def mark_delivered(request, donation_id):
                 donation.status = 'Delivered'
                 donation.save()
                 
-                StatusHistory.objects.create(
-                    donation=donation,
-                    status='Delivered',
-                    changed_by=request.user,
-                    notes=f'Delivered by volunteer: {request.user.username} (OTP Verified)'
+                from .utils import send_donation_email, log_system_activity
+                log_system_activity("Donation Delivered", request.user, f"Volunteer {request.user.username} delivered donation #{donation.id}")
+                send_donation_email(
+                    "Donation Delivered",
+                    "donation_delivered",
+                    {'donation': donation},
+                    [donation.donor.email, donation.assigned_ngo.email]
                 )
+                
                 messages.success(request, f"Donation #{donation.id} marked as delivered!")
                 return redirect('volunteer_dashboard')
             else:
@@ -443,6 +508,14 @@ def mark_delivered(request, donation_id):
             changed_by=request.user,
             notes=f'Delivered marked by NGO: {request.user.username}'
         )
+        from .utils import send_donation_email
+        send_donation_email(
+            "Donation Delivered",
+            "donation_delivered",
+            {'donation': donation},
+            [donation.donor.email]
+        )
+        
         messages.success(request, f"Donation #{donation.id} marked as delivered!")
         return redirect('ngo_dashboard')
 
@@ -463,6 +536,10 @@ def admin_dashboard(request):
     total_users = CustomUser.objects.count()
     pending_users = CustomUser.objects.filter(is_approved=False).count()
     
+    from tracking.models import SystemLog
+    logs = SystemLog.objects.all().order_by('-timestamp')[:20]
+    expired_donations_count = Donation.objects.filter(status='Expired').count()
+    
     recent_donations = Donation.objects.all().order_by('-created_at')[:10]
     
     return render(request, 'donations/admin_dashboard.html', {
@@ -472,6 +549,8 @@ def admin_dashboard(request):
         'total_users': total_users,
         'pending_users': pending_users,
         'recent_donations': recent_donations,
+        'logs': logs,
+        'expired_donations_count': expired_donations_count,
     })
 
 @login_required
@@ -527,7 +606,10 @@ def toggle_user_status(request, user_id):
     user.is_active = not user.is_active
     user.save()
     
+    from .utils import log_system_activity
     status = "activated" if user.is_active else "deactivated"
+    log_system_activity(f"User {status.capitalize()}", request.user, f"Admin {status} account: {user.username}")
+    
     messages.success(request, f"User {user.username} has been {status}.")
     return redirect('manage_users')
 
@@ -584,6 +666,9 @@ def delete_donation(request, donation_id):
     donation_info = f"#{donation.id} - {donation.food_type}"
     donation.delete()
     
+    from .utils import log_system_activity
+    log_system_activity("Donation Deleted", request.user, f"Admin deleted donation: {donation_info}")
+    
     messages.success(request, f"Donation {donation_info} has been deleted.")
     return redirect('manage_donations')
 
@@ -598,8 +683,14 @@ def donation_list(request):
     if request.user.role == 'donor':
         donations = donations.filter(donor=request.user)
     elif request.user.role == 'ngo':
+        from django.utils import timezone
+        now = timezone.now()
+        rejected_ids = DonationRejection.objects.filter(ngo=request.user).values_list('donation_id', flat=True)
         donations = donations.filter(
             Q(status='Pending') | Q(assigned_ngo=request.user)
+        ).exclude(
+            Q(id__in=rejected_ids) | 
+            (Q(status__in=['Pending', 'Accepted', 'Picked']) & Q(expiry_time__lte=now))
         )
     elif request.user.role == 'volunteer':
         donations = donations.filter(assigned_volunteer=request.user)
@@ -629,3 +720,38 @@ def donation_history(request):
         'donations': donations,
         'title': title
     })
+@login_required
+def track_status(request, donation_id):
+    """API endpoint for dashboard polling"""
+    donation = get_object_or_404(Donation, id=donation_id)
+    return JsonResponse({
+        'status': donation.status,
+        'is_archived': donation.is_archived,
+        'updated_at': donation.updated_at.isoformat(),
+        'assigned_ngo': donation.assigned_ngo.username if donation.assigned_ngo else None,
+        'assigned_volunteer': donation.assigned_volunteer.username if donation.assigned_volunteer else None,
+    })
+
+@login_required
+def manage_archived(request):
+    """Admin view for archived donations"""
+    if request.user.role != 'admin':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    archived_donations = Donation.objects.filter(is_archived=True).order_by('-updated_at')
+    return render(request, 'donations/manage_archived.html', {'donations': archived_donations})
+
+@login_required
+def restore_donation(request, donation_id):
+    """Admin restores an archived donation"""
+    if request.user.role != 'admin':
+        messages.error(request, "Access denied.")
+        return redirect('dashboard')
+    
+    donation = get_object_or_404(Donation, id=donation_id, is_archived=True)
+    donation.is_archived = False
+    donation.save()
+    
+    messages.success(request, f"Donation #{donation.id} has been restored.")
+    return redirect('manage_archived')

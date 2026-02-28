@@ -1,0 +1,105 @@
+{% extends 'base.html' %} {% block title %}{{ title }} - Admin{% endblock %} {%
+block content %}
+<div class="row justify-content-center animate-up">
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <div class="bg-primary p-4 text-white">
+        <h3
+          class="fw-bold mb-0"
+          style="font-family: &quot;Playfair Display&quot;, serif"
+        >
+          {{ title }}
+        </h3>
+        <p class="small opacity-75 mb-0">
+          Define the culinary experience for your clients
+        </p>
+      </div>
+
+      <div class="card-body p-5">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="row g-4">
+            <div class="col-md-8">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Item Name</label
+                >
+                {{ form.name }}
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="mb-4 text-center">
+                <label
+                  class="form-label small fw-bold text-uppercase d-block mb-3"
+                  >Dietary Type</label
+                >
+                <div class="form-check form-switch d-inline-block">
+                  {{ form.is_veg }}
+                  <label class="form-check-label ms-2 small"
+                    >Vegetarian Only</label
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Category</label
+                >
+                {{ form.category }}
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Base Price (₹)</label
+                >
+                {{ form.price }}
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Detailed Description</label
+                >
+                {{ form.description }}
+              </div>
+            </div>
+
+            <div class="col-12">
+              <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase"
+                  >Presentation Image</label
+                >
+                {{ form.image }}
+                <div class="form-text small">
+                  High-resolution images (1200x800) recommended.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-5 opacity-10" />
+
+          <div class="d-flex gap-3">
+            <button
+              type="submit"
+              class="btn btn-premium px-5 rounded-pill shadow-sm"
+            >
+              Save Menu Item
+            </button>
+            <a
+              href="{% url 'food:admin_menus' %}"
+              class="btn btn-light px-4 rounded-pill"
+              >Cancel</a
+            >
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
