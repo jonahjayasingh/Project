@@ -99,6 +99,11 @@ Food{%endblock %} {% block content %}
     background: #fef2f2;
     color: #991b1b;
   }
+  .status-expired {
+    background: #f8fafc;
+    color: #475569;
+    border: 1px solid #e2e8f0;
+  }
 
   .avatar-stack {
     display: flex;
@@ -305,7 +310,7 @@ Food{%endblock %} {% block content %}
           </td>
           <td class="py-4 text-center">
             <span
-              class="status-badge {% if donation.status == 'Pending' %}status-pending {% elif donation.status == 'Accepted' %}status-accepted {% elif donation.status == 'Picked' %}status-picked {% elif donation.status == 'Delivered' %}status-delivered {% else %}status-rejected{% endif %}"
+              class="status-badge {% if donation.status == 'Pending' %}status-pending {% elif donation.status == 'Accepted' %}status-accepted {% elif donation.status == 'Picked' %}status-picked {% elif donation.status == 'Delivered' %}status-delivered {% elif donation.status == 'Expired' %}status-expired {% else %}status-rejected{% endif %}"
             >
               {{ donation.status }}
             </span>

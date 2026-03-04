@@ -1,0 +1,124 @@
+{% extends 'base.html' %} {% block title %}Welcome to SkinScan AI{% endblock %}
+{% block content %} {% load static %}
+<div
+  class="row align-items-center animate-up"
+  style="min-height: 75vh; padding-top: 4rem"
+>
+  <div class="col-lg-6">
+    <div
+      class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 border border-primary border-opacity-20"
+    >
+      Powered by Deep Learning
+    </div>
+    <h1 class="hero-title fw-bold mb-4">
+      Precision Skin Health <br /><span class="text-white">AI Analysis</span>
+    </h1>
+    <p
+      class="lead text-secondary mb-5"
+      style="font-size: 1.25rem; max-width: 500px"
+    >
+      Identify potential skin conditions with over 90% accuracy using our
+      advanced deep learning models. Fast, reliable, and private.
+    </p>
+    <div class="d-flex gap-3">
+      <a href="{% url 'register' %}" class="btn btn-premium btn-lg px-5"
+        >Get Started</a
+      >
+      <a
+        href="#learn-more"
+        class="btn btn-outline-light btn-lg px-5"
+        style="border-radius: 14px; border-color: var(--glass-border)"
+        >Learn More</a
+      >
+    </div>
+
+    <div class="mt-5 d-flex align-items-center gap-4 text-secondary">
+      <div class="d-flex align-items-center gap-2">
+        <span style="font-size: 1.5rem; color: var(--accent)">✓</span> Secure
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span style="font-size: 1.5rem; color: var(--accent)">✓</span> Accurate
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <span style="font-size: 1.5rem; color: var(--accent)">✓</span> Instant
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6 d-none d-lg-block">
+    <div class="position-relative">
+      <div
+        class="position-absolute top-50 start-50 translate-middle w-100 h-100"
+        style="
+          background: radial-gradient(
+            circle,
+            var(--secondary) 0%,
+            transparent 70%
+          );
+          opacity: 0.15;
+          filter: blur(40px);
+        "
+      ></div>
+      <img
+        src="{% static 'images/hero_ai.png' %}"
+        alt="AI Healthcare Analysis"
+        class="img-fluid rounded-5 shadow-2xl position-relative"
+        style="
+          border: 1px solid var(--glass-border);
+          transform: perspective(1000px) rotateY(-5deg);
+        "
+      />
+    </div>
+  </div>
+</div>
+
+<div class="row mt-5 py-5" id="learn-more">
+  <div class="col-12 text-center mb-5">
+    <h2 class="h1 fw-bold">Why Choose SkinScan AI?</h2>
+  </div>
+  <div class="col-md-4 mb-4">
+    <div class="glass-card h-100">
+      <div
+        class="mb-4"
+        style="width: 50px; h-50px; background: rgba(59, 130, 246, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--secondary); font-size: 1.5rem;"
+      >
+        🤖
+      </div>
+      <h3 class="h5 fw-bold mb-3">AI Powered</h3>
+      <p class="text-secondary">
+        State-of-the-art neural networks trained on thousands of dermatological
+        images to detect early signs of melanoma and carcinoma.
+      </p>
+    </div>
+  </div>
+  <div class="col-md-4 mb-4">
+    <div class="glass-card h-100">
+      <div
+        class="mb-4"
+        style="width: 50px; h-50px; background: rgba(16, 185, 129, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: 1.5rem;"
+      >
+        ⚡
+      </div>
+      <h3 class="h5 fw-bold mb-3">Instant Result</h3>
+      <p class="text-secondary">
+        Get your prediction in seconds. Our cloud-based processing ensures you
+        get clinical-grade analysis without the wait.
+      </p>
+    </div>
+  </div>
+  <div class="col-md-4 mb-4">
+    <div class="glass-card h-100">
+      <div
+        class="mb-4"
+        style="width: 50px; h-50px; background: rgba(244, 63, 94, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #f43f5e; font-size: 1.5rem;"
+      >
+        🔒
+      </div>
+      <h3 class="h5 fw-bold mb-3">Private & Secure</h3>
+      <p class="text-secondary">
+        Your data is encrypted end-to-end. We process images securely and never
+        share your health information with third parties.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

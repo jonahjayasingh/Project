@@ -78,6 +78,22 @@ class Donation(models.Model):
         
         return round(distance, 2)
 
+    def check_and_update_status(self):
+        """
+        Lazy check if donation has expired and update status
+        Returns True if status was changed
+        """
+        from django.utils import timezone
+        if self.status in ['Pending', 'Accepted'] and self.expiry_time and self.expiry_time <= timezone.now():
+            self.status = 'Expired'
+            self.save()
+            
+            # Log this
+            from .utils import log_system_activity
+            log_system_activity("Donation Expired", None, f"Donation #{self.id} marked as expired via lazy check")
+            return True
+        return False
+
 class DonationRejection(models.Model):
     donation = models.ForeignKey(Donation, on_delete=models.CASCADE, related_name='rejections')
     ngo = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='rejected_donations')

@@ -1,6 +1,5 @@
-{% extends 'base.html' %}
- {% block title %}Donation Detail{% endblock %} 
- {% block content %}
+{% extends 'base.html' %} {% block title %}Donation Detail{% endblock %} {%
+block content %}
 <div class="container mt-4">
   <div class="row">
     <div class="col-md-8">
@@ -40,10 +39,12 @@
               </p>
               {% endif %}
               <p>
-                <strong>Created:</strong> {{ donation.created_at|date:"M d, Yh:i A" }}
+                <strong>Created:</strong> {{ donation.created_at|date:"M d, Yh:i
+                A" }}
               </p>
               <p>
-                <strong>Last Updated:</strong> {{ donation.updated_at|date:"M d,  Y h:i A" }}
+                <strong>Last Updated:</strong> {{ donation.updated_at|date:"M d,
+                Y h:i A" }}
               </p>
             </div>
           </div>
@@ -51,18 +52,21 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <p>
-                <strong>Pickup Time:</strong> {{ donation.pickup_time|date:"M d,Y h:i A" }}
+                <strong>Pickup Time:</strong> {{ donation.pickup_time|date:"M
+                d,Y h:i A" }}
               </p>
               {% if donation.cooked_time %}
               <p>
-                <strong>Cooked Time:</strong> {{ donation.cooked_time|date:"M d, Y h:i A" }}
+                <strong>Cooked Time:</strong> {{ donation.cooked_time|date:"M d,
+                Y h:i A" }}
               </p>
               {% endif %}
             </div>
             <div class="col-md-6">
               {% if donation.latitude and donation.longitude %}
               <p>
-                <strong>Coordinates:</strong> {{ donation.latitude }}, {{donation.longitude }}
+                <strong>Coordinates:</strong> {{ donation.latitude }},
+                {{donation.longitude }}
               </p>
               {% endif %}
             </div>
@@ -96,7 +100,8 @@
                 </div>
                 <div class="card-footer bg-light">
                   <small class="text-muted">
-                    <i class="bi bi-geo-alt"></i> Coordinates: {{ donation.latitude }}, {{donation.longitude }}
+                    <i class="bi bi-geo-alt"></i> Coordinates: {{
+                    donation.latitude }}, {{donation.longitude }}
                   </small>
                 </div>
               </div>
@@ -108,10 +113,11 @@
           </div>
           {% endif %} {% if donation.assigned_volunteer %}
           <div class="alert alert-success">
-            <strong>Assigned Volunteer:</strong> {{donation.assigned_volunteer.username }}
+            <strong>Assigned Volunteer:</strong>
+            {{donation.assigned_volunteer.username }}
           </div>
-          {% endif %} 
-          {% if user.role == 'donor' and donation.status == 'Accepted' %}
+          {% endif %} {% if user.role == 'donor' and donation.status ==
+          'Accepted' %}
           <div
             class="alert alert-dark d-flex align-items-center justify-content-between"
           >
@@ -126,8 +132,8 @@
               >{{ donation.pickup_otp }}</code
             >
           </div>
-          {% endif %} 
-          {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Picked' %}
+          {% endif %} {% if user.role == 'ngo' and donation.assigned_ngo == user
+          and donation.status == 'Picked' %}
           <div
             class="alert alert-dark d-flex align-items-center justify-content-between"
           >
@@ -152,7 +158,8 @@
               <i class="bi bi-arrow-left"></i> Back to Dashboard
             </a>
 
-            {% if user.role == 'ngo' and donation.assigned_ngo == user and donation.status == 'Accepted' and not donation.assigned_volunteer %}
+            {% if user.role == 'ngo' and donation.assigned_ngo == user and
+            donation.status == 'Accepted' and not donation.assigned_volunteer %}
             <a
               href="{% url 'cancel_acceptance' donation.id %}"
               class="btn btn-danger"
@@ -183,7 +190,7 @@
               <div class="d-flex justify-content-between align-items-start">
                 <div>
                   <span
-                    class="badge {% if history.status == 'Pending' %}bg-warning {% elif history.status == 'Accepted' %}bg-info {% elif history.status == 'Picked' %}bg-primary {% elif history.status == 'Delivered' %}bg-success {% else %}bg-danger{% endif %}"
+                    class="badge {% if history.status == 'Pending' %}bg-warning {% elif history.status == 'Accepted' %}bg-info {% elif history.status == 'Picked' %}bg-primary {% elif history.status == 'Delivered' %}bg-success {% elif history.status == 'Expired' %}bg-dark {% else %}bg-danger{% endif %}"
                   >
                     {{ history.status }}
                   </span>
@@ -277,5 +284,4 @@
       }
   });
 </script>
-{% endif %} 
-{% endblock %}
+{% endif %} {% endblock %}

@@ -19,7 +19,7 @@ A comprehensive Django-based platform designed to bridge the gap between food do
 
 ### 3. Role-Based Ecosystem
 
-- **Donor**: Post food donations, track fulfillment, and manage their profile.
+- **Donor**: Post food donations, track fulfillment with real-time status updates, and manage their profile.
 - **NGO**: Browse available donations within a 20km radius, accept/reject pickups, and assign volunteers.
 - **Volunteer**: Manage assigned tasks with a 15km pickup limit and real-time navigation support.
 - **Admin**: Oversee the entire system, approve users, and manage all donation records.
@@ -45,6 +45,7 @@ A comprehensive Django-based platform designed to bridge the gap between food do
 
 - **Automated Expiry Calculation**: Donations expire 6 hours after cooking by default.
 - **Background Cleanup**: Celery tasks automatically mark expired donations and notify donors.
+- **Lazy Expiry Mechanism**: Real-time status updates in dashboards ensure accuracy even if background tasks are delayed.
 - **Real-Time Countdown**: Detail pages show a live timer for food safety.
 - **Smart Filtering**: NGOs cannot see or accept expired food.
 

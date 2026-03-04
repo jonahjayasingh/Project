@@ -62,6 +62,7 @@ class ServiceProvider(models.Model):
     price_per_hour = models.DecimalField(max_digits=10, decimal_places=2)
     profile_image = models.ImageField(upload_to='providers/', null=True, blank=True)
     is_active = models.BooleanField(default=True)
+    is_approved = models.BooleanField(default=False)
     
     # Intelligence Metrics
     response_speed_minutes = models.IntegerField(default=30, help_text="Avg response time in minutes")

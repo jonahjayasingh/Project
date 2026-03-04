@@ -1,5 +1,6 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from .forms import RestrictedLoginForm
 from . import views
 
 urlpatterns = [
@@ -13,7 +14,7 @@ urlpatterns = [
     path('chatbot/', views.ai_chatbot, name='ai_chatbot'),
     path('signup/', views.signup, name='signup'),
     path('become-pro/', views.register_provider, name='register_provider'),
-    path('login/', auth_views.LoginView.as_view(template_name='services/login.html'), name='login'),
+    path('login/', auth_views.LoginView.as_view(template_name='services/login.html', authentication_form=RestrictedLoginForm), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     
     # Intelligence & Management
@@ -26,4 +27,9 @@ urlpatterns = [
     # Advanced Features
     path('preferences/', views.update_user_preferences, name='update_preferences'),
     path('booking/<int:booking_id>/dispute/', views.report_dispute, name='report_dispute'),
+    
+    # Staff/Admin Approval
+    path('staff/dashboard/', views.staff_dashboard, name='staff_dashboard'),
+    path('staff/approve/<int:pk>/', views.approve_provider, name='approve_provider'),
+    path('staff/revoke/<int:pk>/', views.revoke_provider, name='revoke_provider'),
 ]

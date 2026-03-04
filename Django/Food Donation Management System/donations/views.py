@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse
 from django.db.models import Q
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,16 @@ from tracking.models import StatusHistory
 @login_required
 def donor_dashboard(request):
     """Donor dashboard showing their donations"""
+    # Quick check for expired donations that haven't been updated yet
+    from django.utils import timezone
+    now = timezone.now()
+    Donation.objects.filter(
+        donor=request.user,
+        status__in=['Pending', 'Accepted'],
+        expiry_time__lte=now,
+        is_archived=False
+    ).update(status='Expired')
+
     donations = Donation.objects.filter(donor=request.user, is_archived=False).order_by('-created_at')
     pending_count = donations.filter(status='Pending').count()
     accepted_count = donations.filter(status='Accepted').count()
@@ -67,6 +78,9 @@ def donation_detail(request, donation_id):
     if request.user.role == 'donor' and donation.donor != request.user:
         messages.error(request, "You don't have permission to view this donation.")
         return redirect('donor_dashboard')
+    
+    # Lazy expiry check
+    donation.check_and_update_status()
     
     status_history = donation.status_history.all()
     
@@ -677,14 +691,21 @@ def delete_donation(request, donation_id):
 @login_required
 def donation_list(request):
     """List all donations (accessible to all authenticated users)"""
+    # Lazy expiry check for all pending/accepted donations
+    from django.utils import timezone
+    now = timezone.now()
+    Donation.objects.filter(
+        status__in=['Pending', 'Accepted'],
+        expiry_time__lte=now,
+        is_archived=False
+    ).update(status='Expired')
+
     donations = Donation.objects.all().order_by('-created_at')
     
     # Role-based filtering
     if request.user.role == 'donor':
         donations = donations.filter(donor=request.user)
     elif request.user.role == 'ngo':
-        from django.utils import timezone
-        now = timezone.now()
         rejected_ids = DonationRejection.objects.filter(ngo=request.user).values_list('donation_id', flat=True)
         donations = donations.filter(
             Q(status='Pending') | Q(assigned_ngo=request.user)
@@ -700,7 +721,12 @@ def donation_list(request):
 @login_required
 def donation_history(request):
     """View donation history based on user role"""
+    # Lazy expiry check for current user's donations
+    from django.utils import timezone
+    now = timezone.now()
+    
     if request.user.role == 'donor':
+        Donation.objects.filter(donor=request.user, status__in=['Pending', 'Accepted'], expiry_time__lte=now).update(status='Expired')
         donations = Donation.objects.filter(donor=request.user).order_by('-created_at')
         title = "My Donation History"
     elif request.user.role == 'ngo':
@@ -724,6 +750,8 @@ def donation_history(request):
 def track_status(request, donation_id):
     """API endpoint for dashboard polling"""
     donation = get_object_or_404(Donation, id=donation_id)
+    donation.check_and_update_status()
+    
     return JsonResponse({
         'status': donation.status,
         'is_archived': donation.is_archived,

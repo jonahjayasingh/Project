@@ -8,6 +8,7 @@ from django.db.models import Q, Avg
 from django.db.models.query import QuerySet
 from django.conf import settings
 from django.contrib import messages
+from django.db.models import Prefetch
 
 import re
 import requests
@@ -70,7 +71,7 @@ def parse_search_query_ai(query):
     return {"category": None, "location": None, "time": None, "budget": None}
 
 def get_ranked_providers(categories=None, location=None, user_lat=None, user_lon=None, sort_by=None, user_prefs=None):
-    providers = ServiceProvider.objects.filter(is_active=True)
+    providers = ServiceProvider.objects.filter(is_active=True, is_approved=True)
     if categories:
         providers = providers.filter(categories__in=categories).distinct()
     if location:
@@ -127,13 +128,17 @@ def generate_ai_recommendation(query, detected_cat, providers):
     return call_ollama(messages)
 
 def home(request):
-    categories = Category.objects.all()
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+    from django.db.models import Prefetch
+    approved_providers = ServiceProvider.objects.filter(is_active=True, is_approved=True)
+    categories = Category.objects.prefetch_related(Prefetch('providers', queryset=approved_providers))
     user_location = None
     if request.user.is_authenticated:
         profile, _ = UserProfile.objects.get_or_create(user=request.user)
         user_location = profile.location_name
     # Get unique locations from active providers
-    provider_locations = ServiceProvider.objects.filter(is_active=True).values_list('location', flat=True).distinct()
+    provider_locations = ServiceProvider.objects.filter(is_active=True, is_approved=True).values_list('location', flat=True).distinct()
     
     return render(request, 'services/home.html', {
         'categories': categories,
@@ -187,7 +192,7 @@ def search_results(request):
     ai_recommendation = generate_ai_recommendation(query, primary_cat, providers)
     
     # Get unique locations for the filter
-    provider_locations = ServiceProvider.objects.filter(is_active=True).values_list('location', flat=True).distinct()
+    provider_locations = ServiceProvider.objects.filter(is_active=True, is_approved=True).values_list('location', flat=True).distinct()
     
     context = {
         'providers': providers,
@@ -197,7 +202,7 @@ def search_results(request):
         'location': search_loc,
         'intent': intent,
         'ai_recommendation': ai_recommendation,
-        'categories': Category.objects.all(),
+        'categories': Category.objects.prefetch_related(Prefetch('providers', queryset=ServiceProvider.objects.filter(is_active=True, is_approved=True))),
         'locations': sorted(list(set(provider_locations)))
     }
     return render(request, 'services/search_results.html', context)
@@ -584,3 +589,78 @@ def report_dispute(request, booking_id):
         return redirect('dashboard')
         
     return render(request, 'services/report_dispute.html', {'booking': booking, 'issue_types': Dispute.ISSUE_TYPES})
+
+@login_required
+def staff_dashboard(request):
+    if not request.user.is_staff:
+        messages.error(request, "Access denied. Staff only.")
+        return redirect('dashboard')
+    
+    q = request.GET.get('q', '')
+    cat_id = request.GET.get('category')
+    status = request.GET.get('status', 'all')
+    
+    providers = ServiceProvider.objects.all()
+    
+    if status == 'approved':
+        providers = providers.filter(is_approved=True)
+    elif status == 'pending':
+        providers = providers.filter(is_approved=False)
+    
+    if q:
+        providers = providers.filter(Q(name__icontains=q) | Q(location__icontains=q))
+    
+    if cat_id:
+        providers = providers.filter(categories__id=cat_id)
+        
+    providers = providers.distinct().order_by('-id')
+    
+    return render(request, 'services/staff_dashboard.html', {
+        'providers': providers,
+        'categories': Category.objects.all(),
+        'query': q,
+        'active_category': cat_id,
+        'active_status': status
+    })
+
+@login_required
+def approve_provider(request, pk):
+    if not request.user.is_staff:
+        return redirect('dashboard')
+        
+    provider = get_object_or_404(ServiceProvider, pk=pk)
+    provider.is_approved = True
+    provider.save()
+    
+    # Notify the user
+    if provider.user:
+        Notification.objects.create(
+            user=provider.user,
+            title="Profile Approved!",
+            message="Your professional profile has been approved! You are now visible on the platform.",
+            notification_type='SYSTEM'
+        )
+    
+    messages.success(request, f"Approved {provider.name} successfully.")
+    return redirect('staff_dashboard')
+
+@login_required
+def revoke_provider(request, pk):
+    if not request.user.is_staff:
+        return redirect('dashboard')
+        
+    provider = get_object_or_404(ServiceProvider, pk=pk)
+    provider.is_approved = False
+    provider.save()
+    
+    # Notify the user
+    if provider.user:
+        Notification.objects.create(
+            user=provider.user,
+            title="Profile Access Revoked",
+            message="Your professional profile approval has been revoked. Please contact support for more details.",
+            notification_type='SYSTEM'
+        )
+    
+    messages.warning(request, f"Revoked permission for {provider.name}.")
+    return redirect('staff_dashboard')

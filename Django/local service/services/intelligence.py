@@ -107,7 +107,7 @@ def get_recommendations(user):
     u_lat, u_lon = profile.latitude, profile.longitude
     
     # Base queryset
-    providers = ServiceProvider.objects.filter(is_active=True)
+    providers = ServiceProvider.objects.filter(is_active=True, is_approved=True)
     
     # Filter by user's distance tolerance
     if u_lat and u_lon:
@@ -165,7 +165,7 @@ def get_emergency_providers(user, category=None):
     today = datetime.date.today()
     # Simplified availability: Any pro with fewer than 3 bookings today is "available now"
     # In a real app, this would check the current hour slot
-    active_providers = ServiceProvider.objects.filter(is_active=True)
+    active_providers = ServiceProvider.objects.filter(is_active=True, is_approved=True)
     if category:
         active_providers = active_providers.filter(categories=category)
         

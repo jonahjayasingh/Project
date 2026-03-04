@@ -1,340 +1,462 @@
 {% extends 'services/base.html' %}
 {% load static %}
 
+{% block title %}{{ provider.name }} - Professional {{ provider.categories.first.name }}{% endblock %}
+
 {% block extra_css %}
 <style>
+  :root {
+    --premium-dark: #0f172a;
+    --premium-slate: #1e293b;
+    --premium-accent: #6366f1;
+    --premium-accent-light: #818cf8;
+    --premium-glass: rgba(255, 255, 255, 0.9);
+    --premium-border: rgba(255, 255, 255, 0.2);
+  }
+
+  .provider-header {
+  {% comment %} width: 100vw; {% endcomment %}
+  {% comment %} margin-left: calc(50% - 50vw); {% endcomment %}
+   border-radius: 20px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+  padding: 6rem 0 10rem;
+  position: relative;
+  overflow: hidden;
+}
+
+  .header-shapes div {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    z-index: 1;
+    opacity: 0.7;
+  }
+
+  .shape-1 { width: 450px; height: 450px; background: rgba(99, 102, 241, 0.18); top: -120px; right: -80px; }
+  .shape-2 { width: 350px; height: 350px; background: rgba(244, 63, 94, 0.12); bottom: -80px; left: -80px; }
+
+  .glass-breadcrumb {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 10px 20px;
+    border-radius: 9999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .profile-card-top {
+    margin-top: -110px;
+    position: relative;
+    z-index: 10;
+  }
+
+  .profile-img-glow {
+    width: clamp(160px, 18vw, 220px);
+    height: clamp(160px, 18vw, 220px);
+    padding: 10px;
+    background: linear-gradient(135deg, var(--premium-accent), #f43f5e);
+    border-radius: clamp(36px, 6vw, 60px);
+    box-shadow: 0 30px 60px -15px rgba(0,0,0,0.5);
+  }
+
+  .profile-img-detailed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: inherit;
+    border: 5px solid var(--premium-dark);
+  }
+
+  .badge-premium-pro {
+    padding: 10px 18px;
+    border-radius: 14px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.6px;
+    border: 1px solid transparent;
+  }
+
+  .badge-cat {
+    background: rgba(99, 102, 241, 0.12);
+    color: var(--premium-accent);
+    border-color: rgba(99, 102, 241, 0.25);
+  }
+
+  .badge-vetted {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border-color: rgba(16, 185, 129, 0.25);
+  }
+
+  .stat-card-premium {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 28px 20px;
+    transition: all 0.25s ease;
+    box-shadow: 0 6px 12px -4px rgba(0,0,0,0.06);
+  }
+
+  .stat-card-premium:hover {
+    transform: translateY(-6px);
+    border-color: var(--premium-accent-light);
+    box-shadow: 0 12px 24px -8px rgba(99,102,241,0.18);
+  }
+
+  .booking-sidebar-premium {
+    background: white;
+    border-radius: 24px;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    box-shadow: 0 20px 40px -12px rgba(0,0,0,0.1);
+    position: sticky;
+    top: 1.5rem;
+  }
+
+  .price-tag-big {
+    background: var(--premium-dark);
+    color: white;
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+  }
+
+  .slot-btn-premium {
+    padding: 14px 8px;
+    border-radius: 12px;
+    border: 2px solid #e2e8f0;
+    background: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .btn-check:checked + .slot-btn-premium {
+    background: var(--premium-accent);
+    color: white;
+    border-color: var(--premium-accent);
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.2);
+  }
+
+  .review-card-refined {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    padding: 28px;
+    transition: transform 0.25s ease;
+  }
+
+  .review-card-refined:hover {
+    transform: translateY(-4px);
+  }
+
+  .italic-blockquote {
+    font-style: italic;
+    color: #64748b;
+    padding-left: 1.5rem;
+    border-left: 4px solid #cbd5e1;
+    margin: 1rem 0;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 991.98px) {
+    .profile-card-top {
+      margin-top: -80px;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .profile-card-top .ms-4 {
+      margin-left: 0 !important;
+      margin-top: 1.5rem;
+    }
+
     .provider-header {
-        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-        padding: 5rem 0 3rem;
-        margin-bottom: -3rem;
+      padding: 5rem 0 8rem;
     }
 
-    .profile-img-container {
-        position: relative;
-        margin-top: -80px;
-    }
-
-    .profile-img {
-        width: 160px;
-        height: 160px;
-        border: 6px solid #fff;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        object-fit: cover;
-    }
-
-    .booking-sidebar {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        position: sticky;
-        top: 6rem;
-        z-index: 10;
+    .booking-sidebar-premium {
+      position: relative;
+      top: 0;
+      margin-top: 2.5rem;
     }
 
     .date-scroll {
-        display: flex;
-        gap: 12px;
-        overflow-x: auto;
-        padding-bottom: 1rem;
-        scrollbar-width: none;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
     }
+  }
 
-    .date-scroll::-webkit-scrollbar {
-        display: none;
+  @media (max-width: 575.98px) {
+    .profile-img-glow {
+      width: 140px;
+      height: 140px;
     }
-
-    .time-slot-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 8px;
-    }
-
-    .slot-btn {
-        padding: 10px 5px;
-        font-size: 0.85rem;
-        border-radius: 12px;
-        border: 1px solid #e2e8f0;
-        background: #fff;
-        transition: all 0.2s ease;
-        text-align: center;
-        display: block;
-        cursor: pointer;
-    }
-
-    .btn-check:checked+.slot-btn {
-        background: var(--bs-primary);
-        color: #fff;
-        border-color: var(--bs-primary);
-        box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
-    }
-
-    .review-card {
-        border-radius: 20px;
-        background: #f8fafc;
-        border: 1px solid #e2e8f0;
-        transition: transform 0.3s ease;
-    }
-
-    .review-card:hover {
-        transform: translateY(-5px);
-    }
-
-    .stat-pill {
-        background: #fff;
-        border-radius: 16px;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: box-shadow 0.3s ease;
-    }
-
-    .stat-pill:hover {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <header class="provider-header text-white">
-    <div class="container py-4">
-        <div class="col-lg-8">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-4">
-                    <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-white opacity-75">Home</a></li>
-                    <li class="breadcrumb-item active text-white" aria-current="page">{{ provider.name }}</li>
-                </ol>
-            </nav>
-            <h1 class="display-4 fw-bold mb-2">{{ provider.name }}</h1>
-            <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="d-flex text-warning">
-                    {% for i in "12345" %}
-                    <i class="bi bi-star-fill me-1"></i>
-                    {% endfor %}
-                </div>
-                <span class="opacity-75">({{ provider.rating }} / 5.0 Rating)</span>
-                <span class="badge bg-blur text-white rounded-pill px-3">{{ provider.location }}</span>
-            </div>
+  <div class="header-shapes">
+    <div class="shape-1"></div>
+    <div class="shape-2"></div>
+  </div>
+
+  <div class="container position-relative" style="z-index: 5">
+    <div class="col-lg-10 mx-auto">
+      <nav class="mb-5">
+        <div class="glass-breadcrumb">
+          <a href="{% url 'home' %}" class="text-white text-opacity-75 text-decoration-none small fw-bold">Marketplace</a>
+          <span class="text-white mx-2 opacity-50">/</span>
+          <span class="text-white small fw-bold">{{ provider.name }}</span>
         </div>
+      </nav>
+
+      {% if not provider.is_approved %}
+      <div class="alert alert-warning border-0 rounded-4 p-4 mb-5 shadow">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-shield-exclamation fs-1 me-4 text-warning"></i>
+          <div>
+            <h5 class="fw-bold mb-1">Profile Under Review</h5>
+            <p class="mb-0 opacity-90">This professional is currently being vetted and is not yet visible publicly.</p>
+          </div>
+          {% if user.is_staff %}
+          <a href="{% url 'approve_provider' provider.id %}" class="btn btn-dark rounded-pill px-4 ms-auto fw-bold">
+            <i class="bi bi-check-circle-fill me-2"></i>Approve Now
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      {% endif %}
+
+      <h1 class="display-3 fw-bold mb-3">{{ provider.name }}</h1>
+
+      <div class="d-flex flex-wrap align-items-center gap-4 gap-md-5 mb-5">
+        <div class="d-flex align-items-center gap-2 text-warning">
+          {% for i in "12345" %}<i class="bi bi-star-fill"></i>{% endfor %}
+        </div>
+        <div class="fs-4 fw-bold">
+          {{ provider.rating }} <span class="opacity-50 fw-normal">/ 5.0</span>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-geo-alt-fill text-accent fs-4"></i>
+          <span class="fs-5">{{ provider.location }}</span>
+        </div>
+      </div>
     </div>
+  </div>
 </header>
 
-<div class="container pb-5">
-    <div class="row g-5">
-        <!-- Main Content -->
-        <div class="col-lg-8">
-            <div class="profile-img-container mb-5 ms-3">
-                {% if provider.profile_image %}
-                <img src="{{ provider.profile_image.url }}" class="rounded-circle profile-img">
-                {% else %}
-                <div class="rounded-circle profile-img bg-primary d-flex align-items-center justify-content-center">
-                    <i class="bi bi-person text-white display-1"></i>
-                </div>
-                {% endif %}
+<div class="container pb-5 pt-5">
+  <div class="row g-5">
+    <div class="col-lg-8">
+      <div class="profile-card-top d-flex flex-md-row flex-column align-items-md-end align-items-center mb-5">
+        <div class="profile-img-glow">
+          {% if provider.profile_image %}
+            <img src="{{ provider.profile_image.url }}" class="profile-img-detailed" alt="{{ provider.name }}">
+          {% else %}
+            <div class="w-100 h-100 d-flex align-items-center justify-content-center bg-dark rounded-5">
+              <i class="bi bi-person text-white display-1"></i>
             </div>
-
-            <div class="d-flex gap-2 mb-5">
-                {% for category in provider.categories.all %}
-                <span class="badge bg-soft-primary text-primary px-3 py-2 rounded-pill fw-bold">
-                    <i class="bi {{ category.icon }} me-1"></i> {{ category.name }}
-                </span>
-                {% endfor %}
-                {% for badge in provider.badges %}
-                <span class="badge bg-soft-success text-success px-3 py-2 rounded-pill fw-bold">
-                    <i class="bi bi-patch-check-fill me-1"></i> {{ badge }}
-                </span>
-                {% endfor %}
-            </div>
-
-            <!-- Stats -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-3">
-                    <div class="stat-pill text-center">
-                        <div class="fs-2 fw-bold text-dark">{{ provider.jobs_completed }}</div>
-                        <div class="text-muted small">Projects</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-pill text-center">
-                        <div class="fs-2 fw-bold text-dark">{{ provider.acceptance_rate }}%</div>
-                        <div class="text-muted small">Acceptance</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-pill text-center">
-                        <div class="fs-2 fw-bold text-dark">~{{ provider.response_speed_minutes }}m</div>
-                        <div class="text-muted small">Response</div>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="stat-pill text-center">
-                        <div class="fs-2 fw-bold text-dark">4.9</div>
-                        <div class="text-muted small">Punctuality</div>
-                    </div>
-                </div>
-            </div>
-
-            <section class="mb-5">
-                <h3 class="fw-bold mb-4">Professional Bio</h3>
-                <p class="fs-5 text-muted lh-lg">{{ provider.bio }}</p>
-            </section>
-
-            <section>
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h3 class="fw-bold mb-0">Client Reviews</h3>
-                </div>
-                <div class="row g-4">
-                    {% for review in reviews %}
-                    <div class="col-md-6">
-                        <div class="review-card p-4 h-100">
-                            <div class="d-flex justify-content-between mb-3">
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
-                                        style="width: 40px; height: 40px;">
-                                        {{ review.user.username|slice:":1"|upper }}
-                                    </div>
-                                    <div>
-                                        <h6 class="fw-bold mb-0">{{ review.user.username }}</h6>
-                                        <small class="text-muted">{{ review.created_at|date }}</small>
-                                    </div>
-                                </div>
-                                <div class="text-warning">
-                                    <i class="bi bi-star-fill"></i> {{ review.rating }}
-                                </div>
-                            </div>
-                            <p class="text-muted mb-0">"{{ review.comment }}"</p>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div class="col-12 text-center py-5 bg-light rounded-4">
-                        <i class="bi bi-chat-dots display-4 text-muted mb-3 d-block"></i>
-                        <p class="text-muted">No reviews yet. Be the first to book!</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            </section>
+          {% endif %}
         </div>
 
-        <!-- Booking Sidebar -->
-        <div class="col-lg-4">
-            <div class="card border-0 shadow-premium rounded-4 booking-sidebar overflow-hidden">
-                <div class="card-header bg-primary text-white p-4 border-0">
-                    <div class="text-center">
-                        <p class="small text-uppercase fw-bold opacity-75 mb-1">Service Fee</p>
-                        <h2 class="display-5 fw-bold mb-0">₹{{ provider.price_per_hour }}<span
-                                class="fs-5 fw-normal">/hr</span></h2>
-                    </div>
-                </div>
-                <div class="card-body p-4">
-                    <form action="{% url 'book_appointment' provider.id %}" method="post">
-                        {% csrf_token %}
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-uppercase text-muted">1. Select Date</label>
-                            <div class="date-scroll">
-                                {% for day in availability %}
-                                <div>
-                                    <input type="radio" class="btn-check" name="date" id="date{{ forloop.counter }}"
-                                        value="{{ day.date|date:'Y-m-d' }}" {% if forloop.first %}checked{% endif %}
-                                        required>
-                                    <label
-                                        class="btn btn-outline-primary rounded-4 d-flex flex-column align-items-center p-3"
-                                        style="min-width: 80px;" for="date{{ forloop.counter }}">
-                                        <span class="small fw-bold opacity-75 mb-1">{{ day.date|date:"D" }}</span>
-                                        <span class="fs-4 fw-bold text-nowrap">{{ day.date|date:"d M" }}</span>
-                                    </label>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-uppercase text-muted">2. pick a time</label>
-                            {% for day in availability %}
-                            <div class="slot-group {% if not forloop.first %}d-none{% endif %}"
-                                id="slots-{{ day.date|date:'Y-m-d' }}">
-                                <div class="time-slot-grid">
-                                    {% for slot in day.slots %}
-                                    <div>
-                                        <input type="radio" class="btn-check" name="slot"
-                                            id="slot-{{ day.date|date:'Y-m-d' }}-{{ forloop.counter }}"
-                                            value="{{ slot }}">
-                                        <label class="slot-btn fw-bold"
-                                            for="slot-{{ day.date|date:'Y-m-d' }}-{{ forloop.counter }}">
-                                            {{ slot }}
-                                        </label>
-                                    </div>
-                                    {% empty %}
-                                    <div class="col-12 text-center py-3 bg-soft-danger text-danger rounded-3">
-                                        Fully Booked
-                                    </div>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold small text-uppercase text-muted">3. estimated hours</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-clock"></i></span>
-                                <input type="number" name="hours" class="form-control border-start-0" value="2" min="1"
-                                    max="12" id="hoursInput">
-                            </div>
-                        </div>
-
-                        <div class="p-3 bg-light rounded-4 mb-4">
-                            <div class="d-flex justify-content-between mb-2">
-                                <span class="text-muted">Total Cost</span>
-                                <span class="fw-bold h4 mb-0 text-primary" id="totalCost">₹{{
-                                    provider.price_per_hour|add:provider.price_per_hour }}</span>
-                            </div>
-                            <small class="text-muted"><i class="bi bi-info-circle me-1"></i> You only pay after work is
-                                done.</small>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-lg">
-                            Request Appointment
-                        </button>
-                    </form>
-
-                    <div class="text-center mt-4">
-                        <a href="{% url 'toggle_favorite' provider.id %}"
-                            class="text-decoration-none fw-bold {% if is_favorite %}text-danger{% else %}text-muted{% endif %}">
-                            <i class="bi bi-heart{% if is_favorite %}-fill{% endif %} me-1"></i>
-                            {% if is_favorite %}Saved to Wishlist{% else %}Save for Later{% endif %}
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <div class="ms-md-5 mt-4 mt-md-0 d-flex flex-wrap gap-3">
+          {% for category in provider.categories.all %}
+            <span class="badge-premium-pro badge-cat">
+              <i class="bi {{ category.icon }} me-2"></i>{{ category.name }}
+            </span>
+          {% endfor %}
+          <span class="badge-premium-pro badge-vetted">
+            <i class="bi bi-patch-check-fill me-2"></i>Trusted Expert
+          </span>
         </div>
+      </div>
+
+      <div class="row g-4 mb-5">
+        <div class="col-md-4"><div class="stat-card-premium text-center">
+          <i class="bi bi-briefcase-fill fs-3 mb-3 text-accent d-block"></i>
+          <div class="fs-1 fw-bold">{{ provider.jobs_completed }}</div>
+          <div class="text-muted small fw-bold text-uppercase mt-2">Jobs Completed</div>
+        </div></div>
+        <div class="col-md-4"><div class="stat-card-premium text-center">
+          <i class="bi bi-graph-up-arrow fs-3 mb-3 text-accent d-block"></i>
+          <div class="fs-1 fw-bold">{{ provider.acceptance_rate|default:"100" }}%</div>
+          <div class="text-muted small fw-bold text-uppercase mt-2">Success Rate</div>
+        </div></div>
+        <div class="col-md-4"><div class="stat-card-premium text-center">
+          <i class="bi bi-clock-fill fs-3 mb-3 text-accent d-block"></i>
+          <div class="fs-1 fw-bold">{{ provider.on_time_rate|default:"98" }}%</div>
+          <div class="text-muted small fw-bold text-uppercase mt-2">Punctuality</div>
+        </div></div>
+      </div>
+
+      <section class="mb-5">
+        <h3 class="fw-bold mb-4">Professional Summary</h3>
+        <div class="p-4 bg-white border rounded-4 shadow-sm">
+          <p class="fs-5 text-muted lh-lg mb-0">{{ provider.bio|linebreaks }}</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+          <h3 class="fw-bold mb-0">Client Reviews</h3>
+          <div class="badge bg-light text-dark rounded-pill px-4 py-2 border fw-bold">
+            {{ reviews.count }} Review{{ reviews.count|pluralize }}
+          </div>
+        </div>
+
+        <div class="row g-4">
+          {% for review in reviews %}
+          <div class="col-md-6">
+            <div class="review-card-refined h-100">
+              <div class="d-flex justify-content-between mb-4">
+                <div class="d-flex align-items-center">
+                  <div class="bg-primary text-white fs-4 fw-bold rounded-circle d-flex align-items-center justify-content-center me-3" style="width:56px;height:56px;">
+                    {{ review.user.username|slice:":1"|upper }}
+                  </div>
+                  <div>
+                    <h6 class="fw-bold mb-0">{{ review.user.username }}</h6>
+                    <span class="text-muted small">{{ review.created_at|date:"M d, Y" }}</span>
+                  </div>
+                </div>
+                <div class="text-warning fw-bold">
+                  <i class="bi bi-star-fill me-1"></i>{{ review.rating }}
+                </div>
+              </div>
+              <div class="italic-blockquote">
+                <p class="mb-0">"{{ review.comment }}"</p>
+              </div>
+            </div>
+          </div>
+          {% empty %}
+          <div class="col-12">
+            <div class="text-center py-5 bg-white border border-dashed rounded-4">
+              <i class="bi bi-chat-heart display-4 text-muted mb-3 d-block"></i>
+              <p class="text-muted fw-bold fs-5">No reviews yet. Be the first to book!</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
     </div>
-</div>
 
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <div class="booking-sidebar-premium">
+        <div class="price-tag-big">
+          <span class="text-uppercase small fw-bold opacity-50 tracking-widest d-block mb-2">Standard Rate</span>
+          <h2 class="display-4 fw-bold mb-0">
+            ₹{{ provider.price_per_hour }}<span class="fs-4 fw-normal opacity-75">/hr</span>
+          </h2>
+        </div>
+
+        <div class="p-4 p-lg-5">
+          <form action="{% url 'book_appointment' provider.id %}" method="post">
+            {% csrf_token %}
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-uppercase small text-muted mb-3">1. Select Date</label>
+              <div class="date-scroll d-flex overflow-auto gap-3 pb-2" style="scrollbar-width: thin;">
+                {% for day in availability %}
+                <div>
+                  <input type="radio" class="btn-check" name="date" id="date{{ forloop.counter }}" 
+                         value="{{ day.date|date:'Y-m-d' }}" {% if forloop.first %}checked{% endif %} required>
+                  <label class="btn btn-outline-primary rounded-4 d-flex flex-column align-items-center px-4 py-3" 
+                         for="date{{ forloop.counter }}" style="min-width: 90px;">
+                    <span class="small fw-bold opacity-75 text-uppercase">{{ day.date|date:"D" }}</span>
+                    <span class="fs-4 fw-bold">{{ day.date|date:"d M" }}</span>
+                  </label>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="mb-5">
+              <label class="form-label fw-bold text-uppercase small text-muted mb-3">2. Choose Time</label>
+              {% for day in availability %}
+              <div class="slot-group {% if not forloop.first %}d-none{% endif %}" id="slots-{{ day.date|date:'Y-m-d' }}">
+                <div class="row g-3">
+                  {% for slot in day.slots %}
+                  <div class="col-4 col-sm-3">
+                    <input type="radio" class="btn-check" name="slot" 
+                           id="slot-{{ day.date|date:'Y-m-d' }}-{{ forloop.counter }}" value="{{ slot }}">
+                    <label class="slot-btn-premium" for="slot-{{ day.date|date:'Y-m-d' }}-{{ forloop.counter }}">
+                      {{ slot }}
+                    </label>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-bold text-uppercase small text-muted mb-3">3. Hours Required</label>
+              <input type="number" name="hours" id="hoursInput" class="form-control form-control-lg border-2 rounded-3 fw-bold" 
+                     value="2" min="1" max="12" required>
+            </div>
+
+            <div class="p-4 bg-light rounded-4 mb-4 border border-info border-opacity-25">
+              <div class="d-flex justify-content-between align-items-center">
+                <span class="text-muted fw-bold small">Estimated Total</span>
+                <span class="fw-bold fs-3 text-primary" id="totalCost">₹0</span>
+              </div>
+              <div class="text-primary small mt-2">
+                <i class="bi bi-shield-check me-1"></i>Secure & instant confirmation
+              </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-bold shadow-lg">
+              Confirm Booking <i class="bi bi-arrow-right ms-2"></i>
+            </button>
+          </form>
+
+          <div class="text-center mt-4">
+            <a href="{% url 'toggle_favorite' provider.id %}" class="text-decoration-none fw-bold {% if is_favorite %}text-danger{% else %}text-muted{% endif %}">
+              <i class="bi bi-heart{% if is_favorite %}-fill{% endif %} me-2"></i>
+              {% if is_favorite %}Saved{% else %}Save for Later{% endif %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Date Selection Logic
-        document.querySelectorAll('input[name="date"]').forEach(radio => {
-            radio.addEventListener('change', (e) => {
-                document.querySelectorAll('.slot-group').forEach(group => group.classList.add('d-none'));
-                const target = document.getElementById('slots-' + e.target.value);
-                if (target) target.classList.remove('d-none');
-            });
-        });
-
-        // Dynamic Cost Calculator
-        const hoursInput = document.getElementById('hoursInput');
-        const rate = parseFloat("{{ provider.price_per_hour }}");
-        const totalDisplay = document.getElementById('totalCost');
-
-        function updateCost() {
-            const hours = parseInt(hoursInput.value) || 0;
-            totalDisplay.innerText = '₹' + (hours * rate).toLocaleString();
-        }
-
-        hoursInput.addEventListener('input', updateCost);
-        updateCost(); // Initial call
+document.addEventListener("DOMContentLoaded", () => {
+  // Date → Slots visibility
+  document.querySelectorAll('input[name="date"]').forEach(radio => {
+    radio.addEventListener("change", e => {
+      document.querySelectorAll(".slot-group").forEach(el => el.classList.add("d-none"));
+      const target = document.getElementById(`slots-${e.target.value}`);
+      if (target) target.classList.remove("d-none");
     });
+  });
+
+  // Cost calculator
+  const hoursInput = document.getElementById("hoursInput");
+  const rate = parseFloat("{{ provider.price_per_hour }}") || 0;
+  const totalDisplay = document.getElementById("totalCost");
+
+  function updateCost() {
+    const hours = parseInt(hoursInput.value) || 0;
+    totalDisplay.textContent = "₹" + (hours * rate).toLocaleString();
+  }
+
+  hoursInput.addEventListener("input", updateCost);
+  updateCost();
+});
 </script>
 {% endblock %}

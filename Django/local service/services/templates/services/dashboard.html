@@ -1,293 +1,539 @@
-{% extends 'services/base.html' %}
-
-{% block content %}
+{% extends 'services/base.html' %} {% block content %}
 <div class="bg-light min-vh-100 py-5">
-    <div class="container">
-        <!-- Header -->
-        <div class="row align-items-center mb-5">
-            <div class="col-md-8">
-                <h1 class="display-5 fw-bold text-dark">Hello, {{ request.user.first_name|default:request.user.username}}!</h1>
-                <p class="lead text-muted">Welcome to your intelligent service hub.</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <a href="{% url 'update_preferences' %}" class="btn btn-outline-primary rounded-pill px-4 me-2">
-                    <i class="bi bi-gear me-2"></i>AI Settings
-                </a>
-                <a href="{% url 'update_profile' %}" class="btn btn-primary rounded-pill px-4 shadow-sm">
-                    <i class="bi bi-pencil me-2"></i>Edit Profile
-                </a>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <!-- Main Content Area -->
-            <div class="col-lg-8">
-
-                <!-- Personalized Recommendations -->
-                <section class="mb-5">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h3 class="fw-bold mb-0">Recommended for You</h3>
-                        <span
-                            class="badge bg-soft-primary text-primary border rounded-pill px-3 py-2">Personalized</span>
-                    </div>
-                    <div class="row row-cols-1 row-cols-md-2 g-3">
-                        {% for p in recommendations %}
-                        <div class="col">
-                            <div class="card h-100 border-0 shadow-sm hover-up rounded-4">
-                                <div class="card-body d-flex align-items-center p-3">
-                                    <div class="flex-shrink-0">
-                                        {% if p.profile_image %}
-                                        <img src="{{ p.profile_image.url }}" class="rounded-circle object-fit-cover"
-                                            width="60" height="60" alt="{{ p.name }}">
-                                        {% else %}
-                                        <div class="bg-soft-primary rounded-circle d-flex align-items-center justify-content-center"
-                                            style="width: 60px; height: 60px;">
-                                            <i class="bi bi-person text-primary fs-3"></i>
-                                        </div>
-                                        {% endif %}
-                                    </div>
-                                    <div class="flex-grow-1 ms-3">
-                                        <h6 class="mb-0 fw-bold">{{ p.name }}</h6>
-                                        <div class="text-warning small mb-1">
-                                            <i class="bi bi-star-fill"></i> {{ p.rating }}
-                                            <span class="text-muted ms-1">({{ p.jobs_completed }} jobs)</span>
-                                        </div>
-                                        <div class="small text-muted mb-2"><i class="bi bi-geo-alt me-1"></i>{{p.location }}</div>
-                                        <a href="{% url 'provider_detail' p.id %}"
-                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1">Book Again</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="col-12 text-center py-4 bg-white rounded-4 shadow-sm">
-                            <p class="mb-0 text-muted">No custom recommendations yet. Keep exploring!</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </section>
-
-                <!-- Bookings Tabs -->
-                <section class="mb-5">
-                    <ul class="nav nav-pills nav-fill bg-white p-2 rounded-4 shadow-sm mb-4" id="bookingTabs"
-                        role="tablist">
-                        <li class="nav-item">
-                            <button class="nav-link active rounded-3 fw-bold" id="upcoming-tab" data-bs-toggle="tab"
-                                data-bs-target="#upcoming" type="button">
-                                Upcoming <span class="badge bg-primary ms-1">{{ upcoming_bookings.count }}</span>
-                            </button>
-                        </li>
-                        <li class="nav-item">
-                            <button class="nav-link rounded-3 fw-bold" id="past-tab" data-bs-toggle="tab"
-                                data-bs-target="#past" type="button">
-                                Service History
-                            </button>
-                        </li>
-                        {% if pro_bookings %}
-                        <li class="nav-item">
-                            <button class="nav-link rounded-3 fw-bold text-success" id="pro-tab" data-bs-toggle="tab"
-                                data-bs-target="#pro" type="button">
-                                Manage Requests
-                            </button>
-                        </li>
-                        {% endif %}
-                    </ul>
-
-                    <div class="tab-content" id="bookingTabContent">
-                        <!-- Upcoming -->
-                        <div class="tab-pane fade show active" id="upcoming">
-                            {% for b in upcoming_bookings %}
-                            <div
-                                class="card border-0 shadow-sm mb-3 rounded-4 overflow-hidden border-start border-primary border-4">
-                                <div class="card-body p-4">
-                                    <div class="d-flex justify-content-between align-items-start mb-3">
-                                        <div>
-                                            <h5 class="fw-bold mb-1">{{ b.provider.name }}</h5>
-                                            <span
-                                                class="badge {% if b.status == 'ACCEPTED' %}bg-success{% else %}bg-warning text-dark{% endif %} p-2 px-3 rounded-pill">
-                                                {{ b.get_status_display }}
-                                            </span>
-                                        </div>
-                                        <div class="text-end">
-                                            <div class="fw-bold fs-5"><i class="bi bi-calendar-event me-2"></i>{{ b.date
-                                                }}</div>
-                                            <div class="text-muted small"><i class="bi bi-clock me-1"></i>{{ b.time_slot
-                                                }}</div>
-                                        </div>
-                                    </div>
-                                    <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <a href="{% url 'provider_detail' b.provider.id %}"
-                                            class="btn btn-light rounded-pill px-4">Contact</a>
-                                        {% if b.status == 'PENDING' %}
-                                        <a href="#" class="btn btn-outline-danger rounded-pill px-4">Cancel</a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% empty %}
-                            <div class="text-center py-5 bg-white rounded-4 shadow-sm">
-                                <i class="bi bi-journal-x fs-1 text-muted mb-3 d-block"></i>
-                                <p class="text-muted">No upcoming services scheduled.</p>
-                                <a href="{% url 'home' %}" class="btn btn-primary rounded-pill px-4">Find
-                                    Professionals</a>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Past History -->
-                        <div class="tab-pane fade" id="past">
-                            {% for b in past_bookings %}
-                            <div class="card border-0 shadow-sm mb-2 rounded-4">
-                                <div class="card-body py-3 px-4 d-flex align-items-center justify-content-between">
-                                    <div>
-                                        <h6 class="mb-0 fw-bold">{{ b.provider.name }} <span
-                                                class="text-muted small fw-normal">| {{ b.date }}</span></h6>
-                                        <span class="small text-muted">{{ b.get_status_display }}</span>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        {% if b.status == 'COMPLETED' and not b.review %}
-                                        <a href="{% url 'submit_review' b.id %}"
-                                            class="btn btn-sm btn-warning rounded-pill px-3">Review</a>
-                                        {% endif %}
-                                        {% if b.status == 'COMPLETED' and not b.dispute %}
-                                        <a href="{% url 'report_dispute' b.id %}"
-                                            class="btn btn-sm btn-light border rounded-pill px-3 text-danger">Report</a>
-                                        {% endif %}
-                                        <a href="{% url 'provider_detail' b.provider.id %}"
-                                            class="btn btn-sm btn-outline-primary rounded-pill px-3">Rebook</a>
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-
-                        <!-- Provider Panel -->
-                        <div class="tab-pane fade" id="pro">
-                            {% for b in pro_bookings %}
-                            <div class="card border-0 shadow-sm mb-3 rounded-4">
-                                <div class="card-body p-4 d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <div class="small text-muted mb-1">Request from <strong>{{ b.user.username
-                                                }}</strong></div>
-                                        <h5 class="fw-bold mb-1">{{ b.date }} @ {{ b.time_slot }}</h5>
-                                        <span class="badge bg-soft-info text-info rounded-pill px-3">{{
-                                            b.get_status_display }}</span>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        {% if b.status == 'PENDING' %}
-                                        <a href="{% url 'update_booking_status' b.id 'ACCEPTED' %}"
-                                            class="btn btn-success rounded-pill px-4">Accept</a>
-                                        <a href="{% url 'update_booking_status' b.id 'CANCELLED' %}"
-                                            class="btn btn-outline-danger rounded-pill px-4">Decline</a>
-                                        {% elif b.status == 'ACCEPTED' %}
-                                        <a href="{% url 'update_booking_status' b.id 'COMPLETED' %}"
-                                            class="btn btn-primary rounded-pill px-4">Complete</a>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <!-- Profile Stats Card -->
-                <div class="card border-0 shadow-sm rounded-4 mb-4 text-center p-4 bg-primary text-white">
-                    <div class="mb-3">
-                        <div class="avatar-lg mx-auto bg-white rounded-circle d-flex align-items-center justify-content-center"
-                            style="width: 80px; height: 80px;">
-                            <i class="bi bi-lightning-charge-fill text-primary fs-1"></i>
-                        </div>
-                    </div>
-                    <h4 class="fw-bold mb-1">Level 1</h4>
-                    <p class="small opacity-75 mb-3">Elite Service Seeker</p>
-                    <div class="progress bg-white bg-opacity-25 rounded-pill mb-3" style="height: 8px;">
-                        <div class="progress-bar bg-white" style="width: 45%;"></div>
-                    </div>
-                    <div class="d-flex justify-content-between small">
-                        <span>4 bookings to next level</span>
-                    </div>
-                </div>
-
-                <!-- Favorites List -->
-                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
-                    <div class="card-header bg-white p-3 border-0">
-                        <h5 class="fw-bold mb-0">My Saved Professionals</h5>
-                    </div>
-                    <ul class="list-group list-group-flush">
-                        {% for f in favorites %}
-                        <li class="list-group-item p-3 border-0 border-bottom d-flex align-items-center">
-                            <i class="bi bi-heart-fill text-danger me-3"></i>
-                            <div class="flex-grow-1">
-                                <a href="{% url 'provider_detail' f.provider.id %}"
-                                    class="text-decoration-none text-dark fw-bold d-block">{{ f.provider.name }}</a>
-                                <span class="small text-muted">{{ f.provider.rating }} <i
-                                        class="bi bi-star-fill text-warning"></i></span>
-                            </div>
-                            <a href="{% url 'provider_detail' f.provider.id %}"
-                                class="btn btn-sm btn-soft-primary rounded-pill"><i class="bi bi-chevron-right"></i></a>
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item p-4 text-center border-0">
-                            <p class="text-muted small mb-0">No favorites yet.</p>
-                        </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-
-                <!-- Dispute Status -->
-                {% if disputes %}
-                <div class="card border-0 shadow-sm rounded-4">
-                    <div class="card-header bg-danger bg-opacity-10 text-danger p-3 border-0">
-                        <h5 class="fw-bold mb-0">Active Disputes</h5>
-                    </div>
-                    <div class="p-3">
-                        {% for d in disputes %}
-                        <div class="p-2 border rounded-3 mb-2 small">
-                            <div class="d-flex justify-content-between mb-1">
-                                <strong>#{{ d.booking.id }}</strong>
-                                <span class="badge bg-secondary">{{ d.get_status_display }}</span>
-                            </div>
-                            <div class="text-muted">{{ d.get_issue_type_display }}</div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
+  <div class="container">
+    <!-- Header -->
+    <div class="row align-items-center mb-5">
+      <div class="col-md-8">
+        <h1 class="display-5 fw-bold text-dark">
+          Hello, {{ request.user.first_name|default:request.user.username}}!
+        </h1>
+        <p class="lead text-muted">Welcome to your intelligent service hub.</p>
+      </div>
+      <div class="col-md-4 text-md-end">
+        <a
+          href="{% url 'update_preferences' %}"
+          class="btn btn-outline-primary rounded-pill px-4 me-2"
+        >
+          <i class="bi bi-gear me-2"></i>AI Settings
+        </a>
+        <a
+          href="{% url 'update_profile' %}"
+          class="btn btn-primary rounded-pill px-4 shadow-sm"
+        >
+          <i class="bi bi-pencil me-2"></i>Edit Profile
+        </a>
+      </div>
     </div>
+
+    {% if request.user.provider_profile and not
+    request.user.provider_profile.is_approved %}
+    <div
+      class="alert alert-warning border-0 shadow-sm rounded-4 mb-5 p-4 d-flex align-items-center animate-up"
+    >
+      <i class="bi bi-shield-exclamation fs-1 me-4"></i>
+      <div>
+        <h4 class="fw-bold mb-1">Account Under Review</h4>
+        <p class="mb-0">
+          Your professional profile is currently being reviewed by our
+          administration. You will be visible on the platform once your
+          credentials are verified. Thank you for your patience!
+        </p>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+      <!-- Main Content Area -->
+      <div class="col-lg-8">
+        <!-- Personalized Recommendations -->
+        <section class="mb-5">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold mb-0">Recommended for You</h3>
+            <span
+              class="badge bg-soft-primary text-primary border rounded-pill px-3 py-2"
+              >Personalized</span
+            >
+          </div>
+          <div class="row row-cols-1 row-cols-md-2 g-3">
+            {% for p in recommendations %}
+            <div class="col">
+              <div class="card h-100 border-0 shadow-sm hover-up rounded-4">
+                <div class="card-body d-flex align-items-center p-3">
+                  <div class="flex-shrink-0">
+                    {% if p.profile_image %}
+                    <img
+                      src="{{ p.profile_image.url }}"
+                      class="rounded-circle object-fit-cover"
+                      width="60"
+                      height="60"
+                      alt="{{ p.name }}"
+                    />
+                    {% else %}
+                    <div
+                      class="bg-soft-primary rounded-circle d-flex align-items-center justify-content-center"
+                      style="width: 60px; height: 60px"
+                    >
+                      <i class="bi bi-person text-primary fs-3"></i>
+                    </div>
+                    {% endif %}
+                  </div>
+                  <div class="flex-grow-1 ms-3">
+                    <h6 class="mb-0 fw-bold">{{ p.name }}</h6>
+                    <div class="text-warning small mb-1">
+                      <i class="bi bi-star-fill"></i> {{ p.rating }}
+                      <span class="text-muted ms-1"
+                        >({{ p.jobs_completed }} jobs)</span
+                      >
+                    </div>
+                    <div class="small text-muted mb-2">
+                      <i class="bi bi-geo-alt me-1"></i>{{p.location }}
+                    </div>
+                    <a
+                      href="{% url 'provider_detail' p.id %}"
+                      class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1"
+                      >Book Again</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-4 bg-white rounded-4 shadow-sm">
+              <p class="mb-0 text-muted">
+                No custom recommendations yet. Keep exploring!
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+        </section>
+
+        <!-- Bookings Tabs -->
+        <section class="mb-5">
+          <ul
+            class="nav nav-pills nav-fill bg-white p-2 rounded-4 shadow-sm mb-4"
+            id="bookingTabs"
+            role="tablist"
+          >
+            <li class="nav-item">
+              <button
+                class="nav-link active rounded-3 fw-bold"
+                id="upcoming-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#upcoming"
+                type="button"
+              >
+                Upcoming
+                <span class="badge bg-primary ms-1"
+                  >{{ upcoming_bookings.count }}</span
+                >
+              </button>
+            </li>
+            <li class="nav-item">
+              <button
+                class="nav-link rounded-3 fw-bold"
+                id="past-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#past"
+                type="button"
+              >
+                Service History
+              </button>
+            </li>
+            {% if pro_bookings %}
+            <li class="nav-item">
+              <button
+                class="nav-link rounded-3 fw-bold text-success"
+                id="pro-tab"
+                data-bs-toggle="tab"
+                data-bs-target="#pro"
+                type="button"
+              >
+                Manage Requests
+              </button>
+            </li>
+            {% endif %}
+          </ul>
+
+          <div class="tab-content" id="bookingTabContent">
+            <!-- Upcoming -->
+            <div class="tab-pane fade show active" id="upcoming">
+              {% for b in upcoming_bookings %}
+              <div
+                class="card border-0 shadow-sm mb-3 rounded-4 overflow-hidden border-start border-primary border-4"
+              >
+                <div class="card-body p-4">
+                  <div
+                    class="d-flex justify-content-between align-items-start mb-3"
+                  >
+                    <div>
+                      <h5 class="fw-bold mb-1">{{ b.provider.name }}</h5>
+                      <span
+                        class="badge {% if b.status == 'ACCEPTED' %}bg-success{% else %}bg-warning text-dark{% endif %} p-2 px-3 rounded-pill"
+                      >
+                        {{ b.get_status_display }}
+                      </span>
+                    </div>
+                    <div class="text-end">
+                      <div class="fw-bold fs-5">
+                        <i class="bi bi-calendar-event me-2"></i>{{ b.date}}
+                      </div>
+                      <div class="text-muted small">
+                        <i class="bi bi-clock me-1"></i>{{ b.time_slot}}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    {% if b.provider.latitude and b.provider.longitude and
+                    request.user.profile.latitude %}
+                    <button
+                      class="btn btn-soft-primary rounded-pill px-4"
+                      onclick="initMap({{ b.id }}, {{ request.user.profile.latitude }}, {{ request.user.profile.longitude }}, {{ b.provider.latitude }}, {{ b.provider.longitude }}, 'You', '{{ b.provider.name|escapejs }}')"
+                    >
+                      <i class="bi bi-map me-2"></i>Show Route
+                    </button>
+                    {% endif %}
+                    <a
+                      href="{% url 'provider_detail' b.provider.id %}"
+                      class="btn btn-light rounded-pill px-4"
+                      >Contact</a
+                    >
+                    {% if b.status == 'PENDING' %}
+                    <a href="#" class="btn btn-outline-danger rounded-pill px-4"
+                      >Cancel</a
+                    >
+                    {% endif %}
+                  </div>
+                </div>
+                <!-- Map Container for Upcoming -->
+                <div id="map-container-{{ b.id }}" class="d-none px-4 pb-4">
+                  <div
+                    id="map-{{ b.id }}"
+                    class="request-map rounded-4"
+                    style="height: 300px"
+                  ></div>
+                </div>
+              </div>
+              {% empty %}
+              <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                <i class="bi bi-journal-x fs-1 text-muted mb-3 d-block"></i>
+                <p class="text-muted">No upcoming services scheduled.</p>
+                <a
+                  href="{% url 'home' %}"
+                  class="btn btn-primary rounded-pill px-4"
+                  >Find Professionals</a
+                >
+              </div>
+              {% endfor %}
+            </div>
+
+            <!-- Past History -->
+            <div class="tab-pane fade" id="past">
+              {% for b in past_bookings %}
+              <div class="card border-0 shadow-sm mb-2 rounded-4">
+                <div
+                  class="card-body py-3 px-4 d-flex align-items-center justify-content-between"
+                >
+                  <div>
+                    <h6 class="mb-0 fw-bold">
+                      {{ b.provider.name }}
+                      <span class="text-muted small fw-normal"
+                        >| {{ b.date }}</span
+                      >
+                    </h6>
+                    <span class="small text-muted"
+                      >{{ b.get_status_display }}</span
+                    >
+                  </div>
+                  <div class="d-flex gap-2">
+                    {% if b.status == 'COMPLETED' and not b.review %}
+                    <a
+                      href="{% url 'submit_review' b.id %}"
+                      class="btn btn-sm btn-warning rounded-pill px-3"
+                      >Review</a
+                    >
+                    {% endif %} {% if b.status == 'COMPLETED' and not b.dispute
+                    %}
+                    <a
+                      href="{% url 'report_dispute' b.id %}"
+                      class="btn btn-sm btn-light border rounded-pill px-3 text-danger"
+                      >Report</a
+                    >
+                    {% endif %}
+                    <a
+                      href="{% url 'provider_detail' b.provider.id %}"
+                      class="btn btn-sm btn-outline-primary rounded-pill px-3"
+                      >Rebook</a
+                    >
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
+            <!-- Provider Panel -->
+            <div class="tab-pane fade" id="pro">
+              {% for b in pro_bookings %}
+              <div class="card border-0 shadow-sm mb-3 rounded-4">
+                <div
+                  class="card-body p-4 d-flex justify-content-between align-items-center"
+                >
+                  <div>
+                    <div class="small text-muted mb-1">
+                      Request from <strong>{{ b.user.username }}</strong>
+                    </div>
+                    <h5 class="fw-bold mb-1">
+                      {{ b.date }} @ {{ b.time_slot }}
+                    </h5>
+                    <span class="badge bg-soft-info text-info rounded-pill px-3"
+                      >{{ b.get_status_display }}</span
+                    >
+                  </div>
+                  <div class="d-flex gap-2">
+                    {% if b.user.profile.latitude and b.user.profile.longitude
+                    and request.user.provider_profile.latitude %}
+                    <button
+                      class="btn btn-soft-info rounded-pill px-3"
+                      onclick="initMap({{ b.id }}, {{ request.user.provider_profile.latitude }}, {{ request.user.provider_profile.longitude }}, {{ b.user.profile.latitude }}, {{ b.user.profile.longitude }}, 'My Studio', '{{ b.user.username|escapejs }}')"
+                    >
+                      <i class="bi bi-signpost-split me-1"></i>Track Route
+                    </button>
+                    {% elif b.user.profile.latitude and b.user.profile.longitude
+                    %}
+                    <button
+                      class="btn btn-soft-info rounded-pill px-3"
+                      onclick="initMap({{ b.id }}, 0, 0, {{ b.user.profile.latitude }}, {{ b.user.profile.longitude }}, '', '{{ b.user.username|escapejs }}')"
+                    >
+                      <i class="bi bi-geo-alt me-1"></i>Location
+                    </button>
+                    {% endif %} {% if b.status == 'PENDING' %}
+                    <a
+                      href="{% url 'update_booking_status' b.id 'ACCEPTED' %}"
+                      class="btn btn-success rounded-pill px-4"
+                      >Accept</a
+                    >
+                    <a
+                      href="{% url 'update_booking_status' b.id 'CANCELLED' %}"
+                      class="btn btn-outline-danger rounded-pill px-4"
+                      >Decline</a
+                    >
+                    {% elif b.status == 'ACCEPTED' %}
+                    <a
+                      href="{% url 'update_booking_status' b.id 'COMPLETED' %}"
+                      class="btn btn-primary rounded-pill px-4"
+                      >Complete</a
+                    >
+                    {% endif %}
+                  </div>
+                </div>
+                <!-- Map Container -->
+                <div id="map-container-{{ b.id }}" class="d-none px-4 pb-4">
+                  <div
+                    id="map-{{ b.id }}"
+                    class="request-map rounded-4"
+                    style="height: 250px"
+                  ></div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="col-lg-4">
+        <!-- Profile Stats Card -->
+        <div
+          class="card border-0 shadow-sm rounded-4 mb-4 text-center p-4 bg-primary text-white"
+        >
+          <div class="mb-3">
+            <div
+              class="avatar-lg mx-auto bg-white rounded-circle d-flex align-items-center justify-content-center"
+              style="width: 80px; height: 80px"
+            >
+              <i class="bi bi-lightning-charge-fill text-primary fs-1"></i>
+            </div>
+          </div>
+          <h4 class="fw-bold mb-1">Level 1</h4>
+          <p class="small opacity-75 mb-3">Elite Service Seeker</p>
+          <div
+            class="progress bg-white bg-opacity-25 rounded-pill mb-3"
+            style="height: 8px"
+          >
+            <div class="progress-bar bg-white" style="width: 45%"></div>
+          </div>
+          <div class="d-flex justify-content-between small">
+            <span>4 bookings to next level</span>
+          </div>
+        </div>
+
+        <!-- Favorites List -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+          <div class="card-header bg-white p-3 border-0">
+            <h5 class="fw-bold mb-0">My Saved Professionals</h5>
+          </div>
+          <ul class="list-group list-group-flush">
+            {% for f in favorites %}
+            <li
+              class="list-group-item p-3 border-0 border-bottom d-flex align-items-center"
+            >
+              <i class="bi bi-heart-fill text-danger me-3"></i>
+              <div class="flex-grow-1">
+                <a
+                  href="{% url 'provider_detail' f.provider.id %}"
+                  class="text-decoration-none text-dark fw-bold d-block"
+                  >{{ f.provider.name }}</a
+                >
+                <span class="small text-muted"
+                  >{{ f.provider.rating }}
+                  <i class="bi bi-star-fill text-warning"></i
+                ></span>
+              </div>
+              <a
+                href="{% url 'provider_detail' f.provider.id %}"
+                class="btn btn-sm btn-soft-primary rounded-pill"
+                ><i class="bi bi-chevron-right"></i
+              ></a>
+            </li>
+            {% empty %}
+            <li class="list-group-item p-4 text-center border-0">
+              <p class="text-muted small mb-0">No favorites yet.</p>
+            </li>
+            {% endfor %}
+          </ul>
+        </div>
+
+        <!-- Dispute Status -->
+        {% if disputes %}
+        <div class="card border-0 shadow-sm rounded-4">
+          <div
+            class="card-header bg-danger bg-opacity-10 text-danger p-3 border-0"
+          >
+            <h5 class="fw-bold mb-0">Active Disputes</h5>
+          </div>
+          <div class="p-3">
+            {% for d in disputes %}
+            <div class="p-2 border rounded-3 mb-2 small">
+              <div class="d-flex justify-content-between mb-1">
+                <strong>#{{ d.booking.id }}</strong>
+                <span class="badge bg-secondary"
+                  >{{ d.get_status_display }}</span
+                >
+              </div>
+              <div class="text-muted">{{ d.get_issue_type_display }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-    .bg-soft-primary {
-        background-color: rgba(var(--bs-primary-rgb), 0.1);
-    }
+  .bg-soft-primary {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+  }
 
-    .bg-soft-info {
-        background-color: rgba(var(--bs-info-rgb), 0.1);
-    }
+  .bg-soft-info {
+    background-color: rgba(var(--bs-info-rgb), 0.1);
+  }
 
-    .btn-soft-primary {
-        background-color: rgba(var(--bs-primary-rgb), 0.1);
-        color: var(--bs-primary);
-        border: none;
-    }
+  .btn-soft-primary {
+    background-color: rgba(var(--bs-primary-rgb), 0.1);
+    color: var(--bs-primary);
+    border: none;
+  }
 
-    .btn-soft-primary:hover {
-        background-color: var(--bs-primary);
-        color: white;
-    }
+  .btn-soft-primary:hover {
+    background-color: var(--bs-primary);
+    color: white;
+  }
 
-    .hover-up {
-        transition: all 0.3s ease;
-    }
+  .hover-up:hover {
+    transform: translateY(-5px);
+  }
 
-    .hover-up:hover {
-        transform: translateY(-5px);
-    }
+  .request-map {
+    width: 100%;
+    z-index: 1;
+    border: 1px solid #e2e8f0;
+  }
+
+  /* Routing adjustments */
+  .leaflet-routing-container {
+    display: none; /* Hide the text instructions to keep it clean */
+  }
 </style>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"
+/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+{% endblock %} {% block extra_js %}
+<script>
+  const activeMaps = {};
+
+  function initMap(
+    bookingId,
+    startLat,
+    startLng,
+    endLat,
+    endLng,
+    startLabel,
+    endLabel,
+  ) {
+    const container = document.getElementById(`map-container-${bookingId}`);
+    const isHidden = container.classList.contains("d-none");
+
+    if (isHidden) {
+      container.classList.remove("d-none");
+
+      if (!activeMaps[bookingId]) {
+        // Initialize Leaflet map
+        const map = L.map(`map-${bookingId}`).setView([endLat, endLng], 13);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          attribution: "© OpenStreetMap contributors",
+        }).addTo(map);
+
+        if (startLat !== 0 && startLng !== 0) {
+          // Routing mode
+          L.Routing.control({
+            waypoints: [L.latLng(startLat, startLng), L.latLng(endLat, endLng)],
+            routeWhileDragging: false,
+            addWaypoints: false,
+            draggableWaypoints: false,
+            createMarker: function (i, wp, nWps) {
+              const label = i === 0 ? startLabel : endLabel;
+              return L.marker(wp.latLng).bindPopup(`<b>${label}</b>`);
+            },
+            lineOptions: {
+              styles: [{ color: "#6366f1", weight: 6, opacity: 0.8 }],
+            },
+          }).addTo(map);
+        } else {
+          // Single point mode
+          L.marker([endLat, endLng])
+            .addTo(map)
+            .bindPopup(`<b>${endLabel}</b><br>Target Location`)
+            .openPopup();
+        }
+
+        activeMaps[bookingId] = map;
+      } else {
+        setTimeout(() => {
+          activeMaps[bookingId].invalidateSize();
+        }, 100);
+      }
+    } else {
+      container.classList.add("d-none");
+    }
+  }
+</script>
 {% endblock %}
