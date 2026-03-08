@@ -1,118 +1,149 @@
-{% extends "base.html" %}
-
-{% block title %}Manage Categories - Admin{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Manage Categories - Admin{% endblock
+%} {% block content %}
 <div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Manage Categories</h2>
-        <div class="d-flex gap-2">
-            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Back to Dashboard
-            </a>
-            <a href="{{ url_for('admin.add_category') }}" class="btn btn-primary">
-                <i class="bi bi-plus-circle"></i> Add New Category
-            </a>
-        </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Manage Categories</h2>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left"></i> Back to Dashboard
+      </a>
+      <a href="{{ url_for('admin.add_category') }}" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Add New Category
+      </a>
     </div>
+  </div>
 
-    {% if category_data %}
-    <div class="card">
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Slug</th>
-                            <th>Description</th>
-                            <th>Products</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for item in category_data %}
-                        <tr>
-                            <td>{{ item.category.id }}</td>
-                            <td><strong>{{ item.category.name }}</strong></td>
-                            <td><code>{{ item.category.slug }}</code></td>
-                            <td>
-                                {% if item.category.description %}
-                                {{ item.category.description[:50] }}{% if item.category.description|length > 50 %}...{%
-                                endif %}
-                                {% else %}
-                                <span class="text-muted">No description</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge bg-info">{{ item.product_count }} product(s)</span>
-                            </td>
-                            <td>{{ item.category.created_at.strftime('%Y-%m-%d') }}</td>
-                            <td>
-                                <div class="btn-group btn-group-sm" role="group">
-                                    <a href="{{ url_for('admin.edit_category', category_id=item.category.id) }}"
-                                        class="btn btn-outline-primary" title="Edit">
-                                        Edit
-                                    </a>
-                                    <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal"
-                                        data-bs-target="#deleteModal{{ item.category.id }}" title="Delete">
-                                        Delete
-                                    </button>
-                                </div>
+  {% if category_data %}
+  <div class="card">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Slug</th>
+              <th>Description</th>
+              <th>Products</th>
+              <th>Created</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in category_data %}
+            <tr>
+              <td>{{ item.category.id }}</td>
+              <td><strong>{{ item.category.name }}</strong></td>
+              <td><code>{{ item.category.slug }}</code></td>
+              <td>
+                {% if item.category.description %} {{
+                item.category.description[:50] }}{% if
+                item.category.description|length > 50 %}...{% endif %} {% else
+                %}
+                <span class="text-muted">No description</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-info"
+                  >{{ item.product_count }} product(s)</span
+                >
+              </td>
+              <td>{{ item.category.created_at.strftime('%Y-%m-%d') }}</td>
+              <td>
+                <div class="btn-group btn-group-sm" role="group">
+                  <a
+                    href="{{ url_for('admin.edit_category', category_id=item.category.id) }}"
+                    class="btn btn-outline-primary"
+                    title="Edit"
+                  >
+                    Edit
+                  </a>
+                  <button
+                    type="button"
+                    class="btn btn-outline-danger"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteModal{{ item.category.id }}"
+                    title="Delete"
+                  >
+                    Delete
+                  </button>
+                </div>
 
-                                <!-- Delete Confirmation Modal -->
-                                <div class="modal fade" id="deleteModal{{ item.category.id }}" tabindex="-1">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h5 class="modal-title">Confirm Delete</h5>
-                                                <button type="button" class="btn-close"
-                                                    data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                {% if item.product_count > 0 %}
-                                                <div class="alert alert-warning">
-                                                    <i class="bi bi-exclamation-triangle"></i>
-                                                    <strong>Cannot delete this category!</strong><br>
-                                                    This category has {{ item.product_count }} product(s) associated
-                                                    with it.
-                                                    Please reassign or delete those products first.
-                                                </div>
-                                                {% else %}
-                                                <p>Are you sure you want to delete the category <strong>{{
-                                                        item.category.name }}</strong>?</p>
-                                                <p class="text-muted">This action cannot be undone.</p>
-                                                {% endif %}
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-secondary"
-                                                    data-bs-dismiss="modal">Cancel</button>
-                                                {% if item.product_count == 0 %}
-                                                <form method="POST"
-                                                    action="{{ url_for('admin.delete_category', category_id=item.category.id) }}"
-                                                    style="display: inline;">
-                                                    <button type="submit" class="btn btn-danger">Delete</button>
-                                                </form>
-                                                {% endif %}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
+                <!-- Delete Confirmation Modal -->
+                <div
+                  class="modal fade"
+                  id="deleteModal{{ item.category.id }}"
+                  tabindex="-1"
+                >
+                  <div class="modal-dialog">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete</h5>
+                        <button
+                          type="button"
+                          class="btn-close"
+                          data-bs-dismiss="modal"
+                        ></button>
+                      </div>
+                      <div class="modal-body">
+                        {% if item.product_count > 0 %}
+                        <div class="alert alert-warning">
+                          <i class="bi bi-exclamation-triangle"></i>
+                          <strong>Cannot delete this category!</strong><br />
+                          This category has {{ item.product_count }} product(s)
+                          associated with it. Please reassign or delete those
+                          products first.
+                        </div>
+                        {% else %}
+                        <p>
+                          Are you sure you want to delete the category
+                          <strong>{{ item.category.name }}</strong>?
+                        </p>
+                        <p class="text-muted">This action cannot be undone.</p>
+                        {% endif %}
+                      </div>
+                      <div class="modal-footer">
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                        >
+                          Cancel
+                        </button>
+                        {% if item.product_count == 0 %}
+                        <form
+                          method="POST"
+                          action="{{ url_for('admin.delete_category', category_id=item.category.id) }}"
+                          style="display: inline"
+                        >
+                          <input
+                            type="hidden"
+                            name="csrf_token"
+                            value="{{ csrf_token() }}"
+                          />
+                          <button type="submit" class="btn btn-danger">
+                            Delete
+                          </button>
+                        </form>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    {% else %}
-    <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i>
-        No categories found. <a href="{{ url_for('admin.add_category') }}">Add your first category</a>
-    </div>
-    {% endif %}
+  </div>
+  {% else %}
+  <div class="alert alert-info">
+    <i class="bi bi-info-circle"></i>
+    No categories found.
+    <a href="{{ url_for('admin.add_category') }}">Add your first category</a>
+  </div>
+  {% endif %}
 </div>
 {% endblock %}

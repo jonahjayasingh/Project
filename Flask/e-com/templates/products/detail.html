@@ -1,128 +1,249 @@
-{% extends 'base.html' %}
-
-{% block title %}{{ product.name }} - E-Commerce Platform{% endblock %}
-
-{% block content %}
+{% extends 'base.html' %} {% block title %}{{ product.name }} - E-Commerce
+Platform{% endblock %} {% block content %}
 <div class="mb-3">
-    <a href="{{ url_for('product.list_products') }}" style="text-decoration: none; color: var(--text-medium);">
-        ← Back to Products
-    </a>
+  <a
+    href="{{ url_for('product.list_products') }}"
+    style="text-decoration: none; color: var(--text-medium)"
+  >
+    ← Back to Products
+  </a>
 </div>
 
 <div class="row">
-    <div class="col-md-6 mb-4">
-        <!-- Product Images -->
-        {% if product.get_image_list() %}
-        <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner" style="border-radius: var(--radius-lg); overflow: hidden;">
-                {% for image in product.get_image_list() %}
-                <div class="carousel-item {% if loop.first %}active{% endif %}">
-                    <img src="{{ url_for('static', filename='uploads/' + image) }}" class="d-block w-100"
-                        alt="{{ product.name }}" style="height: 400px; object-fit: cover;">
-                </div>
-                {% endfor %}
-            </div>
-            {% if product.get_image_list()|length > 1 %}
-            <button class="carousel-control-prev" type="button" data-bs-target="#productCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#productCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-            {% endif %}
+  <div class="col-md-6 mb-4">
+    <!-- Product Images -->
+    {% if product.get_image_list() %}
+    <div id="productCarousel" class="carousel slide" data-bs-ride="carousel">
+      <div
+        class="carousel-inner"
+        style="border-radius: var(--radius-lg); overflow: hidden"
+      >
+        {% for image in product.get_image_list() %}
+        <div class="carousel-item {% if loop.first %}active{% endif %}">
+          <img
+            src="{{ url_for('static', filename='uploads/' + image) }}"
+            class="d-block w-100"
+            alt="{{ product.name }}"
+            style="height: 400px; object-fit: cover"
+          />
+        </div>
+        {% endfor %}
+      </div>
+      {% if product.get_image_list()|length > 1 %}
+      <button
+        class="carousel-control-prev"
+        type="button"
+        data-bs-target="#productCarousel"
+        data-bs-slide="prev"
+      >
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button
+        class="carousel-control-next"
+        type="button"
+        data-bs-target="#productCarousel"
+        data-bs-slide="next"
+      >
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
+      {% endif %}
+    </div>
+    {% else %}
+    <div
+      class="flex-center"
+      style="
+        height: 400px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-size: 5rem;
+        border-radius: var(--radius-lg);
+      "
+    >
+      📦
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="col-md-6">
+    <div class="card" style="height: fit-content">
+      <div class="card-body">
+        <h1 class="mb-3">{{ product.name }}</h1>
+
+        {% if product.category %}
+        <span class="badge badge-info mb-3">{{ product.category.name }}</span>
+        {% endif %}
+
+        <div class="product-price mb-3">
+          ₹{{ "%.2f"|format(product.price) }}
+        </div>
+
+        {% if product.quantity > 0 %}
+        <div class="badge badge-success mb-3">
+          ✓ In Stock ({{ product.quantity }} available)
         </div>
         {% else %}
-        <div class="flex-center"
-            style="height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 5rem; border-radius: var(--radius-lg);">
-            📦
+        <div class="badge badge-error mb-3">✗ Out of Stock</div>
+        {% endif %}
+
+        <p style="color: var(--text-medium); margin-bottom: 1.5rem">
+          {{ product.description or 'No description available for this product.'
+          }}
+        </p>
+
+        {% if product.variants %}
+        <form method="post" action="{{ url_for('customer.add_item_to_cart') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+          <div class="form-group mb-3">
+            <label for="variant_id" class="form-label fw-bold"
+              >Select Variant</label
+            >
+            <select
+              name="variant_id"
+              id="variant_id"
+              class="form-select rounded-pill"
+              required
+              onchange="updatePriceAndStock()"
+            >
+              {% for variant in product.variants %}
+              <option
+                value="{{ variant.id }}"
+                data-price="{{ variant.price }}"
+                data-stock="{{ variant.stock }}"
+              >
+                {{ variant.name }} - ₹{{ "%.2f"|format(variant.price) }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="form-group mb-4">
+            <label for="quantity" class="form-label fw-bold">Quantity</label>
+            <input
+              type="number"
+              id="quantity"
+              name="quantity"
+              class="form-control rounded-pill"
+              value="1"
+              min="1"
+              max="{{ product.variants[0].stock }}"
+              style="max-width: 120px"
+            />
+          </div>
+
+          {% if session.get('user_id') %}
+          <div class="d-flex gap-3">
+            <button
+              type="submit"
+              class="btn btn-primary btn-lg rounded-pill px-5 flex-grow-1"
+            >
+              🛒 Add to Cart
+            </button>
+          </div>
+          {% else %}
+          <a
+            href="{{ url_for('auth.login') }}"
+            class="btn btn-primary btn-lg rounded-pill w-100"
+          >
+            Login to Purchase
+          </a>
+          {% endif %}
+        </form>
+
+        {% if session.get('user_id') %}
+        <div class="mt-3">
+          <form
+            action="{{ url_for('customer.add_to_wishlist', product_id=product.id) }}"
+            method="POST"
+          >
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+            <button
+              type="submit"
+              class="btn btn-outline-danger btn-lg rounded-pill w-100"
+              title="Add to Wishlist"
+            >
+              ❤️ Add to Wishlist
+            </button>
+          </form>
+        </div>
+        {% endif %} {% else %}
+        <div class="alert alert-warning">
+          Product configuration incomplete (No variants found).
         </div>
         {% endif %}
-    </div>
 
-    <div class="col-md-6">
-        <div class="card" style="height: fit-content;">
-            <div class="card-body">
-                <h1 class="mb-3">{{ product.name }}</h1>
-
-                {% if product.category %}
-                <span class="badge badge-info mb-3">{{ product.category.name }}</span>
-                {% endif %}
-
-                <div class="product-price mb-3">₹{{ "%.2f"|format(product.price) }}</div>
-
-                {% if product.quantity > 0 %}
-                <div class="badge badge-success mb-3">✓ In Stock ({{ product.quantity }} available)</div>
-                {% else %}
-                <div class="badge badge-error mb-3">✗ Out of Stock</div>
-                {% endif %}
-
-                <p style="color: var(--text-medium); margin-bottom: 1.5rem;">
-                    {{ product.description or 'No description available for this product.' }}
-                </p>
-
-                {% if product.quantity > 0 %}
-                <form method="post" action="{{ url_for('customer.add_to_cart', product_id=product.id) }}">
-                    <div class="form-group">
-                        <label for="quantity" class="form-label">Quantity</label>
-                        <input type="number" id="quantity" name="quantity" class="form-input" value="1" min="1"
-                            max="{{ product.quantity }}" style="max-width: 100px;">
-                    </div>
-
-                    {% if session.get('user_id') %}
-                    <button type="submit" class="btn btn-primary btn-lg" style="width: 100%;">
-                        🛒 Add to Cart
-                    </button>
-                    {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-primary btn-lg" style="width: 100%;">
-                        Login to Purchase
-                    </a>
-                    {% endif %}
-                </form>
-                {% else %}
-                <button class="btn btn-secondary btn-lg" style="width: 100%;" disabled>
-                    Out of Stock
-                </button>
-                {% endif %}
-
-                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color);">
-                    <p style="color: var(--text-medium); font-size: 0.875rem; margin: 0;">
-                        Sold by: <strong>{{ product.seller.username }}</strong>
-                    </p>
-                </div>
-            </div>
+        <div
+          style="
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border-color);
+          "
+        >
+          <p style="color: var(--text-medium); font-size: 0.875rem; margin: 0">
+            Sold by: <strong>{{ product.seller.username }}</strong>
+          </p>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Related Products -->
 {% if related_products %}
-<div style="margin-top: 3rem;">
-    <h2 class="mb-3">Related Products</h2>
-    <div class="product-grid">
-        {% for related in related_products %}
-        <div class="card product-card">
-            <a href="{{ url_for('product.product_detail', product_id=related.id) }}"
-                style="text-decoration: none; color: inherit;">
-                {% if related.get_primary_image() %}
-                <img src="{{ url_for('static', filename='uploads/' + related.get_primary_image()) }}"
-                    alt="{{ related.name }}" class="product-image">
-                {% else %}
-                <div class="product-image flex-center"
-                    style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; font-size: 3rem;">
-                    📦
-                </div>
-                {% endif %}
-
-                <div class="product-info">
-                    <h3 class="product-title">{{ related.name }}</h3>
-                    <div class="product-price">₹{{ "%.2f"|format(related.price) }}</div>
-                </div>
-            </a>
+<div style="margin-top: 3rem">
+  <h2 class="mb-3">Related Products</h2>
+  <div class="product-grid">
+    {% for related in related_products %}
+    <div class="card product-card">
+      <a
+        href="{{ url_for('product.product_detail', product_id=related.id) }}"
+        style="text-decoration: none; color: inherit"
+      >
+        {% if related.get_primary_image() %}
+        <img
+          src="{{ url_for('static', filename='uploads/' + related.get_primary_image()) }}"
+          alt="{{ related.name }}"
+          class="product-image"
+        />
+        {% else %}
+        <div
+          class="product-image flex-center"
+          style="
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 3rem;
+          "
+        >
+          📦
         </div>
-        {% endfor %}
+        {% endif %}
+
+        <div class="product-info">
+          <h3 class="product-title">{{ related.name }}</h3>
+          <div class="product-price">₹{{ "%.2f"|format(related.price) }}</div>
+        </div>
+      </a>
     </div>
+    {% endfor %}
+  </div>
 </div>
-{% endif %}
-{% endblock %}
+{% endif %} {% block scripts %}
+<script>
+  function updatePriceAndStock() {
+    const select = document.getElementById("variant_id");
+    const option = select.options[select.selectedIndex];
+    const price = option.getAttribute("data-price");
+    const stock = option.getAttribute("data-stock");
+
+    document.querySelector(".product-price").innerText =
+      "₹" + parseFloat(price).toFixed(2);
+    const qtyInput = document.getElementById("quantity");
+    qtyInput.max = stock;
+    if (parseInt(qtyInput.value) > parseInt(stock)) {
+      qtyInput.value = stock;
+    }
+  }
+</script>
+{% endblock %} {% endblock %}

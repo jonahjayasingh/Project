@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container section-padding">
+    <div class="max-width-600 mx-auto">
+        <div class="card glass-card p-5">
+            <h1 class="h3 mb-4">{{ 'Edit Address' if address else 'Add New Address' }}</h1>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Full Name</label>
+                    <input type="text" name="name" class="form-control rounded-pill" required value="{{ address.name if address else '' }}">
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">Phone Number</label>
+                        <input type="text" name="phone" class="form-control rounded-pill" required value="{{ address.phone if address else '' }}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label small fw-bold">Country</label>
+                        <input type="text" name="country" class="form-control rounded-pill" value="USA" value="{{ address.country if address else 'USA' }}">
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold">Street Address</label>
+                    <input type="text" name="address_line1" class="form-control rounded-pill mb-2" placeholder="Line 1" required value="{{ address.address_line1 if address else '' }}">
+                    <input type="text" name="address_line2" class="form-control rounded-pill" placeholder="Line 2 (optional)" value="{{ address.address_line2 if address else '' }}">
+                </div>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label small fw-bold">City</label>
+                        <input type="text" name="city" class="form-control rounded-pill" required value="{{ address.city if address else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label small fw-bold">State</label>
+                        <input type="text" name="state" class="form-control rounded-pill" required value="{{ address.state if address else '' }}">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label small fw-bold">ZIP Code</label>
+                        <input type="text" name="postal_code" class="form-control rounded-pill" required value="{{ address.postal_code if address else '' }}">
+                    </div>
+                </div>
+                <div class="mb-4 form-check">
+                    <input type="checkbox" name="is_default" class="form-check-input" id="defaultCheck" {{ 'checked' if address and address.is_default else '' }}>
+                    <label class="form-check-label small" for="defaultCheck">Set as primary shipping address</label>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary rounded-pill py-2">Save Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

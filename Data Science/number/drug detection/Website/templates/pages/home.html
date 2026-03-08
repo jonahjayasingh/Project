@@ -1,0 +1,83 @@
+{% extends 'base.html' %} {% block title %}Welcome - Drug Detection AI{%endblock %} {% block content %}
+<div style="text-align: center; max-width: 800px; margin: 4rem auto">
+  <h1
+    style="
+      font-size: 3rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 1.5rem;
+      letter-spacing: -0.05em;
+    "
+  >
+    Predictive drug detection powered by
+    <span style="color: var(--primary)">Machine Learning</span>
+  </h1>
+  <p
+    style="font-size: 1.25rem; color: var(--text-muted); margin-bottom: 2.5rem"
+  >
+    A specialized platform for identifying substances based on physiological
+    parameters and medical observations with high precision and clinical
+    insights.
+  </p>
+  <div style="display: flex; gap: 1rem; justify-content: center">
+    {% if user.is_authenticated %}
+    <a
+      href="{% url 'dashboard' %}"
+      class="btn btn-primary"
+      style="padding: 1rem 2rem; font-size: 1rem"
+      >Go to Dashboard</a
+    >
+    {% else %}
+    <a
+      href="{% url 'register' %}"
+      class="btn btn-primary"
+      style="padding: 1rem 2rem; font-size: 1rem"
+      >Create Free Account</a
+    >
+    <a
+      href="{% url 'login' %}"
+      class="btn btn-outline"
+      style="padding: 1rem 2rem; font-size: 1rem"
+      >Sign In</a
+    >
+    {% endif %}
+  </div>
+</div>
+
+<div
+  style="
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 4rem;
+  "
+>
+  <div class="card">
+    <h3 style="margin-bottom: 1rem; color: var(--primary)">
+      Real-time Inference
+    </h3>
+    <p style="color: var(--text-muted)">
+      Get instant predictions using our trained Gradient Boosting model based on
+      vital signs and clinical data.
+    </p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom: 1rem; color: var(--primary)">
+      Comprehensive Analysis
+    </h3>
+    <p style="color: var(--text-muted)">
+      Predict types including Cannabis, Cocaine, Heroin, and more with
+      confidence score breakdowns.
+    </p>
+  </div>
+  <div class="card">
+    <h3 style="margin-bottom: 1rem; color: var(--primary)">
+      Clinical Parameters
+    </h3>
+    <p style="color: var(--text-muted)">
+      Processes vital logs like Blood pH, ALT/AST levels, and Oxygen Saturation
+      for accurate diagnostics.
+    </p>
+  </div>
+</div>
+{% endblock %}

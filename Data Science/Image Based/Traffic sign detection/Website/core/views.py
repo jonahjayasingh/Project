@@ -44,29 +44,31 @@ class VideoTransformTrack(MediaStreamTrack):
         super().__init__()
         self.track = track
         self.frame_count = 0
+        self.latest_res = None
 
     async def recv(self):
         try:
             frame = await self.track.recv()
             self.frame_count += 1
             
-            # Skip fewer frames (process every 2nd frame) to improve detection chance
-            if self.frame_count % 2 != 0:
-                return frame
-
-            # Convert to numpy array
+            # Convert to numpy array once for processing/drawing
             img = frame.to_ndarray(format="bgr24")
+
+            # Process every 4th frame to update AI state
+            if self.frame_count % 4 == 0:
+                # Offload heavy YOLO processing to a thread
+                # Returns the result objects instead of an annotated image
+                self.latest_res = await asyncio.to_thread(self._analyze_frame, img)
             
-            # Use a slightly higher imgsz for better accuracy (416 is a good compromise)
-            # Increase confidence sensitivity to 0.25
-            annotated_img = img.copy()
-            for m in models:
-                results = m(img, conf=0.25, imgsz=416, verbose=False, iou=0.45)
-                res = results[0]
-                # Clean labels on the fly
-                res.names = {k: v.replace('_', ' ') for k, v in res.names.items()}
-                annotated_img = res.plot(img=annotated_img)
-            
+            # If we have any previous results, draw them on the CURRENT frame
+            # This eliminates flickering during frames where inference is skipped
+            if self.latest_res:
+                annotated_img = img.copy()
+                for res in self.latest_res:
+                    annotated_img = res.plot(img=annotated_img)
+            else:
+                annotated_img = img
+
             # Rebuild frame
             new_frame = av.VideoFrame.from_ndarray(annotated_img, format="bgr24")
             new_frame.pts = frame.pts
@@ -77,9 +79,17 @@ class VideoTransformTrack(MediaStreamTrack):
             print(f"Error in VideoTransformTrack: {e}")
             return None
 
-        except Exception as e:
-            print(f"Error in VideoTransformTrack: {e}")
-            return None
+    def _analyze_frame(self, img):
+        """Perform YOLO inference and return results for persistence."""
+        current_results = []
+        for m in models:
+            results = m(img, conf=0.25, imgsz=320, verbose=False, iou=0.45)
+            # Clean labels on the result objects
+            res = results[0]
+            res.names = {k: v.replace('_', ' ') for k, v in res.names.items()}
+            current_results.append(res)
+        return current_results
+
 
 
 def home(request):

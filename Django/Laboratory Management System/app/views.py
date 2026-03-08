@@ -21,6 +21,7 @@ from datetime import datetime, timedelta
 from django.utils import timezone
 from django.db import models
 from django.http import FileResponse, HttpResponseForbidden
+from .utils.whatsapp import confirm_booking_whatsapp, send_result_whatsapp, send_welcome_whatsapp, send_status_update_whatsapp
 
 def log_activity(request, action, details=""):
     ActivityLog.objects.create(
@@ -97,6 +98,10 @@ def patient_register(request):
             patient.user = user
             patient.save()
             log_activity(request, "Patient Registration", f"New patient registered: {user.username}")
+            
+            # WhatsApp Welcome
+            send_welcome_whatsapp(patient)
+            
             login(request, user)
             return redirect('patient_dashboard')
     else:
@@ -132,8 +137,8 @@ def patient_dashboard(request):
     patient = request.user.patient_profile
     bookings = patient.bookings.all().order_by('-created_at')
     
-    upcoming = bookings.filter(booking_date__gte=datetime.now().date(), status__in=['Pending Approval', 'Confirmed']).order_by('booking_date')
-    history = bookings.filter(Q(booking_date__lt=datetime.now().date()) | Q(status__in=['Completed', 'Cancelled'])).order_by('-booking_date')
+    upcoming = bookings.filter(booking_date__gte=timezone.localtime(timezone.now()).date(), status__in=['Pending Approval', 'Confirmed']).order_by('booking_date')
+    history = bookings.filter(Q(booking_date__lt=timezone.localtime(timezone.now()).date()) | Q(status__in=['Completed', 'Cancelled'])).order_by('-booking_date')
 
     return render(request, "patient_dashboard.html", {
         'profile': patient,
@@ -198,8 +203,11 @@ def book_test(request):
                     fail_silently=True,
                 )
                 
-                messages.success(request, "Booking request submitted successfully!")
-                return redirect('patient_dashboard')
+                # WhatsApp Notification
+                confirm_booking_whatsapp(booking)
+                
+                messages.success(request, "Booking request submitted successfully! Please upload payment proof to confirm.")
+                return redirect('upload_payment_proof', booking_id=booking.id)
     else:
         form = TestBookingForm()
     return render(request, "book_test.html", {'form': form})
@@ -254,6 +262,7 @@ def cancel_booking(request, booking_id):
         booking.status = 'Cancelled'
         booking.cancellation_reason = reason
         booking.save()
+        send_status_update_whatsapp(booking)
         messages.success(request, "Booking cancelled successfully.")
         return redirect('patient_dashboard')
         
@@ -267,6 +276,7 @@ def mark_no_show(request, booking_id):
     booking.is_no_show = True
     booking.status = 'Cancelled'
     booking.save()
+    send_status_update_whatsapp(booking)
     messages.info(request, f"Booking #{booking.id} marked as No-Show.")
     return redirect('lab_dashboard')
 
@@ -536,20 +546,94 @@ def lab_dashboard(request):
     if not hasattr(request.user, 'lab_profile'):
         return redirect('home')
     lab = request.user.lab_profile
-    bookings = TestBooking.objects.filter(lab=lab).order_by('-created_at')
+    today = timezone.localtime(timezone.now()).date()
+    
+    # Today's active bookings
+    bookings_qs = TestBooking.objects.filter(
+        lab=lab, 
+        booking_date=today
+    ).exclude(status__in=['Completed', 'Cancelled']).order_by('time_slot')
+
+    # Future active bookings
+    future_qs = TestBooking.objects.filter(
+        lab=lab,
+        booking_date__gt=today
+    ).exclude(status__in=['Completed', 'Cancelled']).order_by('booking_date', 'time_slot')
+    
+    # Search and status filtering
+    query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', '')
+    
+    if query:
+        search_filter = Q(id__icontains=query) | \
+                        Q(patient__full_name__icontains=query) | \
+                        Q(test_name__icontains=query) | \
+                        Q(patient__whatsapp_number__icontains=query)
+        bookings_qs = bookings_qs.filter(search_filter)
+        future_qs = future_qs.filter(search_filter)
+    
+    if status_filter:
+        bookings_qs = bookings_qs.filter(status=status_filter)
+        future_qs = future_qs.filter(status=status_filter)
     
     # Summary Stats
-    total_bookings = bookings.count()
-    pending_tasks = bookings.exclude(status__in=['Completed', 'Cancelled']).count()
-    completed_today = bookings.filter(status='Completed', updated_at__date=datetime.now().date()).count()
-    today_appointments = bookings.filter(booking_date=datetime.now().date()).order_by('time_slot')
+    all_lab_bookings = TestBooking.objects.filter(lab=lab)
+    total_bookings = all_lab_bookings.count()
+    pending_tasks = all_lab_bookings.exclude(status__in=['Completed', 'Cancelled']).count()
+    completed_today = all_lab_bookings.filter(status='Completed', updated_at__date=today).count()
+    today_count = bookings_qs.count()
+    future_count = future_qs.count()
 
     return render(request, "lab_dashboard.html", {
-        'bookings': bookings,
+        'bookings': bookings_qs,
+        'future_bookings': future_qs,
         'total_bookings': total_bookings,
         'pending_tasks': pending_tasks,
         'completed_today': completed_today,
-        'today_appointments': today_appointments
+        'today_count': today_count,
+        'future_count': future_count,
+        'today': today,
+        'q': query,
+        'status_filter': status_filter,
+        'STATUS_CHOICES': TestBooking.STATUS_CHOICES
+    })
+
+@login_required
+def lab_history(request):
+    if not hasattr(request.user, 'lab_profile'):
+        return redirect('home')
+    lab = request.user.lab_profile
+    today = timezone.localtime(timezone.now()).date()
+    
+    # Base queryset: Everything that is NOT an active today's booking
+    history_qs = TestBooking.objects.filter(lab=lab).filter(
+        Q(booking_date__lt=today) | Q(status__in=['Completed', 'Cancelled'])
+    ).order_by('-booking_date', '-time_slot')
+    
+    # Search and status filtering
+    query = request.GET.get('q', '')
+    status_filter = request.GET.get('status', '')
+    
+    if query:
+        history_qs = history_qs.filter(
+            Q(id__icontains=query) | 
+            Q(patient__full_name__icontains=query) |
+            Q(test_name__icontains=query) |
+            Q(patient__whatsapp_number__icontains=query)
+        )
+    
+    if status_filter:
+        history_qs = history_qs.filter(status=status_filter)
+        
+    paginator = Paginator(history_qs, 20)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, "lab_history.html", {
+        'page_obj': page_obj,
+        'q': query,
+        'status_filter': status_filter,
+        'STATUS_CHOICES': TestBooking.STATUS_CHOICES
     })
 
 @login_required
@@ -622,6 +706,7 @@ def update_booking_status(request, booking_id):
     if new_status in [choice[0] for choice in TestBooking.STATUS_CHOICES]:
         booking.status = new_status
         booking.save()
+        send_status_update_whatsapp(booking)
         messages.success(request, f"Status updated to {new_status}")
     return redirect('lab_dashboard')
 
@@ -652,6 +737,8 @@ def verify_payment(request, booking_id):
         )
         messages.warning(request, "Payment proof rejected.")
     booking.save()
+    if action == 'verify':
+        send_status_update_whatsapp(booking)
     return redirect('lab_dashboard')
 
 @login_required
@@ -674,7 +761,11 @@ def upload_report(request, booking_id):
             
             form.save()
             
-            # Create Notification
+            # WhatsApp Notification with file (Send whenever a report is uploaded/updated)
+            if booking.report_file:
+                send_result_whatsapp(booking)
+            
+            # Create Notification for internal dashboard
             Notification.objects.create(
                 user=booking.patient.user,
                 message=f"New report version (V{booking.versions.count()}) uploaded for your test: {booking.test_name}",
@@ -691,7 +782,8 @@ def upload_report(request, booking_id):
                     [booking.patient.user.email],
                     fail_silently=True,
                 )
-            messages.success(request, f"Report (V{booking.versions.count()}) uploaded successfully.")
+            
+            messages.success(request, f"Report (V{booking.versions.count()}) uploaded and sent to patient via WhatsApp.")
             log_activity(request, "Report Upload", f"Uploaded report V{booking.versions.count()} for Booking #{booking.id}")
             return redirect('lab_dashboard')
     else:

@@ -1,56 +1,103 @@
-{% extends 'base.html' %}
-
-{% block title %}Login - E-Commerce Platform{% endblock %}
-
-{% block content %}
-<div class="container" style="max-width: 480px; margin-top: 4rem;">
-    <div class="card fade-in" style="border: none; box-shadow: var(--shadow-2xl);">
-        <div class="card-body" style="padding: 3rem;">
-            <div class="text-center mb-4">
-                <div
-                    style="width: 80px; height: 80px; margin: 0 auto 1.5rem; background: linear-gradient(135deg, #6366f1, #ec4899); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: var(--shadow-colored);">
-                    🔐
-                </div>
-                <h1 style="font-size: 2rem; margin-bottom: 0.5rem;">Welcome Back</h1>
-                <p style="color: var(--text-medium); margin: 0;">Sign in to your account to continue</p>
-            </div>
-
-            <form method="post">
-                <div class="form-group">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" id="username" name="username" class="form-input" required autofocus
-                        placeholder="Enter your username">
-                </div>
-
-                <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-input" required
-                        placeholder="Enter your password">
-                </div>
-
-                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 1rem;">
-                    Sign In →
-                </button>
-            </form>
-
-            <div
-                style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-color); text-align: center;">
-                <p style="color: var(--text-medium); margin: 0;">
-                    Don't have an account?
-                    <a href="{{ url_for('auth.register') }}"
-                        style="color: var(--primary-color); text-decoration: none; font-weight: 600;">
-                        Create one →
-                    </a>
-                </p>
-                <p style="color: var(--text-medium); margin-top: 0.75rem;">
-                    Want to sell?
-                    <a href="{{ url_for('seller.become_seller') }}"
-                        style="color: var(--secondary-color); text-decoration: none; font-weight: 600;">
-                        Become a seller →
-                    </a>
-                </p>
-            </div>
+{% extends 'base.html' %} {% block title %}Login - E-Commerce Platform{%
+endblock %} {% block content %}
+<div class="container" style="max-width: 480px; margin-top: 4rem">
+  <div class="card fade-in" style="border: none; box-shadow: var(--shadow-2xl)">
+    <div class="card-body" style="padding: 3rem">
+      <div class="text-center mb-4">
+        <div
+          style="
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            box-shadow: var(--shadow-colored);
+          "
+        >
+          🔐
         </div>
+        <h1 style="font-size: 2rem; margin-bottom: 0.5rem">Welcome Back</h1>
+        <p style="color: var(--text-medium); margin: 0">
+          Sign in to your account to continue
+        </p>
+      </div>
+
+      <form method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <div class="form-group">
+          <label for="username" class="form-label">Username</label>
+          <input
+            type="text"
+            id="username"
+            name="username"
+            class="form-input"
+            required
+            autofocus
+            placeholder="Enter your username"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="password" class="form-label">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            class="form-input"
+            required
+            placeholder="Enter your password"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg"
+          style="width: 100%; margin-top: 1rem"
+        >
+          Sign In →
+        </button>
+      </form>
+
+      <div
+        style="
+          margin-top: 2rem;
+          padding-top: 2rem;
+          border-top: 1px solid var(--border-color);
+          text-align: center;
+        "
+      >
+        <p style="color: var(--text-medium); margin: 0">
+          Don't have an account?
+          <a
+            href="{{ url_for('auth.register') }}"
+            style="
+              color: var(--primary-color);
+              text-decoration: none;
+              font-weight: 600;
+            "
+          >
+            Create one →
+          </a>
+        </p>
+        <p style="color: var(--text-medium); margin-top: 0.75rem">
+          Want to sell?
+          <a
+            href="{{ url_for('seller.become_seller') }}"
+            style="
+              color: var(--secondary-color);
+              text-decoration: none;
+              font-weight: 600;
+            "
+          >
+            Become a seller →
+          </a>
+        </p>
+      </div>
     </div>
+  </div>
 </div>
 {% endblock %}

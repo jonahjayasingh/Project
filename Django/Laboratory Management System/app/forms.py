@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
+from django.utils import timezone
 from .models import PatientProfile, TestBooking, LabAssistant, LabTest, LabPackage
 
 class PatientRegistrationForm(forms.ModelForm):
@@ -113,6 +114,7 @@ class TestBookingForm(forms.ModelForm):
         self.fields['package'].queryset = LabPackage.objects.none()
         self.fields['lab_test'].required = False
         self.fields['package'].required = False
+        self.fields['booking_date'].widget.attrs['min'] = timezone.localtime(timezone.now()).date().isoformat()
 
         if 'lab' in self.data:
             try:
@@ -124,6 +126,28 @@ class TestBookingForm(forms.ModelForm):
         elif self.instance.pk and self.instance.lab:
             self.fields['lab_test'].queryset = self.instance.lab.available_tests.all()
             self.fields['package'].queryset = self.instance.lab.packages.all()
+
+    def clean(self):
+        cleaned_data = super().clean()
+        booking_date = cleaned_data.get('booking_date')
+        time_slot_str = cleaned_data.get('time_slot')
+
+        if booking_date and time_slot_str:
+            now = timezone.localtime(timezone.now())
+            today = now.date()
+            
+            if booking_date < today:
+                self.add_error('booking_date', "Booking date cannot be in the past.")
+            elif booking_date == today:
+                try:
+                    from datetime import datetime as dt
+                    slot_time = dt.strptime(time_slot_str, '%H:%M').time()
+                    current_time = now.time()
+                    if slot_time <= current_time:
+                        self.add_error('time_slot', "This time slot has already passed for today.")
+                except ValueError:
+                    pass
+        return cleaned_data
 
 class LabTestForm(forms.ModelForm):
     class Meta:

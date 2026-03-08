@@ -9,20 +9,92 @@ routes = Blueprint('admin', __name__)
 @routes.route('/dashboard')
 @admin_required
 def dashboard():
-    """Admin dashboard with overview"""
-    # Get statistics
+    """Admin dashboard with analytics overview"""
+    from models import Order, OrderStatus, Coupon, ReturnRequest
+    
+    # Statistics
     total_users = User.query.count()
     total_sellers = SellerProfile.query.count()
-    pending_sellers = SellerProfile.query.filter_by(status=SellerStatus.PENDING).count()
     active_sellers = SellerProfile.query.filter_by(status=SellerStatus.ACTIVE).count()
+    
+    # Financials
+    total_revenue = db.session.query(db.func.sum(Order.final_amount)).filter(Order.status == OrderStatus.PAID).scalar() or 0
+    total_orders = Order.query.count()
+    paid_orders = Order.query.filter_by(status=OrderStatus.PAID).count()
+    
+    # Metrics
+    pending_returns = ReturnRequest.query.filter_by(status="pending").count()
+    active_coupons = Coupon.query.filter_by(is_active=True).count()
     
     return render_template(
         'admin/dashboard.html',
         total_users=total_users,
         total_sellers=total_sellers,
-        pending_sellers=pending_sellers,
-        active_sellers=active_sellers
+        active_sellers=active_sellers,
+        total_revenue=total_revenue,
+        total_orders=total_orders,
+        paid_orders=paid_orders,
+        pending_returns=pending_returns,
+        active_coupons=active_coupons
     )
+
+
+# --- Coupon Management ---
+
+@routes.route('/coupons')
+@admin_required
+def manage_coupons():
+    from models import Coupon
+    coupons = Coupon.query.order_by(Coupon.created_at.desc()).all()
+    return render_template('admin/coupons.html', coupons=coupons)
+
+@routes.route('/coupons/add', methods=['GET', 'POST'])
+@admin_required
+def add_coupon():
+    from models import Coupon, DiscountType
+    if request.method == 'POST':
+        coupon = Coupon(
+            code=request.form['code'].upper(),
+            discount_type=DiscountType(request.form['discount_type']),
+            discount_value=float(request.form['discount_value']),
+            min_cart_value=float(request.form.get('min_cart_value', 0)),
+            usage_limit=int(request.form.get('usage_limit')) if request.form.get('usage_limit') else None,
+            is_active=True
+        )
+        db.session.add(coupon)
+        db.session.commit()
+        flash('Coupon created!', 'success')
+        return redirect(url_for('admin.manage_coupons'))
+    return render_template('admin/coupon_form.html')
+
+
+# --- Return Management ---
+
+@routes.route('/returns')
+@admin_required
+def manage_returns():
+    from models import ReturnRequest
+    returns = ReturnRequest.query.order_by(ReturnRequest.created_at.desc()).all()
+    return render_template('admin/returns.html', returns=returns)
+
+@routes.route('/returns/<int:return_id>/process', methods=['POST'])
+@admin_required
+def process_return(return_id):
+    from models import ReturnRequest, ReturnStatus, OrderStatus
+    ret = ReturnRequest.query.get_or_404(return_id)
+    action = request.form.get('action') # approve/reject
+    
+    if action == 'approve':
+        ret.status = ReturnStatus.APPROVED
+        ret.order.status = OrderStatus.RETURNED
+        flash('Return approved.', 'success')
+    else:
+        ret.status = ReturnStatus.REJECTED
+        flash('Return rejected.', 'info')
+        
+    ret.admin_comment = request.form.get('comment')
+    db.session.commit()
+    return redirect(url_for('admin.manage_returns'))
 
 
 @routes.route('/sellers')

@@ -1,116 +1,159 @@
-{% extends "base.html" %}
-
-{% block title %}Booking Receipt - #{{ booking.id }}{% endblock %}
-
-{% block content %}
+{% extends "base.html" %} {% block title %}Booking Receipt - #{{ booking.id }}{%endblock %} {% block content %}
 <div class="row pt-4 justify-content-center">
-    <div class="col-md-8">
-        <div class="card p-5 border-0 shadow-lg rounded-4" id="printableArea">
-            <div class="d-flex justify-content-between align-items-start mb-5 pb-3 border-bottom">
-                <div>
-                    <h2 class="fw-bold mb-0 text-primary">LMS RECEIPT</h2>
-                    <p class="text-muted small">Reference: #{{ booking.id }}</p>
-                </div>
-                <div class="text-end">
-                    <h5 class="fw-bold mb-1">{{ booking.lab.lab_name }}</h5>
-                    <p class="text-muted small mb-0">{{ booking.lab.city }}, {{ booking.lab.area }}</p>
-                    <p class="text-muted small">License: {{ booking.lab.license_number }}</p>
-                </div>
-            </div>
-
-            <div class="row mb-5">
-                <div class="col-6">
-                    <h6 class="text-muted text-uppercase fw-bold small">Billed To:</h6>
-                    <h5 class="fw-bold mb-1">{{ booking.patient.full_name }}</h5>
-                    <p class="text-muted mb-0 small">{{ booking.patient.whatsapp_number }}</p>
-                    <p class="text-muted small">{{ booking.patient.address }}</p>
-                </div>
-                <div class="col-6 text-end">
-                    <h6 class="text-muted text-uppercase fw-bold small">Booking Date:</h6>
-                    <h5 class="fw-bold mb-1">{{ booking.booking_date }}</h5>
-                    <p class="text-muted small">Time Slot: {{ booking.time_slot|time:"h:i A" }}</p>
-                </div>
-            </div>
-
-            <table class="table table-borderless mb-5">
-                <thead class="bg-light">
-                    <tr>
-                        <th class="ps-3 py-3 rounded-start">Description</th>
-                        <th class="text-center py-3">Qty</th>
-                        <th class="text-end pe-3 py-3 rounded-end">Amount</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td class="ps-3 py-4 border-bottom">
-                            <div class="fw-bold">{{ booking.test_name }}</div>
-                            <small class="text-muted">Professional Diagnostic Service</small>
-                        </td>
-                        <td class="text-center py-4 border-bottom">1</td>
-                        <td class="text-end pe-3 py-4 border-bottom fw-bold">₹{{ booking.price_at_booking|default:"0" }}
-                        </td>
-                    </tr>
-                </tbody>
-                <tfoot>
-                    <tr>
-                        <td colspan="2" class="text-end py-3 fw-bold">Total Amount</td>
-                        <td class="text-end pe-3 py-3 fw-bold h4 text-primary">₹{{ booking.price_at_booking|default:"0"
-                            }}</td>
-                    </tr>
-                </tfoot>
-            </table>
-
-            <div
-                class="alert alert-{% if booking.payment_status == 'Verified' %}success{% else %}warning{% endif %} border-0 rounded-4 text-center py-3">
-                <h6 class="mb-0 fw-bold">Payment Status: {{ booking.payment_status }}</h6>
-            </div>
-
-            <div class="mt-5 pt-3 border-top text-center text-muted small">
-                <p class="mb-1">This is a computer-generated receipt and does not require a physical signature.</p>
-                <p>Thank you for choosing {{ booking.lab.lab_name }} for your healthcare needs.</p>
-            </div>
+  <div class="col-md-8">
+    <div class="card p-5 border-0 shadow-lg rounded-4" id="printableArea">
+      <div
+        class="d-flex justify-content-between align-items-start mb-5 pb-3 border-bottom"
+      >
+        <div>
+          <h2 class="fw-bold mb-0 text-primary">LMS RECEIPT</h2>
+          <p class="text-muted small">Reference: #{{ booking.id }}</p>
         </div>
-
-        <div class="text-center mt-4 no-print">
-            <button onclick="window.print()" class="btn btn-dark rounded-pill px-5 py-2 fw-bold">
-                <i class="fas fa-print me-2"></i> Print Receipt
-            </button>
-            <div class="mt-3">
-                <a href="{% url 'patient_dashboard' %}" class="text-muted text-decoration-none small">
-                    <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
-                </a>
-            </div>
+        <div class="text-end">
+          <h5 class="fw-bold mb-1">{{ booking.lab.lab_name }}</h5>
+          <p class="text-muted small mb-0">
+            {{ booking.lab.city }}, {{ booking.lab.area }}
+          </p>
+          <p class="text-muted small">
+            License: {{ booking.lab.license_number }}
+          </p>
         </div>
+      </div>
+
+      <div class="row mb-5">
+        <div class="col-6">
+          <h6 class="text-muted text-uppercase fw-bold small">Billed To:</h6>
+          <h5 class="fw-bold mb-1">{{ booking.patient.full_name }}</h5>
+          <p class="text-muted mb-0 small">
+            {{ booking.patient.whatsapp_number }}
+          </p>
+          <p class="text-muted small">{{ booking.patient.address }}</p>
+        </div>
+        <div class="col-6 text-end">
+          <h6 class="text-muted text-uppercase fw-bold small">Booking Date:</h6>
+          <h5 class="fw-bold mb-1">{{ booking.booking_date }}</h5>
+          <p class="text-muted small">
+            Time Slot: {{ booking.time_slot|time:"h:i A" }}
+          </p>
+        </div>
+      </div>
+
+      <table class="table table-borderless mb-5">
+        <thead class="bg-light">
+          <tr>
+            <th class="ps-3 py-3 rounded-start">Description</th>
+            <th class="text-center py-3">Qty</th>
+            <th class="text-end pe-3 py-3 rounded-end">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="ps-3 py-4 border-bottom">
+              <div class="fw-bold">{{ booking.test_name }}</div>
+              <small class="text-muted">Professional Diagnostic Service</small>
+            </td>
+            <td class="text-center py-4 border-bottom">1</td>
+            <td class="text-end pe-3 py-4 border-bottom fw-bold">
+              ₹{{ booking.price_at_booking|default:"0" }}
+            </td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr>
+            <td colspan="2" class="text-end py-3 fw-bold">Total Amount</td>
+            <td class="text-end pe-3 py-3 fw-bold h4 text-primary">
+              ₹{{ booking.price_at_booking|default:"0" }}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+
+      <div
+        class="alert alert-{% if booking.payment_status == 'Verified' %}success{% else %}warning{% endif %} border-0 rounded-4 text-center py-3"
+      >
+        <h6 class="mb-0 fw-bold">
+          Payment Status: {{ booking.payment_status }}
+        </h6>
+      </div>
+
+      {% if booking.payment_status != 'Verified' and booking.lab.payment_qr_code%}
+      <div class="text-center mt-4">
+        <h6 class="text-muted text-uppercase fw-bold small mb-3">
+          Scan to Pay
+        </h6>
+        <div class="bg-light p-3 d-inline-block rounded-4 shadow-sm">
+          <img
+            src="{{ booking.lab.payment_qr_code.url }}"
+            class="img-fluid rounded"
+            style="max-width: 200px"
+            alt="QR Code"
+          />
+        </div>
+        <p class="small text-muted mt-2 mb-0">
+          Pay to <strong>{{ booking.lab.lab_name }}</strong> and upload proof in
+          dashboard.
+        </p>
+      </div>
+      {% endif %}
+
+      <div class="mt-5 pt-3 border-top text-center text-muted small">
+        <p class="mb-1">
+          This is a computer-generated receipt and does not require a physical
+          signature.
+        </p>
+        <p>
+          Thank you for choosing {{ booking.lab.lab_name }} for your healthcare
+          needs.
+        </p>
+      </div>
     </div>
+
+    <div class="text-center mt-4 no-print">
+      <button
+        onclick="window.print()"
+        class="btn btn-dark rounded-pill px-5 py-2 fw-bold"
+      >
+        <i class="fas fa-print me-2"></i> Print Receipt
+      </button>
+      <div class="mt-3">
+        <a
+          href="{% url 'patient_dashboard' %}"
+          class="text-muted text-decoration-none small"
+        >
+          <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-
-        #printableArea,
-        #printableArea * {
-            visibility: visible;
-        }
-
-        #printableArea {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            box-shadow: none !important;
-            padding: 0 !important;
-        }
-
-        .no-print {
-            display: none !important;
-        }
-
-        .card {
-            border: none !important;
-        }
+  @media print {
+    body * {
+      visibility: hidden;
     }
+
+    #printableArea,
+    #printableArea * {
+      visibility: visible;
+    }
+
+    #printableArea {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      box-shadow: none !important;
+      padding: 0 !important;
+    }
+
+    .no-print {
+      display: none !important;
+    }
+
+    .card {
+      border: none !important;
+    }
+  }
 </style>
 {% endblock %}

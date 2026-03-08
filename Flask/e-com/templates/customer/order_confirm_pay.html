@@ -1,0 +1,52 @@
+{% extends "base.html" %} {% block content %}
+<div class="container section-padding">
+  <div class="max-width-700 mx-auto">
+    <div class="card glass-card p-5 shadow-lg border-0">
+      <h1 class="h3 mb-4">Complete Your Payment</h1>
+      <div class="order-summary-box mb-5 p-4 bg-light rounded-4">
+        <div class="d-flex justify-content-between mb-2">
+          <span>Order Total:</span>
+          <span class="fw-bold">${{ "%.2f"|format(order.total_amount) }}</span>
+        </div>
+        {% if order.discount_amount > 0 %}
+        <div class="d-flex justify-content-between mb-2 text-success">
+          <span>Discount:</span>
+          <span>-${{ "%.2f"|format(order.discount_amount) }}</span>
+        </div>
+        {% endif %}
+        <hr />
+        <div class="d-flex justify-content-between h5 mt-3">
+          <span>Amount Due:</span>
+          <span class="text-primary fw-bold"
+            >${{ "%.2f"|format(order.final_amount) }}</span
+          >
+        </div>
+      </div>
+
+      <div class="shipping-snapshot mb-5">
+        <h6 class="text-secondary text-uppercase small ls-wide mb-3">
+          Shipping To
+        </h6>
+        <p class="mb-0 text-muted">{{ order.shipping_address_text }}</p>
+      </div>
+
+      <form
+        action="{{ url_for('payment.create_checkout_session') }}"
+        method="POST"
+      >
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+        <input type="hidden" name="order_id" value="{{ order.id }}" />
+        <button
+          type="submit"
+          class="btn btn-primary btn-lg w-100 rounded-pill shadow-strong py-3"
+        >
+          Proceed to Stripe Checkout
+        </button>
+      </form>
+      <p class="text-center mt-4 small text-muted">
+        Secure transaction encrypted by Stripe.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

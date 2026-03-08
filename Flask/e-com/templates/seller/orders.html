@@ -1,230 +1,480 @@
-{% extends 'base.html' %}
-
-{% block title %}My Orders - E-Commerce Platform{% endblock %}
-
-{% block content %}
-<div class="fade-in" style="margin-bottom: 2.5rem;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-        <h1 style="font-size: 2.5rem; margin: 0;">📦 Order Management</h1>
-        <a href="{{ url_for('seller.dashboard') }}" class="btn btn-secondary">
-            ← Back to Dashboard
-        </a>
-    </div>
-    <p style="color: var(--text-medium); font-size: 1.125rem;">Orders grouped by product</p>
+{% extends 'base.html' %} {% block title %}My Orders - E-Commerce Platform{%
+endblock %} {% block content %}
+<div class="fade-in" style="margin-bottom: 2.5rem">
+  <div
+    style="
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    "
+  >
+    <h1 style="font-size: 2.5rem; margin: 0">📦 Order Management</h1>
+    <a href="{{ url_for('seller.dashboard') }}" class="btn btn-secondary">
+      ← Back to Dashboard
+    </a>
+  </div>
+  <p style="color: var(--text-medium); font-size: 1.125rem">
+    Orders grouped by product
+  </p>
 </div>
 
 {% if products_orders %}
 <!-- Overall Statistics -->
-<div class="card mb-4"
-    style="border: none; background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(236, 72, 153, 0.05));">
-    <div class="card-body">
-        <div class="row text-center">
-            <div class="col-md-3 col-6 mb-3 mb-md-0">
-                <div
-                    style="font-size: 2.5rem; font-weight: 800; background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                    {{ products_orders|length }}
-                </div>
-                <div
-                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
-                    Products Sold</div>
-            </div>
-            <div class="col-md-3 col-6 mb-3 mb-md-0">
-                <div style="font-size: 2.5rem; font-weight: 800; color: var(--primary-color);">
-                    {{ order_items|length }}
-                </div>
-                <div
-                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
-                    Total Orders</div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div style="font-size: 2.5rem; font-weight: 800; color: #f59e0b;">
-                    {{ order_items|selectattr('order.status.value', 'equalto', 'pending')|list|length }}
-                </div>
-                <div
-                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
-                    Pending</div>
-            </div>
-            <div class="col-md-3 col-6">
-                <div style="font-size: 2.5rem; font-weight: 800; color: var(--success-color);">
-                    {{ order_items|selectattr('order.status.value', 'equalto', 'delivered')|list|length }}
-                </div>
-                <div
-                    style="color: var(--text-medium); font-size: 0.875rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600;">
-                    Delivered</div>
-            </div>
+<div
+  class="card mb-4"
+  style="
+    border: none;
+    background: linear-gradient(
+      135deg,
+      rgba(99, 102, 241, 0.05),
+      rgba(236, 72, 153, 0.05)
+    );
+  "
+>
+  <div class="card-body">
+    <div class="row text-center">
+      <div class="col-md-3 col-6 mb-3 mb-md-0">
+        <div
+          style="
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(
+              135deg,
+              var(--primary-color),
+              var(--secondary-color)
+            );
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+          "
+        >
+          {{ products_orders|length }}
         </div>
+        <div
+          style="
+            color: var(--text-medium);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+          "
+        >
+          Products Sold
+        </div>
+      </div>
+      <div class="col-md-3 col-6 mb-3 mb-md-0">
+        <div
+          style="
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary-color);
+          "
+        >
+          {{ order_items|length }}
+        </div>
+        <div
+          style="
+            color: var(--text-medium);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+          "
+        >
+          Total Orders
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #f59e0b">
+          {{ order_items|selectattr('order.status.value', 'equalto',
+          'pending')|list|length }}
+        </div>
+        <div
+          style="
+            color: var(--text-medium);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+          "
+        >
+          Pending
+        </div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div
+          style="
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--success-color);
+          "
+        >
+          {{ order_items|selectattr('order.status.value', 'equalto',
+          'delivered')|list|length }}
+        </div>
+        <div
+          style="
+            color: var(--text-medium);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+          "
+        >
+          Delivered
+        </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Products with Orders -->
 {% for product_id, items in products_orders.items() %}
-<div class="card mb-4 fade-in" style="border: none; overflow: hidden;">
-    <!-- Product Header (Clickable) -->
-    <div onclick="toggleProduct({{ product_id }})"
-        style="padding: 1.5rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(236, 72, 153, 0.1)); border-bottom: 2px solid var(--border-color); cursor: pointer; transition: opacity 0.2s;"
-        onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-            <div>
-                <h2 style="font-size: 1.75rem; margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.75rem;">
-                    <span id="arrow_{{ product_id }}"
-                        style="transition: transform 0.3s; display: inline-block;">▶</span>
-                    <span>📦</span>
-                    <span>{{ items[0].product_name }}</span>
-                </h2>
-                <div style="color: var(--text-medium); font-size: 0.875rem;">
-                    <strong>{{ items|length }}</strong> order(s) • Price: ₹{{ "%.2f"|format(items[0].price_at_purchase)
-                    }}
-                    <span
-                        style="margin-left: 0.5rem; font-size: 0.75rem; background: var(--info-color); color: white; padding: 0.125rem 0.5rem; border-radius: 999px;">Click
-                        to expand</span>
-                </div>
-            </div>
-            <div style="text-align: right;">
-                <div
-                    style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">
-                    Total Revenue</div>
-                <div style="font-size: 2rem; font-weight: 800; color: var(--success-color);">
-                    ₹{{ "%.2f"|format(items|sum(attribute='quantity')|float * items[0].price_at_purchase) }}
-                </div>
-            </div>
+<div class="card mb-4 fade-in" style="border: none; overflow: hidden">
+  <!-- Product Header (Clickable) -->
+  <div
+    onclick="toggleProduct({{ product_id }})"
+    style="
+      padding: 1.5rem;
+      background: linear-gradient(
+        135deg,
+        rgba(99, 102, 241, 0.1),
+        rgba(236, 72, 153, 0.1)
+      );
+      border-bottom: 2px solid var(--border-color);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    "
+    onmouseover="this.style.opacity = '0.7'"
+    onmouseout="this.style.opacity = '1'"
+  >
+    <div
+      style="display: flex; justify-content: space-between; align-items: center"
+    >
+      <div>
+        <h2
+          style="
+            font-size: 1.75rem;
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+          "
+        >
+          <span
+            id="arrow_{{ product_id }}"
+            style="transition: transform 0.3s; display: inline-block"
+            >▶</span
+          >
+          <span>📦</span>
+          <span>{{ items[0].product_name }}</span>
+        </h2>
+        <div style="color: var(--text-medium); font-size: 0.875rem">
+          <strong>{{ items|length }}</strong> order(s) • Price: ₹{{
+          "%.2f"|format(items[0].price_at_purchase) }}
+          <span
+            style="
+              margin-left: 0.5rem;
+              font-size: 0.75rem;
+              background: var(--info-color);
+              color: white;
+              padding: 0.125rem 0.5rem;
+              border-radius: 999px;
+            "
+            >Click to expand</span
+          >
         </div>
-    </div>
-
-    <!-- Orders for this Product (Hidden by default) -->
-    <div id="product_{{ product_id }}" style="display: none;">
-        <div class="card-body" style="padding: 0;">
-            <div style="display: grid; gap: 0;">
-                {% for item in items %}
-                <div
-                    style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); {% if loop.last %}border-bottom: none;{% endif %}">
-                    <div style="display: grid; gap: 1rem;">
-                        <!-- Order Header -->
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <strong style="font-size: 1.125rem;">Order #{{ item.order.id }}</strong>
-                                <div style="color: var(--text-medium); font-size: 0.875rem; margin-top: 0.25rem;">
-                                    {{ item.order.created_at.strftime('%B %d, %Y at %I:%M %p') }}
-                                </div>
-                            </div>
-                            <div>
-                                {% if item.order.status.value == 'pending' %}
-                                <span class="badge badge-warning">⏳ Pending</span>
-                                {% elif item.order.status.value == 'processing' %}
-                                <span class="badge badge-info">⚙️ Processing</span>
-                                {% elif item.order.status.value == 'shipped' %}
-                                <span class="badge badge-primary">🚚 Shipped</span>
-                                {% elif item.order.status.value == 'delivered' %}
-                                <span class="badge badge-success">✅ Delivered</span>
-                                {% else %}
-                                <span class="badge badge-error">❌ {{ item.order.status.value|title }}</span>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Order Details Grid -->
-                        <div
-                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                            <!-- Customer -->
-                            <div
-                                style="padding: 0.75rem; background: var(--bg-light); border-radius: var(--radius-sm);">
-                                <div
-                                    style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">
-                                    Customer</div>
-                                <strong>{{ item.order.user.username }}</strong>
-                            </div>
-
-                            <!-- Quantity & Amount -->
-                            <div
-                                style="padding: 0.75rem; background: var(--bg-light); border-radius: var(--radius-sm);">
-                                <div
-                                    style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">
-                                    Quantity & Amount</div>
-                                <strong>{{ item.quantity }} × ₹{{ "%.2f"|format(item.price_at_purchase) }} = ₹{{
-                                    "%.2f"|format(item.quantity * item.price_at_purchase) }}</strong>
-                            </div>
-
-                            <!-- Shipping Address -->
-                            <div
-                                style="padding: 0.75rem; background: var(--bg-light); border-radius: var(--radius-sm); grid-column: span 2;">
-                                <div
-                                    style="font-size: 0.75rem; color: var(--text-light); text-transform: uppercase; margin-bottom: 0.25rem;">
-                                    Shipping Address</div>
-                                <div style="font-size: 0.875rem; color: var(--text-medium);">{{
-                                    item.order.shipping_address
-                                    }}</div>
-                            </div>
-                        </div>
-
-                        <!-- Status Update Form -->
-                        {% if item.order.status.value not in ['delivered', 'cancelled'] %}
-                        <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
-                            <form method="post"
-                                action="{{ url_for('seller.update_order_status', order_id=item.order.id) }}"
-                                style="display: flex; gap: 1rem; align-items: end;">
-                                <div style="flex: 1;">
-                                    <label for="status_{{ item.order.id }}_{{ item.id }}"
-                                        style="font-size: 0.875rem; font-weight: 600; display: block; margin-bottom: 0.5rem;">Update
-                                        Status:</label>
-                                    <select name="status" id="status_{{ item.order.id }}_{{ item.id }}"
-                                        class="form-input">
-                                        <option value="pending" {% if item.order.status.value=='pending' %}selected{%
-                                            endif %}>⏳ Pending</option>
-                                        <option value="processing" {% if item.order.status.value=='processing'
-                                            %}selected{% endif %}>⚙️ Processing</option>
-                                        <option value="shipped" {% if item.order.status.value=='shipped' %}selected{%
-                                            endif %}>🚚 Shipped</option>
-                                        <option value="delivered" {% if item.order.status.value=='delivered'
-                                            %}selected{% endif %}>✅ Delivered</option>
-                                        <option value="cancelled" {% if item.order.status.value=='cancelled'
-                                            %}selected{% endif %}>❌ Cancelled</option>
-                                    </select>
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-sm">Update Status</button>
-                            </form>
-                        </div>
-                        {% else %}
-                        <div style="padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md);">
-                            <p style="margin: 0; color: var(--text-medium); font-size: 0.875rem;">
-                                <strong>Status:</strong> {{ item.order.status.value|title }} -
-                                <em>This order cannot be modified</em>
-                            </p>
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
+      </div>
+      <div style="text-align: right">
+        <div
+          style="
+            font-size: 0.75rem;
+            color: var(--text-light);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+          "
+        >
+          Total Revenue
         </div>
+        <div
+          style="font-size: 2rem; font-weight: 800; color: var(--success-color)"
+        >
+          ₹{{ "%.2f"|format(items|sum(attribute='quantity')|float *
+          items[0].price_at_purchase) }}
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Orders for this Product (Hidden by default) -->
+  <div id="product_{{ product_id }}" style="display: none">
+    <div class="card-body" style="padding: 0">
+      <div style="display: grid; gap: 0">
+        {% for item in items %}
+        <div
+          style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); {% if loop.last %}border-bottom: none;{% endif %}"
+        >
+          <div style="display: grid; gap: 1rem">
+            <!-- Order Header -->
+            <div
+              style="
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <div>
+                <strong style="font-size: 1.125rem"
+                  >Order #{{ item.order.id }}</strong
+                >
+                <div
+                  style="
+                    color: var(--text-medium);
+                    font-size: 0.875rem;
+                    margin-top: 0.25rem;
+                  "
+                >
+                  {{ item.order.created_at.strftime('%B %d, %Y at %I:%M %p') }}
+                </div>
+              </div>
+              <div>
+                {% if item.order.status.value == 'pending' %}
+                <span class="badge badge-warning">⏳ Pending</span>
+                {% elif item.order.status.value == 'processing' %}
+                <span class="badge badge-info">⚙️ Processing</span>
+                {% elif item.order.status.value == 'shipped' %}
+                <span class="badge badge-primary">🚚 Shipped</span>
+                {% elif item.order.status.value == 'delivered' %}
+                <span class="badge badge-success">✅ Delivered</span>
+                {% else %}
+                <span class="badge badge-error"
+                  >❌ {{ item.order.status.value|title }}</span
+                >
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Order Details Grid -->
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 1rem;
+              "
+            >
+              <!-- Customer -->
+              <div
+                style="
+                  padding: 0.75rem;
+                  background: var(--bg-light);
+                  border-radius: var(--radius-sm);
+                "
+              >
+                <div
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--text-light);
+                    text-transform: uppercase;
+                    margin-bottom: 0.25rem;
+                  "
+                >
+                  Customer
+                </div>
+                <strong>{{ item.order.user.username }}</strong>
+              </div>
+
+              <!-- Quantity & Amount -->
+              <div
+                style="
+                  padding: 0.75rem;
+                  background: var(--bg-light);
+                  border-radius: var(--radius-sm);
+                "
+              >
+                <div
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--text-light);
+                    text-transform: uppercase;
+                    margin-bottom: 0.25rem;
+                  "
+                >
+                  Quantity & Amount
+                </div>
+                <strong
+                  >{{ item.quantity }} × ₹{{
+                  "%.2f"|format(item.price_at_purchase) }} = ₹{{
+                  "%.2f"|format(item.quantity * item.price_at_purchase)
+                  }}</strong
+                >
+              </div>
+
+              <!-- Shipping Address -->
+              <div
+                style="
+                  padding: 0.75rem;
+                  background: var(--bg-light);
+                  border-radius: var(--radius-sm);
+                  grid-column: span 2;
+                "
+              >
+                <div
+                  style="
+                    font-size: 0.75rem;
+                    color: var(--text-light);
+                    text-transform: uppercase;
+                    margin-bottom: 0.25rem;
+                  "
+                >
+                  Shipping Address
+                </div>
+                <div style="font-size: 0.875rem; color: var(--text-medium)">
+                  {{ item.order.shipping_address_text }}
+                </div>
+              </div>
+            </div>
+
+            <!-- Status Update Form -->
+            {% if item.order.status.value not in ['delivered', 'cancelled'] %}
+            <div
+              style="
+                padding: 1rem;
+                background: var(--bg-light);
+                border-radius: var(--radius-md);
+              "
+            >
+              <form
+                method="post"
+                action="{{ url_for('seller.update_order_status', order_id=item.order.id) }}"
+                style="display: flex; gap: 1rem; align-items: end"
+              >
+                <input
+                  type="hidden"
+                  name="csrf_token"
+                  value="{{ csrf_token() }}"
+                />
+                <div style="flex: 1">
+                  <label
+                    for="status_{{ item.order.id }}_{{ item.id }}"
+                    style="
+                      font-size: 0.875rem;
+                      font-weight: 600;
+                      display: block;
+                      margin-bottom: 0.5rem;
+                    "
+                    >Update Status:</label
+                  >
+                  <select
+                    name="status"
+                    id="status_{{ item.order.id }}_{{ item.id }}"
+                    class="form-input"
+                  >
+                    <option
+                      value="pending"
+                      {% if item.order.status.value == "pending" %}selected{% endif %}
+                    >
+                      ⏳ Pending
+                    </option>
+                    <option
+                      value="processing"
+                      {% if item.order.status.value == "processing" %}selected{% endif %}
+                    >
+                      ⚙️ Processing
+                    </option>
+                    <option
+                      value="shipped"
+                      {% if item.order.status.value == "shipped" %}selected{% endif %}
+                    >
+                      🚚 Shipped
+                    </option>
+                    <option
+                      value="delivered"
+                      {% if item.order.status.value == "delivered" %}selected{%endif %}
+                    >
+                      ✅ Delivered
+                    </option>
+                    <option
+                      value="cancelled"
+                      {% if item.order.status.value == "cancelled" %}selected{%endif %}
+                    >
+                      ❌ Cancelled
+                    </option>
+                  </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                  Update Status
+                </button>
+              </form>
+            </div>
+            {% else %}
+            <div
+              style="
+                padding: 1rem;
+                background: var(--bg-light);
+                border-radius: var(--radius-md);
+              "
+            >
+              <p
+                style="
+                  margin: 0;
+                  color: var(--text-medium);
+                  font-size: 0.875rem;
+                "
+              >
+                <strong>Status:</strong> {{ item.order.status.value|title }} -
+                <em>This order cannot be modified</em>
+              </p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
 </div>
 {% endfor %}
 
 <script>
-    function toggleProduct(productId) {
-        const content = document.getElementById('product_' + productId);
-        const arrow = document.getElementById('arrow_' + productId);
+  function toggleProduct(productId) {
+    const content = document.getElementById("product_" + productId);
+    const arrow = document.getElementById("arrow_" + productId);
 
-        if (content.style.display === 'none') {
-            content.style.display = 'block';
-            arrow.style.transform = 'rotate(90deg)';
-        } else {
-            content.style.display = 'none';
-            arrow.style.transform = 'rotate(0deg)';
-        }
+    if (content.style.display === "none") {
+      content.style.display = "block";
+      arrow.style.transform = "rotate(90deg)";
+    } else {
+      content.style.display = "none";
+      arrow.style.transform = "rotate(0deg)";
     }
+  }
 </script>
 
 {% else %}
 <!-- Empty State -->
-<div class="empty-state" style="padding: 4rem 2rem;">
-    <div
-        style="width: 120px; height: 120px; margin: 0 auto 2rem; background: linear-gradient(135deg, #dbeafe, #c7d2fe); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 4rem;">
-        📦
-    </div>
-    <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem;">No Orders Yet</h3>
-    <p style="color: var(--text-medium); margin-bottom: 2rem;">You haven't received any orders yet. Keep your products
-        updated!</p>
-    <a href="{{ url_for('seller.products') }}" class="btn btn-primary btn-lg">📦 Manage Products</a>
+<div class="empty-state" style="padding: 4rem 2rem">
+  <div
+    style="
+      width: 120px;
+      height: 120px;
+      margin: 0 auto 2rem;
+      background: linear-gradient(135deg, #dbeafe, #c7d2fe);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    "
+  >
+    📦
+  </div>
+  <h3 style="font-size: 1.5rem; margin-bottom: 0.75rem">No Orders Yet</h3>
+  <p style="color: var(--text-medium); margin-bottom: 2rem">
+    You haven't received any orders yet. Keep your products updated!
+  </p>
+  <a href="{{ url_for('seller.products') }}" class="btn btn-primary btn-lg"
+    >📦 Manage Products</a
+  >
 </div>
-{% endif %}
-{% endblock %}
+{% endif %} {% endblock %}

@@ -165,6 +165,69 @@ class Category(db.Model):
         return f"<Category id={self.id} name={self.name}>"
 
 
+class Address(db.Model):
+    __tablename__ = "addresses"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    
+    name = db.Column(db.String(100), nullable=False)
+    phone = db.Column(db.String(20), nullable=False)
+    address_line1 = db.Column(db.String(255), nullable=False)
+    address_line2 = db.Column(db.String(255), nullable=True)
+    city = db.Column(db.String(100), nullable=False)
+    state = db.Column(db.String(100), nullable=False)
+    postal_code = db.Column(db.String(20), nullable=False)
+    country = db.Column(db.String(100), nullable=False, default="USA")
+    
+    is_default = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    user = db.relationship("User", backref=db.backref("addresses", cascade="all, delete-orphan"))
+
+    def __repr__(self):
+        return f"<Address id={self.id} user_id={self.user_id} city={self.city}>"
+
+
+class DiscountType(str, Enum):
+    PERCENTAGE = "percentage"
+    FIXED = "fixed"
+
+
+class Coupon(db.Model):
+    __tablename__ = "coupons"
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(50), unique=True, nullable=False, index=True)
+    
+    discount_type = db.Column(
+        db.Enum(DiscountType, name="discount_type_enum", native_enum=False),
+        nullable=False
+    )
+    discount_value = db.Column(db.Float, nullable=False)
+    
+    min_cart_value = db.Column(db.Float, default=0.0)
+    expiry_date = db.Column(db.DateTime, nullable=True)
+    usage_limit = db.Column(db.Integer, nullable=True)
+    used_count = db.Column(db.Integer, default=0)
+    
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    def is_valid(self, cart_total=0):
+        from datetime import datetime
+        if not self.is_active: return False
+        if self.expiry_date and self.expiry_date < datetime.now(): return False
+        if self.usage_limit and self.used_count >= self.usage_limit: return False
+        if cart_total < self.min_cart_value: return False
+        return True
+
+    def calculate_discount(self, total):
+        if self.discount_type == DiscountType.PERCENTAGE:
+            return (total * self.discount_value) / 100
+        return min(self.discount_value, total)
+
+
 class Product(db.Model):
     __tablename__ = "products"
 
@@ -219,6 +282,40 @@ class Product(db.Model):
         return images[0] if images else None
 
 
+class ProductVariant(db.Model):
+    __tablename__ = "product_variants"
+
+    id = db.Column(db.Integer, primary_key=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    
+    name = db.Column(db.String(100), nullable=False)  # e.g., "Size: XL", "Color: Blue"
+    price = db.Column(db.Float, nullable=False)
+    stock = db.Column(db.Integer, default=0, nullable=False)
+    sku = db.Column(db.String(50), unique=True, nullable=True)
+    
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    product = db.relationship("Product", backref=db.backref("variants", cascade="all, delete-orphan"))
+
+    def __repr__(self):
+        return f"<ProductVariant id={self.id} sku={self.sku}>"
+
+
+class Wishlist(db.Model):
+    __tablename__ = "wishlists"
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    
+    added_at = db.Column(db.DateTime, server_default=db.func.now())
+
+    user = db.relationship("User", backref=db.backref("wishlist_items", cascade="all, delete-orphan"))
+    product = db.relationship("Product")
+
+    __table_args__ = (db.UniqueConstraint('user_id', 'product_id', name='unique_wishlist_item'),)
+
+
 class Cart(db.Model):
     __tablename__ = "carts"
 
@@ -230,9 +327,9 @@ class Cart(db.Model):
         nullable=False
     )
     
-    product_id = db.Column(
+    variant_id = db.Column(
         db.Integer,
-        db.ForeignKey("products.id", ondelete="CASCADE"),
+        db.ForeignKey("product_variants.id", ondelete="CASCADE"),
         nullable=False
     )
     
@@ -245,22 +342,30 @@ class Cart(db.Model):
     )
 
     user = db.relationship("User", backref="cart_items")
-    product = db.relationship("Product", backref="cart_entries")
+    variant = db.relationship("ProductVariant", backref="cart_entries")
+
+    @property
+    def product(self):
+        """Helper to get parent product through variant"""
+        return self.variant.product if self.variant else None
 
     def __repr__(self):
-        return f"<Cart id={self.id} user_id={self.user_id} product_id={self.product_id}>"
+        return f"<Cart id={self.id} user_id={self.user_id} variant_id={self.variant_id}>"
 
     def get_subtotal(self):
         """Calculate subtotal for this cart item"""
-        return self.product.price * self.quantity
+        return self.variant.price * self.quantity
 
 
 class OrderStatus(str, Enum):
     PENDING = "pending"
+    PAID = "paid"
     PROCESSING = "processing"
     SHIPPED = "shipped"
     DELIVERED = "delivered"
     CANCELLED = "cancelled"
+    RETURNED = "returned"
+    REFUNDED = "refunded"
 
 
 class Order(db.Model):
@@ -274,7 +379,13 @@ class Order(db.Model):
         nullable=False
     )
     
+    # Links to external details
+    address_id = db.Column(db.Integer, db.ForeignKey("addresses.id", ondelete="SET NULL"), nullable=True)
+    coupon_id = db.Column(db.Integer, db.ForeignKey("coupons.id", ondelete="SET NULL"), nullable=True)
+    
     total_amount = db.Column(db.Float, nullable=False)
+    discount_amount = db.Column(db.Float, default=0.0)
+    final_amount = db.Column(db.Float, nullable=False)  # final_amount = total - discount
     
     status = db.Column(
         db.Enum(OrderStatus, name="order_status_enum", native_enum=False),
@@ -282,59 +393,92 @@ class Order(db.Model):
         nullable=False
     )
     
-    shipping_address = db.Column(db.Text, nullable=False)
+    shipping_address_text = db.Column(db.Text, nullable=False) # Snapshot of address at time of purchase
     
-    created_at = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        nullable=False
-    )
-    
-    updated_at = db.Column(
-        db.DateTime,
-        server_default=db.func.now(),
-        onupdate=db.func.now(),
-        nullable=False
-    )
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
     user = db.relationship("User", backref="orders")
+    address = db.relationship("Address")
+    coupon = db.relationship("Coupon")
     items = db.relationship("OrderItem", backref="order", cascade="all, delete-orphan")
+    payment = db.relationship("Payment", backref="order", uselist=False, cascade="all, delete-orphan")
 
     def __repr__(self):
-        return f"<Order id={self.id} user_id={self.user_id} total={self.total_amount}>"
+        return f"<Order id={self.id} user_id={self.user_id} status={self.status}>"
 
 
 class OrderItem(db.Model):
     __tablename__ = "order_items"
 
     id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
     
-    order_id = db.Column(
-        db.Integer,
-        db.ForeignKey("orders.id", ondelete="CASCADE"),
-        nullable=False
-    )
-    
-    product_id = db.Column(
-        db.Integer,
-        db.ForeignKey("products.id", ondelete="SET NULL"),
-        nullable=True
-    )
-    
+    variant_id = db.Column(db.Integer, db.ForeignKey("product_variants.id", ondelete="SET NULL"), nullable=True)
     quantity = db.Column(db.Integer, nullable=False)
     price_at_purchase = db.Column(db.Float, nullable=False)
     
-    # Store product name in case product is deleted
+    # Metadata for fallback
     product_name = db.Column(db.String(200), nullable=False)
+    variant_name = db.Column(db.String(100), nullable=True)
 
-    product = db.relationship("Product", backref="order_items")
+    variant = db.relationship("ProductVariant")
+
+    @property
+    def product(self):
+        """Helper to get parent product through variant"""
+        return self.variant.product if self.variant else None
 
     def __repr__(self):
         return f"<OrderItem id={self.id} order_id={self.order_id}>"
 
     def get_subtotal(self):
-        """Calculate subtotal for this order item"""
         return self.price_at_purchase * self.quantity
+
+
+class Payment(db.Model):
+    __tablename__ = "payments"
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    
+    stripe_session_id = db.Column(db.String(255), unique=True, nullable=True)
+    stripe_payment_intent = db.Column(db.String(255), unique=True, nullable=True)
+    
+    amount = db.Column(db.Float, nullable=False)
+    currency = db.Column(db.String(10), default="usd")
+    status = db.Column(db.String(50), default="pending")  # pending, succeeded, failed
+    
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+
+class ReturnStatus(str, Enum):
+    PENDING = "pending"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    COMPLETED = "completed"
+
+
+class ReturnRequest(db.Model):
+    __tablename__ = "return_requests"
+
+    id = db.Column(db.Integer, primary_key=True)
+    order_id = db.Column(db.Integer, db.ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    
+    reason = db.Column(db.Text, nullable=False)
+    status = db.Column(
+        db.Enum(ReturnStatus, name="return_status_enum", native_enum=False),
+        default=ReturnStatus.PENDING,
+        nullable=False
+    )
+    admin_comment = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    order = db.relationship("Order", backref="return_requests")
+    product = db.relationship("Product")
 
 
 class Review(db.Model):

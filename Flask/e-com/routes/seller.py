@@ -43,7 +43,7 @@ def become_seller():
             business_email = request.form.get('business_email')
             business_phone = request.form.get('business_phone')
             website_url = request.form.get('website_url')
-            new_seller = Seller(
+            new_seller = SellerProfile(
                 user_id=new_user.id,
                 display_name=display_name,
                 company_name=company_name,
@@ -74,7 +74,7 @@ def become_seller():
         business_phone = request.form.get('business_phone')
         website_url = request.form.get('website_url')
 
-        new_seller = Seller(
+        new_seller = SellerProfile(
             user_id=user.id,
             display_name=display_name,
             company_name=company_name,
@@ -104,15 +104,32 @@ def dashboard():
     
     # Get seller's orders
     product_ids = [p.id for p in products]
-    orders = Order.query.join(OrderItem).filter(
-        OrderItem.product_id.in_(product_ids)
+    from models import ProductVariant
+    orders = Order.query.join(OrderItem).join(ProductVariant).filter(
+        ProductVariant.product_id.in_(product_ids)
     ).distinct().order_by(Order.created_at.desc()).limit(10).all()
     
     # Calculate analytics
     total_products = len(products)
-    total_sales = 0  # Placeholder for future implementation
-    in_stock = sum(1 for p in products if p.quantity > 0)
-    out_of_stock = sum(1 for p in products if p.quantity == 0)
+    
+    # Total revenue from seller's products in paid/delivered orders
+    from sqlalchemy import func
+    total_revenue = db.session.query(func.sum(OrderItem.quantity * OrderItem.price_at_purchase)).join(ProductVariant).filter(
+        ProductVariant.product_id.in_(product_ids)
+    ).join(Order).filter(
+        Order.status.in_([OrderStatus.PAID, OrderStatus.PROCESSING, OrderStatus.SHIPPED, OrderStatus.DELIVERED])
+    ).scalar() or 0
+    
+    # Correct in_stock/out_of_stock by checking if ANY variant has stock
+    # We join with variants and check for any positive stock
+    in_stock_ids = db.session.query(ProductVariant.product_id).filter(
+        ProductVariant.product_id.in_(product_ids),
+        ProductVariant.stock > 0
+    ).distinct().all()
+    in_stock_ids = [r[0] for r in in_stock_ids]
+    
+    in_stock_count = len(in_stock_ids)
+    out_of_stock_count = total_products - in_stock_count
 
     
     return render_template(
@@ -120,9 +137,9 @@ def dashboard():
         products=products[:5],  # Show only 5 recent products
         orders=orders,
         total_products=total_products,
-        total_sales=total_sales,
-        in_stock=in_stock,
-        out_of_stock=out_of_stock
+        total_sales=total_revenue,
+        in_stock=in_stock_count,
+        out_of_stock=out_of_stock_count
     )
 
 
@@ -177,13 +194,24 @@ def add_product():
             name=name,
             description=description,
             price=price,
-            quantity=quantity,
+            quantity=quantity, # Keep for backward compatibility or overview
             category_id=category_id,
             seller_id=user_id,
             images=images_str
         )
-        
         db.session.add(product)
+        db.session.flush()
+
+        # Create default variant
+        from models import ProductVariant
+        variant = ProductVariant(
+            product_id=product.id,
+            name="Default",
+            price=price,
+            stock=quantity,
+            sku=f"SKU-{product.id}-DEF"
+        )
+        db.session.add(variant)
         db.session.commit()
         
         flash('Product added successfully!', 'success')
@@ -265,13 +293,14 @@ def orders():
     user_id = session['user_id']
     
     # Get active order items (pending, processing, shipped) - newest first
-    active_items = db.session.query(OrderItem).join(Product).join(Order).filter(
+    from models import ProductVariant
+    active_items = db.session.query(OrderItem).join(ProductVariant).join(Product).join(Order).filter(
         Product.seller_id == user_id,
         Order.status.in_([OrderStatus.PENDING, OrderStatus.PROCESSING, OrderStatus.SHIPPED])
     ).order_by(Order.created_at.asc()).all()
     
     # Get completed/cancelled order items - newest first
-    completed_items = db.session.query(OrderItem).join(Product).join(Order).filter(
+    completed_items = db.session.query(OrderItem).join(ProductVariant).join(Product).join(Order).filter(
         Product.seller_id == user_id,
         Order.status.in_([OrderStatus.DELIVERED, OrderStatus.CANCELLED])
     ).order_by(Order.created_at.desc()).all()
@@ -283,7 +312,9 @@ def orders():
     from collections import defaultdict
     products_orders = defaultdict(list)
     for item in order_items:
-        products_orders[item.product_id].append(item)
+        # Use variant's product_id
+        pid = item.variant.product_id
+        products_orders[pid].append(item)
     
     return render_template('seller/orders.html', 
                          products_orders=products_orders, 
@@ -307,9 +338,10 @@ def update_order_status(order_id):
     
     # Verify this seller has products in this order
     product_ids = [p.id for p in Product.query.filter_by(seller_id=user_id).all()]
-    has_products = db.session.query(OrderItem).filter(
+    from models import ProductVariant
+    has_products = db.session.query(OrderItem).join(ProductVariant).filter(
         OrderItem.order_id == order_id,
-        OrderItem.product_id.in_(product_ids)
+        ProductVariant.product_id.in_(product_ids)
     ).first()
     
     if not has_products:
@@ -363,10 +395,12 @@ def reports():
 
     if product_ids:
         # ---------- ORDER STATUS (COUNT UNIQUE ORDERS) ----------
+        from models import ProductVariant
         orders = (
             db.session.query(Order.id, Order.status)
             .join(OrderItem, OrderItem.order_id == Order.id)
-            .filter(OrderItem.product_id.in_(product_ids))
+            .join(ProductVariant, ProductVariant.id == OrderItem.variant_id)
+            .filter(ProductVariant.product_id.in_(product_ids))
             .distinct()
             .all()
         )
@@ -377,11 +411,13 @@ def reports():
             status_counts[status.value] += 1
 
         # ---------- DELIVERED SALES ONLY ----------
+        from models import ProductVariant
         delivered_items = (
             db.session.query(OrderItem)
             .join(Order, Order.id == OrderItem.order_id)
+            .join(ProductVariant, ProductVariant.id == OrderItem.variant_id)
             .filter(
-                OrderItem.product_id.in_(product_ids),
+                ProductVariant.product_id.in_(product_ids),
                 Order.status == OrderStatus.DELIVERED
             )
             .all()
@@ -397,9 +433,10 @@ def reports():
         product_revenue = {}
 
         for item in delivered_items:
-            product_sales[item.product_id] = product_sales.get(item.product_id, 0) + item.quantity
-            product_revenue[item.product_id] = product_revenue.get(
-                item.product_id, 0
+            pid = item.variant.product_id
+            product_sales[pid] = product_sales.get(pid, 0) + item.quantity
+            product_revenue[pid] = product_revenue.get(
+                pid, 0
             ) + item.price_at_purchase * item.quantity
 
         top_ids = sorted(
@@ -424,6 +461,7 @@ def reports():
         # ---------- SALES OVER TIME (LAST 30 DAYS) ----------
         thirty_days_ago = datetime.utcnow() - timedelta(days=30)
 
+        from models import ProductVariant
         daily_sales = (
             db.session.query(
                 func.date(Order.created_at).label('date'),
@@ -431,8 +469,9 @@ def reports():
                 func.sum(OrderItem.quantity).label('quantity')
             )
             .join(OrderItem, OrderItem.order_id == Order.id)
+            .join(ProductVariant, ProductVariant.id == OrderItem.variant_id)
             .filter(
-                OrderItem.product_id.in_(product_ids),
+                ProductVariant.product_id.in_(product_ids),
                 Order.status == OrderStatus.DELIVERED,
                 Order.created_at >= thirty_days_ago
             )

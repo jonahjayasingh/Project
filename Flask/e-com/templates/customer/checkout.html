@@ -16,17 +16,49 @@
             </div>
             <div class="card-body">
                 <form method="post" id="checkoutForm">
-                    <div class="form-group">
-                        <label for="shipping_address" class="form-label">Shipping Address *</label>
-                        <textarea id="shipping_address" name="shipping_address" class="form-textarea" required
-                            placeholder="Enter your complete shipping address">{{ profile.address if profile else '' }}</textarea>
-                        <small style="color: var(--text-medium);">Include street address, city, state, and ZIP
-                            code</small>
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    {% if addresses %}
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Select Shipping Address</label>
+                        <div class="row g-3">
+                            {% for addr in addresses %}
+                            <div class="col-12">
+                                <div class="form-check card glass-card p-3">
+                                    <input class="form-check-input ms-0" type="radio" name="address_id" id="addr-{{ addr.id }}" 
+                                           value="{{ addr.id }}" {{ 'checked' if addr.is_default else '' }} required>
+                                    <label class="form-check-label ms-4 w-100" for="addr-{{ addr.id }}">
+                                        <strong>{{ addr.name }}</strong><br>
+                                        <small class="text-muted">
+                                            {{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} {{ addr.postal_code }}
+                                        </small>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <div class="mt-3">
+                            <a href="{{ url_for('customer.add_address', next='customer.checkout') }}" class="btn btn-sm btn-outline-primary rounded-pill">+ Add New Address</a>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-warning rounded-4 p-4 text-center">
+                        <p class="mb-3">You don't have any saved addresses.</p>
+                        <a href="{{ url_for('customer.add_address', next='customer.checkout') }}" class="btn btn-primary rounded-pill">Add Shipping Address</a>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4">
+                        <label class="form-label fw-bold">Coupon Code</label>
+                        <div class="input-group mb-3">
+                            <input type="text" name="coupon_code" class="form-control rounded-start-pill" placeholder="Enter code" value="{{ session.get('coupon_code', '') }}">
+                            <button class="btn btn-outline-secondary rounded-end-pill" type="button" onclick="applyCoupon()">Apply</button>
+                        </div>
                     </div>
 
-                    <div class="flex gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">Place Order</button>
-                        <a href="{{ url_for('customer.view_cart') }}" class="btn btn-secondary btn-lg">Back to Cart</a>
+                    <div class="flex gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg rounded-pill px-5" {{ 'disabled' if not addresses else '' }}>Place Order</button>
+                        <a href="{{ url_for('customer.view_cart') }}" class="btn btn-secondary btn-lg rounded-pill px-5">Back to Cart</a>
                     </div>
                 </form>
             </div>
@@ -54,8 +86,6 @@
                     {% endfor %}
                 </div>
 
-                <hr>
-
                 <div class="flex-between mb-2">
                     <span>Subtotal</span>
                     <span>₹{{ "%.2f"|format(total) }}</span>
@@ -64,12 +94,20 @@
                     <span>Shipping</span>
                     <span>FREE</span>
                 </div>
+                <hr>
+
+                {% if session.get('discount_amount') %}
+                <div class="flex-between mb-2 text-success">
+                    <span>Discount ({{ session.get('coupon_code') }})</span>
+                    <span>-₹{{ "%.2f"|format(session.get('discount_amount')) }}</span>
+                </div>
+                {% endif %}
 
                 <hr>
 
                 <div class="flex-between mb-4">
                     <strong style="font-size: 1.25rem;">Total</strong>
-                    <strong style="font-size: 1.5rem; color: var(--primary-color);">₹{{ "%.2f"|format(total) }}</strong>
+                    <strong style="font-size: 1.5rem; color: var(--primary-color);">₹{{ "%.2f"|format(total - session.get('discount_amount', 0)) }}</strong>
                 </div>
 
                 <div style="background: var(--bg-light); padding: 1rem; border-radius: var(--radius-md);">
@@ -81,4 +119,22 @@
         </div>
     </div>
 </div>
+
+<!-- Hidden Coupon Form -->
+<form id="couponForm" action="{{ url_for('customer.apply_coupon') }}" method="POST" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="coupon_code" id="hiddenCouponCode">
+</form>
+
+{% block scripts %}
+<script>
+    function applyCoupon() {
+        const code = document.querySelector('input[name="coupon_code"]').value;
+        if (!code) return;
+        document.getElementById('hiddenCouponCode').value = code;
+        document.getElementById('couponForm').submit();
+    }
+</script>
+{% endblock %}
+
 {% endblock %}

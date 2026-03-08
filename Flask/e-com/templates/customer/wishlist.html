@@ -1,0 +1,61 @@
+{% extends "base.html" %} {% block content %}
+<div class="container section-padding">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">My Wishlist</h1>
+    <a
+      href="{{ url_for('product.list_products') }}"
+      class="btn btn-outline-primary rounded-pill"
+      >Add More Products</a
+    >
+  </div>
+
+  {% if items %}
+  <div class="row g-4">
+    {% for item in items %}
+    <div class="col-md-3">
+      <div class="product-card glass-card h-100 p-0 overflow-hidden shadow-sm">
+        <img
+          src="/{{ item.product.get_primary_image() or 'static/img/placeholder.jpg' }}"
+          class="img-fluid w-100"
+          style="height: 200px; object-fit: cover"
+        />
+        <div class="p-3">
+          <h5 class="h6 mb-1">{{ item.product.name }}</h5>
+          <p class="text-primary fw-bold mb-3">
+            ${{ "%.2f"|format(item.product.price) }}
+          </p>
+          <div class="d-grid gap-2">
+            <a
+              href="{{ url_for('product.product_detail', product_id=item.product.id) }}"
+              class="btn btn-sm btn-primary rounded-pill"
+              >View Details</a
+            >
+            <form
+              action="{{ url_for('customer.remove_from_wishlist', product_id=item.product_id) }}"
+              method="POST"
+            >
+              <input
+                type="hidden"
+                name="csrf_token"
+                value="{{ csrf_token() }}"
+              />
+              <button
+                type="submit"
+                class="btn btn-sm btn-link text-danger w-100"
+              >
+                Remove
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="text-center py-5">
+    <p class="text-muted">Your wishlist is empty.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

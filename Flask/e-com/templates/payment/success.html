@@ -1,0 +1,44 @@
+{% extends "base.html" %} {% block content %}
+<div class="container section-padding text-center">
+  <div
+    class="card glass-card p-5 animate-fade-in shadow-lg mx-auto"
+    style="max-width: 600px"
+  >
+    <div class="success-icon mb-4">
+      <svg
+        width="64"
+        height="64"
+        viewBox="0 0 24 24"
+        fill="none"
+        class="text-success"
+      >
+        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+        <path
+          d="M8 12L11 15L16 9"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+      </svg>
+    </div>
+    <h1 class="display-5 mb-3">Payment Successful!</h1>
+    <p class="lead text-muted mb-4">
+      Thank you for your purchase. Your order is being processed.
+    </p>
+    <p class="small text-secondary mb-5">Reference ID: {{ session_id }}</p>
+    <div class="d-grid gap-3">
+      <a
+        href="{{ url_for('customer.orders') }}"
+        class="btn btn-primary btn-lg rounded-pill shadow"
+        >View My Orders</a
+      >
+      <a
+        href="{{ url_for('product.list_products') }}"
+        class="btn btn-outline-secondary btn-lg rounded-pill"
+        >Continue Shopping</a
+      >
+    </div>
+  </div>
+</div>
+{% endblock %}

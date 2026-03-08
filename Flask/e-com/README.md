@@ -1,133 +1,135 @@
-# Vibrant E-Commerce Platform
+# 🛍️ Advanced E-Commerce Ecosystem
 
-A comprehensive, full-featured Flask-based e-commerce ecosystem designed with a focus on usability, security, and a robust multi-role architecture. This platform caters to Customers, Sellers, and Administrators, providing a seamless shopping experience and powerful management tools.
+A high-performance, full-featured Flask-based e-commerce platform engineered for production scale. This ecosystem features a robust multi-role architecture, integrated Stripe payments, dynamic marketing tools, and a premium Glassmorphic UI/UX.
 
 ---
 
-## 🚀 Key Features
+## 🌟 Core Features
 
-### 👤 Customer Experience
-- **Product Discovery**: Browse products by categories, search for specific items, and filter by price.
-- **Shopping Cart**: Real-time cart management with stock validation.
-- **Secure Checkout**: Streamlined checkout process with shipping address management.
-- **Order Tracking**: Comprehensive order history with detailed status updates (Pending, Processing, Shipped, Delivered, Cancelled).
-- **User Profiles**: Manage personal information including full name, phone number, and primary address.
-- **Reviews & Ratings**: Share feedback on purchased products with a 1-5 star rating system and comments.
-- **Dynamic Homepage**: Highlighting the latest products and available categories.
+### 👤 Multi-Role Architecture
 
-### 🏪 Seller Dashboard
-- **Business Analytics**: High-level metrics showing total sales, revenue, and inventory status.
-- **Inventory Management**: Full CRUD operations for products including multiple image uploads.
-- **Order Fulfillment**: Track and update order statuses for assigned products.
-- **Sales Reports**: Interactive data visualization using Chart.js, featuring:
-  - Total revenue and product sales.
-  - Sales trends over the last 30 days.
-  - Top-selling products.
-  - Order status distribution.
-- **Product Policy**: Sellers are automatically restricted from purchasing their own products to maintain platform integrity.
+- **Customers**: Product discovery, variant selection, cart, wishlist, address management, and order tracking.
+- **Sellers**: Dedicated dashboard, product/variant management, order fulfillment, and sales analytics.
+- **Admins**: Platform-wide oversight of users, products, categories, and payment auditing.
 
-### 🛡️ Administrative Control
-- **User Moderation**: Manage user accounts, including the ability to activate or suspend seller profiles.
-- **Category Management**: Create and organize product categories with custom slugs and descriptions.
-- **Platform Monitoring**: Oversight of all platform orders and business performance.
-- **CLI Tools**: Built-in script for secure administrative user creation.
+### 🍱 Advanced Product Engine
+
+- **Variant Support**: Multi-variant architecture allowing sellers to define different sizes, colors, or specifications with independent stock and pricing.
+- **Inventory Control**: Real-time stock decrementing upon successful payment and restock upon returns.
+- **Categorization**: Multi-level category system with slug-based SEO-friendly URLs.
+
+### 💳 Financial & Payments
+
+- **Stripe Checkout**: PCI-compliant checkout session integration.
+- **Webhooks**: Automated order state transitions (Paid → Processing) via secure Stripe webhook listeners.
+- **Transaction Auditing**: Persistent payment records linked to Stripe Session and Payment Intent IDs.
+
+### 📦 Customer Experience
+
+- **Personalization**: Multi-address book management with default shipping address settings.
+- **Interest Tracking**: Persistent wishlist system for saving products.
+- **Reviews & Ratings**: Verified purchase review system with star ratings and comments.
+- **Returns Lifecycle**: Built-in return request workflow for delivered orders.
+
+### 📢 Marketing & Growth
+
+- **Dynamic Coupons**: Coupon engine supporting percentage-based or fixed discounts with minimum purchase requirements.
+- **Public Storefronts**: Seller-specific pages showcasing their entire catalog and trust metrics.
 
 ---
 
 ## 🛠️ Technology Stack
 
-- **Backend**: Python 3.x, [Flask](https://flask.palletsprojects.com/)
-- **Database**: [SQLAlchemy](https://www.sqlalchemy.org/) (ORM) with SQLite (easily configurable for PostgreSQL/MySQL)
-- **Frontend**: Jinja2 Templates, Modern CSS3 (featuring Glassmorphism, Gradients, and Responsive Layouts), Vanilla JavaScript
-- **Visualization**: [Chart.js](https://www.chartjs.org/) for seller analytics
-- **Security**: Werkzeug password hashing, role-based access control (RBAC), and session-based authentication.
-- **Environment**: `python-dotenv` for configuration management.
+| Layer        | Technologies                                              |
+| :----------- | :-------------------------------------------------------- |
+| **Backend**  | Python 3.x, Flask, SQLAlchemy (ORM)                       |
+| **Payment**  | Stripe API Express                                        |
+| **Security** | Flask-WTF (CSRF), Flask-Limiter (Rate Limiting)           |
+| **Database** | SQLite (Production-ready schema)                          |
+| **Frontend** | Jinja2, Vanilla CSS3 (Custom Glassmorphism Design System) |
+| **Tooling**  | `uv` package manager, `python-dotenv`                     |
 
 ---
 
-## 📂 Project Structure
+## 📂 Modular Architecture
 
 ```text
 e-com/
-├── app.py              # Application entry point & configuration
-├── models.py           # Database models (User, Product, Order, etc.)
-├── routes/             # Blueprint-based modular routing
-│   ├── admin.py        # Admin panel logic
-│   ├── auth.py         # Login, Registration, Logout
-│   ├── customer.py     # Cart, Checkout, Profile, Orders
-│   ├── product.py      # Product listings & detail views
-│   └── seller.py       # Seller dashboard & management
-├── static/             # Assets (CSS, JS, Images, Uploads)
-├── templates/          # HTML templates (Jinja2)
-├── utils/              # Helper functions & decorators (e.g., @login_required)
-├── create_admin.py     # CLI tool for creating admin users
-├── seed.py             # Script to populate sample data
-└── requirements.txt    # Project dependencies
+├── app.py              # App entry point & Middlewares
+├── models.py           # Unified SQLAlchemy Schema (20+ Models)
+├── seed.py             # Industrial-grade database population script
+├── routes/             # Production Blueprints
+│   ├── auth.py         # RBAC Authentication logic
+│   ├── customer.py     # Cart, Wishlist, Address, and Profile management
+│   ├── seller.py       # Inventory and Dashboard analytics
+│   ├── payment.py      # Stripe Checkout & Webhook handlers
+│   ├── admin.py        # System-wide management
+│   └── product.py      # Catalog discovery & Variant logic
+├── templates/          # Responsive Jinja2 Templates
+└── static/             # Assets (CSS/JS/Uploads)
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## 🚀 Setup & Execution
 
-1. **Clone the Repository**
-   ```bash
-   git clone <repository-url>
-   cd e-com
-   ```
+### 1. Environment Configuration
 
-2. **Create a Virtual Environment**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+Create a `.env` file in the root directory:
 
-3. **Install Dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
+```env
+SECRET_KEY=your_secure_random_key
+DATABASE_URL=sqlite:///ecommerce.db
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
 
-4. **Environment Configuration**
-   Create a `.env` file in the root directory:
-   ```env
-   SECRET_KEY=your-secret-key-here
-   DATABASE_URL=sqlite:///ecommerce.db
-   ```
+### 2. Dependency Installation
 
-5. **Initialize Database and Seed Data** (Optional but recommended)
-   ```bash
-   python seed.py
-   ```
-   *This will create the database schema and populate it with sample categories, products, and users (Admin, Seller, Customer).*
+Using standard `pip`:
 
-6. **Create an Admin User**
-   ```bash
-   python create_admin.py
-   ```
+```bash
+pip install -r requirements.txt
+```
 
-7. **Run the Application**
-   ```bash
-   python app.py
-   ```
-   Access the platform at `http://localhost:5001`
+Or using `uv` (recommended):
 
----
+```bash
+uv sync
+```
 
-## 🧪 Sample Credentials (from `seed.py`)
+### 3. Database Initialization
 
-- **Admin**: `admin` / `admin123`
-- **Seller**: `seller1` / `password`
-- **Customer**: `customer` / `password`
+Reset and seed the database with professional sample data:
 
----
+```bash
+python seed.py
+```
 
-## 🔮 Future Roadmap
+### 4. Local Stripe Testing
 
-- [ ] **Payment Integration**: Integration with Stripe/Razorpay for actual transactions.
-- [ ] **Email Notifications**: Automated emails for order confirmations and status updates.
-- [ ] **Enhanced Search**: Implementation of full-text search (ElasticSearch or similar).
-- [ ] **Multi-Currency Support**: Dynamic currency switching and localization.
-- [ ] **Mobile App**: API preparation for mobile integration.
+To handle real-time payment fulfillments:
+
+1. **Start Stripe CLI**: `stripe listen --forward-to localhost:5001/stripe-webhook`
+2. **Copy the Webhook Secret**: Update `STRIPE_WEBHOOK_SECRET` in `.env`.
+
+### 5. Launch
+
+```bash
+python app.py
+```
+
+Access the application at: `http://localhost:5001`
 
 ---
 
-Built for excellence in modern e-commerce.
+## 🛡️ Security & Performance
+
+- **CSRF Protection**: All POST/PUT requests are validated via Flask-WTF tokens.
+- **Rate Limiting**: Critical endpoints (login, API calls) are protected against brute force.
+- **Eager Loading**: Database queries utilize `joinedload` and `selectinload` where necessary to prevent N+1 performance issues.
+- **Data Integrity**: Cascading deletes and soft-null foreign keys ensure database consistency.
+
+---
+
+Built for Scalability and Excellence.

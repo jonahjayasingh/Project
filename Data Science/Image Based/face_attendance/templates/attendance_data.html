@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Attendance Records - FRAMS{% endblock %}
+
+{% block content %}
+<div class="hero fade-in">
+    <h1>Attendance Logs</h1>
+    <p>Viewing records for {% if filter_type == 'date' %}Specific Date{% elif filter_type == 'week' %}This Week{% elif
+        filter_type == 'month' %}This Month{% else %}All Sessions{% endif %}</p>
+</div>
+
+<div class="glass fade-in" style="padding: 2rem; margin-bottom: 2rem; animation-delay: 0.1s;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+        <h3 style="font-size: 1.25rem;">Records Table</h3>
+
+        <form action="{% url 'my_attendance' %}" method="GET" style="display: flex; gap: 1rem;">
+            <select name="filter_type" class="form-input" style="width: auto;">
+                <option value="all" {% if filter_type == 'all' %}selected{% endif %}>All Time</option>
+                <option value="date" {% if filter_type == 'date' %}selected{% endif %}>By Date</option>
+                <option value="week" {% if filter_type == 'week' %}selected{% endif %}>By Week</option>
+                <option value="month" {% if filter_type == 'month' %}selected{% endif %}>By Month</option>
+            </select>
+            <input type="date" name="filter_value" class="form-input" style="width: auto;">
+            <button type="submit" class="btn-submit" style="margin-top: 0; padding: 0.5rem 1.5rem;">Filter</button>
+        </form>
+    </div>
+
+    <!-- Summary Statistics -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div
+            style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); border-radius: 12px; padding: 1.5rem; text-align: center;">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--success); margin-bottom: 0.5rem;">
+                {{ stats.present|default:0 }}
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">Present</div>
+        </div>
+        <div
+            style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; padding: 1.5rem; text-align: center;">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--danger); margin-bottom: 0.5rem;">
+                {{ stats.absent|default:0 }}
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">Absent</div>
+        </div>
+        <div
+            style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 1.5rem; text-align: center;">
+            <div style="font-size: 2rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem;">
+                {{ stats.total|default:0 }}
+            </div>
+            <div style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 500;">Total Students</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    {% if is_summary_view %}
+                    <th>Days Present</th>
+                    <th>Days Absent</th>
+                    {% else %}
+                    <th>Time</th>
+                    {% endif %}
+                    <th>Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    <td><strong>{{ row.Name }}</strong></td>
+                    {% if is_summary_view %}
+                    <td><span style="color: var(--success); font-weight: 600;">{{ row.days_present }} days</span></td>
+                    <td><span style="color: var(--danger); font-weight: 600;">{{ row.days_absent }} days</span></td>
+                    {% else %}
+                    <td>{{ row.time|time:"h:i:s A"|default:"--:--:--" }}</td>
+                    {% endif %}
+                    <td>{{ row.date|date:"d-m-Y" }}</td>
+                    <td>
+                        {% if is_summary_view %}
+                        {% if row.days_present > 0 %}
+                        <span class="status-badge status-present">Present ({{ row.days_present }}d)</span>
+                        {% else %}
+                        <span class="status-badge status-absent">Absent</span>
+                        {% endif %}
+                        {% else %}
+                        {% if row.time %}
+                        <span class="status-badge status-present">Present</span>
+                        {% else %}
+                        <span class="status-badge status-absent">Absent</span>
+                        {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% if not rows %}
+                <tr>
+                    <td colspan="5" style="text-align: center; padding: 3rem; color: var(--text-muted);">No records
+                        found for the selected period.</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

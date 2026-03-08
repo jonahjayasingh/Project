@@ -37,8 +37,7 @@
                             </td>
                             <td>
                                 {% for test in package.tests.all %}
-                                <span class="badge bg-info bg-opacity-10 text-info small mb-1">{{ test.test_name
-                                    }}</span>
+                                <span class="badge bg-info bg-opacity-10 text-info small mb-1">{{ test.test_name }}</span>
                                 {% endfor %}
                             </td>
                             <td><del class="text-muted small">${{ package.price }}</del></td>

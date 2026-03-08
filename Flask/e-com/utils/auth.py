@@ -59,3 +59,21 @@ def admin_required(f):
         
         return f(*args, **kwargs)
     return decorated_function
+
+
+def login_required_role(roles):
+    """Decorator to require specific roles for a route"""
+    if isinstance(roles, str):
+        roles = [roles]
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if 'user_id' not in session:
+                flash('Please log in to access this page.', 'error')
+                return redirect(url_for('auth.login'))
+            if session.get('user_type') not in roles:
+                flash('You do not have permission to access this page.', 'error')
+                return redirect(url_for('index'))
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator

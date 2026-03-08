@@ -1,0 +1,5 @@
+2026/03/04-15:48:21.861 1a903c Creating DB /Volumes/CrucialX9/Project/Django/Laboratory Management System/whatsapp_node/whatsapp_session/session/Default/Local Storage/leveldb since it was missing.
+2026/03/04-15:48:21.971 1a903c Reusing MANIFEST /Volumes/CrucialX9/Project/Django/Laboratory Management System/whatsapp_node/whatsapp_session/session/Default/Local Storage/leveldb/MANIFEST-000001
+2026/03/04-16:11:10.311 1a9040 Level-0 table #5: started
+2026/03/04-16:11:10.317 1a9040 Level-0 table #5: 20424 bytes OK
+2026/03/04-16:11:10.329 1a9040 Delete type=0 #3

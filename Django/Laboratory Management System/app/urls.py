@@ -16,6 +16,7 @@ urlpatterns = [
     # Dashboards
     path("dashboard/patient/", views.patient_dashboard, name="patient_dashboard"),
     path("dashboard/lab/", views.lab_dashboard, name="lab_dashboard"),
+    path("dashboard/lab/history/", views.lab_history, name="lab_history"),
     path("dashboard/admin/", views.admin_dashboard, name="admin_dashboard"),
     
     # Booking

@@ -1,0 +1,74 @@
+{% extends "base.html" %} {% block content %}
+<div
+  class="store-hero section-padding pb-5"
+  style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)"
+>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-2 text-center text-md-start mb-4 mb-md-0">
+        <div
+          class="store-avatar bg-white rounded-circle shadow-sm d-flex align-items-center justify-content-center mx-auto mx-md-0"
+          style="
+            width: 120px;
+            height: 120px;
+            font-size: 3rem;
+            color: var(--primary-color);
+          "
+        >
+          {{ seller.username[0]|upper }}
+        </div>
+      </div>
+      <div class="col-md-7">
+        <h1 class="display-6 mb-1">
+          {{ profile.display_name or seller.username }}
+        </h1>
+        <p class="lead text-muted mb-3">
+          {{ profile.company_name or 'Independent Seller' }}
+        </p>
+        <div class="d-flex gap-4">
+          <span><strong>{{ products|length }}</strong> Products</span>
+          <span
+            ><strong>{{ profile.rating_avg }}</strong> Rating ({{
+            profile.rating_count }})</span
+          >
+          <span><strong>{{ profile.total_sales }}</strong> Sales</span>
+        </div>
+      </div>
+      <div class="col-md-3 text-md-end mt-4 mt-md-0">
+        <button class="btn btn-outline-primary rounded-pill">
+          Follow Store
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container section-padding mt-5">
+  <div class="row g-4">
+    {% for product in products %}
+    <div class="col-md-3">
+      <div
+        class="product-card glass-card h-100 shadow-sm border-0 animate-on-scroll"
+      >
+        <a
+          href="{{ url_for('product.product_detail', product_id=product.id) }}"
+          class="text-decoration-none"
+        >
+          <img
+            src="/{{ product.get_primary_image() or 'static/img/placeholder.jpg' }}"
+            class="card-img-top"
+            style="height: 250px; object-fit: cover"
+          />
+          <div class="p-3">
+            <h5 class="h6 text-dark mb-1">{{ product.name }}</h5>
+            <p class="text-primary fw-bold mb-0">
+              ${{ "%.2f"|format(product.price) }}
+            </p>
+          </div>
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

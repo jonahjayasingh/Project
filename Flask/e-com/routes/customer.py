@@ -14,62 +14,73 @@ def view_cart():
     
     total = sum(item.get_subtotal() for item in cart_items)
     
-    return render_template('customer/cart.html', cart_items=cart_items, total=total)
+    # Check for coupon in session
+    coupon_code = session.get('coupon_code')
+    coupon = None
+    discount = 0
+    if coupon_code:
+        from models import Coupon
+        coupon = Coupon.query.filter_by(code=coupon_code).first()
+        if coupon and coupon.is_valid(total):
+            discount = coupon.calculate_discount(total)
+        else:
+            session.pop('coupon_code', None)
+    
+    return render_template('customer/cart.html', cart_items=cart_items, total=total, discount=discount, coupon=coupon)
 
 
-@routes.route('/cart/add/<int:product_id>', methods=['POST'])
+@routes.route('/cart/add', methods=['POST'])
 @login_required
-def add_to_cart(product_id):
-    """Add product to cart"""
+def add_item_to_cart():
+    """Add variant to cart"""
     user_id = session['user_id']
+    variant_id = request.form.get('variant_id', type=int)
     quantity = int(request.form.get('quantity', 1))
     
-    # Check if product exists and has stock
-    product = Product.query.get_or_404(product_id)
+    if not variant_id:
+        flash('Invalid product variant selected.', 'error')
+        return redirect(request.referrer or url_for('product.list_products'))
     
-    # Prevent adding out-of-stock products
-    if product.quantity == 0:
-        flash('This product is out of stock and cannot be added to cart.', 'error')
-        return redirect(url_for('product.product_detail', product_id=product_id))
+    # Check if variant exists and has stock
+    from models import ProductVariant
+    variant = ProductVariant.query.get_or_404(variant_id)
     
-    if product.quantity < quantity:
+    if variant.stock < quantity:
         flash('Not enough stock available.', 'error')
-        return redirect(url_for('product.product_detail', product_id=product_id))
+        return redirect(url_for('product.product_detail', product_id=variant.product_id))
     
     # Check if item already in cart
-    cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first()
+    cart_item = Cart.query.filter_by(user_id=user_id, variant_id=variant_id).first()
     
     if cart_item:
-        # Update quantity
-        new_quantity = cart_item.quantity + quantity
-        if product.quantity < new_quantity:
+        if variant.stock < cart_item.quantity + quantity:
             flash('Not enough stock available.', 'error')
-            return redirect(url_for('product.product_detail', product_id=product_id))
-        cart_item.quantity = new_quantity
+            return redirect(url_for('product.product_detail', product_id=variant.product_id))
+        cart_item.quantity += quantity
     else:
-        # Create new cart item
-        cart_item = Cart(user_id=user_id, product_id=product_id, quantity=quantity)
+        cart_item = Cart(user_id=user_id, variant_id=variant_id, quantity=quantity)
         db.session.add(cart_item)
     
     db.session.commit()
-    flash('Product added to cart!', 'success')
+    flash('Added to cart!', 'success')
     return redirect(url_for('customer.view_cart'))
 
 
-@routes.route('/cart/update/<int:product_id>', methods=['POST'])
+@routes.route('/cart/update/<int:variant_id>', methods=['POST'])
 @login_required
-def update_cart(product_id):
+def update_cart(variant_id):
     """Update cart item quantity"""
     user_id = session['user_id']
     quantity = int(request.form.get('quantity', 1))
     
-    cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first_or_404()
-    product = Product.query.get(product_id)
+    from models import ProductVariant
+    cart_item = Cart.query.filter_by(user_id=user_id, variant_id=variant_id).first_or_404()
+    variant = ProductVariant.query.get(variant_id)
     
     if quantity <= 0:
         db.session.delete(cart_item)
         flash('Item removed from cart.', 'info')
-    elif product.quantity < quantity:
+    elif variant and variant.stock < quantity:
         flash('Not enough stock available.', 'error')
         return redirect(url_for('customer.view_cart'))
     else:
@@ -80,12 +91,12 @@ def update_cart(product_id):
     return redirect(url_for('customer.view_cart'))
 
 
-@routes.route('/cart/remove/<int:product_id>', methods=['POST'])
+@routes.route('/cart/remove/<int:variant_id>', methods=['POST'])
 @login_required
-def remove_from_cart(product_id):
+def remove_from_cart(variant_id):
     """Remove item from cart"""
     user_id = session['user_id']
-    cart_item = Cart.query.filter_by(user_id=user_id, product_id=product_id).first_or_404()
+    cart_item = Cart.query.filter_by(user_id=user_id, variant_id=variant_id).first_or_404()
     
     db.session.delete(cart_item)
     db.session.commit()
@@ -94,92 +105,166 @@ def remove_from_cart(product_id):
     return redirect(url_for('customer.view_cart'))
 
 
+@routes.route('/wishlist/add/<int:product_id>', methods=['POST'])
+@login_required
+def add_to_wishlist(product_id):
+    """Add product to wishlist"""
+    from models import Wishlist
+    user_id = session['user_id']
+    
+    # Check if already in wishlist
+    existing = Wishlist.query.filter_by(user_id=user_id, product_id=product_id).first()
+    if existing:
+        flash('Product is already in your wishlist.', 'info')
+    else:
+        wish = Wishlist(user_id=user_id, product_id=product_id)
+        db.session.add(wish)
+        db.session.commit()
+        flash('Added to wishlist!', 'success')
+        
+    return redirect(url_for('product.product_detail', product_id=product_id))
+
+
 @routes.route('/checkout', methods=['GET', 'POST'])
 @login_required
 def checkout():
-    """Checkout process"""
+    """Checkout process with Addresses and Coupons"""
     user_id = session['user_id']
+    from models import Address, Coupon
     cart_items = Cart.query.filter_by(user_id=user_id).all()
     
     if not cart_items:
-        flash('Your cart is empty.', 'error')
+        flash('Cart is empty.', 'error')
         return redirect(url_for('customer.view_cart'))
     
-    # Check if customer has completed profile
-    profile = Profile.query.filter_by(user_id=user_id).first()
-    if not profile or not profile.full_name or not profile.phone_number or not profile.address:
-        flash('Please complete your profile before placing an order.', 'warning')
-        return redirect(url_for('customer.profile'))
+    addresses = Address.query.filter_by(user_id=user_id).all()
+    if not addresses:
+        flash('Please add a shipping address first.', 'warning')
+        return redirect(url_for('customer.add_address'))
+
+    total = sum(item.get_subtotal() for item in cart_items)
+    
+    # Process coupon
+    coupon_code = session.get('coupon_code')
+    coupon = None
+    discount = 0
+    if coupon_code:
+        coupon = Coupon.query.filter_by(code=coupon_code).first()
+        if coupon and coupon.is_valid(total):
+            discount = coupon.calculate_discount(total)
+        else:
+            session.pop('coupon_code', None)
+
+    final_total = total - discount
 
     if request.method == 'POST':
-        # Get shipping address
-        shipping_address = request.form.get('shipping_address')
+        address_id = request.form.get('address_id')
+        selected_address = Address.query.get(address_id)
         
-        if not shipping_address or not shipping_address.strip():
-            flash('Please provide a shipping address.', 'error')
+        if not selected_address or selected_address.user_id != user_id:
+            flash('Invalid address.', 'error')
             return redirect(url_for('customer.checkout'))
-        
-        # Calculate total
-        total = sum(item.get_subtotal() for item in cart_items)
         
         try:
             # Create order
             order = Order(
                 user_id=user_id,
+                address_id=selected_address.id,
+                coupon_id=coupon.id if coupon else None,
                 total_amount=total,
-                shipping_address=shipping_address,
+                discount_amount=discount,
+                final_amount=final_total,
+                shipping_address_text=f"{selected_address.name}, {selected_address.address_line1}, {selected_address.city}, {selected_address.state} {selected_address.postal_code}, {selected_address.country}",
                 status=OrderStatus.PENDING
             )
             db.session.add(order)
-            db.session.flush()  # Get order ID
+            db.session.flush()
         
-            # Create order items and update product quantities
             for cart_item in cart_items:
-                product = cart_item.product
+                variant = cart_item.variant
                 
-                # Check stock again
-                if product.quantity < cart_item.quantity:
+                if variant.stock < cart_item.quantity:
                     db.session.rollback()
-                    flash(f'Not enough stock for {product.name}.', 'error')
+                    flash(f'Not enough stock for {variant.product.name} ({variant.name}).', 'error')
                     return redirect(url_for('customer.view_cart'))
                 
-                # Create order item
                 order_item = OrderItem(
                     order_id=order.id,
-                    product_id=product.id,
+                    variant_id=variant.id,
                     quantity=cart_item.quantity,
-                    price_at_purchase=product.price,
-                    product_name=product.name
+                    price_at_purchase=variant.price,
+                    product_name=variant.product.name,
+                    variant_name=variant.name
                 )
                 db.session.add(order_item)
                 
-                # Update product quantity
-                product.quantity -= cart_item.quantity
-            
-            # Clear cart
-            for cart_item in cart_items:
-                db.session.delete(cart_item)
+                variant.stock -= cart_item.quantity
             
             db.session.commit()
-            flash('Order placed successfully!', 'success')
-            return redirect(url_for('customer.order_detail', order_id=order.id))
+            session.pop('coupon_code', None) # Clear coupon after order creation
+            
+            # Redirect to payment selection/stripe
+            return render_template('customer/order_confirm_pay.html', order=order)
             
         except Exception as e:
             db.session.rollback()
-            flash(f'An error occurred: {str(e)}', 'error')
+            flash(f'Error: {str(e)}', 'error')
             return redirect(url_for('customer.checkout'))
-    
-    total = sum(item.get_subtotal() for item in cart_items)
-    
-    # Get user profile for default address
-    profile = Profile.query.filter_by(user_id=user_id).first()
     
     return render_template(
         'customer/checkout.html',
         cart_items=cart_items,
         total=total,
-        profile=profile
+        discount=discount,
+        final_total=final_total,
+        addresses=addresses,
+        coupon=coupon
     )
+
+
+@routes.route('/coupon/apply', methods=['POST'])
+@login_required
+def apply_coupon():
+    from models import Coupon
+    code = request.form.get('coupon_code')
+    user_id = session['user_id']
+    cart_items = Cart.query.filter_by(user_id=user_id).all()
+    total = sum(item.get_subtotal() for item in cart_items)
+    
+    coupon = Coupon.query.filter_by(code=code).first()
+    if coupon and coupon.is_valid(total):
+        session['coupon_code'] = code
+        flash('Coupon applied!', 'success')
+    else:
+        flash('Invalid or expired coupon.', 'error')
+    
+    return redirect(url_for('customer.view_cart'))
+
+
+@routes.route('/orders/<int:order_id>/return', methods=['POST'])
+@login_required
+def request_return(order_id):
+    from models import ReturnRequest
+    user_id = session['user_id']
+    order = Order.query.filter_by(id=order_id, user_id=user_id).first_or_404()
+    
+    if order.status != OrderStatus.DELIVERED:
+        flash('Only delivered items can be returned.', 'error')
+        return redirect(url_for('customer.order_detail', order_id=order_id))
+    
+    product_id = request.form.get('product_id')
+    reason = request.form.get('reason')
+    
+    existing = ReturnRequest.query.filter_by(order_id=order_id, product_id=product_id).first()
+    if existing:
+        flash('Return request already exists for this item.', 'warning')
+    else:
+        ret = ReturnRequest(order_id=order_id, product_id=product_id, reason=reason)
+        db.session.add(ret)
+        db.session.commit()
+        flash('Return request submitted.', 'success')
+        
+    return redirect(url_for('customer.order_detail', order_id=order_id))
 
 
 @routes.route('/orders')
@@ -248,6 +333,104 @@ def profile():
     return render_template('customer/profile.html', profile=user_profile)
 
 
+@routes.route('/addresses')
+@login_required
+def addresses():
+    """View saved addresses"""
+    from models import Address
+    user_id = session['user_id']
+    addresses = Address.query.filter_by(user_id=user_id).order_by(Address.is_default.desc(), Address.created_at.desc()).all()
+    return render_template('customer/addresses.html', addresses=addresses)
+
+
+@routes.route('/addresses/add', methods=['GET', 'POST'])
+@login_required
+def add_address():
+    """Add new shipping address"""
+    from models import Address
+    if request.method == 'POST':
+        user_id = session['user_id']
+        name = request.form.get('name')
+        phone = request.form.get('phone')
+        address_line1 = request.form.get('address_line1')
+        address_line2 = request.form.get('address_line2')
+        city = request.form.get('city')
+        state = request.form.get('state')
+        postal_code = request.form.get('postal_code')
+        country = request.form.get('country', 'USA')
+        is_default = 'is_default' in request.form
+        
+        # If this is the first address or set as default, handle it
+        if is_default:
+            Address.query.filter_by(user_id=user_id).update({Address.is_default: False})
+        
+        new_addr = Address(
+            user_id=user_id,
+            name=name,
+            phone=phone,
+            address_line1=address_line1,
+            address_line2=address_line2,
+            city=city,
+            state=state,
+            postal_code=postal_code,
+            country=country,
+            is_default=is_default or not Address.query.filter_by(user_id=user_id).first()
+        )
+        db.session.add(new_addr)
+        db.session.commit()
+        
+        flash('Address added!', 'success')
+        next_url = request.args.get('next')
+        return redirect(url_for(next_url) if next_url else url_for('customer.addresses'))
+        
+    return render_template('customer/add_address.html')
+
+
+@routes.route('/addresses/edit/<int:address_id>', methods=['GET', 'POST'])
+@login_required
+def edit_address(address_id):
+    """Edit existing address"""
+    from models import Address
+    user_id = session['user_id']
+    address = Address.query.filter_by(id=address_id, user_id=user_id).first_or_404()
+    
+    if request.method == 'POST':
+        address.name = request.form.get('name')
+        address.phone = request.form.get('phone')
+        address.address_line1 = request.form.get('address_line1')
+        address.address_line2 = request.form.get('address_line2')
+        address.city = request.form.get('city')
+        address.state = request.form.get('state')
+        address.postal_code = request.form.get('postal_code')
+        address.country = request.form.get('country', 'USA')
+        
+        is_default = 'is_default' in request.form
+        if is_default and not address.is_default:
+            Address.query.filter_by(user_id=user_id).update({Address.is_default: False})
+            address.is_default = True
+        
+        db.session.commit()
+        flash('Address updated!', 'success')
+        return redirect(url_for('customer.addresses'))
+        
+    return render_template('customer/edit_address.html', address=address)
+
+
+@routes.route('/addresses/delete/<int:address_id>', methods=['POST'])
+@login_required
+def delete_address(address_id):
+    """Delete address"""
+    from models import Address
+    user_id = session['user_id']
+    address = Address.query.filter_by(id=address_id, user_id=user_id).first_or_404()
+    
+    db.session.delete(address)
+    db.session.commit()
+    
+    flash('Address deleted.', 'info')
+    return redirect(url_for('customer.addresses'))
+
+
 @routes.route('/products/<int:product_id>/review', methods=['POST'])
 @login_required
 def submit_review(product_id):
@@ -258,9 +441,10 @@ def submit_review(product_id):
     product = Product.query.get_or_404(product_id)
     
     # Check if user has purchased this product
-    has_purchased = db.session.query(OrderItem).join(Order).filter(
+    from models import ProductVariant
+    has_purchased = db.session.query(OrderItem).join(Order).join(ProductVariant).filter(
         Order.user_id == user_id,
-        OrderItem.product_id == product_id
+        ProductVariant.product_id == product_id
     ).first()
     
     if not has_purchased:

@@ -1,0 +1,189 @@
+{% extends "base.html" %} {% block title %}Lab Booking History - LMS{% endblock%} {% block content %}
+<div class="row pt-4">
+  <div class="col-12 mb-4 d-flex justify-content-between align-items-center">
+    <div>
+      <h2 class="fw-bold">Booking History</h2>
+      <p class="text-muted">Review past records and completed appointments</p>
+    </div>
+    <a
+      href="{% url 'lab_dashboard' %}"
+      class="btn btn-primary d-flex align-items-center gap-2 shadow-sm rounded-pill"
+    >
+      <i class="fas fa-arrow-left"></i> Back to Today's Dashboard
+    </a>
+  </div>
+
+  <!-- Search & Filter -->
+  <div class="col-12 mb-4">
+    <div class="card p-4 border-0 shadow-sm rounded-4">
+      <form method="GET" class="row g-3 align-items-end">
+        <div class="col-md-5">
+          <label class="form-label small fw-bold">Search History</label>
+          <div class="input-group">
+            <span class="input-group-text bg-white border-end-0"
+              ><i class="fas fa-search text-muted"></i
+            ></span>
+            <input
+              type="text"
+              name="q"
+              class="form-control border-start-0"
+              placeholder="ID, Patient Name, Test, or WhatsApp..."
+              value="{{ q }}"
+            />
+          </div>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label small fw-bold">Status Filter</label>
+          <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            {% for code, label in STATUS_CHOICES %}
+            <option
+              value="{{ code }}"
+              {%
+              if
+              status_filter=""
+              ="code"
+              %}selected{%
+              endif
+              %}
+            >
+              {{ label }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-md-3">
+          <button type="submit" class="btn btn-primary w-100 rounded-pill">
+            Search History
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- History Table -->
+  <div class="col-12 mt-2">
+    <div class="card p-4 border-0 shadow-sm rounded-4">
+      <h5 class="fw-bold mb-4">Past & Completed Records</h5>
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Ref ID / Patient</th>
+              <th>Test / Date</th>
+              <th>Payment Status</th>
+              <th>Process Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for booking in page_obj %}
+            <tr>
+              <td>
+                <div class="fw-bold text-primary">#{{ booking.id }}</div>
+                <div class="fw-bold">{{ booking.patient.full_name }}</div>
+                <div class="small text-muted">
+                  {{ booking.patient.whatsapp_number }}
+                </div>
+              </td>
+              <td>
+                <div class="fw-bold">{{ booking.test_name }}</div>
+                <small class="text-muted"
+                  >{{ booking.booking_date }} | {{ booking.time_slot|time:"h:i
+                  A" }}</small
+                >
+              </td>
+              <td>
+                <span
+                  class="badge {% if booking.payment_status == 'Verified' %}bg-success{% elif booking.payment_status == 'Rejected' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill"
+                >
+                  {{ booking.payment_status }}
+                </span>
+              </td>
+              <td>
+                <span
+                  class="badge {% if booking.status == 'Completed' %}bg-success{% elif booking.status == 'Cancelled' %}bg-danger{% else %}bg-info{% endif %} rounded-pill"
+                >
+                  {{ booking.status }}
+                </span>
+              </td>
+              <td>
+                <div class="d-flex gap-2">
+                  <a
+                    href="{% url 'booking_receipt' booking.id %}"
+                    class="btn btn-sm btn-outline-dark"
+                    title="Show Receipt"
+                  >
+                    <i class="fas fa-receipt"></i>
+                  </a>
+                  {% if booking.report_file %}
+                  <a
+                    href="{% url 'secure_report_serve' booking.id %}"
+                    class="btn btn-sm btn-outline-primary"
+                    target="_blank"
+                    title="View Report"
+                  >
+                    <i class="fas fa-file-pdf"></i>
+                  </a>
+                  <a
+                    href="{% url 'report_history' booking.id %}"
+                    class="btn btn-sm btn-outline-secondary"
+                    title="Report History"
+                  >
+                    <i class="fas fa-history"></i>
+                  </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-5 text-muted">
+                <i class="fas fa-folder-open fa-3x mb-3 opacity-25"></i>
+                <p class="mb-0">
+                  No history records found matching your criteria.
+                </p>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      {% if page_obj.has_other_pages %}
+      <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a
+              class="page-link rounded-start-pill"
+              href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+              >Previous</a
+            >
+          </li>
+          {% endif %}
+
+          <li class="page-item active">
+            <span class="page-link"
+              >Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages
+              }}</span
+            >
+          </li>
+
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a
+              class="page-link rounded-end-pill"
+              href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}"
+              >Next</a
+            >
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
