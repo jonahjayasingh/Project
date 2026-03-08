@@ -34,7 +34,14 @@
                   name="mentor_ids"
                   value="{{ m.id }}"
                   id="mentor_{{ m.id }}"
-                  {% if m.id in selected_mentor_ids %}checked{% endif %}
+                  {%
+                  if
+                  m.id
+                  in
+                  selected_mentor_ids
+                  %}checked{%
+                  endif
+                  %}
                 />
                 <label class="form-check-label w-100" for="mentor_{{ m.id }}">
                   <div
@@ -57,10 +64,63 @@
           </div>
         </div>
 
+        <div class="mb-4">
+          <label class="form-label small fw-bold text-muted mb-3 d-block"
+            >SELECT STUDENT REPRESENTATIVES FOR THIS DOMAIN</label
+          >
+          <div class="row g-3">
+            {% for r in all_reps %}
+            <div class="col-md-6">
+              <div
+                class="form-check p-3 rounded-4 border bg-light h-100 d-flex align-items-center"
+              >
+                <input
+                  class="form-check-input ms-0 me-3"
+                  type="checkbox"
+                  name="rep_ids"
+                  value="{{ r.id }}"
+                  id="rep_{{ r.id }}"
+                  {%
+                  if
+                  r.id
+                  in
+                  selected_rep_ids
+                  %}checked{%
+                  endif
+                  %}
+                />
+                <label class="form-check-label w-100" for="rep_{{ r.id }}">
+                  <div
+                    class="d-flex justify-content-between align-items-center"
+                  >
+                    <h6 class="fw-bold mb-0">{{ r.username }}</h6>
+                    {% if r.id in selected_rep_ids %}
+                    <span
+                      class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 small"
+                      style="font-size: 0.65rem"
+                      >ASSIGNED</span
+                    >
+                    {% endif %}
+                  </div>
+                  <small class="text-muted">{{ r.email }}</small>
+                </label>
+              </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+              <p class="text-muted small text-center italic">
+                No Student Representatives registered in the system.
+              </p>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
         <div class="d-grid gap-3 pt-4">
           <button type="submit" class="btn btn-primary py-3 fw-bold shadow">
             <i class="fas fa-save me-2"></i> Update Allocation
           </button>
+
           <a
             href="{% url 'hod_domains' %}"
             class="btn btn-light py-3 text-muted"

@@ -218,41 +218,64 @@
           <i class="fas fa-check-circle text-success"></i>
         </div>
 
-        
+        <hr class="my-2" />
+        <h6 class="fw-bold mb-3">Global Leaderboard</h6>
+        {% for leader in top_students %}
+        <div class="d-flex align-items-center mb-3">
+          <div
+            class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3"
+            style="width: 32px; height: 32px; font-size: 0.8rem; background: {% if forloop.first %}#fbbf24{% else %}#e2e8f0{% endif %} !important; color: {% if forloop.first %}white{% else %}inherit{% endif %};"
+          >
+            {{ forloop.counter }}
+          </div>
+          <div class="flex-grow-1">
+            <div class="fw-bold small">{{ leader.user.username }}</div>
+            <div class="text-muted" style="font-size: 0.65rem">
+              {{ leader.preferred_domain.name|default:"General" }}
+            </div>
+          </div>
+          <div class="small fw-bold text-primary">{{ leader.points }} pts</div>
+        </div>
+        {% endfor %}
+        <a
+          href="{% url 'leaderboard' %}"
+          class="btn btn-link btn-sm p-0 text-decoration-none small"
+          >View All Students</a
+        >
+
+        <style>
+          .hover-lift {
+            transition:
+              transform 0.2s ease,
+              box-shadow 0.2s ease;
+          }
+          .hover-lift:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
+          }
+          .pulse-icon {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+            animation: pulse 2s infinite;
+          }
+          @keyframes pulse {
+            0% {
+              box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+            }
+            70% {
+              box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+            100% {
+              box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+          }
+        </style>
+        {% endblock %}
       </div>
     </div>
   </div>
 </div>
-
-<style>
-  .hover-lift {
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-  .hover-lift:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
-  }
-  .pulse-icon {
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-    }
-    70% {
-      box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-    }
-    100% {
-      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-    }
-  }
-</style>
-{% endblock %}

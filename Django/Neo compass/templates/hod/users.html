@@ -1,5 +1,4 @@
-{% extends 'base.html' %}
- {% block content %}
+{% extends 'base.html' %} {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-5">
   <div>
     <h1 class="fw-bold mb-1">
@@ -48,29 +47,62 @@
             <option value="">All Roles</option>
             <option
               value="student"
-              {% if role_filter == "student" %}selected{% endif %}
+              {%
+              if
+              role_filter=""
+              ="student"
+              %}selected{%
+              endif
+              %}
             >
               Student
             </option>
             <option
               value="mentor"
-              {%if role_filter  == "mentor"%}selected{%endif  %}
+              {%if
+              role_filter=""
+              ="mentor"
+              %}selected{%endif
+              %}
             >
               Mentor
             </option>
             <option
               value="hod"
-              {% if role_filter == "hod" %}selected{% endif %}
+              {%
+              if
+              role_filter=""
+              ="hod"
+              %}selected{%
+              endif
+              %}
             >
               HOD
             </option>
             <option
               value="alumni"
-              {% if role_filter == "alumni" %}selected{% endif %}
+              {%
+              if
+              role_filter == "alumni"
+              %}selected{%
+              endif
+              %}
             >
               Alumni
             </option>
+            <option
+              value="rep"
+              {%
+              if
+              role_filter == "rep"
+              %}selected{%
+              endif
+              %}
+            >
+              Representative
+            </option>
           </select>
+
         </div>
         <div class="col-md-4 d-flex gap-2">
           <button type="submit" class="btn btn-primary flex-grow-1">
@@ -127,8 +159,7 @@
             >
               {{ user.student_profile.get_approval_status_display }}
             </span>
-            {% else %} 
-            {% if user.is_active %}
+            {% else %} {% if user.is_active %}
             <span class="d-flex align-items-center text-success small fw-bold">
               <i class="fas fa-check-circle me-1"></i> Active
             </span>
@@ -136,9 +167,7 @@
             <span class="d-flex align-items-center text-danger small fw-bold">
               <i class="fas fa-times-circle me-1"></i> Inactive
             </span>
-            {% endif %} 
-            
-            {% endif %}
+            {% endif %} {% endif %}
           </td>
           <td class="text-end pe-4">
             <div class="d-flex justify-content-end gap-2">
@@ -224,6 +253,7 @@
                   </div>
                 </div>
               </div>
+              {% endif %} 
               {% if user.role == 'alumni' %}
               <button
                 type="button"
@@ -315,7 +345,8 @@
                   </div>
                 </div>
               </div>
-              {% endif %} 
+              {% endif %}
+              
               {% if user.role == 'student' %}
               <button
                 type="button"
@@ -324,7 +355,8 @@
                 data-bs-toggle="modal"
                 data-bs-target="#graduateModal{{user.id}}"
                 {% if user.student_profile.approval_status != "APPROVED" %}
-                disabled title="Student must be approved first" 
+                disabled
+                title="Student must be approved first"
                 {%endif%}
               >
                 <i class="fas fa-graduation-cap me-1"></i> Graduate
@@ -415,15 +447,27 @@
                 </div>
               </div>
 
-              <a
-                href="{% url 'hod_change_role' user.id %}?role=mentor"
-                class="btn btn-sm btn-outline-primary px-3"
-                style="border-radius: 8px"
-                onclick="return confirm('Promote {{ user.username }} to Mentor role? This will grant them administrative access to domains.')"
-              >
                 <i class="fas fa-user-plus me-1"></i> Make Mentor
               </a>
+              <a
+                href="{% url 'hod_change_role' user.id %}?role=rep"
+                class="btn btn-sm btn-outline-info px-3"
+                style="border-radius: 8px"
+                onclick="return confirm('Assign {{ user.username }} as Student Representative?')"
+              >
+                <i class="fas fa-user-tie me-1"></i> Make Rep
+              </a>
+              {% elif user.role == 'rep' %}
+               <a
+                href="{% url 'hod_change_role' user.id %}?role=student"
+                class="btn btn-sm btn-outline-warning px-3"
+                style="border-radius: 8px"
+                onclick="return confirm('Remove representative status for {{ user.username }}?')"
+              >
+                <i class="fas fa-user-minus me-1"></i> Revoke Rep
+              </a>
               {% elif user.role == 'mentor' %}
+
               <a
                 href="{% url 'hod_change_role' user.id %}?role=student"
                 class="btn btn-sm btn-outline-warning px-3"
@@ -440,10 +484,8 @@
                 style="border-radius: 8px"
               >
                 {% if user.is_active %}
-                <i class="fas fa-user-slash me-1"></i> Deactivate 
-                {% else %}
-                <i class="fas fa-user-check me-1"></i> Activate 
-                {% endif %}
+                <i class="fas fa-user-slash me-1"></i> Deactivate {% else %}
+                <i class="fas fa-user-check me-1"></i> Activate {% endif %}
               </a>
             </div>
           </td>

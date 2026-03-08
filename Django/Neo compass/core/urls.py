@@ -26,17 +26,31 @@ urlpatterns = [
     path('student/leaderboard/', views.leaderboard, name='leaderboard'),
     path('student/placement/', views.placement_guide, name='placement_guide'),
     path('student/feedback/', views.submit_feedback, name='submit_feedback'),
+    path('student/request-topic/', views.request_topic, name='request_topic'),
     
     # Mentor
     path('mentor/dashboard/', views.mentor_dashboard, name='mentor_dashboard'),
+    path('mentor/handle-topic-request/<int:request_id>/', views.handle_topic_request, name='handle_topic_request'),
+    path('mentor/reset-domain-topics/<int:domain_id>/', views.reset_domain_topics, name='reset_domain_topics'),
+
     path('mentor/students/', views.mentor_students, name='mentor_students'),
 
     path('mentor/quick-approve/<int:profile_id>/', views.mentor_quick_approve, name='mentor_quick_approve'),
     path('mentor/domains/', views.mentor_domains, name='mentor_domains'),
+    path('mentor/domain/<int:domain_id>/edit/', views.mentor_edit_domain, name='mentor_edit_domain'),
+    path('mentor/domain/<int:domain_id>/delete/', views.mentor_delete_domain, name='mentor_delete_domain'),
     path('hod/add-domain/', views.hod_add_domain, name='hod_add_domain'),
+
     path('mentor/domain/<int:domain_id>/add-resource/', views.add_resource, name='mentor_add_resource'),
     path('mentor/domain/<int:domain_id>/add-assignment/', views.add_assignment, name='mentor_add_assignment'),
+    path('mentor/domain/<int:domain_id>/curriculum/', views.mentor_domain_curriculum, name='mentor_domain_curriculum'),
+    path('mentor/resource/<int:resource_id>/edit/', views.mentor_edit_resource, name='mentor_edit_resource'),
+    path('mentor/resource/<int:resource_id>/delete/', views.mentor_delete_resource, name='mentor_delete_resource'),
+    path('mentor/assignment/<int:assignment_id>/edit/', views.mentor_edit_assignment, name='mentor_edit_assignment'),
+    path('mentor/assignment/<int:assignment_id>/delete/', views.mentor_delete_assignment, name='mentor_delete_assignment'),
+    
     path('mentor/grade-submissions/', views.grade_submissions, name='grade_submissions'),
+
     path('mentor/grade-submission/<int:submission_id>/', views.grade_submission, name='grade_submission'),
     
     # HOD
@@ -54,7 +68,9 @@ urlpatterns = [
     # Alumni
     path('alumni/posts/', views.alumni_posts, name='alumni_posts'),
     path('alumni/posts/add/', views.add_alumni_post, name='add_alumni_post'),
+    path('alumni/profile/<int:user_id>/', views.alumni_profile, name='alumni_profile'),
     path('alumni/add/', views.add_alumni, name='add_alumni'),
+
     
     # Social
     path('achievement/<int:achievement_id>/like/', views.like_achievement, name='like_achievement'),

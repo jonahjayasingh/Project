@@ -1,0 +1,43 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header bg-danger py-4 px-5">
+          <h3 class="fw-bold text-white mb-0">
+            <i class="fas fa-trash-alt me-2"></i>Delete Domain
+          </h3>
+        </div>
+        <div class="card-body p-5 text-center">
+          <div class="mb-4">
+            <i
+              class="fas fa-exclamation-triangle text-danger fa-4x mb-3 animate__animated animate__shakeX"
+            ></i>
+            <h4 class="fw-bold">Are you absolutely sure?</h4>
+            <p class="text-muted">
+              You are about to permanently delete
+              <strong>{{ domain.name }}</strong>. This action will remove all
+              associated resources and assignments.
+            </p>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="d-grid gap-3">
+              <button type="submit" class="btn btn-danger py-3 fw-bold shadow">
+                <i class="fas fa-check me-2"></i> Yes, Permanently Delete
+              </button>
+              <a
+                href="{% url 'mentor_domains' %}"
+                class="btn btn-light py-3 text-muted fw-bold"
+              >
+                No, Keep This Domain
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

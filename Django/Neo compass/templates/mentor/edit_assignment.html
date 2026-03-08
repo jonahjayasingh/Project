@@ -1,0 +1,62 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+        <div class="card-header bg-warning py-4 px-5">
+          <h3 class="fw-bold text-white mb-0">
+            <i class="fas fa-edit me-2"></i>Edit Task Architecture
+          </h3>
+        </div>
+        <div class="card-body p-5">
+          <div
+            class="mb-5 d-flex align-items-center gap-3 p-3 bg-light rounded-3"
+          >
+            <div class="bg-warning text-white p-2 rounded-2">
+              <i class="fas fa-tasks"></i>
+            </div>
+            <div>
+              <p class="small text-muted mb-0">
+                Modifying assignment in track:
+              </p>
+              <h6 class="fw-bold mb-0 text-slate">{{ domain.name }}</h6>
+            </div>
+          </div>
+
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+              <label class="form-label fw-bold">Assignment Title</label>
+              {{ form.title }}
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold"
+                >Project Requirements / Brief</label
+              >
+              {{ form.description }}
+            </div>
+            <div class="mb-5">
+              <label class="form-label fw-bold">Deadline Protocol</label>
+              {{ form.due_date }}
+            </div>
+            <div class="d-grid gap-3">
+              <button
+                type="submit"
+                class="btn btn-warning text-white py-3 fw-bold"
+              >
+                <i class="fas fa-save me-2"></i> Update Task
+              </button>
+              <a
+                href="{% url 'mentor_domain_curriculum' domain.id %}"
+                class="btn btn-light py-3 fw-bold text-muted"
+              >
+                Cancel
+              </a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

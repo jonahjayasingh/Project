@@ -1,7 +1,19 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import authenticate
-from .models import User, StudentProfile, Domain, Resource, Assignment, AssignmentStatus, Quiz, Achievement, Feedback, Alumni, Post, PlacementResource
+from .models import User, StudentProfile, Domain, Resource, Assignment, AssignmentStatus, Quiz, Achievement, Feedback, Alumni, Post, PlacementResource, TopicRequest
+
+
+
+class TopicRequestForm(forms.ModelForm):
+    class Meta:
+        model = TopicRequest
+        fields = ['topic_name']
+        widgets = {
+            'topic_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'What would you like to learn about?'}),
+        }
+
+
 
 class LoginForm(AuthenticationForm):
     def clean(self):

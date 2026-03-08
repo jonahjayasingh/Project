@@ -148,8 +148,75 @@
     background: var(--surface-card);
     border: 1px solid var(--surface-border);
     border-radius: 20px;
-    overflow: hidden;
     box-shadow: var(--shadow-soft);
+    overflow: hidden;
+  }
+
+  .nav-card {
+    background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+    border-radius: 20px;
+    padding: 1.5rem;
+    color: white;
+    box-shadow: var(--shadow-md);
+  }
+
+  .btn-nav {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    transition: all 0.2s;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn-nav:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--brand-indigo-light);
+    color: white;
+    transform: translateX(4px);
+  }
+
+  .leader-item {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 0.75rem 1rem;
+    transition: all 0.2s;
+  }
+
+  .leader-item:hover {
+    border-color: var(--brand-indigo-light);
+    background: white;
+    box-shadow: var(--shadow-soft);
+  }
+
+  .rank-badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.75rem;
+  }
+
+  .rank-1 {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  .rank-2 {
+    background: #f1f5f9;
+    color: #475569;
+  }
+  .rank-3 {
+    background: #ffedd5;
+    color: #9a3412;
   }
 
   .section-header {
@@ -245,7 +312,17 @@
     font-weight: 700;
     color: var(--enterprise-slate);
   }
+  .bg-indigo-subtle {
+    background: #e0e7ff;
+  }
+  .text-indigo {
+    color: #4f46e5;
+  }
+  .bg-indigo {
+    background: #4f46e5;
+  }
 </style>
+
 {% endblock %} {% block content %}
 <div class="container-fluid py-4 px-md-5">
   <!-- Executive Overview -->
@@ -266,7 +343,7 @@
             <div class="d-flex gap-3">
               <a
                 href="{% url 'mentor_students' %}"
-                class="btn btn-exec btn-exec-primary"
+                class="btn btn-exec btn-exec-primary text-decoration-none" 
               >
                 <i class="fas fa-users"></i> View Students
               </a>
@@ -356,7 +433,68 @@
     </div>
   </div>
 
+  <div class="row g-4 mb-5 executive-fade" style="animation-delay: 0.15s">
+    <div class="col-lg-6">
+      <div class="data-section h-100 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <div>
+            <h4 class="fw-bold mb-1">Demand Analytics</h4>
+            <p class="small text-muted mb-0">
+              Visualizing student request vectors.
+            </p>
+          </div>
+          <select
+            id="chartFilter"
+            class="form-select form-select-sm w-auto border-0 bg-light fw-bold"
+            style="border-radius: 8px"
+          >
+            <option value="domains">By Domain</option>
+            <option value="all-topics">All Topics</option>
+            {% regroup topic_distribution by domain as domain_list %} 
+            {% for d in domain_list %}
+            <option value="domain_{{ d.grouper|default:'General' }}">
+              Topics: {{ d.grouper|default:'General' }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="height: 320px">
+          <canvas id="topicPieChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="data-section h-100 p-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="fw-bold mb-0 text-slate">Engagement Velocity</h5>
+          <i class="fas fa-bolt text-muted opacity-50"></i>
+        </div>
+        <div class="d-flex flex-column justify-content-center h-100">
+          <div class="mb-4">
+            <div class="small text-muted fw-bold mb-1">
+              TOTAL TOPIC REQUESTS
+            </div>
+            <div class="display-5 fw-bold text-indigo">
+              {{ total_topic_count }}
+            </div>
+          </div>
+          <div class="mb-4">
+            <div class="small text-muted fw-bold mb-1">PENDING APPROVALS</div>
+            <div class="display-5 fw-bold text-warning">
+              {{ pending_approvals.count }}
+            </div>
+          </div>
+          <p class="small text-muted mb-0">
+            System health: Optimal. Processing time average 14m.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row g-5 executive-fade" style="animation-delay: 0.2s">
+    {% if request.user.role != 'rep' %}
     <!-- Active Inductions -->
     <div class="col-lg-8">
       <div class="data-section">
@@ -379,46 +517,52 @@
             <tbody>
               {% for profile in pending_approvals %}
               <tr class="table-row-hover">
-                <td class="ps-4 py-4">
+                <td>
                   <div class="d-flex align-items-center gap-3">
-                    <div class="avatar-circle">
+                    <div
+                      class="avatar-circle"
+                      style="background: var(--enterprise-zinc); color: white"
+                    >
                       {{ profile.user.username|first|upper }}
                     </div>
                     <div>
-                      <div class="fw-bold text-slate">
-                        {{ profile.user.username }}
-                      </div>
-                      <div class="text-muted small">
-                        ID: #{{ profile.id|add:1000 }}
+                      <div class="fw-bold">{{ profile.user.username }}</div>
+                      <div class="small text-muted">
+                        Applied {{ profile.user.date_joined|date:"M d, Y" }} ·
+                        {{ profile.preferred_domain.name|default:"General Track"
+                        }}
                       </div>
                     </div>
                   </div>
                 </td>
-                
-                <td class="text-end pe-4 py-4">
-                  <div
-                    class="d-flex justify-content-end align-items-center gap-2"
+                <td class="text-end">
+                  {% if request.user.role == 'mentor' %}
+                  <form
+                    action="{% url 'mentor_quick_approve' profile.id %}"
+                    method="post"
+                    class="d-inline"
                   >
-                    <form
-                      action="{% url 'mentor_quick_approve' profile.id %}"
-                      method="post"
-                      class="m-0"
-                    >
-                      {% csrf_token %}
-                      <button
-                        type="submit"
-                        class="btn btn-exec btn-exec-primary py-2 px-3 small"
-                      >
-                        Approve
-                      </button>
-                    </form>
-                  </div>
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-exec btn-exec-outline">
+                      <i class="fas fa-check-circle me-2 text-success"></i>
+                      Approve Applicant
+                    </button>
+                  </form>
+                  {% else %}
+                  <span
+                    class="badge bg-light text-muted border px-3 py-2 rounded-3"
+                  >
+                    <i class="fas fa-eye me-2"></i>View Only
+                  </span>
+                  {% endif %}
                 </td>
               </tr>
               {% empty %}
               <tr>
-                <td colspan="3" class="py-5 text-center text-muted">
-                  <i class="fas fa-check-circle fa-3x mb-3 opacity-20"></i>
+                <td colspan="2" class="text-center py-5">
+                  <div class="opacity-25 mb-3">
+                    <i class="fas fa-clipboard-check fa-3x"></i>
+                  </div>
                   <h6 class="fw-bold">No Pending Inductions</h6>
                   <p class="small mb-0">
                     All applications have been processed for this cycle.
@@ -431,35 +575,128 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
     <!-- Management Sidebar -->
     <div class="col-lg-4">
-      <div class="data-section p-4 mb-4">
+      <div class="nav-card mb-4">
         <h6
-          class="fw-bold text-uppercase small text-muted mb-4"
+          class="text-uppercase small fw-bold mb-4 opacity-50"
           style="letter-spacing: 0.1em"
         >
-          Quick Access
+          Command Center
         </h6>
         <div class="d-grid gap-2">
-          <a
-            href="{% url 'mentor_domains' %}"
-            class="btn btn-exec btn-exec-outline w-100 justify-content-start"
-          >
-            <i class="fas fa-boxes"></i> Domain Management
+          <a href="{% url 'mentor_domains' %}" class="btn-nav text-decoration-none">
+            <div
+              class="bg-indigo-subtle p-2 rounded-3 text-indigo"
+              style="background: rgba(99, 102, 241, 0.2)"
+            >
+              <i class="fas fa-boxes"></i>
+            </div>
+            Domain Management
           </a>
-          <a
-            href="{% url 'grade_submissions' %}"
-            class="btn btn-exec btn-exec-outline w-100 justify-content-start"
-          >
-            <i class="fas fa-clipboard-check"></i> Submissions Center
+          <a href="{% url 'grade_submissions' %}" class="btn-nav text-decoration-none">
+            <div
+              class="bg-amber-subtle p-2 rounded-3 text-amber"
+              style="background: rgba(245, 158, 11, 0.2)"
+            >
+              <i class="fas fa-clipboard-check"></i>
+            </div>
+            Submissions Center
           </a>
-          <a
-            href="{% url 'mentor_students' %}"
-            class="btn btn-exec btn-exec-outline w-100 justify-content-start"
-          >
-            <i class="fas fa-user-friends"></i> Student Directory
+          {% if request.user.role != 'rep' %}
+          <a href="{% url 'mentor_students' %}" class="btn-nav">
+            <div
+              class="bg-emerald-subtle p-2 rounded-3 text-emerald"
+              style="background: rgba(16, 185, 129, 0.2)"
+            >
+              <i class="fas fa-user-friends"></i>
+            </div>
+            Student Directory
           </a>
+          {% endif %}
+        </div>
+      </div>
+
+      {% if request.user.role != 'rep' %}
+      <div class="data-section p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h6
+            class="fw-bold text-uppercase small text-muted mb-0"
+            style="letter-spacing: 0.1em"
+          >
+            Bulk Operations
+          </h6>
+          <i class="fas fa-tools text-muted opacity-25"></i>
+        </div>
+        <p class="small text-muted mb-3">
+          System-wide reset protocols for active domains.
+        </p>
+        <div class="d-grid gap-2">
+          {% for domain in my_domains %}
+          <form
+            action="{% url 'reset_domain_topics' domain.id %}"
+            method="post"
+          >
+            {% csrf_token %}
+            <button
+              type="submit"
+              class="btn btn-sm btn-outline-danger w-100 d-flex justify-content-between align-items-center py-2 px-3 rounded-3"
+              onclick="return confirm('Reset all topic requests for {{ domain.name }}?')"
+            >
+              <span><i class="fas fa-redo-alt me-2"></i>{{ domain.name }}</span>
+              <i class="fas fa-chevron-right opacity-25"></i>
+            </button>
+          </form>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Global Leaderboard -->
+      <div class="mb-4 mt-5">
+        <div class="d-flex justify-content-between align-items-end mb-3">
+          <h6
+            class="fw-bold text-uppercase small text-muted mb-0"
+            style="letter-spacing: 0.1em"
+          >
+            Global High-Performers
+          </h6>
+          <a
+            href="{% url 'leaderboard' %}"
+            class="small text-indigo fw-bold text-decoration-none"
+            >View All</a
+          >
+        </div>
+        <div class="data-section p-3">
+          <div class="d-flex flex-column gap-2">
+            {% for leader in top_students_global %}
+            <div class="leader-item d-flex align-items-center gap-3">
+              <div
+                class="rank-badge rank-{% if forloop.counter <= 3 %}{{ forloop.counter }}{% else %}default{% endif %}"
+              >
+                {% if forloop.counter == 1 %}<i class="fas fa-medal"></i> 
+                {% elif forloop.counter == 2 %}<i class="fas fa-award"></i> 
+                {% elif forloop.counter == 3 %}<i class="fas fa-certificate"></i>
+                {% else %}{{ forloop.counter }}{% endif %}
+              </div>
+              <div class="flex-grow-1">
+                <div class="fw-bold small text-slate">
+                  {{ leader.user.username }}
+                </div>
+                <div class="text-muted" style="font-size: 0.7rem">
+                  {{ leader.preferred_domain.name|default:"General" }}
+                </div>
+              </div>
+              <div class="text-end">
+                <div class="small fw-bold text-indigo">
+                  {{ leader.points }} XP
+                </div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
       </div>
 
@@ -468,7 +705,7 @@
           class="fw-bold text-uppercase small text-muted mb-4"
           style="letter-spacing: 0.1em"
         >
-          Recent Operative Activity
+          Operative Activity
         </h6>
         <div class="activity-list">
           {% for profile in my_students|slice:":6" %}
@@ -477,14 +714,20 @@
           >
             <div
               class="avatar-circle small"
-              style="width: 32px; height: 32px; font-size: 0.75rem"
+              style="
+                width: 36px;
+                height: 36px;
+                font-size: 0.75rem;
+                background: #f1f5f9;
+                color: var(--enterprise-slate);
+              "
             >
               {{ profile.user.username|first|upper }}
             </div>
             <div class="flex-grow-1">
               <div class="fw-bold small">{{ profile.user.username }}</div>
               <div class="text-muted small" style="font-size: 0.7rem">
-                {{ profile.points }} XP · Lvl {{ profile.level }}
+                Lvl {{ profile.level }} · {{ profile.points }} Points
               </div>
             </div>
             <span
@@ -495,7 +738,7 @@
           </div>
           {% empty %}
           <div class="text-center py-4 text-muted small">
-            No active learners found.
+            No active records.
           </div>
           {% endfor %}
         </div>
@@ -512,4 +755,93 @@
     background: #f1f5f9;
   }
 </style>
+{% endblock %} {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const topicCtx = document.getElementById('topicPieChart');
+    const filterSelect = document.getElementById('chartFilter');
+    if (!topicCtx) return;
+
+    // Data from Django
+    const domainsData = {{ top_domains_json|safe }};
+    const detailedData = {{ topic_distribution_json|safe }};
+
+    let currentChart;
+
+    function updateChart(filterValue) {
+      let labels = [];
+      let counts = [];
+
+      if (filterValue === 'domains') {
+        labels = domainsData.map(d => d.domain_name || 'General');
+        counts = domainsData.map(d => d.count);
+      } else if (filterValue === 'all-topics') {
+        const topicsMap = {};
+        detailedData.forEach(item => {
+          topicsMap[item.topic] = (topicsMap[item.topic] || 0) + item.count;
+        });
+        labels = Object.keys(topicsMap);
+        counts = Object.values(topicsMap);
+      } else if (filterValue.startsWith('domain_')) {
+        const targetDomain = filterValue.replace('domain_', '');
+        const filtered = detailedData.filter(d => (d.domain || 'General') === targetDomain);
+        labels = filtered.map(d => d.topic);
+        counts = filtered.map(d => d.count);
+      }
+
+      if (currentChart) {
+        currentChart.destroy();
+      }
+
+      currentChart = new Chart(topicCtx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: counts,
+            backgroundColor: [
+              '#4f46e5', '#818cf8', '#6366f1', '#a5b4fc', '#c7d2fe', '#e0e7ff', '#1e1b4b',
+              '#fbbf24', '#f59e0b', '#34d399', '#10b981', '#f43f5e', '#ec4899', '#8b5cf6'
+            ],
+            borderWidth: 0,
+            hoverOffset: 20
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                usePointStyle: true,
+                pointStyle: 'circle',
+                padding: 15,
+                font: { size: 11, family: "'Plus Jakarta Sans', sans-serif", weight: '600' },
+                color: '#0f172a'
+              }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              padding: 12,
+              cornerRadius: 12
+            }
+          },
+          cutout: '65%',
+          animation: { animateScale: true, animateRotate: true }
+        }
+      });
+    }
+
+    // Initial load
+    updateChart('domains');
+
+    // Handle filter change
+    filterSelect.addEventListener('change', (e) => {
+      updateChart(e.target.value);
+    });
+  });
+</script>
+
 {% endblock %}
