@@ -12,7 +12,7 @@ class VideoCamera:
     def __init__(self):
         self.video = cv2.VideoCapture(0)
         self.encodeListKnown = []
-        self.classNames = []
+        self.known_students = []
         self.load_known_faces()
 
     def __del__(self):
@@ -20,7 +20,7 @@ class VideoCamera:
 
     def load_known_faces(self):
         self.encodeListKnown = []
-        self.classNames = []
+        self.known_students = []
         
         try:
             # Fetch all students from database
@@ -36,8 +36,8 @@ class VideoCamera:
                             encs = face_recognition.face_encodings(img)
                             if encs:
                                 self.encodeListKnown.append(encs[0])
-                                # Use the exact name from the database
-                                self.classNames.append(student.name)
+                                # Store the student object from database
+                                self.known_students.append(student)
                     except Exception as e:
                         print(f"Error loading face for {student.name}: {e}")
         except Exception as e:
@@ -59,9 +59,10 @@ class VideoCamera:
                 if len(faceDis) > 0:
                     matchIndex = np.argmin(faceDis)
                     if faceDis[matchIndex] < 0.50:
-                        name = self.classNames[matchIndex].upper()
-                        # Mark attendance in background-ish via local logic
-                        self.mark_attendance_internal(name)
+                        student = self.known_students[matchIndex]
+                        name = student.name
+                        # Mark attendance directly using the student object
+                        self.mark_attendance_internal(student)
                     else:
                         name = 'UNKNOWN'
                 else:
@@ -75,15 +76,12 @@ class VideoCamera:
         ret, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
 
-    def mark_attendance_internal(self, name):
+    def mark_attendance_internal(self, student):
         try:
             now = datetime.now()
             today = now.date()
             
-            # Find the student by name
-            student = StudentData.objects.filter(name__iexact=name).first()
             if not student:
-                print(f"Student {name} not found in database")
                 return
             
             # Check if student already has a record for today
@@ -94,11 +92,11 @@ class VideoCamera:
             
             if exists:
                 # Already marked for today - do nothing
-                print(f"Attendance already marked for {name} today")
+                pass
             else:
                 # Create a new record - first time seen today
                 Attendance.objects.create(student=student, date=today, time=now.time())
-                print(f"✓ Attendance MARKED for {name} at {now.time().strftime('%I:%M:%S %p')}")
+                print(f"✓ Attendance MARKED for {student.name} at {now.time().strftime('%I:%M:%S %p')}")
         except Exception as e:
             print(f"Error in internal mark: {e}")
 
