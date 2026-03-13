@@ -3,3 +3,6 @@ pdfplumber
 python-docx
 ollama
 pillow
+joblib
+scikit-learn
+pandas

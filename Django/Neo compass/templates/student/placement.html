@@ -118,6 +118,13 @@
           Master your interviews and land your dream job with curated resources,
           company-specific guides, and professional roadmaps.
         </p>
+        {% if user.role == 'hod' or user.role == 'rep' %}
+        <div class="mt-4">
+          <a href="{% url 'add_placement_resource' %}" class="btn btn-light rounded-pill px-4 fw-bold">
+            <i class="fas fa-plus me-2"></i> Add New Resource
+          </a>
+        </div>
+        {% endif %}
       </div>
       <div class="col-lg-4 d-none d-lg-block text-center">
         <i class="fas fa-briefcase fa-8x opacity-10"></i>

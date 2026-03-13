@@ -7,6 +7,7 @@
       </h2>
       <form method="POST">
         {% csrf_token %}
+        {% if user.role == 'hod' or user.role == 'mentor' %}
         <div class="mb-3">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <label class="form-label fw-bold mb-0">Select Alumni</label>
@@ -16,6 +17,7 @@
           </div>
           {{ form.alumni }}
         </div>
+        {% endif %}
         <div class="mb-3">
           <label class="form-label fw-bold">Post Title</label>
           {{ form.title }}

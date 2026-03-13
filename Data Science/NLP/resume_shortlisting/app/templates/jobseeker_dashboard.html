@@ -163,14 +163,26 @@
              data-experience="{{ job.experience }}" 
              data-last-date="{{ job.last_date|date:'M d, Y' }}"
              data-description="{{ job.description }}"
-             data-skills="{{ job.skills|join:', ' }}">
+             data-skills="{{ job.skills|join:', ' }}"
+             data-is-fake="{{ job.is_fake|yesno:'true,false' }}">
           <div class="flex justify-between items-start">
             <div class="flex items-center">
               <div class="w-12 h-12 rounded-lg bg-primary flex items-center justify-center mr-4">
                 <span class="text-white font-bold text-lg">{{ job.company|first|upper }}</span>
               </div>
               <div>
-                <h3 class="font-bold text-lg">{{ job.job_title }}</h3>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-lg">{{ job.job_title }}</h3>
+                  {% if job.is_fake %}
+                    <span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                      <i class="fas fa-exclamation-triangle"></i> SCAM ALERT
+                    </span>
+                  {% else %}
+                    <span class="bg-blue-100 text-blue-600 text-[10px] px-2 py-0.5 rounded-full font-bold flex items-center gap-1">
+                      <i class="fas fa-check-circle"></i> VERIFIED
+                    </span>
+                  {% endif %}
+                </div>
                 <p class="text-gray-600">{{ job.company }} • {{ job.location }}</p>
               </div>
             </div>
@@ -256,6 +268,10 @@
             <div class="bg-gray-50 p-3 rounded-lg">
               <p class="text-sm text-gray-500">Apply By</p>
               <p id="detail-deadline" class="font-medium"></p>
+            </div>
+            <div class="bg-gray-50 p-3 rounded-lg col-span-2">
+              <p class="text-sm text-gray-500">Verification Status</p>
+              <div id="detail-verification" class="mt-1"></div>
             </div>
           </div>
           
@@ -365,6 +381,25 @@
       const lastDate = jobElement.getAttribute('data-last-date');
       const description = jobElement.getAttribute('data-description');
       const skillsString = jobElement.getAttribute('data-skills');
+      const isFake = jobElement.getAttribute('data-is-fake') === 'true';
+      
+      // Update verification status
+      const verificationContainer = document.getElementById('detail-verification');
+      if (isFake) {
+        verificationContainer.innerHTML = `
+          <div class="flex items-center gap-2 text-red-600 font-bold">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span>Caution: Potential Scam Detected</span>
+          </div>
+        `;
+      } else {
+        verificationContainer.innerHTML = `
+          <div class="flex items-center gap-2 text-blue-600 font-bold">
+            <i class="fas fa-check-circle"></i>
+            <span>Verified Authentic Listing</span>
+          </div>
+        `;
+      }
       
       // Parse skills
       const skills = parseSkills(skillsString);

@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.db import models
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
-from .forms import RegistrationForm, StudentProfileForm, DomainForm, ResourceForm, AssignmentForm, AssignmentSubmissionForm, GradeSubmissionForm, QuizForm, AchievementForm, FeedbackForm, PostForm, AlumniForm, TopicRequestForm
+from .forms import RegistrationForm, StudentProfileForm, DomainForm, ResourceForm, AssignmentForm, AssignmentSubmissionForm, GradeSubmissionForm, QuizForm, AchievementForm, FeedbackForm, PostForm, AlumniForm, TopicRequestForm, PlacementResourceForm
 from .models import User, StudentProfile, Domain, Resource, Assignment, AssignmentStatus, Quiz, QuizResult, PlacementResource, Alumni, Post, Achievement, Like, Comment, Feedback, TopicRequest
 from django.contrib import messages
 from django.utils import timezone
@@ -861,15 +861,25 @@ def alumni_posts(request):
 
 @login_required
 def add_alumni_post(request):
-    # Allow HOD and Mentors to add posts, or anyone for now if role checking is not strictly required
+    if request.user.role not in ['alumni', 'hod', 'mentor']:
+        messages.error(request, "Only alumni, mentors, or HOD can post insights.")
+        return redirect('alumni_posts')
+
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, user=request.user)
         if form.is_valid():
-            form.save()
+            post = form.save(commit=False)
+            if request.user.role == 'alumni':
+                alumni_profile = getattr(request.user, 'alumni_profile', None)
+                if not alumni_profile:
+                    messages.error(request, "You need an alumni profile to post. Please contact HOD.")
+                    return redirect('alumni_posts')
+                post.alumni = alumni_profile
+            post.save()
             messages.success(request, 'Alumni insight posted successfully.')
             return redirect('alumni_posts')
     else:
-        form = PostForm()
+        form = PostForm(user=request.user)
     return render(request, 'alumni/add_post.html', {'form': form})
 
 @login_required
@@ -961,3 +971,23 @@ def delete_comment(request, comment_id):
     comment = get_object_or_404(Comment, id=comment_id, user=request.user)
     comment.delete()
     return redirect('achievements_feed')
+
+@login_required
+def add_placement_resource(request):
+    if request.user.role not in ['hod', 'rep']:
+        messages.error(request, "Access denied. Only HOD and Student Representatives can add placement resources.")
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        form = PlacementResourceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Placement resource added successfully.")
+            return redirect('placement_guide')
+    else:
+        form = PlacementResourceForm()
+        if request.user.role == 'rep':
+            form.fields['domain'].queryset = Domain.objects.filter(student_reps=request.user)
+            
+    return render(request, 'hod/add_placement.html', {'form': form})
+

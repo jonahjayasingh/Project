@@ -77,4 +77,5 @@ urlpatterns = [
     path('achievement/<int:achievement_id>/comment/', views.add_comment, name='add_comment'),
     path('comment/<int:comment_id>/edit/', views.edit_comment, name='edit_comment'),
     path('comment/<int:comment_id>/delete/', views.delete_comment, name='delete_comment'),
+    path('hod/add-placement/', views.add_placement_resource, name='add_placement_resource'),
 ]

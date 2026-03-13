@@ -155,6 +155,13 @@ class PostForm(forms.ModelForm):
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter post title'}),
             'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 5, 'placeholder': 'Share your insights...'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        if user and user.role == 'alumni':
+            if 'alumni' in self.fields:
+                del self.fields['alumni']
 class AlumniForm(forms.ModelForm):
     class Meta:
         model = Alumni
@@ -166,3 +173,16 @@ class AlumniForm(forms.ModelForm):
             'domain': forms.Select(attrs={'class': 'form-select'}),
             'profile_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Bio/Description'}),
         }
+
+class PlacementResourceForm(forms.ModelForm):
+    class Meta:
+        model = PlacementResource
+        fields = ['domain', 'title', 'description', 'link', 'company_name']
+        widgets = {
+            'domain': forms.Select(attrs={'class': 'form-select'}),
+            'title': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
+            'link': forms.URLInput(attrs={'class': 'form-control'}),
+            'company_name': forms.TextInput(attrs={'class': 'form-control'}),
+        }
+

@@ -9,6 +9,7 @@ from .custom_email import send_application_confirmation
 from .ats_score import ats_score
 
 from .models import JobPost,JobApplication,JobSeekerProfile,CompanyProfile
+from .prediction import predict_fake_job
 # Create your views here.
 def home(request):
     return render(request, 'home.html')
@@ -81,7 +82,7 @@ def companydashboard(request):
     )
 
     if request.method == "POST":
-        JobPost.objects.create(
+        job = JobPost.objects.create(
             user=request.user,
             job_title=request.POST.get("job_title"),
             company=request.POST.get("company"),
@@ -94,6 +95,8 @@ def companydashboard(request):
             salary=request.POST.get("salary"),
             is_active=True,
         )
+        job.is_fake = predict_fake_job(job)
+        job.save()
         return redirect("dashboard")
 
     print("Active:", len(active_jobs))
@@ -134,6 +137,7 @@ def editjob(request, id):
         job.description = request.POST.get("description")
         job.last_date = request.POST.get("last_date")
         job.salary = request.POST.get("salary")
+        job.is_fake = predict_fake_job(job)
         job.save()
         return redirect(jobdetails, id)
     return redirect(jobdetails, id)

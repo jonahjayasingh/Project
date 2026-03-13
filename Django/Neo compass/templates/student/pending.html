@@ -124,7 +124,7 @@
                   >
                     {{ domain.description|truncatechars:80 }}
                   </p>
-                  <form action="{% url 'student_profile_edit' %}" method="post">
+                  <form action="{% url 'student_profile' %}" method="post">
                     {% csrf_token %}
                     <input
                       type="hidden"

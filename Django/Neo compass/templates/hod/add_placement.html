@@ -1,0 +1,54 @@
+{% extends 'base.html' %} {% block content %}
+<div class="row">
+  <div class="col-md-8 mx-auto">
+    <div class="card p-5">
+      <h2 class="fw-bold mb-4">
+        Add <span class="text-gradient">Placement Resource</span>
+      </h2>
+      <p class="text-muted mb-4">
+        Share career guidance, interview tips, or company-specific resources with students.
+      </p>
+      
+      <form method="POST">
+        {% csrf_token %}
+        
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Target Domain</label>
+                {{ form.domain }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Company Name (Optional)</label>
+                {{ form.company_name }}
+            </div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">Resource Title</label>
+          {{ form.title }}
+          <div class="form-text">e.g., Google Interview Experience 2024</div>
+        </div>
+        
+        <div class="mb-3">
+          <label class="form-label fw-bold">Resource Link (URL)</label>
+          {{ form.link }}
+        </div>
+        
+        <div class="mb-4">
+          <label class="form-label fw-bold">Description / Brief</label>
+          {{ form.description }}
+        </div>
+        
+        <div class="d-grid gap-2">
+          <button type="submit" class="btn btn-primary btn-lg">
+            Publish Resource
+          </button>
+          <a href="{% url 'placement_guide' %}" class="btn btn-outline-secondary">
+            Cancel
+          </a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

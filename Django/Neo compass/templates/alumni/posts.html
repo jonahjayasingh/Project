@@ -3,7 +3,7 @@
   <h1 class="fw-bold mb-0">
     Alumni <span class="text-gradient">Insights</span>
   </h1>
-  {% if user.role == 'hod' or user.role == 'mentor' %}
+  {% if user.role == 'hod' or user.role == 'mentor' or user.role == 'alumni' %}
   <a href="{% url 'add_alumni_post' %}" class="btn btn-primary">
     <i class="bi bi-plus-lg me-2"></i>Add New Post
   </a>
