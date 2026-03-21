@@ -10,6 +10,7 @@ lib64/
 share/
 pyvenv.cfg
 pip-selfcheck.json
+nltk_data/
 
 # Node.js
 node_modules/
