@@ -41,6 +41,12 @@
             <!-- Student Info -->
             <div style="text-align: center; margin-bottom: 1.5rem;">
                 <h4 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-primary);">{{ student.name }}</h4>
+                <div style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    <i class="fas fa-graduation-cap" style="margin-right:0.25rem;"></i> {{ student.dept|default:"No Department" }}
+                </div>
+                <div style="font-size: 0.85rem; color: var(--primary); font-weight: 500; margin-bottom: 1rem;">
+                    <i class="fas fa-user-tie" style="margin-right:0.25rem;"></i> Staff: {{ student.staff.name|default:"Unassigned" }}
+                </div>
                 <div
                     style="display: inline-block; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; border: 1px solid rgba(99, 102, 241, 0.2);">
                     <i class="fas fa-id-badge" style="margin-right: 0.25rem;"></i>

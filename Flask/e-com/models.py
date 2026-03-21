@@ -131,6 +131,9 @@ class SellerProfile(db.Model):
     rating_avg = db.Column(db.Float, default=0.0, nullable=False)
     rating_count = db.Column(db.Integer, default=0, nullable=False)
     total_sales = db.Column(db.Integer, default=0, nullable=False)
+    balance = db.Column(db.Float, default=0.0, nullable=False)
+    last_bank_name = db.Column(db.String(100), nullable=True)
+    last_account_number = db.Column(db.String(50), nullable=True)
 
     user = db.relationship(
         "User",
@@ -450,6 +453,31 @@ class Payment(db.Model):
     status = db.Column(db.String(50), default="pending")  # pending, succeeded, failed
     
     created_at = db.Column(db.DateTime, server_default=db.func.now())
+
+
+class Withdrawal(db.Model):
+    __tablename__ = "withdrawals"
+
+    id = db.Column(db.Integer, primary_key=True)
+    seller_id = db.Column(db.Integer, db.ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    
+    amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), default="pending")  # pending, approved, rejected, completed
+    
+    # Withdrawal method info
+    bank_account_number = db.Column(db.String(50), nullable=True)
+    bank_name = db.Column(db.String(100), nullable=True)
+    other_method_details = db.Column(db.Text, nullable=True)
+    
+    admin_note = db.Column(db.Text, nullable=True)
+    
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+
+    seller = db.relationship("User", backref="withdrawals")
+
+    def __repr__(self):
+        return f"<Withdrawal id={self.id} seller_id={self.seller_id} amount={self.amount}>"
 
 
 class ReturnStatus(str, Enum):

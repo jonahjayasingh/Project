@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session
-from models import db, User, UserType, SellerProfile, SellerStatus, Product, Category, Order, OrderItem, OrderStatus
-from utils.auth import login_required, seller_required
+from models import db, User, UserType, SellerProfile, SellerStatus, Product, Category, Order, OrderItem, OrderStatus, Withdrawal
+from utils.auth import login_required, seller_required, active_seller_required
 from werkzeug.utils import secure_filename
 import os
 
@@ -16,6 +16,16 @@ def allowed_file(filename):
 
 @routes.route('/become_seller', methods=['GET', 'POST'])
 def become_seller():
+    # If user is logged in, check if they already have a seller profile
+    if 'user_id' in session:
+        user = User.query.get(session['user_id'])
+        if user and user.seller_profile:
+            if user.seller_profile.status == SellerStatus.ACTIVE:
+                flash('You are already an active seller.', 'info')
+            else:
+                flash('You have already applied for a seller account. Your application is under review.', 'info')
+            return redirect(url_for('seller.dashboard'))
+
     if request.method == 'POST':
         if 'user_id' not in session:
             username = request.form['username']
@@ -55,17 +65,15 @@ def become_seller():
             )
             db.session.add(new_seller)
             db.session.commit()
-            flash('Seller account created successfully!', 'success')
+            flash('Seller account account application submitted successfully!', 'success')
             return redirect(url_for('seller.dashboard'))
 
+        # This part shouldn't be reached if they are already a seller,
+        # but kept as a secondary safety check.
         user = User.query.get(session['user_id'])
         if not user:
             flash('User not found.', 'error')
             return redirect(url_for('auth.login'))
-
-        if hasattr(user, 'seller_profile') and user.seller_profile:
-            flash('You are already a seller.', 'info')
-            return redirect(url_for('seller.dashboard'))
 
         display_name = request.form['display_name']
         company_name = request.form.get('company_name')
@@ -81,13 +89,14 @@ def become_seller():
             description=description,
             business_email=business_email,
             business_phone=business_phone,
-            website_url=website_url
+            website_url=website_url,
+            status=SellerStatus.PENDING
         )
 
         db.session.add(new_seller)
         db.session.commit()
 
-        flash('You have successfully become a seller!', 'success')
+        flash('You have successfully applied to become a seller!', 'success')
         return redirect(url_for('seller.dashboard'))
 
     return render_template('sellerregister.html')
@@ -132,12 +141,15 @@ def dashboard():
     out_of_stock_count = total_products - in_stock_count
 
     
+    seller_profile = User.query.get(user_id).seller_profile
+    
     return render_template(
         'seller/dashboard.html',
         products=products[:5],  # Show only 5 recent products
         orders=orders,
         total_products=total_products,
         total_sales=total_revenue,
+        balance=seller_profile.balance,
         in_stock=in_stock_count,
         out_of_stock=out_of_stock_count
     )
@@ -154,7 +166,7 @@ def products():
 
 
 @routes.route('/products/add', methods=['GET', 'POST'])
-@seller_required
+@active_seller_required
 def add_product():
     """Add new product"""
     if request.method == 'POST':
@@ -222,7 +234,7 @@ def add_product():
 
 
 @routes.route('/products/<int:product_id>/edit', methods=['GET', 'POST'])
-@seller_required
+@active_seller_required
 def edit_product(product_id):
     """Edit existing product"""
     user_id = session['user_id']
@@ -266,7 +278,7 @@ def edit_product(product_id):
 
 
 @routes.route('/products/<int:product_id>/delete', methods=['POST'])
-@seller_required
+@active_seller_required
 def delete_product(product_id):
     """Delete product"""
     user_id = session['user_id']
@@ -353,7 +365,22 @@ def update_order_status(order_id):
     
     try:
         # Update order status
+        old_status = order.status
         order.status = OrderStatus(new_status)
+        
+        # Credit seller balance if order is delivered
+        if new_status == OrderStatus.DELIVERED.value and old_status != OrderStatus.DELIVERED:
+            # We need to credit all sellers who had items in this order
+            # The current seller might only be one of them
+            for item in order.items:
+                # Use the property helper to get the product
+                product = item.product
+                if product:
+                    # Get the seller of this specific product
+                    item_seller = User.query.get(product.seller_id)
+                    if item_seller and item_seller.seller_profile:
+                        item_seller.seller_profile.balance += (item.price_at_purchase * item.quantity)
+        
         db.session.commit()
         flash(f'Order #{order.id} status updated to {new_status.title()}!', 'success')
     except ValueError:
@@ -499,3 +526,62 @@ def reports():
         status_counts=status_counts,
         total_products=len(products)
     )
+
+@routes.route('/withdrawals', methods=['GET'])
+@seller_required
+def withdrawals():
+    """List seller withdrawal requests and handle new requests"""
+    user_id = session['user_id']
+    seller = User.query.get(user_id)
+    
+    withdrawals_list = Withdrawal.query.filter_by(seller_id=user_id).order_by(Withdrawal.created_at.desc()).all()
+    
+    return render_template(
+        'seller/withdrawals.html',
+        withdrawals=withdrawals_list,
+        balance=seller.seller_profile.balance,
+        seller=seller.seller_profile
+    )
+
+@routes.route('/withdrawals/request', methods=['POST'])
+@seller_required
+def request_withdrawal():
+    """Submit a new withdrawal request"""
+    user_id = session['user_id']
+    seller = User.query.get(user_id)
+    
+    amount = float(request.form.get('amount', 0))
+    bank_name = request.form.get('bank_name')
+    account_number = request.form.get('account_number')
+    other_details = request.form.get('other_details')
+    
+    if amount <= 0:
+        flash('Amount must be greater than zero.', 'error')
+        return redirect(url_for('seller.withdrawals'))
+        
+    if amount > seller.seller_profile.balance:
+        flash('Insufficient balance.', 'error')
+        return redirect(url_for('seller.withdrawals'))
+        
+    # Create withdrawal request
+    withdrawal = Withdrawal(
+        seller_id=user_id,
+        amount=amount,
+        bank_name=bank_name,
+        bank_account_number=account_number,
+        other_method_details=other_details,
+        status='pending'
+    )
+    
+    # Save these details to the seller's profile for next time
+    seller.seller_profile.last_bank_name = bank_name
+    seller.seller_profile.last_account_number = account_number
+    
+    # Deduct from balance immediately to lock the funds
+    seller.seller_profile.balance -= amount
+    
+    db.session.add(withdrawal)
+    db.session.commit()
+    
+    flash(f'Withdrawal request for ₹{amount:.2f} submitted successfully!', 'success')
+    return redirect(url_for('seller.withdrawals'))

@@ -493,11 +493,11 @@
       View Today's Report
     </a>
     <a
-      href="{% url 'home' %}"
+      href="{% url 'finalize_attendance' %}"
       style="
         background: var(--bg-elevated);
-        border: 2px solid var(--border-color);
-        color: var(--text-primary);
+        border: 2px solid var(--danger);
+        color: var(--danger);
         padding: 1rem;
         border-radius: 12px;
         text-decoration: none;
@@ -511,7 +511,7 @@
       "
     >
       <i class="fas fa-stop-circle"></i>
-      Stop Recognition
+      Stop & Finalize Today
     </a>
   </div>
 </div>

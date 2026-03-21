@@ -53,7 +53,8 @@ Platform{% endblock %} {% block content %}
               required
               autofocus
               placeholder="Choose a username"
-            />
+              required
+              />
           </div>
 
           <div class="row">
@@ -67,7 +68,8 @@ Platform{% endblock %} {% block content %}
                   class="form-input"
                   required
                   placeholder="Create a password"
-                />
+                  required
+                  />
               </div>
             </div>
             <div class="col-md-6">
@@ -82,7 +84,8 @@ Platform{% endblock %} {% block content %}
                   class="form-input"
                   required
                   placeholder="Confirm password"
-                />
+                  required
+                  />
               </div>
             </div>
           </div>
@@ -108,7 +111,8 @@ Platform{% endblock %} {% block content %}
             class="form-input"
             required
             placeholder="Your shop or brand name"
-          />
+            required
+            />
           <small
             style="
               color: var(--text-medium);
@@ -128,7 +132,8 @@ Platform{% endblock %} {% block content %}
             name="company_name"
             class="form-input"
             placeholder="Optional: Your company name"
-          />
+            required
+            />
         </div>
 
         <div class="form-group">
@@ -138,6 +143,7 @@ Platform{% endblock %} {% block content %}
             name="description"
             class="form-textarea"
             placeholder="Tell customers about your shop..."
+            required
           ></textarea>
         </div>
 
@@ -153,6 +159,7 @@ Platform{% endblock %} {% block content %}
                 name="business_email"
                 class="form-input"
                 placeholder="contact@example.com"
+                required
               />
             </div>
           </div>
@@ -167,6 +174,7 @@ Platform{% endblock %} {% block content %}
                 name="business_phone"
                 class="form-input"
                 placeholder="+1 (555) 123-4567"
+                required
               />
             </div>
           </div>

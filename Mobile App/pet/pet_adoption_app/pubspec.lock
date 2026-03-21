@@ -37,10 +37,17 @@ packages:
     dependency: transitive
     description:
       name: characters
+<<<<<<< HEAD
       sha256: f71061c654a3380576a52b451dd5532377954cf9dbd272a78fc8479606670803
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
+=======
+      sha256: faf38497bda5ead2a8c7615f4f7939df04333478bf32e4173fcb06d428b5716b
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.1"
+>>>>>>> fac2c57 (add)
   clock:
     dependency: transitive
     description:
@@ -49,6 +56,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.2"
+<<<<<<< HEAD
+=======
+  code_assets:
+    dependency: transitive
+    description:
+      name: code_assets
+      sha256: "83ccdaa064c980b5596c35dd64a8d3ecc68620174ab9b90b6343b753aa721687"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
+>>>>>>> fac2c57 (add)
   collection:
     dependency: transitive
     description:
@@ -190,6 +208,57 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.33"
+<<<<<<< HEAD
+=======
+  flutter_secure_storage:
+    dependency: "direct main"
+    description:
+      name: flutter_secure_storage
+      sha256: da922f2aab2d733db7e011a6bcc4a825b844892d4edd6df83ff156b09a9b2e40
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.0.0"
+  flutter_secure_storage_darwin:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_darwin
+      sha256: "8878c25136a79def1668c75985e8e193d9d7d095453ec28730da0315dc69aee3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
+  flutter_secure_storage_linux:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_linux
+      sha256: "2b5c76dce569ab752d55a1cee6a2242bcc11fdba927078fb88c503f150767cda"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.0"
+  flutter_secure_storage_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_platform_interface
+      sha256: "8ceea1223bee3c6ac1a22dabd8feefc550e4729b3675de4b5900f55afcb435d6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.1"
+  flutter_secure_storage_web:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_web
+      sha256: "6a1137df62b84b54261dca582c1c09ea72f4f9a4b2fcee21b025964132d5d0c3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
+  flutter_secure_storage_windows:
+    dependency: transitive
+    description:
+      name: flutter_secure_storage_windows
+      sha256: "3b7c8e068875dfd46719ff57c90d8c459c87f2302ed6b00ff006b3c9fcad1613"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
+>>>>>>> fac2c57 (add)
   flutter_spinkit:
     dependency: "direct main"
     description:
@@ -304,6 +373,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.5"
+<<<<<<< HEAD
+=======
+  glob:
+    dependency: transitive
+    description:
+      name: glob
+      sha256: c3f1ee72c96f8f78935e18aa8cecced9ab132419e8625dc187e1c2408efc20de
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.3"
+>>>>>>> fac2c57 (add)
   google_maps:
     dependency: transitive
     description:
@@ -316,10 +396,17 @@ packages:
     dependency: "direct main"
     description:
       name: google_maps_flutter
+<<<<<<< HEAD
       sha256: "9b0d6dab3de6955837575dc371dd772fcb5d0a90f6a4954e8c066472f9938550"
       url: "https://pub.dev"
     source: hosted
     version: "2.14.2"
+=======
+      sha256: "85339d0c9b5c7bac305df0bc1bc72a990f7f59b1846f048c96c022110d5d4a69"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.15.0"
+>>>>>>> fac2c57 (add)
   google_maps_flutter_android:
     dependency: transitive
     description:
@@ -332,10 +419,17 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_ios
+<<<<<<< HEAD
       sha256: a2e3c7ad2392ea65d6775704716d0aa3c3d226cb984fd0a688bca40f6be1a451
       url: "https://pub.dev"
     source: hosted
     version: "2.17.4"
+=======
+      sha256: c855600dce17e77e8af96edcf85cb68501675bb77a72f85009d08c17a8805ace
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.18.0"
+>>>>>>> fac2c57 (add)
   google_maps_flutter_platform_interface:
     dependency: transitive
     description:
@@ -348,10 +442,17 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_web
+<<<<<<< HEAD
       sha256: d416602944e1859f3cbbaa53e34785c223fa0a11eddb34a913c964c5cbb5d8cf
       url: "https://pub.dev"
     source: hosted
     version: "0.5.14+3"
+=======
+      sha256: "2321d24f8bce2d01c441b9fd7835a6032ea44b3f0bfcf93bcebd9740fb5a85cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.6.1"
+>>>>>>> fac2c57 (add)
   gsettings:
     dependency: transitive
     description:
@@ -360,6 +461,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.2.8"
+<<<<<<< HEAD
+=======
+  hooks:
+    dependency: transitive
+    description:
+      name: hooks
+      sha256: e79ed1e8e1929bc6ecb6ec85f0cb519c887aa5b423705ded0d0f2d9226def388
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
+>>>>>>> fac2c57 (add)
   html:
     dependency: transitive
     description:
@@ -412,10 +524,17 @@ packages:
     dependency: transitive
     description:
       name: image_picker_ios
+<<<<<<< HEAD
       sha256: "956c16a42c0c708f914021666ffcd8265dde36e673c9fa68c81f7d085d9774ad"
       url: "https://pub.dev"
     source: hosted
     version: "0.8.13+3"
+=======
+      sha256: b9c4a438a9ff4f60808c9cf0039b93a42bb6c2211ef6ebb647394b2b3fa84588
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.13+6"
+>>>>>>> fac2c57 (add)
   image_picker_linux:
     dependency: transitive
     description:
@@ -488,30 +607,62 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.0"
+<<<<<<< HEAD
+=======
+  logging:
+    dependency: transitive
+    description:
+      name: logging
+      sha256: c8245ada5f1717ed44271ed1c26b8ce85ca3228fd2ffdb75468ab01979309d61
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.0"
+>>>>>>> fac2c57 (add)
   matcher:
     dependency: transitive
     description:
       name: matcher
+<<<<<<< HEAD
       sha256: dc58c723c3c24bf8d3e2d3ad3f2f9d7bd9cf43ec6feaa64181775e60190153f2
       url: "https://pub.dev"
     source: hosted
     version: "0.12.17"
+=======
+      sha256: dc0b7dc7651697ea4ff3e69ef44b0407ea32c487a39fff6a4004fa585e901861
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.12.19"
+>>>>>>> fac2c57 (add)
   material_color_utilities:
     dependency: transitive
     description:
       name: material_color_utilities
+<<<<<<< HEAD
       sha256: f7142bb1154231d7ea5f96bc7bde4bda2a0945d2806bb11670e30b850d56bdec
       url: "https://pub.dev"
     source: hosted
     version: "0.11.1"
+=======
+      sha256: "9c337007e82b1889149c82ed242ed1cb24a66044e30979c44912381e9be4c48b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.13.0"
+>>>>>>> fac2c57 (add)
   meta:
     dependency: transitive
     description:
       name: meta
+<<<<<<< HEAD
       sha256: e3641ec5d63ebf0d9b41bd43201a66e3fc79a65db5f61fc181f04cd27aab950c
       url: "https://pub.dev"
     source: hosted
     version: "1.16.0"
+=======
+      sha256: "23f08335362185a5ea2ad3a4e597f1375e78bce8a040df5c600c8d3552ef2394"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.17.0"
+>>>>>>> fac2c57 (add)
   mime:
     dependency: transitive
     description:
@@ -520,6 +671,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+<<<<<<< HEAD
+=======
+  native_toolchain_c:
+    dependency: transitive
+    description:
+      name: native_toolchain_c
+      sha256: "92b2ca62c8bd2b8d2f267cdfccf9bfbdb7322f778f8f91b3ce5b5cda23a3899f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.17.5"
+>>>>>>> fac2c57 (add)
   nested:
     dependency: transitive
     description:
@@ -528,6 +690,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+<<<<<<< HEAD
+=======
+  objective_c:
+    dependency: transitive
+    description:
+      name: objective_c
+      sha256: "100a1c87616ab6ed41ec263b083c0ef3261ee6cd1dc3b0f35f8ddfa4f996fe52"
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.3.0"
+>>>>>>> fac2c57 (add)
   package_info_plus:
     dependency: transitive
     description:
@@ -552,6 +725,33 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.9.1"
+<<<<<<< HEAD
+=======
+  path_provider:
+    dependency: transitive
+    description:
+      name: path_provider
+      sha256: "50c5dd5b6e1aaf6fb3a78b33f6aa3afca52bf903a8a5298f53101fdaee55bbcd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.5"
+  path_provider_android:
+    dependency: transitive
+    description:
+      name: path_provider_android
+      sha256: f2c65e21139ce2c3dad46922be8272bb5963516045659e71bb16e151c93b580e
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.22"
+  path_provider_foundation:
+    dependency: transitive
+    description:
+      name: path_provider_foundation
+      sha256: "2a376b7d6392d80cd3705782d2caa734ca4727776db0b6ec36ef3f1855197699"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.6.0"
+>>>>>>> fac2c57 (add)
   path_provider_linux:
     dependency: transitive
     description:
@@ -608,6 +808,17 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.5+1"
+<<<<<<< HEAD
+=======
+  pub_semver:
+    dependency: transitive
+    description:
+      name: pub_semver
+      sha256: "5bfcf68ca79ef689f8990d1160781b4bad40a3bd5e5218ad4076ddb7f4081585"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.0"
+>>>>>>> fac2c57 (add)
   razorpay_flutter:
     dependency: "direct main"
     description:
@@ -737,10 +948,17 @@ packages:
     dependency: transitive
     description:
       name: test_api
+<<<<<<< HEAD
       sha256: "522f00f556e73044315fa4585ec3270f1808a4b186c936e612cab0b565ff1e00"
       url: "https://pub.dev"
     source: hosted
     version: "0.7.6"
+=======
+      sha256: "8161c84903fd860b26bfdefb7963b3f0b68fee7adea0f59ef805ecca346f0c7a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.7.10"
+>>>>>>> fac2c57 (add)
   typed_data:
     dependency: transitive
     description:
@@ -769,10 +987,17 @@ packages:
     dependency: "direct main"
     description:
       name: video_player
+<<<<<<< HEAD
       sha256: "096bc28ce10d131be80dfb00c223024eb0fba301315a406728ab43dd99c45bdf"
       url: "https://pub.dev"
     source: hosted
     version: "2.10.1"
+=======
+      sha256: "48a7bdaa38a3d50ec10c78627abdbfad863fdf6f0d6e08c7c3c040cfd80ae36f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.11.1"
+>>>>>>> fac2c57 (add)
   video_player_android:
     dependency: transitive
     description:
@@ -785,10 +1010,17 @@ packages:
     dependency: transitive
     description:
       name: video_player_avfoundation
+<<<<<<< HEAD
       sha256: d1eb970495a76abb35e5fa93ee3c58bd76fb6839e2ddf2fbb636674f2b971dd4
       url: "https://pub.dev"
     source: hosted
     version: "2.8.9"
+=======
+      sha256: af0e5b8a7a4876fb37e7cc8cb2a011e82bb3ecfa45844ef672e32cb14a1f259e
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.9.4"
+>>>>>>> fac2c57 (add)
   video_player_platform_interface:
     dependency: transitive
     description:
@@ -845,6 +1077,20 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.6.1"
+<<<<<<< HEAD
 sdks:
   dart: ">=3.9.2 <4.0.0"
   flutter: ">=3.35.0"
+=======
+  yaml:
+    dependency: transitive
+    description:
+      name: yaml
+      sha256: b9da305ac7c39faa3f030eccd175340f968459dae4af175130b3fc47e40d76ce
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.3"
+sdks:
+  dart: ">=3.10.3 <4.0.0"
+  flutter: ">=3.38.4"
+>>>>>>> fac2c57 (add)

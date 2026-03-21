@@ -28,7 +28,7 @@
         </div>
 
         <div style="margin-top: 2rem; color: var(--text-dim); font-size: 0.9rem; text-align: center;">
-            <p><i class="fas fa-info-circle"></i> This stream is processed on the server using YOLOv8 via WebRTC.</p>
+            <p><i class="fas fa-info-circle"></i> This stream is processed on the server using YOLOv8 via OpenCV.</p>
         </div>
     </div>
 </div>
@@ -47,22 +47,25 @@
 
 {% block extra_js %}
 <script>
-    var pc = null;
-    var localStream = null;
-
+    let isRunning = false;
+    let stream = null;
+    const video = document.getElementById('video');
     const startBtn = document.getElementById('start');
     const stopBtn = document.getElementById('stop');
     const statusDot = document.getElementById('status-dot');
     const statusText = document.getElementById('status-text');
-    const video = document.getElementById('video');
+    
+    // Hidden canvas for capturing frames
+    const captureCanvas = document.createElement('canvas');
+    const captureCtx = captureCanvas.getContext('2d');
 
     function updateStatus(state, text) {
         statusText.innerText = text;
-        if (state === 'connecting') {
+        if (state === 'connecting' || state === 'processing') {
             statusDot.style.background = '#fbbf24';
             statusDot.style.boxShadow = '0 0 10px #fbbf24';
             statusDot.classList.add('pulse');
-        } else if (state === 'connected') {
+        } else if (state === 'active') {
             statusDot.style.background = '#10b981';
             statusDot.style.boxShadow = '0 0 10px #10b981';
             statusDot.classList.add('pulse');
@@ -74,108 +77,88 @@
     }
 
     async function start() {
-        startBtn.style.display = 'none';
-        stopBtn.style.display = 'inline-flex';
-        updateStatus('connecting', 'Negotiating...');
-        console.log("Starting WebRTC connection...");
-
-        var config = {
-            sdpSemantics: 'unified-plan',
-            iceServers: [{ urls: ['stun:stun.l.google.com:19302'] }]
-        };
-
-        pc = new RTCPeerConnection(config);
-
-        pc.addEventListener('track', function (evt) {
-            console.log("Track event received:", evt.track.kind);
-            if (evt.track.kind == 'video') {
-                if (evt.streams && evt.streams[0]) {
-                    video.srcObject = evt.streams[0];
-                } else {
-                    console.log("No stream found, creating one...");
-                    const stream = new MediaStream([evt.track]);
-                    video.srcObject = stream;
-                }
-                video.play().catch(e => console.log("Play error:", e));
-            }
-        });
-
         try {
-            // Limit framerate to 20fps to reduce server load and latency
-            localStream = await navigator.mediaDevices.getUserMedia({ 
-                video: { 
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
-                    frameRate: { ideal: 20, max: 25 } 
-                } 
+            stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { width: 640, height: 480 } 
             });
-            console.log("Got local media stream");
-            localStream.getTracks().forEach(function (track) {
-                pc.addTrack(track, localStream);
-            });
-        } catch (e) {
-            console.error('Could not access camera:', e);
-            alert('Could not access camera: ' + e);
-            stop();
-            return;
-        }
-
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-
-        // Wait for ICE gathering to complete (or at least start)
-        await new Promise((resolve) => {
-            if (pc.iceGatheringState === 'complete') {
-                resolve();
-            } else {
-                function checkState() {
-                    if (pc.iceGatheringState === 'complete') {
-                        pc.removeEventListener('icegatheringstatechange', checkState);
-                        resolve();
-                    }
-                }
-                pc.addEventListener('icegatheringstatechange', checkState);
-                // Fallback timeout
-                setTimeout(resolve, 1000);
-            }
-        });
-
-        console.log("Sending offer to server...");
-
-        try {
-            const response = await fetch("{% url 'rtc_offer' %}", {
-                method: 'POST',
-                body: JSON.stringify({
-                    sdp: pc.localDescription.sdp,
-                    type: pc.localDescription.type
-                }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            const answer = await response.json();
-            console.log("Received answer from server");
-            await pc.setRemoteDescription(new RTCSessionDescription(answer));
-            updateStatus('connected', 'Live - AI Active');
-        } catch (e) {
-            console.error("Signal exchange failed:", e);
-            updateStatus('stopped', 'Signal Failed');
-            stop();
+            video.srcObject = stream;
+            isRunning = true;
+            
+            startBtn.style.display = 'none';
+            stopBtn.style.display = 'inline-flex';
+            updateStatus('active', 'Live - OpenCV Active');
+            
+            processFrame();
+        } catch (err) {
+            console.error("Camera access error:", err);
+            alert("Could not access camera.");
         }
     }
 
+    async function processFrame() {
+        if (!isRunning) return;
+
+        // Set canvas size to video size if not already set
+        if (captureCanvas.width !== video.videoWidth) {
+            captureCanvas.width = video.videoWidth || 640;
+            captureCanvas.height = video.videoHeight || 480;
+        }
+
+        // Draw current video frame to hidden canvas
+        captureCtx.drawImage(video, 0, 0, captureCanvas.width, captureCanvas.height);
+        const imageData = captureCanvas.toDataURL('image/jpeg', 0.7);
+
+        try {
+            const response = await fetch("{% url 'predict_frame' %}", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ image: imageData })
+            });
+            
+            const result = await response.json();
+            
+            if (result.image && isRunning) {
+                // We actually want to show the annotated image FROM the server
+                // So we replace the video feed's visual with the result if preferred, 
+                // but let's just update the video element's overlay or replace it.
+                // A better way is to have an <img> tag for the result.
+                
+                let resultImg = document.getElementById('result-img');
+                if (!resultImg) {
+                    resultImg = document.createElement('img');
+                    resultImg.id = 'result-img';
+                    resultImg.style.position = 'absolute';
+                    resultImg.style.top = '0';
+                    resultImg.style.left = '0';
+                    resultImg.style.width = '100%';
+                    resultImg.style.height = '100%';
+                    resultImg.style.objectFit = 'cover';
+                    video.parentElement.appendChild(resultImg);
+                    video.style.opacity = '0'; // Hide original video
+                }
+                resultImg.src = result.image;
+            }
+        } catch (e) {
+            console.error("Frame processing error:", e);
+        }
+
+        // Delay slightly to keep CPU/Network usage reasonable (~15fps)
+        if (isRunning) {
+            setTimeout(processFrame, 60);
+        }
+    }
 
     function stop() {
-        if (pc) {
-            pc.close();
-            pc = null;
-        }
-        if (localStream) {
-            localStream.getTracks().forEach(track => track.stop());
-            localStream = null;
+        isRunning = false;
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
         }
         video.srcObject = null;
+        
+        const resultImg = document.getElementById('result-img');
+        if (resultImg) resultImg.remove();
+        video.style.opacity = '1';
+
         startBtn.style.display = 'inline-flex';
         stopBtn.style.display = 'none';
         updateStatus('stopped', 'Connection Closed');

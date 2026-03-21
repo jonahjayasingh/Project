@@ -23,6 +23,17 @@ class Pet(Base):
     owner = relationship("User", back_populates="pets")
     media = relationship("PetMedia", back_populates="pet", cascade="all, delete-orphan")
 
+<<<<<<< HEAD
+=======
+    @property
+    def owner_phone(self):
+        return self.owner.phone if self.owner else None
+
+    @property
+    def owner_name(self):
+        return self.owner.name if self.owner else None
+
+>>>>>>> fac2c57 (add)
 class PetMedia(Base):
     __tablename__ = "pet_media"
 

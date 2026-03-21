@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from models import User, SellerProfile, SellerStatus, Category, Product, db
+from models import User, SellerProfile, SellerStatus, Category, Product, db, Withdrawal
 from utils.auth import admin_required
 import re
 
@@ -23,6 +23,8 @@ def dashboard():
     paid_orders = Order.query.filter_by(status=OrderStatus.PAID).count()
     
     # Metrics
+    pending_sellers = SellerProfile.query.filter_by(status=SellerStatus.PENDING).count()
+    pending_withdrawals = Withdrawal.query.filter_by(status="pending").count()
     pending_returns = ReturnRequest.query.filter_by(status="pending").count()
     active_coupons = Coupon.query.filter_by(is_active=True).count()
     
@@ -34,6 +36,8 @@ def dashboard():
         total_revenue=total_revenue,
         total_orders=total_orders,
         paid_orders=paid_orders,
+        pending_sellers=pending_sellers,
+        pending_withdrawals=pending_withdrawals,
         pending_returns=pending_returns,
         active_coupons=active_coupons
     )
@@ -333,3 +337,36 @@ def delete_category(category_id):
     
     flash(f'Category "{category_name}" has been deleted successfully!', 'success')
     return redirect(url_for('admin.manage_categories'))
+
+@routes.route('/withdrawals')
+@admin_required
+def manage_withdrawals():
+    """View and manage all withdrawal requests"""
+    withdrawals = Withdrawal.query.order_by(Withdrawal.created_at.desc()).all()
+    return render_template('admin/withdrawals.html', withdrawals=withdrawals)
+
+@routes.route('/withdrawals/<int:withdrawal_id>/process', methods=['POST'])
+@admin_required
+def process_withdrawal(withdrawal_id):
+    """Process a withdrawal request (approve, reject, or complete)"""
+    withdrawal = Withdrawal.query.get_or_404(withdrawal_id)
+    action = request.form.get('action') # approve, reject, complete
+    admin_note = request.form.get('admin_note')
+    
+    if action == 'approve':
+        withdrawal.status = 'approved'
+        flash(f'Withdrawal #{withdrawal.id} approved!', 'success')
+    elif action == 'reject':
+        # Return balance to seller
+        seller_profile = withdrawal.seller.seller_profile
+        seller_profile.balance += withdrawal.amount
+        withdrawal.status = 'rejected'
+        flash(f'Withdrawal #{withdrawal.id} rejected. Balance returned to seller.', 'info')
+    elif action == 'complete':
+        withdrawal.status = 'completed'
+        flash(f'Withdrawal #{withdrawal.id} marked as completed!', 'success')
+    
+    withdrawal.admin_note = admin_note
+    db.session.commit()
+    
+    return redirect(url_for('admin.manage_withdrawals'))

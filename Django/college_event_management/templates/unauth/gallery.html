@@ -294,18 +294,27 @@
         <!-- Gallery Grid -->
         <div class="row g-4 gallery-container" id="galleryGrid">
             {% for gallery in galleries %}
-            <div class=" gallery-item animate__animated animate__fadeInUp" data-category="{{gallery.gallery_type}}">
-                <div class="gallery-img-container">
-                    <img data-src="{{gallery.image.url}}" alt="{{gallery.caption}}" class="img-fluid lazy">
-                    <div class="overlay">
-                        <span class="event-type">{{gallery.gallery_type}}</span>
-                    </div>
-                </div>
-                <div class="gallery-content">
-                    <h5>{{gallery.caption|truncatechars:40}}</h5>
-                    <div class="date">
-                        <i class="far fa-calendar-alt"></i> {{gallery.date|date:"M j, Y"}}
-                    </div>
+            <div class="col-lg-12 col-md-6 mb-4 animate__animated animate__fadeInUp" data-category="{{gallery.gallery_type}}">
+                <div class="gallery-item">
+                    <a href="{% url 'coordinator:gallery_detail' gallery.id %}" class="text-decoration-none">
+                        <div class="gallery-img-container">
+                            <img data-src="{{gallery.image.url}}" alt="{{gallery.caption}}" class="img-fluid lazy">
+                            <div class="overlay">
+                                <span class="event-type">{{gallery.gallery_type}}</span>
+                                {% if gallery.images.exists %}
+                                <div class="album-indicator">
+                                    <i class="fas fa-images me-1"></i> {{ gallery.images.count|add:1 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="gallery-content">
+                            <h5>{{gallery.caption|truncatechars:40}}</h5>
+                            <div class="date">
+                                <i class="far fa-calendar-alt"></i> {{gallery.date|date:"M j, Y"}}
+                            </div>
+                        </div>
+                    </a>
                 </div>
             </div>
             {% empty %}

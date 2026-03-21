@@ -26,42 +26,60 @@ def get_model():
             return None
     return MODEL
 
+
 def predict_skin_disease(image_input):
     model = get_model()
     if model is None:
         return "Model Error", 0.0
-    
+
     try:
-        # Class names in alphabetical order as they were loaded by image_dataset_from_directory
-        class_names = ['Basal Cell Carcinoma', 'Melanoma', 'Squamous Cell Carcinoma']
-        
-        # Load and preprocess image (image_input can be a path or a file-like object)
-        img = Image.open(image_input).convert('RGB')
-        img = img.resize((300, 300))
-        img_array = np.array(img).astype(np.float32)
+        # Ensure class names match training order EXACTLY
+        class_names = [
+            'Basal Cell Carcinoma',
+            "Healthy Skin",
+            'Melanoma',
+            'Squamous Cell Carcinoma'
+        ]
+
+        # Load image (supports file path or file object)
+        if hasattr(image_input, "read"):
+            img = Image.open(image_input)
+        else:
+            img = Image.open(str(image_input))
+
+        img = img.convert('RGB')
+
+        img = img.resize((224, 224))  # changed from 244 → 224
+
+        # Convert to array
+        img_array = np.array(img, dtype=np.float32)
+
+        # Add batch dimension
         img_array = np.expand_dims(img_array, axis=0)
-        
-        # EfficientNet preprocessing
+
+        # Preprocess for EfficientNet
         img_array = tf.keras.applications.efficientnet.preprocess_input(img_array)
-        
-        # Predict
-        predictions = model.predict(img_array)
-        score = tf.nn.softmax(predictions[0]) # The model output might already be softmaxed if activation='softmax' was used, 
-                                              # but applying it again on softmax outputs doesn't hurt much or we can skip if sure.
-                                              # Checking notebook: activation="softmax" was used in the last layer.
-        
-        # Actually if it's already softmax, we just take the max
-        score = predictions[0]
-        
-        result_idx = np.argmax(score)
+
+        # Prediction
+        predictions = model.predict(img_array, verbose=0)
+
+        if predictions.shape[-1] > 1:
+            score = predictions[0]
+        else:
+            # Binary case fallback
+            score = np.array([1 - predictions[0][0], predictions[0][0]])
+
+        # Get result
+        result_idx = int(np.argmax(score))
         result_label = class_names[result_idx]
-        confidence = float(np.max(score)) * 100
-        
+
+        confidence = float(score[result_idx]) * 100
+
         return result_label, round(confidence, 2)
+
     except Exception as e:
         print(f"Prediction error: {e}")
         return "Detection Failed", 0.0
-
 def home(request):
     return render(request, 'detection/home.html')
 

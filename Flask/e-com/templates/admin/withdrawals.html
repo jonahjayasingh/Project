@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+
+{% block title %}Manage Withdrawals - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">💸 Withdrawal Requests</h1>
+    <p style="color: var(--text-medium); font-size: 1.125rem;">Review and process seller withdrawal requests</p>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h3 style="margin: 0;">Recent Requests</h3>
+    </div>
+    <div class="card-body">
+        {% if withdrawals %}
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Seller</th>
+                        <th>Amount</th>
+                        <th>Method Info</th>
+                        <th>Status</th>
+                        <th>Created At</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for w in withdrawals %}
+                    <tr>
+                        <td>#{{ w.id }}</td>
+                        <td>
+                            <strong>{{ w.seller.seller_profile.display_name }}</strong><br>
+                            <small style="color: var(--text-medium);">@{{ w.seller.username }}</small>
+                        </td>
+                        <td><strong style="color: var(--primary-color);">₹{{ "%.2f"|format(w.amount) }}</strong></td>
+                        <td>
+                            <div style="font-size: 0.875rem;">
+                                <strong>Bank:</strong> {{ w.bank_name }}<br>
+                                <strong>A/C:</strong> {{ w.bank_account_number }}<br>
+                                {% if w.other_method_details %}
+                                <small style="color: var(--text-medium);">{{ w.other_method_details }}</small>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% if w.status == 'pending' %}
+                            <span class="badge badge-warning">Pending</span>
+                            {% elif w.status == 'approved' %}
+                            <span class="badge badge-info">Approved</span>
+                            {% elif w.status == 'completed' %}
+                            <span class="badge badge-success">Completed</span>
+                            {% elif w.status == 'rejected' %}
+                            <span class="badge badge-error">Rejected</span>
+                            {% else %}
+                            <span class="badge badge-secondary">{{ w.status|title }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ w.created_at.strftime('%b %d, %Y %H:%M') }}</td>
+                        <td>
+                            {% if w.status == 'pending' or w.status == 'approved' %}
+                            <button class="btn btn-sm btn-secondary" onclick="document.getElementById('process-form-{{ w.id }}').style.display='block'">
+                                Manage
+                            </button>
+                            
+                            <!-- Simple Inline Modal/Form -->
+                            <div id="process-form-{{ w.id }}" style="display:none; margin-top: 1rem; padding: 1rem; background: var(--bg-light); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                                <form action="{{ url_for('admin.process_withdrawal', withdrawal_id=w.id) }}" method="POST">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    
+                                    <div class="form-group mb-2">
+                                        <label>Admin Note</label>
+                                        <textarea name="admin_note" class="form-control" rows="2" placeholder="Transfer ID, rejection reason, etc.">{{ w.admin_note or '' }}</textarea>
+                                    </div>
+                                    
+                                    <div class="flex gap-1">
+                                        {% if w.status == 'pending' %}
+                                        <button type="submit" name="action" value="approve" class="btn btn-sm btn-primary">Approve</button>
+                                        <button type="submit" name="action" value="reject" class="btn btn-sm btn-error">Reject</button>
+                                        {% elif w.status == 'approved' %}
+                                        <button type="submit" name="action" value="complete" class="btn btn-sm btn-success">Mark Completed</button>
+                                        {% endif %}
+                                        <button type="button" class="btn btn-sm btn-secondary" onclick="document.getElementById('process-form-{{ w.id }}').style.display='none'">Cancel</button>
+                                    </div>
+                                </form>
+                            </div>
+                            {% else %}
+                            <span style="color: var(--text-medium); font-size: 0.875rem;">No actions</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>No withdrawal requests yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

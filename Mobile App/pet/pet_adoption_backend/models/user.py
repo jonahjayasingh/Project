@@ -13,6 +13,10 @@ class User(Base):
     hashed_password = Column(String)
     location = Column(String)
     is_admin = Column(Boolean, default=False)
+<<<<<<< HEAD
+=======
+    profile_image = Column(String, nullable=True)
+>>>>>>> fac2c57 (add)
 
     pets = relationship("Pet", back_populates="owner")
     sent_messages = relationship("Message", foreign_keys="[Message.sender_id]", back_populates="sender")

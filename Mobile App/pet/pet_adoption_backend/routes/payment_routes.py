@@ -18,3 +18,17 @@ def verify_payment(verify_data: PaymentVerify, db: Session = Depends(get_db)):
     if not success:
         raise HTTPException(status_code=400, detail="Payment verification failed")
     return {"message": "Payment successful"}
+<<<<<<< HEAD
+=======
+
+@router.get("/check-unlock/{pet_id}")
+def check_unlock(pet_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    from models.payment import Payment
+    payment = db.query(Payment).filter(
+        Payment.user_id == current_user.id,
+        Payment.pet_id == pet_id,
+        Payment.payment_type == "contact_unlock",
+        Payment.status == "completed"
+    ).first()
+    return {"unlocked": payment is not None}
+>>>>>>> fac2c57 (add)

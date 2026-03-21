@@ -9,5 +9,5 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('predict-image/', views.predict_image, name='predict_image'),
     path('predict-video/', views.predict_video_page, name='predict_video_page'),
-    path('rtc-offer/', views.rtc_offer, name='rtc_offer'),
+    path('predict-frame/', views.predict_frame, name='predict_frame'),
 ]

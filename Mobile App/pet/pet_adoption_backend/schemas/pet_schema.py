@@ -40,6 +40,11 @@ class PetUpdate(BaseModel):
 class PetOut(PetBase):
     id: int
     owner_id: int
+<<<<<<< HEAD
+=======
+    owner_phone: Optional[str] = None
+    owner_name: Optional[str] = None
+>>>>>>> fac2c57 (add)
     is_featured: bool
     created_at: datetime
     media: List[PetMediaOut] = []

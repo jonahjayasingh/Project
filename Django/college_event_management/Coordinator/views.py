@@ -1,12 +1,12 @@
 from django.db.models import Q
 from django.http import HttpResponse
 from django.utils import timezone
-from django.shortcuts import render,redirect
+from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.models import User
 from openpyxl import Workbook
-from Coordinator.models import Events,Gallery,Mcq,Question ,Profile,Certificate,Notification,EventRegister
+from Coordinator.models import Events,Gallery,Mcq,Question ,Profile,Certificate,Notification,EventRegister,GalleryImage
 from django.db.models import Max
 
 # Create your views here.
@@ -172,12 +172,6 @@ def dashboard(request):
             if event_image:
                 event.event_image.delete()
                 event.event_image = event_image
-            if event_mcq:
-                event_mcq = Mcq.objects.get(id=event_mcq)
-                event.event_mcq = event_mcq
-            event.save()
-            messages.success(request,"Event updated successfully")
-            return redirect("coordinator:dashboard")
         event = Events.objects.create(user=request.user,event_name=event_name,event_date=event_date,event_type=event_type,event_description=event_description,event_location=event_location,event_image=event_image)
         event.save()
         messages.success(request,"Image uploaded successfully")
@@ -235,24 +229,37 @@ def delete_event(request):
 
 def add_gallery(request):
     if request.method == "POST":
-        image = request.FILES.get("image")
+        images = request.FILES.getlist("image")
         caption = request.POST.get("caption")
         gallery_type = request.POST.get("gallery_type")
         edit_gallery_id = request.POST.get("edit_gallery_id")
+        
         if edit_gallery_id:
             gallery = Gallery.objects.get(id=edit_gallery_id)
-            gallery.user = request.user
-            if image != None:
-                gallery.image.delete()
-                gallery.image = image
+            if images:
+                gallery.image = images[0]
             gallery.caption = caption
             gallery.gallery_type = gallery_type
             gallery.save()
-            messages.success(request,"Image updated successfully")
+            
+            if images:
+                GalleryImage.objects.create(gallery=gallery, image=gallery.image)
+                for img in images[1:]:
+                    GalleryImage.objects.create(gallery=gallery, image=img)
+            
+            messages.success(request,"Gallery updated successfully")
             return redirect("coordinator:dashboard")
-        Gallery.objects.create(user=request.user,image=image,caption=caption,gallery_type=gallery_type)
-        messages.success(request,"Image uploaded successfully")
+            
+        if images:
+            gallery = Gallery.objects.create(user=request.user,image=images[0],caption=caption,gallery_type=gallery_type)
+            # Use the already saved reference for the first image
+            GalleryImage.objects.create(gallery=gallery, image=gallery.image)
+            # Save the rest
+            for img in images[1:]:
+                GalleryImage.objects.create(gallery=gallery, image=img)
+            messages.success(request,"Gallery album created successfully")
         return redirect("coordinator:dashboard")
+    return redirect("coordinator:dashboard")
 
 
 def delete_gallery(request):
@@ -261,9 +268,20 @@ def delete_gallery(request):
         gallery = Gallery.objects.get(id=gallery_id)
         if gallery.image:
             gallery.image.delete()
+        # Delete related album images
+        for img in gallery.images.all():
+            img.image.delete()
         gallery.delete()
         messages.success(request,"Gallery deleted successfully")
-        return redirect("coordinator:dashboard")
+    return redirect("coordinator:dashboard")
+
+def delete_gallery_image(request):
+    if request.method == "POST":
+        image_id = request.POST.get("image_id")
+        image = get_object_or_404(GalleryImage, id=image_id)
+        image.image.delete()
+        image.delete()
+        messages.success(request, "Image removed from album successfully")
     return redirect("coordinator:dashboard")
 
 def gallery(request):
@@ -273,6 +291,14 @@ def gallery(request):
         "notifications":Notification.objects.all().order_by("-id")
     }
     return render(request,"unauth/gallery.html",content)
+
+def gallery_detail(request, gallery_id):
+    gallery_obj = get_object_or_404(Gallery, id=gallery_id)
+    content = {
+        "gallery": gallery_obj,
+        "notifications": Notification.objects.all().order_by("-id")[:5]
+    }
+    return render(request, "unauth/gallery_detail.html", content)
 
 def event(request):
     content = {

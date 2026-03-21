@@ -927,7 +927,7 @@
                 <div class="modal fade" id="editGalleryModal{{ image.id }}" tabindex="-1" aria-hidden="true">
                   <div class="modal-dialog">
                     <div class="modal-content">
-                      <form method="POST" enctype="multipart/form-data" action="{% url 'coordinator:gallery' %}">
+                      <form method="POST" enctype="multipart/form-data" action="{% url 'coordinator:add_gallery' %}">
                         {% csrf_token %}
                         <input type="hidden" name="edit_gallery_id" value="{{ image.id }}">
                         <div class="modal-header">
@@ -951,18 +951,42 @@
                             </select>
                           </div>
                           <div class="mb-3">
-                            <label class="form-label">Replace Image (leave empty to keep current)</label>
-                            <input type="file" class="form-control" name="image" accept="image/*">
+                            <label class="form-label">Add Images to Album (select multiple)</label>
+                            <input type="file" class="form-control" name="image" accept="image/*" multiple>
                             {% if image.image %}
-                            <div class="form-text">Current: {{ image.image.name }}</div>
+                            <div class="form-text">Current Cover: {{ image.image.name }}</div>
                             {% endif %}
+                          </div>
+                          <div class="mb-3 mt-4">
+                            <label class="form-label">Album Photos ({{ image.images.count }})</label>
+                            <div class="row g-2 border rounded p-2 bg-light overflow-auto" style="max-height: 200px;">
+                                {% for album_img in image.images.all %}
+                                <div class="col-3">
+                                    <div class="position-relative">
+                                        <img src="{{ album_img.image.url }}" class="img-thumbnail w-100" style="height: 60px; object-fit: cover;">
+                                        <button type="button" class="btn btn-danger btn-sm p-0 position-absolute top-0 end-0 rounded-circle" 
+                                                style="width: 20px; height: 20px; font-size: 10px;"
+                                                onclick="if(confirm('Delete this image?')){ document.getElementById('del_img_{{ album_img.id }}').submit(); }">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
                           </div>
                         </div>
                         <div class="modal-footer">
                           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                          <button type="submit" class="btn btn-primary">Update Image</button>
+                          <button type="submit" class="btn btn-primary">Update Gallery Info</button>
                         </div>
                       </form>
+                      <!-- Separate forms for individual image deletion, moved outside the main form -->
+                      {% for album_img in image.images.all %}
+                      <form id="del_img_{{ album_img.id }}" method="POST" action="{% url 'coordinator:delete_gallery_image' %}" style="display:none;">
+                          {% csrf_token %}
+                          <input type="hidden" name="image_id" value="{{ album_img.id }}">
+                      </form>
+                      {% endfor %}
                     </div>
                   </div>
                 </div>
@@ -1058,8 +1082,8 @@
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label class="form-label">Image</label>
-            <input type="file" class="form-control" name="image" accept="image/*" required>
+            <label class="form-label">Images (You can select multiple)</label>
+            <input type="file" class="form-control" name="image" accept="image/*" multiple required>
           </div>
           <div class="mb-3">
             <label class="form-label">Caption</label>

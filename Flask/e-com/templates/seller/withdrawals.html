@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}Withdrawals - Seller Dashboard{% endblock %}
+
+{% block content %}
+<div class="fade-in" style="margin-bottom: 2.5rem;">
+    <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">💸 Withdrawals</h1>
+    <p style="color: var(--text-medium); font-size: 1.125rem;">Manage your earnings and request payments</p>
+</div>
+
+<div class="row">
+    <!-- Balance & Request Form -->
+    <div class="col-md-4 mb-4">
+        <div class="card" style="position: sticky; top: 2rem;">
+            <div class="card-header">
+                <h3 style="margin: 0;">Earnings Overview</h3>
+            </div>
+            <div class="card-body">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <div style="font-size: 0.875rem; color: var(--text-medium); margin-bottom: 0.25rem;">Available Balance</div>
+                    <div style="font-size: 2.5rem; font-weight: 700; color: var(--primary-color);">₹{{ "%.2f"|format(balance) }}</div>
+                </div>
+
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 1.5rem 0;">
+
+                <h4 style="margin-bottom: 1rem;">Request New Withdrawal</h4>
+                <form action="{{ url_for('seller.request_withdrawal') }}" method="POST">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    
+                    <div class="form-group mb-3">
+                        <label for="amount">Amount to Withdraw (₹)</label>
+                        <input type="number" id="amount" name="amount" step="0.01" min="1" max="{{ balance }}" class="form-control" placeholder="0.00" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="bank_name">Bank Name</label>
+                        <input type="text" id="bank_name" name="bank_name" class="form-control" placeholder="e.g. HDFC Bank, SBI" value="{{ seller.last_bank_name or '' }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="account_number">Bank Account Number</label>
+                        <input type="text" id="account_number" name="account_number" class="form-control" placeholder="Enter your account number" value="{{ seller.last_account_number or '' }}" required>
+                    </div>
+
+                    <div class="form-group mb-3">
+                        <label for="other_details">Other Details (Optional)</label>
+                        <textarea id="other_details" name="other_details" class="form-control" rows="3" placeholder="IFSC Code, Branch Name, etc."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" {% if balance <= 0 %}disabled{% endif %}>
+                        🚀 Request Withdrawal
+                    </button>
+                    {% if balance <= 0 %}
+                    <p style="font-size: 0.75rem; color: var(--text-error); margin-top: 0.5rem; text-align: center;">
+                        You need a positive balance to request a withdrawal.
+                    </p>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Withdrawal History -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header flex-between">
+                <h3 style="margin: 0;">Withdrawal History</h3>
+            </div>
+            <div class="card-body">
+                {% if withdrawals %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Method</th>
+                                <th>Status</th>
+                                <th>Note</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for w in withdrawals %}
+                            <tr>
+                                <td>{{ w.created_at.strftime('%b %d, %Y') }}</td>
+                                <td><strong>₹{{ "%.2f"|format(w.amount) }}</strong></td>
+                                <td>
+                                    <div style="font-size: 0.875rem;">
+                                        {{ w.bank_name }}<br>
+                                        <small style="color: var(--text-medium);">A/C: {{ w.bank_account_number }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if w.status == 'pending' %}
+                                    <span class="badge badge-warning">Pending</span>
+                                    {% elif w.status == 'approved' %}
+                                    <span class="badge badge-info">Approved</span>
+                                    {% elif w.status == 'completed' %}
+                                    <span class="badge badge-success">Completed</span>
+                                    {% elif w.status == 'rejected' %}
+                                    <span class="badge badge-error">Rejected</span>
+                                    {% else %}
+                                    <span class="badge badge-secondary">{{ w.status|title }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if w.admin_note %}
+                                    <small style="color: var(--text-medium);">{{ w.admin_note }}</small>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🕳️</div>
+                    <p>No withdrawal requests found.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Info Card -->
+        <div class="card mt-4" style="background: rgba(var(--primary-rgb), 0.05); border-left: 4px solid var(--primary-color);">
+            <div class="card-body">
+                <h4 style="margin-bottom: 0.5rem;">How it works</h4>
+                <ul style="padding-left: 1.25rem; font-size: 0.875rem; color: var(--text-medium);">
+                    <li>Your earnings are credited to your balance once an order is marked as <strong>Delivered</strong>.</li>
+                    <li>Withdrawal requests are typically processed within 3-5 business days.</li>
+                    <li>Funds are transferred directly to the bank account provided in your request.</li>
+                    <li>Once an admin approves and completes the transfer, the status will change to <strong>Completed</strong>.</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

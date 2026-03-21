@@ -3,12 +3,27 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from database.db import engine, Base
 from routes import auth_routes, pet_routes, chat_routes, payment_routes, admin_routes
+<<<<<<< HEAD
+=======
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
+>>>>>>> fac2c57 (add)
 import os
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
 
+<<<<<<< HEAD
 app = FastAPI(title="Pet Adoption API")
+=======
+limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
+app = FastAPI(title="Pet Adoption API")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
+>>>>>>> fac2c57 (add)
 
 # Setup CORS
 app.add_middleware(
@@ -39,4 +54,8 @@ def read_root():
 
 if __name__ == "__main__":
     import uvicorn
+<<<<<<< HEAD
     uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
+=======
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+>>>>>>> fac2c57 (add)

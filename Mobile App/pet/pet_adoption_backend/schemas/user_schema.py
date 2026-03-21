@@ -6,6 +6,10 @@ class UserBase(BaseModel):
     email: EmailStr
     phone: str
     location: str
+<<<<<<< HEAD
+=======
+    profile_image: Optional[str] = None
+>>>>>>> fac2c57 (add)
 
 class UserCreate(UserBase):
     password: str
@@ -15,6 +19,10 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
     location: Optional[str] = None
+<<<<<<< HEAD
+=======
+    profile_image: Optional[str] = None
+>>>>>>> fac2c57 (add)
     password: Optional[str] = None
 
 class UserOut(UserBase):

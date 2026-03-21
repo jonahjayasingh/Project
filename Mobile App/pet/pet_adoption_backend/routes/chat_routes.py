@@ -4,7 +4,11 @@ from typing import List
 from database.db import get_db
 from models.user import User
 from schemas.message_schema import MessageCreate, MessageOut
+<<<<<<< HEAD
 from services.chat_service import send_message, get_chat_messages
+=======
+from services.chat_service import send_message, get_chat_messages, get_inbox_messages
+>>>>>>> fac2c57 (add)
 from routes.auth_routes import get_current_user
 
 router = APIRouter(prefix="/messages", tags=["messages"])
@@ -16,6 +20,13 @@ def post_message(message: MessageCreate, db: Session = Depends(get_db), current_
         raise HTTPException(status_code=404, detail="Pet or owner not found")
     return db_message
 
+<<<<<<< HEAD
+=======
+@router.get("/inbox")
+def get_inbox(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    return get_inbox_messages(db, current_user.id)
+
+>>>>>>> fac2c57 (add)
 @router.get("/{chat_id}", response_model=List[MessageOut])
 def list_messages(chat_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     return get_chat_messages(db, chat_id, current_user.id)

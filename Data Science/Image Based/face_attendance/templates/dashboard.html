@@ -56,6 +56,28 @@
     </div>
 </div>
 
+<!-- Notifications Section -->
+{% if stats.long_absentees %}
+<div class="glass fade-in" style="padding: 2.5rem; margin-bottom: 3rem; border-color: rgba(245, 158, 11, 0.3);">
+    <h3 style="font-size: 1.5rem; margin-bottom: 2rem; color: #f59e0b; display: flex; align-items: center; gap: 0.75rem;">
+        <i class="fas fa-exclamation-triangle"></i>
+        Critical Alerts
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+        <div class="alert glass" style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); width: 100%;">
+            <h4 style="color: #f59e0b; margin-bottom: 1rem;">Long Absentees (> 3 Days)</h4>
+            <ul style="list-style: none; padding: 0;">
+                {% for name in stats.long_absentees %}
+                <li style="margin-bottom: 0.5rem; color: var(--text-primary);">
+                    <i class="fas fa-clock" style="margin-right:0.5rem;"></i> {{ name }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Quick Actions -->
 <div class="glass fade-in" style="padding: 2.5rem; margin-bottom: 3rem; animation-delay: 0.1s;">
     <h3
@@ -102,6 +124,69 @@
             <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">Manage Students</h4>
             <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Edit student database</p>
         </a>
+
+        <a href="{% url 'mark_absent' %}" class="action-card glass"
+            style="padding: 2rem; text-decoration: none; border: 2px solid var(--border-color);">
+            <div class="icon-wrapper"
+                style="width: 60px; height: 60px; font-size: 1.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.1)); color: var(--danger);">
+                <i class="fas fa-user-clock"></i>
+            </div>
+            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">Mark Absentees</h4>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Set automatic absence for today</p>
+        </a>
+
+        <!-- New Faculty Enrollment Card -->
+        <a href="{% url 'register_staff' %}" class="action-card glass"
+            style="padding: 2rem; text-decoration: none; border: 2px solid var(--border-color); background: rgba(99, 102, 241, 0.05);">
+            <div class="icon-wrapper"
+                style="width: 60px; height: 60px; font-size: 1.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); color: var(--primary);">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">Enroll Faculty</h4>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Add new staff members</p>
+        </a>
+
+        <a href="{% url 'faculty_data' %}" class="action-card glass"
+            style="padding: 2rem; text-decoration: none; border: 2px solid var(--border-color); background: rgba(99, 102, 241, 0.05);">
+            <div class="icon-wrapper"
+                style="width: 60px; height: 60px; font-size: 1.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); color: var(--primary);">
+                <i class="fas fa-users-cog"></i>
+            </div>
+            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">Manage Faculty</h4>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">View/Remove staff members</p>
+        </a>
+
+        <a href="{% url 'system_settings' %}" class="action-card glass"
+            style="padding: 2rem; text-decoration: none; border: 2px solid var(--border-color); background: rgba(99, 102, 241, 0.05);">
+            <div class="icon-wrapper"
+                style="width: 60px; height: 60px; font-size: 1.5rem; margin-bottom: 1rem; background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.1)); color: var(--primary);">
+                <i class="fas fa-cogs"></i>
+            </div>
+            <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text-primary);">System Rules</h4>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0;">Set startup and thresholds</p>
+        </a>
+    </div>
+</div>
+
+<!-- Staff Overview section -->
+<div class="glass fade-in" style="padding: 2.5rem; margin-bottom: 3rem; animation-delay: 0.15s;">
+    <h3 style="font-size: 1.5rem; margin-bottom: 2rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.75rem;">
+        <i class="fas fa-user-tie" style="color: var(--primary);"></i>
+        Staff Recognition
+    </h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+        {% for staff in stats.staff_stats %}
+        <div class="glass" style="padding: 1.5rem; border-color: rgba(99, 102, 241, 0.2);">
+            <div style="font-weight: 700; color: var(--text-primary);">{{ staff.name }}</div>
+            <div style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">{{ staff.department }}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 0.9rem; color: var(--text-secondary);">Students:</span>
+                <span class="badge" style="background: var(--primary);">{{ staff.student_count }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <div style="color: var(--text-muted);">No staff members added yet.</div>
+        {% endfor %}
     </div>
 </div>
 

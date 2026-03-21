@@ -26,6 +26,10 @@
         <div class="stat-value">{{ active_sellers }}</div>
         <div class="stat-label">Active Sellers</div>
     </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ pending_withdrawals }}</div>
+        <div class="stat-label">Pending Withdrawals</div>
+    </div>
 </div>
 
 <!-- Quick Actions -->
@@ -64,11 +68,22 @@
 
             <div class="col-md-6 mb-3">
                 <div style="padding: 1.5rem; background: var(--bg-light); border-radius: var(--radius-md);">
+                    <h4>Withdrawal Requests</h4>
+                    <p style="color: var(--text-medium); margin-bottom: 1rem;">
+                        Review and process seller withdrawal requests
+                    </p>
+                    <a href="{{ url_for('admin.manage_withdrawals') }}" class="btn btn-primary">Manage Withdrawals</a>
+                </div>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <div style="padding: 1.5rem; background: var(--bg-light); border-radius: var(--radius-md);">
                     <h4>Platform Statistics</h4>
                     <p style="color: var(--text-medium); margin-bottom: 0;">
                         <strong>{{ total_users }}</strong> users registered<br>
                         <strong>{{ active_sellers }}</strong> active sellers<br>
-                        <strong>{{ pending_sellers }}</strong> pending approvals
+                        <strong>{{ pending_sellers }}</strong> pending approvals<br>
+                        <strong>{{ pending_withdrawals }}</strong> pending withdrawals
                     </p>
                 </div>
             </div>

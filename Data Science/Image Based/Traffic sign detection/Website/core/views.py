@@ -11,13 +11,12 @@ from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from ultralytics import YOLO
-from aiortc import MediaStreamTrack, RTCPeerConnection, RTCSessionDescription
-from aiortc.contrib.media import MediaRelay
-import av
+import numpy as np
+import base64
 
 # Load YOLO models
 MODEL_PATHS = [
-    '/Volumes/CrucialX9/Project/runs/detect/indian-traffic-sign4/weights/best.pt',
+    os.path.join(settings.BASE_DIR, 'model', 'best.pt'),
 ]
 
 models = []
@@ -32,64 +31,62 @@ if not models:
     models.append(YOLO('yolov8s.pt'))
 
 
-relay = MediaRelay()
+@csrf_exempt
+def predict_frame(request):
+    """
+    Receive a frame via POST (base64 encoded), 
+    process it with YOLO using OpenCV, 
+    and return detection data and optionally the annotated image.
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Only POST allowed'}, status=405)
 
+    try:
+        data = json.loads(request.body)
+        image_data = data.get('image', '')
+        if not image_data:
+            return JsonResponse({'error': 'No image data'}, status=400)
 
-pcs = set()
+        # Decode base64 image
+        format, imgstr = image_data.split(';base64,')
+        img_bytes = base64.b64decode(imgstr)
+        nparr = np.frombuffer(img_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
-class VideoTransformTrack(MediaStreamTrack):
-    kind = "video"
+        if img is None:
+            return JsonResponse({'error': 'Invalid image'}, status=400)
 
-    def __init__(self, track):
-        super().__init__()
-        self.track = track
-        self.frame_count = 0
-        self.latest_res = None
-
-    async def recv(self):
-        try:
-            frame = await self.track.recv()
-            self.frame_count += 1
-            
-            # Convert to numpy array once for processing/drawing
-            img = frame.to_ndarray(format="bgr24")
-
-            # Process every 4th frame to update AI state
-            if self.frame_count % 4 == 0:
-                # Offload heavy YOLO processing to a thread
-                # Returns the result objects instead of an annotated image
-                self.latest_res = await asyncio.to_thread(self._analyze_frame, img)
-            
-            # If we have any previous results, draw them on the CURRENT frame
-            # This eliminates flickering during frames where inference is skipped
-            if self.latest_res:
-                annotated_img = img.copy()
-                for res in self.latest_res:
-                    annotated_img = res.plot(img=annotated_img)
-            else:
-                annotated_img = img
-
-            # Rebuild frame
-            new_frame = av.VideoFrame.from_ndarray(annotated_img, format="bgr24")
-            new_frame.pts = frame.pts
-            new_frame.time_base = frame.time_base
-            
-            return new_frame
-        except Exception as e:
-            print(f"Error in VideoTransformTrack: {e}")
-            return None
-
-    def _analyze_frame(self, img):
-        """Perform YOLO inference and return results for persistence."""
-        current_results = []
+        # Run YOLO inference
+        detections = []
+        annotated_img = img.copy()
+        
         for m in models:
             results = m(img, conf=0.25, imgsz=320, verbose=False, iou=0.45)
-            # Clean labels on the result objects
             res = results[0]
+            # Clean labels
             res.names = {k: v.replace('_', ' ') for k, v in res.names.items()}
-            current_results.append(res)
-        return current_results
+            annotated_img = res.plot(img=annotated_img)
+            
+            for box in res.boxes:
+                cls_id = int(box.cls[0])
+                label = res.names[cls_id]
+                conf = float(box.conf[0])
+                detections.append({
+                    'label': label,
+                    'conf': round(conf, 2)
+                })
 
+        # Encode annotated image back to base64
+        _, buffer = cv2.imencode('.jpg', annotated_img)
+        encoded_img = base64.b64encode(buffer).decode('utf-8')
+
+        return JsonResponse({
+            'detections': detections,
+            'image': f'data:image/jpeg;base64,{encoded_img}'
+        })
+    except Exception as e:
+        print(f"Error in predict_frame: {e}")
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 def home(request):
@@ -183,54 +180,5 @@ def predict_image(request):
 @login_required
 def predict_video_page(request):
     return render(request, 'core/predict_video.html')
-
-@csrf_exempt
-async def rtc_offer(request):
-    if request.method != "POST":
-        return JsonResponse({"error": "Only POST allowed"}, status=405)
-        
-    print("Received RTC offer")
-    try:
-        params = json.loads(request.body)
-        offer = RTCSessionDescription(sdp=params["sdp"], type=params["type"])
-
-        pc = RTCPeerConnection()
-        pcs.add(pc)
-
-        @pc.on("iceconnectionstatechange")
-        async def on_iceconnectionstatechange():
-            print(f"ICE Connection State: {pc.iceConnectionState}")
-            if pc.iceConnectionState == "failed" or pc.iceConnectionState == "closed":
-                await pc.close()
-                pcs.discard(pc)
-
-        # Use an event to wait for the track
-        track_event = asyncio.Event()
-
-        @pc.on("track")
-        def on_track(track):
-            print(f"Track received: {track.kind}")
-            if track.kind == "video":
-                pc.addTrack(VideoTransformTrack(relay.subscribe(track)))
-                track_event.set()
-
-        await pc.setRemoteDescription(offer)
-        
-        # Wait up to 5 seconds for the track to be identified
-        try:
-            await asyncio.wait_for(track_event.wait(), timeout=5.0)
-        except asyncio.TimeoutError:
-            print("Timeout waiting for track event")
-
-        answer = await pc.createAnswer()
-        await pc.setLocalDescription(answer)
-
-        return JsonResponse({
-            "sdp": pc.localDescription.sdp,
-            "type": pc.localDescription.type
-        })
-    except Exception as e:
-        print(f"Error in rtc_offer: {e}")
-        return JsonResponse({"error": str(e)}, status=500)
 
 

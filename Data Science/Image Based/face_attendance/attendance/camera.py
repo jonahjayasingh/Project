@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 import face_recognition
-from datetime import datetime
+from datetime import datetime, timedelta
 from uuid import uuid4
 from .models import StudentData, Attendance
 
@@ -71,7 +71,15 @@ class VideoCamera:
                 y1, x2, y2, x1 = [v * 4 for v in faceLoc]
                 color = (0, 255, 0) if name != 'UNKNOWN' else (0, 0, 255)
                 cv2.rectangle(image, (x1, y1), (x2, y2), color, 2)
-                cv2.putText(image, name, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 0.8, (255, 255, 255), 2)
+                
+                # Display name, time and status
+                display_text = name
+                if name != 'UNKNOWN':
+                    att = Attendance.objects.filter(student=student, date=datetime.now().date()).first()
+                    status_str = f" ({att.status})" if att else ""
+                    display_text = f"{name}{status_str} {datetime.now().strftime('%I:%M %p')}"
+                
+                cv2.putText(image, display_text, (x1 + 6, y2 - 6), cv2.FONT_HERSHEY_COMPLEX, 0.7, (255, 255, 255), 2)
 
         ret, jpeg = cv2.imencode('.jpg', image)
         return jpeg.tobytes()
@@ -85,18 +93,38 @@ class VideoCamera:
                 return
             
             # Check if student already has a record for today
-            exists = Attendance.objects.filter(
+            attendance = Attendance.objects.filter(
                 student=student, 
                 date=today
-            ).exists()
+            ).first()
             
-            if exists:
-                # Already marked for today - do nothing
-                pass
+            if attendance:
+                # Update sign-out time if it's been more than 10 seconds since arrival
+                signin_datetime = datetime.combine(today, attendance.time)
+                if (now - signin_datetime).total_seconds() > 10:
+                    attendance.sign_out_time = now.time()
+                    attendance.save()
             else:
-                # Create a new record - first time seen today
-                Attendance.objects.create(student=student, date=today, time=now.time())
-                print(f"✓ Attendance MARKED for {student.name} at {now.time().strftime('%I:%M:%S %p')}")
+                # Create a new record - check threshold for being 'Present'
+                from .models import SystemSettings
+                conf = SystemSettings.objects.first()
+                if not conf:
+                    conf = SystemSettings.objects.create()
+                
+                start_time = datetime.combine(today, conf.start_time)
+                threshold_time = start_time + timedelta(minutes=conf.absent_threshold_minutes)
+                
+                status = 'Present'
+                if now > threshold_time:
+                    status = 'Absent' # Arrived after threshold
+                
+                Attendance.objects.create(
+                    student=student, 
+                    date=today, 
+                    time=now.time(),
+                    status=status
+                )
+                print(f"✓ Attendance MARKED ({status}) for {student.name} at {now.time().strftime('%I:%M:%S %p')}")
         except Exception as e:
             print(f"Error in internal mark: {e}")
 

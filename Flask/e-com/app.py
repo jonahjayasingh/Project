@@ -61,6 +61,15 @@ app.register_blueprint(payment_routes, url_prefix='/payment')
 app.register_blueprint(store_routes, url_prefix='/store')
 
 
+@app.context_processor
+def inject_seller_status():
+    if 'user_id' in session and session.get('user_type') == 'seller':
+        user = User.query.get(session['user_id'])
+        if user and user.seller_profile:
+            return {'seller_status': user.seller_profile.status.value}
+    return {'seller_status': None}
+
+
 if __name__ == '__main__':
     with app.app_context():
         from models import (

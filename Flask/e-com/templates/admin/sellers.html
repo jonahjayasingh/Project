@@ -206,20 +206,23 @@ endblock %} {% block content %}
     style="border: none; overflow: hidden; display: flex; flex-direction: column; {% if seller.status.value == 'pending' %}border: 2px solid rgba(245, 158, 11, 0.3);{% endif %}"
   >
     <!-- Card Header with Status -->
-    <div
-      style="
-        background: linear-gradient(
-          135deg,
-          {% if seller.status.value == &quot;pending&quot; %}#fef3c7{% elif
-            seller.status.value == &quot;active&quot; %}#d1fae5{% elif
-            seller.status.value == &quot;suspended&quot; %}#fee2e2{% else
-            %}#f1f5f9{% endif %},
-          white
-        );
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-      "
-    >
+   {% if seller.status.value == "pending" %}
+  {% set bg_color = "#fef3c7" %}
+{% elif seller.status.value == "active" %}
+  {% set bg_color = "#d1fae5" %}
+{% elif seller.status.value == "suspended" %}
+  {% set bg_color = "#fee2e2" %}
+{% else %}
+  {% set bg_color = "#f1f5f9" %}
+{% endif %}
+
+<div
+  style="
+    background: linear-gradient(135deg, {{ bg_color }}, white);
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  "
+>
       <div class="flex-between" style="margin-bottom: 1rem">
         <div style="display: flex; align-items: center; gap: 1rem">
           <!-- Seller Avatar -->

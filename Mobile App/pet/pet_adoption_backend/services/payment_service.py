@@ -5,12 +5,27 @@ from models.pet import Pet
 from schemas.payment_schema import PaymentCreate, PaymentVerify
 
 # Razorpay credentials - In production, these should be environment variables
+<<<<<<< HEAD
 RAZORPAY_KEY_ID = "rzp_test_your_key_id"
 RAZORPAY_KEY_SECRET = "your_key_secret"
+=======
+RAZORPAY_KEY_ID ="rzp_test_SHY9NaXwt3rP5e"
+RAZORPAY_KEY_SECRET = "snECQKa7OGUw8ltfrBqtoPbc"
+>>>>>>> fac2c57 (add)
 
 client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 def create_order(db: Session, payment_data: PaymentCreate, user_id: int):
+<<<<<<< HEAD
+=======
+    # If featured_listing, check if already featured
+    if payment_data.payment_type == "featured_listing" and payment_data.pet_id:
+        pet = db.query(Pet).filter(Pet.id == payment_data.pet_id).first()
+        if pet and pet.is_featured:
+            from fastapi import HTTPException
+            raise HTTPException(status_code=400, detail="Pet is already featured")
+
+>>>>>>> fac2c57 (add)
     # Convert amount to paise (1 INR = 100 paise)
     amount_in_paise = int(payment_data.amount * 100)
     
@@ -20,7 +35,16 @@ def create_order(db: Session, payment_data: PaymentCreate, user_id: int):
         "payment_capture": "1"
     }
     
+<<<<<<< HEAD
     razorpay_order = client.order.create(data=order_data)
+=======
+    try:
+        razorpay_order = client.order.create(data=order_data)
+    except Exception as e:
+        from fastapi import HTTPException
+        print(f"Razorpay Order Error: {e}")
+        raise HTTPException(status_code=400, detail=f"Failed to create Razorpay order: {str(e)}")
+>>>>>>> fac2c57 (add)
     
     db_payment = Payment(
         user_id=user_id,
@@ -38,6 +62,10 @@ def create_order(db: Session, payment_data: PaymentCreate, user_id: int):
         "order_id": razorpay_order['id'],
         "amount": razorpay_order['amount'],
         "currency": razorpay_order['currency'],
+<<<<<<< HEAD
+=======
+        "razorpay_key": RAZORPAY_KEY_ID,
+>>>>>>> fac2c57 (add)
         "payment_id": db_payment.id
     }
 

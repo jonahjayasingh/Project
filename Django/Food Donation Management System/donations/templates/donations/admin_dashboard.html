@@ -1,5 +1,4 @@
-{% extends 'base.html' %} {% block title %}Admin Dashboard{% endblock %} {%
-block content %}
+{% extends 'base.html' %} {% block title %}Admin Dashboard{% endblock %} {%block content %}
 <div class="row align-items-center mb-5">
   <div class="col">
     <h1 class="display-5 fw-bold text-dark">Admin Dashboard</h1>
@@ -119,8 +118,7 @@ block content %}
         <div class="d-flex justify-content-between">
           <span class="text-muted">Success Rate:</span>
           <span class="fw-bold text-success">
-            {% if total_donations > 0 %} {{ delivered_donations|floatformat:0
-            }}% {% else %} 0% {% endif %}
+            {% if total_donations > 0 %} {{ delivered_donations|floatformat:0}}% {% else %} 0% {% endif %}
           </span>
         </div>
       </div>

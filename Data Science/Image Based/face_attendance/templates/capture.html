@@ -97,6 +97,9 @@
         {% csrf_token %}
         <input type="hidden" name="reg_id" value="{{ reg_id }}">
         <input type="hidden" name="name" value="{{ name }}">
+        <input type="hidden" name="address" value="{{ address }}">
+        <input type="hidden" name="dept" value="{{ dept }}">
+        <input type="hidden" name="staff_id" value="{{ staff_id }}">
         <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1rem;">
             <button type="submit" class="btn-submit"
                 style="margin-top: 0; display: flex; align-items: center; justify-content: center; gap: 0.75rem; font-size: 1.05rem; padding: 1rem;">

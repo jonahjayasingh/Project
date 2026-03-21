@@ -9,10 +9,11 @@ import json
 
 # Path to the model and encodings
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH = os.path.join(os.path.dirname(BASE_DIR), 'model', 'credit_card.joblib')
-CATEGORY_ENCODING_PATH = os.path.join(os.path.dirname(BASE_DIR), 'model', 'category_encoding.json')
-NAME_ENCODING_PATH = os.path.join(os.path.dirname(BASE_DIR), 'model', 'name_encoding.json')
+MODEL_PATH = os.path.join(os.path.dirname(BASE_DIR),"website", 'model', 'credit_card.joblib')
+CATEGORY_ENCODING_PATH = os.path.join(os.path.dirname(BASE_DIR), "website", 'model', 'category_encoding.json')
+NAME_ENCODING_PATH = os.path.join(os.path.dirname(BASE_DIR), "website", 'model', 'name_encoding.json')
 
+print(BASE_DIR)
 # Load the model and encodings
 model = None
 category_mapping = {}
@@ -30,6 +31,8 @@ if os.path.exists(NAME_ENCODING_PATH):
         name_mapping = json.load(f)
 
 def home(request):
+    print(MODEL_PATH)
+    print("Model loaded:", model is not None)
     """Public home page - no login required"""
     return render(request, "app/home.html")
 

@@ -343,7 +343,7 @@
             <div class="d-flex gap-3">
               <a
                 href="{% url 'mentor_students' %}"
-                class="btn btn-exec btn-exec-primary text-decoration-none" 
+                class="btn btn-exec btn-exec-primary text-decoration-none"
               >
                 <i class="fas fa-users"></i> View Students
               </a>
@@ -450,8 +450,8 @@
           >
             <option value="domains">By Domain</option>
             <option value="all-topics">All Topics</option>
-            {% regroup topic_distribution by domain as domain_list %} 
-            {% for d in domain_list %}
+            {% regroup topic_distribution by domain as domain_list %} {% for d
+            in domain_list %}
             <option value="domain_{{ d.grouper|default:'General' }}">
               Topics: {{ d.grouper|default:'General' }}
             </option>
@@ -587,7 +587,10 @@
           Command Center
         </h6>
         <div class="d-grid gap-2">
-          <a href="{% url 'mentor_domains' %}" class="btn-nav text-decoration-none">
+          <a
+            href="{% url 'mentor_domains' %}"
+            class="btn-nav text-decoration-none"
+          >
             <div
               class="bg-indigo-subtle p-2 rounded-3 text-indigo"
               style="background: rgba(99, 102, 241, 0.2)"
@@ -596,7 +599,11 @@
             </div>
             Domain Management
           </a>
-          <a href="{% url 'grade_submissions' %}" class="btn-nav text-decoration-none">
+          {% if request.user.role == 'mentor' %}
+          <a
+            href="{% url 'grade_submissions' %}"
+            class="btn-nav text-decoration-none"
+          >
             <div
               class="bg-amber-subtle p-2 rounded-3 text-amber"
               style="background: rgba(245, 158, 11, 0.2)"
@@ -605,7 +612,14 @@
             </div>
             Submissions Center
           </a>
+<<<<<<< HEAD
           <a href="{% url 'mentor_students' %}" class="btn-nav">
+=======
+          <a
+            href="{% url 'mentor_students' %}"
+            class="btn-nav text-decoration-none"
+          >
+>>>>>>> fac2c57 (add)
             <div
               class="bg-emerald-subtle p-2 rounded-3 text-emerald"
               style="background: rgba(16, 185, 129, 0.2)"
@@ -614,7 +628,15 @@
             </div>
             Student Directory
           </a>
+<<<<<<< HEAD
           <a href="{% url 'add_placement_resource' %}" class="btn-nav text-decoration-none">
+=======
+          {% endif %}
+          <a
+            href="{% url 'add_placement_resource' %}"
+            class="btn-nav text-decoration-none"
+          >
+>>>>>>> fac2c57 (add)
             <div
               class="bg-info-subtle p-2 rounded-3 text-info"
               style="background: rgba(14, 165, 233, 0.2)"
@@ -683,9 +705,9 @@
               <div
                 class="rank-badge rank-{% if forloop.counter <= 3 %}{{ forloop.counter }}{% else %}default{% endif %}"
               >
-                {% if forloop.counter == 1 %}<i class="fas fa-medal"></i> 
-                {% elif forloop.counter == 2 %}<i class="fas fa-award"></i> 
-                {% elif forloop.counter == 3 %}<i class="fas fa-certificate"></i>
+                {% if forloop.counter == 1 %}<i class="fas fa-medal"></i> {%
+                elif forloop.counter == 2 %}<i class="fas fa-award"></i> {% elif
+                forloop.counter == 3 %}<i class="fas fa-certificate"></i>
                 {% else %}{{ forloop.counter }}{% endif %}
               </div>
               <div class="flex-grow-1">

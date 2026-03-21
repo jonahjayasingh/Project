@@ -142,6 +142,16 @@ class Gallery(models.Model):
     caption = models.CharField(max_length=255,default="")
     gallery_type = models.CharField(max_length=255,default="")
 
+    def __str__(self):
+        return self.caption or f"Gallery {self.id}"
+
+class GalleryImage(models.Model):
+    gallery = models.ForeignKey(Gallery, on_delete=models.CASCADE, related_name="images")
+    image = models.ImageField(upload_to="gallery_images")
+
+    def __str__(self):
+        return f"Image for {self.gallery.caption}"
+
 class Mcq(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE, related_name="mcqs")
     mcq_title = models.CharField(max_length=255)
@@ -167,6 +177,7 @@ class Events(models.Model):
     event_location = models.CharField(max_length=255)
     event_description = models.TextField()
     event_image = models.ImageField(upload_to="events")
+
 
 
 

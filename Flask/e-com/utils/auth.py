@@ -34,6 +34,29 @@ def seller_required(f):
     return decorated_function
 
 
+def active_seller_required(f):
+    """Decorator to require ACTIVE seller status for a route"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please log in to access this page.', 'error')
+            return redirect(url_for('auth.login'))
+        
+        from models import User, SellerStatus
+        user = User.query.get(session['user_id'])
+        
+        if not user or not hasattr(user, 'seller_profile') or not user.seller_profile:
+            flash('You must be a seller to access this page.', 'error')
+            return redirect(url_for('seller.become_seller'))
+            
+        if user.seller_profile.status != SellerStatus.ACTIVE:
+            flash('Your seller account is awaiting administrator approval. You cannot perform this action yet.', 'warning')
+            return redirect(url_for('seller.dashboard'))
+        
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def customer_required(f):
     """Decorator to require customer access (just logged in)"""
     @wraps(f)
